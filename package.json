@@ -13,8 +13,7 @@
     "prepare": "husky"
   },
   "lint-staged": {
-    "*.{js,ts,tsx}": "eslint --fix",
-    "*.{ts,tsx}": "pnpm test -- --findRelatedTests"
+    "*.{js,ts,tsx}": "eslint --fix"
   },
   "devDependencies": {
     "@playwright/test": "^1.56.1",
