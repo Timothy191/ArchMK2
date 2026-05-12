@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: plantcor-n8n
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=plantcor
+      - N8N_BASIC_AUTH_PASSWORD=plantcor
+      - N8N_ENCRYPTION_KEY=plantcor-secret-key-change-in-production
+      - WEBHOOK_URL=http://localhost:5678/
+    volumes:
+      - n8n_data:/home/node/.n8n
+    networks:
+      - plantcor-tools
+
+  flowise:
+    image: flowiseai/flowise:latest
+    container_name: plantcor-flowise
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      - FLOWISE_USERNAME=plantcor
+      - FLOWISE_PASSWORD=plantcor
+      - FLOWISE_SECRETKEY_OVERWRITE=plantcor-secret-key-change-in-production
+    volumes:
+      - flowise_data:/root/.flowise
+    networks:
+      - plantcor-tools
+
+volumes:
+  n8n_data:
+  flowise_data:
+
+networks:
+  plantcor-tools:
+    driver: bridge

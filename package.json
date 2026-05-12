@@ -1,11 +1,11 @@
 {
-  "name": "turborepo-shadcn-ui",
+  "name": "plantcor-os",
   "version": "1.5.1",
   "private": true,
   "license": "MIT",
   "scripts": {
     "build": "turbo build",
-    "dev": "turbo dev",
+    "dev": "turbo run dev --filter=portal",
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "ui": "pnpm --filter @repo/ui ui",
