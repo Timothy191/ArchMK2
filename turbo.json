@@ -18,9 +18,9 @@
       "cache": false,
       "persistent": true
     },
-    "test": { 
-      "dependsOn": ["^test"], 
-      "outputs": [] 
+    "test": {
+      "dependsOn": ["^test"],
+      "outputs": []
     }
   }
 }

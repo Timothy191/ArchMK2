@@ -1,4 +1,4 @@
-export type { SupabaseClient } from '@supabase/supabase-js';
+export type { SupabaseClient } from "@supabase/supabase-js";
 
 export interface Department {
   id: string;
@@ -13,7 +13,7 @@ export interface Employee {
   id: string;
   email: string;
   full_name: string | null;
-  role: 'admin' | 'supervisor' | 'operator' | 'viewer';
+  role: "admin" | "supervisor" | "operator" | "viewer";
   department_id: string | null;
   accessible_departments: string[];
   badge_number: string | null;
@@ -35,7 +35,7 @@ export interface DailyLog {
   id: string;
   department_id: string;
   log_date: string;
-  shift: 'day' | 'night';
+  shift: "day" | "night";
   supervisor_id: string | null;
   notes: string | null;
   created_at: string;
@@ -71,7 +71,7 @@ export interface Backup {
   department_id: string | null;
   backup_date: string;
   file_url: string;
-  file_type: 'csv' | 'json' | 'sql';
+  file_type: "csv" | "json" | "sql";
   created_by: string | null;
   created_at: string;
 }

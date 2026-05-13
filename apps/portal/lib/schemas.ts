@@ -1,8 +1,8 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 export const dailyLogSchema = z.object({
-  log_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format'),
-  shift: z.enum(['day', 'night']),
+  log_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format"),
+  shift: z.enum(["day", "night"]),
   notes: z.string().optional(),
 });
 
@@ -23,9 +23,11 @@ export const productionLogSchema = z.object({
 
 export const dailyLogFormSchema = z.object({
   log_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  shift: z.enum(['day', 'night']),
+  shift: z.enum(["day", "night"]),
   notes: z.string().optional(),
-  machine_hours: z.array(machineHourSchema).min(1, 'At least one machine hour entry required'),
+  machine_hours: z
+    .array(machineHourSchema)
+    .min(1, "At least one machine hour entry required"),
   fuel_logs: z.array(fuelLogSchema).optional(),
   production: productionLogSchema.optional(),
 });

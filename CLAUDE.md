@@ -26,6 +26,7 @@ Plantcor OS is a multi-departmental business portal for an opencast coal mine. I
 - Shared constants (like `DEPARTMENT_TABS`) must live in `packages/ui` or a shared config package, not in the app.
 
 Violation example that broke a build:
+
 ```typescript
 // BAD — packages/ui/src/components/DepartmentLayout.tsx
 import { DEPARTMENT_TABS } from "../../../apps/portal/lib/departments"; // ❌
@@ -36,6 +37,7 @@ import { DEPARTMENT_TABS } from "../../../apps/portal/lib/departments"; // ❌
 ## Critical Rule: Supabase SSR Split
 
 **`next/headers` is server-only.** If it enters a client bundle, Next.js throws:
+
 > `next/headers` only works in Server Components
 
 To prevent this, `@repo/supabase` uses explicit subpath exports. **Never import the server client from the barrel file.**
@@ -59,11 +61,13 @@ The barrel file (`packages/supabase/src/index.ts`) intentionally does NOT export
 ## Auth & RBAC Flow
 
 1. **Middleware** (`apps/portal/middleware.ts`):
+
    - Redirects unauthenticated users to `/login`
    - Checks `user.user_metadata.role` and `user.user_metadata.department_id` for department isolation
    - Restricted routes (`/control-room`, `/tools`) require specific roles
 
 2. **Login** (`app/login/LoginForm.tsx`):
+
    - Client component using `createBrowserSupabaseClient`
    - Email/password sign-in
 
@@ -83,6 +87,7 @@ auth.has_department_access(dept_id UUID)  → checks department match or accessi
 ```
 
 Tables:
+
 - `departments` — 7 rows (drilling, production, access-control, engineering, control-room, safety, training)
 - `employees` — linked to `auth.users` via `auth_id`
 - `machines` — per-department equipment
@@ -93,14 +98,14 @@ Tables:
 
 All department routes live under `app/(departments)/[department]/`:
 
-| Route | Purpose |
-|-------|---------|
-| `/[dept]` | Dashboard with today's summary cards |
+| Route               | Purpose                                             |
+| ------------------- | --------------------------------------------------- |
+| `/[dept]`           | Dashboard with today's summary cards                |
 | `/[dept]/daily-log` | Submit shift logs (machine hours, fuel, production) |
-| `/[dept]/machines` | List department machines |
-| `/[dept]/history` | Browse past daily logs |
-| `/[dept]/reports` | Aggregate data + CSV export |
-| `/[dept]/tools` | iframe embeds for n8n / Flowise |
+| `/[dept]/machines`  | List department machines                            |
+| `/[dept]/history`   | Browse past daily logs                              |
+| `/[dept]/reports`   | Aggregate data + CSV export                         |
+| `/[dept]/tools`     | iframe embeds for n8n / Flowise                     |
 
 ## UI Patterns
 
@@ -111,13 +116,13 @@ All department routes live under `app/(departments)/[department]/`:
 
 ## Common Pitfalls
 
-| Issue | Cause | Fix |
-|-------|-------|-----|
-| `next/headers` build error | Server client imported from barrel | Use `@repo/supabase/server` |
-| `Module not found` across packages | Import from `apps/` into `packages/` | Move shared code to `packages/` |
-| Dashboard crash on multi-shift | `.single()` with 2 logs/day | Use `.maybeSingle()` or aggregate |
-| Daily log form hidden after 1st shift | Checks any log, not per-shift | Filter by shift in existence check |
-| Trigger fails on signup | `raw_user_meta` vs `raw_user_meta_data` | Fix column name in trigger |
+| Issue                                 | Cause                                   | Fix                                |
+| ------------------------------------- | --------------------------------------- | ---------------------------------- |
+| `next/headers` build error            | Server client imported from barrel      | Use `@repo/supabase/server`        |
+| `Module not found` across packages    | Import from `apps/` into `packages/`    | Move shared code to `packages/`    |
+| Dashboard crash on multi-shift        | `.single()` with 2 logs/day             | Use `.maybeSingle()` or aggregate  |
+| Daily log form hidden after 1st shift | Checks any log, not per-shift           | Filter by shift in existence check |
+| Trigger fails on signup               | `raw_user_meta` vs `raw_user_meta_data` | Fix column name in trigger         |
 
 ## Environment Variables
 

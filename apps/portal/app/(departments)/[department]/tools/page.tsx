@@ -1,6 +1,6 @@
 import { DEPARTMENTS } from "~/lib/departments";
-import { notFound } from 'next/navigation';
-import { GlassCard } from '@repo/ui/GlassCard';
+import { notFound } from "next/navigation";
+import { GlassCard } from "@repo/ui/GlassCard";
 
 interface ToolConfig {
   name: string;
@@ -10,14 +10,14 @@ interface ToolConfig {
 
 const TOOLS: ToolConfig[] = [
   {
-    name: 'n8n',
-    url: 'http://localhost:5678',
-    description: 'Workflow automation and integration platform',
+    name: "n8n",
+    url: "http://localhost:5678",
+    description: "Workflow automation and integration platform",
   },
   {
-    name: 'Flowise',
-    url: 'http://localhost:3001',
-    description: 'LangChain flow builder for AI orchestration',
+    name: "Flowise",
+    url: "http://localhost:3001",
+    description: "LangChain flow builder for AI orchestration",
   },
 ];
 
@@ -26,7 +26,7 @@ export default async function ToolsPage({
 }: {
   params: { department: string };
 }) {
-  const dept = DEPARTMENTS.find(d => d.name === params.department);
+  const dept = DEPARTMENTS.find((d) => d.name === params.department);
   if (!dept) notFound();
 
   return (
@@ -34,11 +34,13 @@ export default async function ToolsPage({
       <h2 className="text-2xl font-semibold text-white">Tools</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {TOOLS.map(tool => (
+        {TOOLS.map((tool) => (
           <GlassCard key={tool.name} className="flex flex-col">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-lg font-semibold text-white">{tool.name}</h3>
+                <h3 className="text-lg font-semibold text-white">
+                  {tool.name}
+                </h3>
                 <p className="text-white/50 text-sm">{tool.description}</p>
               </div>
               <a

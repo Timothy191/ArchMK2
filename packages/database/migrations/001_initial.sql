@@ -115,7 +115,7 @@ RETURNS BOOLEAN AS $$
   SELECT auth.is_admin()
   OR auth.user_department_id() = dept_id
   OR dept_id = ANY(
-    SELECT accessible_departments FROM employees WHERE id = auth.uid()
+    (SELECT accessible_departments FROM employees WHERE id = auth.uid())
   );
 $$ LANGUAGE sql STABLE SECURITY DEFINER;
 
@@ -165,9 +165,9 @@ BEGIN
   VALUES (
     NEW.id,
     NEW.email,
-    COALESCE(NEW.raw_user_meta->>'full_name', NEW.email),
-    COALESCE((NEW.raw_user_meta->>'role')::text, 'operator'),
-    COALESCE((NEW.raw_user_meta->>'department_id')::uuid, NULL)
+    COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.email),
+    COALESCE((NEW.raw_user_meta_data->>'role')::text, 'operator'),
+    COALESCE((NEW.raw_user_meta_data->>'department_id')::uuid, NULL)
   );
   RETURN NEW;
 END;

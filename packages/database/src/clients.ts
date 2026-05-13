@@ -1,13 +1,5 @@
-import { createSupabaseClient } from '@repo/supabase';
+import { createServerSupabaseClient } from "@repo/supabase/server";
 
-export const createEmployeeClient = () =>
-  createSupabaseClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_KEY!
-  );
+export const createEmployeeClient = () => createServerSupabaseClient();
 
-export const createMachineClient = () =>
-  createSupabaseClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_KEY!
-  );
+export const createMachineClient = () => createServerSupabaseClient();

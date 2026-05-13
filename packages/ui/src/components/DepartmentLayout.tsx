@@ -1,16 +1,15 @@
-'use client';
-import { cn } from '../lib/utils';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-export const DEPARTMENT_TABS = [
-  { name: 'dashboard',  label: 'Dashboard',  icon: 'ChartBar' },
-  { name: 'daily-log',  label: 'Daily Log',  icon: 'ClipboardText' },
-  { name: 'machines',   label: 'Machines',   icon: 'Engine' },
-  { name: 'history',    label: 'History',    icon: 'ClockCounterClockwise' },
-  { name: 'reports',    label: 'Reports',    icon: 'FileText' },
-  { name: 'tools',      label: 'Tools',      icon: 'Wrench' },
-] as const;
-import { motion } from 'framer-motion';
+"use client";
+
+import { cn } from "../lib/utils";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { motion } from "framer-motion";
+
+interface Tab {
+  name: string;
+  label: string;
+  icon: string;
+}
 
 interface DepartmentLayoutProps {
   department: {
@@ -19,35 +18,48 @@ interface DepartmentLayoutProps {
     icon: string;
     color: string;
   };
+  tabs: readonly Tab[];
   children: React.ReactNode;
 }
 
-export function DepartmentLayout({ department, children }: DepartmentLayoutProps) {
+export function DepartmentLayout({
+  department,
+  tabs,
+  children,
+}: DepartmentLayoutProps) {
   const pathname = usePathname();
   const basePath = `/${department.name}`;
 
   return (
     <div className="flex h-screen">
-      <aside className="w-60 shrink-0 backdrop-blur-md bg-white/5 border-r border-white/10 flex flex-col">
-        <div className="p-4 border-b border-white/10">
-          <Link href="/" className="text-white/40 text-xs hover:text-white/60 transition-colors">
+      <aside className="w-60 shrink-0 border-r border-[#363636] bg-[#171717] flex flex-col">
+        <div className="p-4 border-b border-[#363636]">
+          <Link
+            href="/"
+            className="text-[#898989] text-xs hover:text-[#b4b4b4] transition-colors"
+          >
             &larr; Back to Hub
           </Link>
-          <h2 className="text-lg font-semibold text-white mt-2">{department.displayName}</h2>
+          <h2 className="text-lg font-medium text-[#fafafa] mt-2">
+            {department.displayName}
+          </h2>
         </div>
         <nav className="flex-1 p-2 space-y-1">
-          {DEPARTMENT_TABS.map(tab => {
-            const href = tab.name === 'dashboard' ? basePath : `${basePath}/${tab.name}`;
-            const isActive = pathname === href || (tab.name === 'dashboard' && pathname === basePath);
+          {tabs.map((tab) => {
+            const href =
+              tab.name === "dashboard" ? basePath : `${basePath}/${tab.name}`;
+            const isActive =
+              pathname === href ||
+              (tab.name === "dashboard" && pathname === basePath);
             return (
               <Link
                 key={tab.name}
                 href={href}
                 className={cn(
-                  'flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors',
+                  "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors",
                   isActive
-                    ? 'bg-white/10 text-white border-l-2 border-blue-500'
-                    : 'text-white/60 hover:text-white hover:bg-white/5'
+                    ? "bg-[#2e2e2e] text-[#fafafa] border-l-2 border-[#3ecf8e]"
+                    : "text-[#898989] hover:text-[#fafafa] hover:bg-[#242424]",
                 )}
               >
                 {tab.label}
