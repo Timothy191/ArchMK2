@@ -4,11 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ---
 
-# Plantcor OS — Claude Code Guide
+# Arch Systems — Claude Code Guide
 
 ## Project Overview
 
-Plantcor OS is a multi-departmental business portal for an opencast coal mine. It is a single Next.js 14 App Router application within a Turborepo monorepo, using Supabase for auth and PostgreSQL with Row Level Security (RLS).
+Arch Systems is a multi-departmental business portal for an opencast coal mine. It is a single Next.js 14 App Router application within a Turborepo monorepo, using Supabase for auth and PostgreSQL with Row Level Security (RLS).
 
 **Tech Stack:**
 - **Frontend:** Next.js 14 (App Router), React 18, Tailwind CSS, Framer Motion
@@ -22,6 +22,9 @@ Plantcor OS is a multi-departmental business portal for an opencast coal mine. I
 ```
 ├── apps/
 │   └── portal/              # Next.js 14 app (the only frontend)
+│       ├── app/             # Route groups: (auth), (departments), (hub)
+│       ├── features/        # Co-located feature components (auth, departments, hub)
+│       └── lib/             # App-level constants (departments.ts, machines.ts)
 ├── packages/
 │   ├── ui/                  # Shared UI components (GlassCard, DepartmentLayout, shadcn)
 │   ├── supabase/            # Supabase SSR clients (CRITICAL: see SSR Split below)
@@ -43,6 +46,10 @@ Plantcor OS is a multi-departmental business portal for an opencast coal mine. I
 - `@repo/supabase/server` — Server Components, Server Actions, Middleware
 - `@repo/supabase/client` — Client Components (browser)
 - `@repo/supabase/middleware` — Next.js middleware
+
+### Dependency Management
+
+The monorepo uses pnpm workspace catalogs (`pnpm-workspace.yaml`) to share dependency versions across packages. When adding a new dependency that exists in the catalog, prefer the `catalog:` or `catalog:react18` specifier over a hardcoded version.
 
 ## Critical Rule: Monorepo Boundaries
 
@@ -91,7 +98,11 @@ The barrel file (`packages/supabase/src/index.ts`) intentionally does NOT export
 
    - Redirects unauthenticated users to `/login`
    - Checks `user.user_metadata.role` and `user.user_metadata.department_id` for department isolation
-   - Restricted routes (`/control-room`, `/tools`) require specific roles
+   - Restricted routes require specific roles:
+     - `/control-room` → `control_room_operator` or `admin`
+     - `/tools` (any dept) → `admin` or `supervisor`
+     - `/admin` → `admin` only
+   - Caches department slug → UUID lookups in memory with a 60s TTL to avoid repeated DB hits
 
 2. **Login** (`app/login/LoginForm.tsx`):
 
@@ -134,9 +145,14 @@ All department routes live under `app/(departments)/[department]/`:
 | `/[dept]/reports`   | Aggregate data + CSV export                         |
 | `/[dept]/tools`     | iframe embeds for n8n / Flowise                     |
 
+The `features/` directory co-locates reusable components by domain:
+- `features/auth/components/LoginForm.tsx`
+- `features/departments/components/control-room/AlertPanel.tsx`
+- `features/hub/components/DepartmentCard.tsx`
+
 ## UI Patterns
 
-- **Glassmorphism**: `backdrop-blur-md bg-white/5 border border-white/10 rounded-xl`
+- **Glassmorphism**: `backdrop-blur-md bg-[#171717] border border-[#363636] rounded-xl`
 - **Colors**: Static `colorStyles` map in `app/page.tsx` (avoids dynamic Tailwind class purging)
 - **Motion**: `framer-motion` for hover scale/y-offset on cards
 - **Icons**: Inline SVGs (not `@phosphor-icons/react` which is installed but unused)
@@ -172,7 +188,7 @@ Global environment variables configured in `turbo.json`: `NEXT_PUBLIC_SUPABASE_U
 ## Commands
 
 ```bash
-# Dev server (runs portal app)
+# Dev server (runs portal app on localhost:3000)
 pnpm dev
 
 # Type check
@@ -190,11 +206,26 @@ pnpm lint
 # Format code
 pnpm format
 
-# Run E2E tests (ensure dev server running first)
+# E2E tests (dev server must be running on :3000 first)
 pnpm test:e2e
+
+# Unit tests (all)
+pnpm --filter portal test
+
+# Unit test — single file or pattern
+pnpm --filter portal test -- AlertPanel
 
 # Supabase local development
 pnpm --filter @repo/database supabase:dev
+
+# Push local migrations to remote
+pnpm --filter @repo/database supabase:push
+
+# Reset local Supabase DB (destructive)
+pnpm --filter @repo/database supabase:reset
+
+# Add shadcn component
+pnpm ui
 
 # Docker tools (n8n + Flowise)
 docker compose -f docker-compose.tools.yml up -d
@@ -203,24 +234,9 @@ docker compose -f docker-compose.tools.yml up -d
 pnpm deploy:local
 ```
 
-### Package-Specific Commands
-
-```bash
-# UI component development
-pnpm ui                    # Opens shadcn CLI
-
-# Database migrations
-pnpm --filter @repo/database supabase:push    # Push local migrations to remote
-pnpm --filter @repo/database supabase:pull    # Pull remote schema to local
-```
-
 ## Testing
 
 ### E2E Tests (Playwright)
-
-```bash
-pnpm test:e2e
-```
 
 Config in `playwright.config.ts`:
 - Test dir: `./e2e`
@@ -229,13 +245,14 @@ Config in `playwright.config.ts`:
 
 ### Unit Tests (Jest)
 
-```bash
-pnpm --filter portal test
-```
+Config in `apps/portal/jest.config.js`:
+- Preset: `ts-jest` with `jsdom` environment
+- Setup: `setupTests.ts`
+- Module mapper: `@/` and `~/` both resolve to `<rootDir>/`
 
 ## Design System Reviewer
 
-A custom agent (`design-system-reviewer.md`) audits diffs for visual regressions and forbidden patterns:
+A custom agent (`.claude/agents/design-system-reviewer.md`) audits diffs for visual regressions and forbidden patterns:
 
 **Forbidden:**
 - `bg-white/5`, `bg-white/10`, `border-white/10`, `text-white/50`, `text-white/70`
@@ -251,6 +268,14 @@ A custom agent (`design-system-reviewer.md`) audits diffs for visual regressions
 - `text-[#3ecf8e]`, `text-[#00c573]`
 - `focus:ring-[#3ecf8e]/30`
 
+## Claude Code Configuration
+
+The repository includes project-specific Claude Code automation:
+
+- `.claude/agents/` — Custom review agents (design-system, security, test-writer)
+- `.claude/skills/` — Reusable skills (create-migration, pr-check, project-conventions)
+- `.claude/settings.json` — Automated hooks that run type-check, lint, design-system audit, and unit tests after file edits
+
 ## Additional Notes
 
 ### Hub and Control Room
@@ -259,3 +284,7 @@ Recent additions (git: c44c52c):
 - `/hub` route restored with loading/error boundaries
 - `/control-room` route added with specialized components
 - Admin routes under `/app/admin/`
+
+### Next.js Configuration
+
+`apps/portal/next.config.mjs` is minimal and only sets `transpilePackages: ["@repo/ui", "@repo/supabase"]`.

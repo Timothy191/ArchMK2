@@ -14,7 +14,7 @@ export default function HubLayout({
         <div className="flex items-center justify-between px-6 py-3">
           <div className="flex items-center gap-3">
             <span className="text-lg font-medium text-[#fafafa]">
-              Plantcor OS
+              Arch-Systems
             </span>
             <span className="px-2 py-0.5 rounded-full bg-[#242424] text-[#898989] text-xs border border-[#363636]">
               Hub

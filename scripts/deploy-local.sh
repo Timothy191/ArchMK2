@@ -37,15 +37,17 @@ fi
 cd "$DB_DIR"
 
 log "Checking Supabase status..."
-if ! pnpm exec supabase status > /dev/null 2>&1; then
+# Check if Kong gateway container is running as proxy for Supabase being up
+if docker ps --format '{{.Names}}' | grep -q 'supabase_kong'; then
+  log "Supabase is already running (Kong gateway detected)."
+else
   log "Supabase not running. Starting..."
   pnpm exec supabase start
-else
-  log "Supabase is already running."
 fi
 
 log "Waiting for Supabase API to be healthy..."
-if healthcheck "http://127.0.0.1:54321/health" 30; then
+# Use REST API root (returns OpenAPI spec) since /health may not be exposed by Kong
+if healthcheck "http://127.0.0.1:54321/rest/v1/" 30; then
   log "Supabase API is healthy."
 else
   log "ERROR: Supabase API did not become healthy in time."

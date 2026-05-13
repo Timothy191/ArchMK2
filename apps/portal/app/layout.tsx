@@ -2,7 +2,7 @@ import "@repo/ui/globals.css";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Plantcor OS",
+  title: "Arch-Systems",
   description: "Multi-departmental operations portal",
 };
 

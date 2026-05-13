@@ -1,11 +1,11 @@
 ---
 name: project-conventions
-description: Project-specific conventions for the Plantcor OS monorepo. Load before any implementation or review task in this codebase. Enforces monorepo, Next.js App Router, Supabase, and dark-mode design system rules.
+description: Project-specific conventions for the Arch Systems monorepo. Load before any implementation or review task in this codebase. Enforces monorepo, Next.js App Router, Supabase, and dark-mode design system rules.
 user-invocable: false
 disable-model-invocation: false
 ---
 
-# Plantcor OS Project Conventions
+# Arch Systems Project Conventions
 
 ## Monorepo
 
