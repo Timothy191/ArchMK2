@@ -7,6 +7,9 @@
     "playwright": {
       "command": "npx",
       "args": ["-y", "@playwright/mcp@latest"]
+    },
+    "_supabase_readme": {
+      "note": "To enable Supabase MCP for cloud projects, run: claude mcp login supabase. For local Supabase, the /mcp endpoint serves Studio UI (not SSE). Use psql or the Supabase Studio web UI instead."
     }
   }
 }
