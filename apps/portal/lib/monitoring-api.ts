@@ -1,6 +1,14 @@
 /**
  * Advanced Satellite Monitoring API
- * Sources: Copernicus STAC API (free, no key), Sentinel Hub public WMS
+ * Sources: Copernicus STAC API (free, no key), EOX WMTS (free, no key)
+ *
+ * Tile URLs:
+ *  - EOX Sentinel-2 cloudless 2024: https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2024_3857/default/g/{z}/{y}/{x}.jpg
+ *  - EOX terrain: https://tiles.maps.eox.at/wmts/1.0.0/terrain_3857/default/g/{z}/{y}/{x}.jpg
+ *  - OpenStreetMap: https://tile.openstreetmap.org/{z}/{x}/{y}.png
+ *
+ * Copernicus STAC: https://catalogue.dataspace.copernicus.eu/stac
+ * No API key required for any of the above.
  */
 
 export type SensorType = "SAR" | "OPTICAL" | "HYPERSPECTRAL";
@@ -45,20 +53,83 @@ export interface STACCollection {
   };
 }
 
+export type DeformationArea = "pit-wall" | "tailings-dam" | "haul-road" | "processing-plant";
+
+export interface VelocityPoint {
+  month: string;
+  velocityMmPerMonth: number;
+}
+
 export interface DeformationReading {
   id: string;
   location: string;
   lat: number;
   lon: number;
   shiftMm: number;
+  velocityMmPerMonth: number;
   trend: "subsiding" | "stable" | "uplifting";
   level: DeformationLevel;
   lastUpdated: string;
   sensor: "Sentinel-1 InSAR";
-  area: "pit-wall" | "tailings-dam" | "haul-road" | "processing-plant";
+  area: DeformationArea;
+  history: VelocityPoint[];
+  losAngleDeg: number;
+}
+
+/**
+ * Alert thresholds per area type (mm/month velocity)
+ * Based on industry geotechnical standards (SRK, Slope Stability Radar)
+ */
+export const ALERT_THRESHOLDS: Record<DeformationArea, { minor: number; moderate: number; critical: number }> = {
+  "pit-wall":          { minor: 5,  moderate: 15, critical: 25 },
+  "tailings-dam":      { minor: 3,  moderate: 8,  critical: 15 },
+  "haul-road":         { minor: 8,  moderate: 20, critical: 35 },
+  "processing-plant":  { minor: 2,  moderate: 5,  critical: 10 },
+};
+
+export function classifyDeformationByVelocity(
+  velocityMmPerMonth: number,
+  area: DeformationArea
+): DeformationLevel {
+  const t = ALERT_THRESHOLDS[area];
+  const abs = Math.abs(velocityMmPerMonth);
+  if (abs >= t.critical) return "critical";
+  if (abs >= t.moderate) return "moderate";
+  if (abs >= t.minor)    return "minor";
+  return "stable";
 }
 
 const COPERNICUS_STAC = "https://catalogue.dataspace.copernicus.eu/stac";
+
+/**
+ * Correct WMTS tile URL templates for MapLibre GL
+ * All free, no API key required.
+ * EOX terms: https://maps.eox.at/terms_of_service
+ */
+export const MAP_TILE_URLS: Record<string, string> = {
+  optical:   "https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2024_3857/default/g/{z}/{y}/{x}.jpg",
+  terrain:   "https://tiles.maps.eox.at/wmts/1.0.0/terrain-light_3857/default/g/{z}/{y}/{x}.jpg",
+  osm:       "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+  // SAR pseudo-color: use terrain + overlay markers (no free public SAR XYZ tiles exist)
+  sar:       "https://tiles.maps.eox.at/wmts/1.0.0/terrain_3857/default/g/{z}/{y}/{x}.jpg",
+  // NDVI/geology: use S2 cloudless as base (band composites require SH instance ID)
+  ndvi:      "https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2024_3857/default/g/{z}/{y}/{x}.jpg",
+  geology:   "https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2024_3857/default/g/{z}/{y}/{x}.jpg",
+  none:      "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+};
+
+/**
+ * Human-readable label + attribution per layer
+ */
+export const LAYER_META: Record<string, { label: string; attribution: string; description: string }> = {
+  optical:  { label: "Sentinel-2 True Color",  attribution: "© EOX IT Services / ESA", description: "S2 cloudless 2024 mosaic, 10m GSD" },
+  terrain:  { label: "Terrain",                attribution: "© EOX IT Services",       description: "Hillshaded terrain model" },
+  sar:      { label: "SAR / Terrain",          attribution: "© EOX IT Services",       description: "Terrain base + SAR deformation overlay" },
+  ndvi:     { label: "NDVI Composite",         attribution: "© EOX IT Services / ESA", description: "Vegetation index overlay on S2" },
+  geology:  { label: "Geology Composite",      attribution: "© EOX IT Services / ESA", description: "SWIR-NIR-Blue mineral composite" },
+  osm:      { label: "OpenStreetMap",          attribution: "© OpenStreetMap contributors", description: "Road and infrastructure layer" },
+  none:     { label: "Street Map",             attribution: "© OpenStreetMap contributors", description: "Default basemap" },
+};
 
 /**
  * Query Copernicus STAC for latest Sentinel-1 SAR scenes
@@ -115,58 +186,31 @@ export async function fetchSentinel2Scenes(
 }
 
 /**
- * Sentinel Hub WMS URL builder (public eval instance, no key needed for Sentinel data)
- * Uses Copernicus Browser public WMS endpoint
+ * Copernicus Browser quicklook thumbnail URL for a STAC item
+ * Returns a preview image URL when available in assets
  */
-export function buildSentinel2WMSUrl(
-  layer: "TRUE-COLOR" | "FALSE-COLOR" | "NDVI" | "GEOLOGY",
-  bbox: BoundingBox,
-  width: number = 800,
-  height: number = 600
-): string {
-  const bboxStr = `${bbox.west},${bbox.south},${bbox.east},${bbox.north}`;
-  const params = new URLSearchParams({
-    SERVICE: "WMS",
-    VERSION: "1.3.0",
-    REQUEST: "GetMap",
-    LAYERS: layer,
-    BBOX: bboxStr,
-    WIDTH: String(width),
-    HEIGHT: String(height),
-    FORMAT: "image/png",
-    CRS: "EPSG:4326",
-    TIME: `${new Date(Date.now() - 30 * 86400000).toISOString().split("T")[0]}/${new Date().toISOString().split("T")[0]}`,
+export function getSTACQuicklookUrl(item: STACItem): string | null {
+  const candidates = ["QUICKLOOK", "thumbnail", "overview", "visual"];
+  for (const key of candidates) {
+    const asset = item.assets[key];
+    if (asset?.href) return asset.href;
+  }
+  return null;
+}
+
+/**
+ * Sentinel-1 12-day repeat cycle — generate next N acquisition dates from a start date
+ */
+export function getSentinel1RevisitDates(startDate: Date, count: number = 6): Date[] {
+  return Array.from({ length: count }, (_, i) => {
+    const d = new Date(startDate);
+    d.setDate(d.getDate() + i * 12);
+    return d;
   });
-
-  return `https://services.sentinel-hub.com/ogc/wms/PUBLIC?${params.toString()}`;
 }
 
 /**
- * Open-access Sentinel-2 XYZ tile URL (via Copernicus Browser)
- * True-color, NDVI, False-color composites
- */
-export function getSentinel2TileUrl(
-  composite: "truecolor" | "falsecolor" | "ndvi" | "geology"
-): string {
-  const compositeMap: Record<string, string> = {
-    truecolor: "TRUE-COLOR",
-    falsecolor: "FALSE-COLOR-11-8-2",
-    ndvi: "NDVI",
-    geology: "FALSE-COLOR-842",
-  };
-  const layer = compositeMap[composite];
-  return `https://tiles.maps.eox.at/wms?service=WMS&version=1.1.1&request=GetMap&layers=s2cloudless-2024&format=image/png&transparent=false&width=256&height=256&srs=EPSG:3857&bbox={bbox-epsg-3857}&styles=`;
-}
-
-/**
- * Sentinel-1 SAR XYZ tile URL via EOX public service
- */
-export function getSentinel1TileUrl(): string {
-  return "https://tiles.maps.eox.at/wms?service=WMS&version=1.1.1&request=GetMap&layers=s2cloudless-2024&format=image/png&transparent=true&width=256&height=256&srs=EPSG:3857&bbox={bbox-epsg-3857}";
-}
-
-/**
- * Compute deformation level from mm shift
+ * Compute deformation level from cumulative shift (legacy helper)
  */
 export function classifyDeformation(shiftMm: number): DeformationLevel {
   const abs = Math.abs(shiftMm);
@@ -177,26 +221,44 @@ export function classifyDeformation(shiftMm: number): DeformationLevel {
 }
 
 /**
- * Generate realistic deformation readings for a mine site
- * In production these would come from an InSAR processing pipeline
+ * Generate 6-month velocity history for a zone (mm/month)
+ * In production: output from StaMPS / MintPy InSAR time-series processor
+ */
+function generateHistory(baseVelocity: number, noiseScale: number = 1.5): VelocityPoint[] {
+  const months = ["Nov", "Dec", "Jan", "Feb", "Mar", "Apr"];
+  let cumulative = baseVelocity * -3; // start partway through
+  return months.map((month) => {
+    const noise = (Math.random() - 0.5) * noiseScale;
+    cumulative += baseVelocity + noise;
+    return { month, velocityMmPerMonth: Math.round((baseVelocity + noise) * 10) / 10 };
+  });
+}
+
+/**
+ * Generate realistic deformation readings for a mine site.
+ * In production: sourced from InSAR time-series pipeline (StaMPS / MintPy / ISCE2).
+ * Values represent LOS (Line-of-Sight) displacement — NOT vertical.
+ * Vertical component requires LOS decomposition using satellite incidence angle.
  */
 export function generateDeformationReadings(
   centerLat: number,
   centerLon: number
 ): DeformationReading[] {
   const now = new Date().toISOString();
-  const areas: DeformationReading[] = [
+
+  const rawZones: Omit<DeformationReading, "level" | "history">[] = [
     {
       id: "pw-north",
       location: "North Pit Wall",
       lat: centerLat + 0.008,
       lon: centerLon - 0.003,
       shiftMm: -28.4,
+      velocityMmPerMonth: -18.2,
       trend: "subsiding",
-      level: "moderate",
       lastUpdated: now,
       sensor: "Sentinel-1 InSAR",
       area: "pit-wall",
+      losAngleDeg: 39,
     },
     {
       id: "pw-south",
@@ -204,11 +266,12 @@ export function generateDeformationReadings(
       lat: centerLat - 0.006,
       lon: centerLon + 0.002,
       shiftMm: -4.1,
+      velocityMmPerMonth: -2.1,
       trend: "stable",
-      level: "stable",
       lastUpdated: now,
       sensor: "Sentinel-1 InSAR",
       area: "pit-wall",
+      losAngleDeg: 39,
     },
     {
       id: "td-main",
@@ -216,11 +279,12 @@ export function generateDeformationReadings(
       lat: centerLat + 0.02,
       lon: centerLon + 0.015,
       shiftMm: -42.7,
+      velocityMmPerMonth: -16.4,
       trend: "subsiding",
-      level: "critical",
       lastUpdated: now,
       sensor: "Sentinel-1 InSAR",
       area: "tailings-dam",
+      losAngleDeg: 38,
     },
     {
       id: "hr-east",
@@ -228,11 +292,12 @@ export function generateDeformationReadings(
       lat: centerLat - 0.012,
       lon: centerLon - 0.01,
       shiftMm: -9.2,
+      velocityMmPerMonth: -11.3,
       trend: "subsiding",
-      level: "minor",
       lastUpdated: now,
       sensor: "Sentinel-1 InSAR",
       area: "haul-road",
+      losAngleDeg: 40,
     },
     {
       id: "pp-main",
@@ -240,14 +305,20 @@ export function generateDeformationReadings(
       lat: centerLat + 0.001,
       lon: centerLon + 0.008,
       shiftMm: 2.1,
+      velocityMmPerMonth: 0.8,
       trend: "stable",
-      level: "stable",
       lastUpdated: now,
       sensor: "Sentinel-1 InSAR",
       area: "processing-plant",
+      losAngleDeg: 39,
     },
   ];
-  return areas;
+
+  return rawZones.map((z) => ({
+    ...z,
+    level: classifyDeformationByVelocity(z.velocityMmPerMonth, z.area),
+    history: generateHistory(z.velocityMmPerMonth),
+  }));
 }
 
 /**

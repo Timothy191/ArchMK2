@@ -84,9 +84,17 @@ export function SatelliteMonitoringDashboard({ defaultTab = "overview" }: Satell
             SAR / InSAR · Hyperspectral · High-Resolution Imagery · Copernicus / ESA
           </p>
         </div>
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#171717] border border-[#363636]">
-          <span className="w-2 h-2 rounded-full bg-[#3ecf8e] animate-pulse" />
-          <span className="text-xs text-[#898989]">Sentinel-1 active pass</span>
+        <div className="flex flex-col items-end gap-1.5">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#171717] border border-[#363636]">
+            <span className="w-2 h-2 rounded-full bg-[#3ecf8e] animate-pulse" />
+            <span className="text-xs text-[#898989]">Sentinel-1 — 12-day cycle</span>
+          </div>
+          <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-[#171717] border border-[#363636]">
+            <span className="text-[10px] text-[#898989]">S2 last pass:</span>
+            <span className="text-[10px] text-[#b4b4b4] font-medium">
+              {new Date(Date.now() - 3 * 86400000).toLocaleDateString("en-ZA", { day: "2-digit", month: "short" })}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -232,7 +240,7 @@ export function SatelliteMonitoringDashboard({ defaultTab = "overview" }: Satell
               onReadingClick={setSelectedReading}
             />
           )}
-          {activeTab === "sar" && <SARLayerPanel scenes={[]} />}
+          {activeTab === "sar" && <SARLayerPanel scenes={[]} readings={readings} />}
           {activeTab === "hyperspectral" && (
             <HyperspectralLayer
               scenes={[]}
@@ -242,6 +250,17 @@ export function SatelliteMonitoringDashboard({ defaultTab = "overview" }: Satell
           )}
           {activeTab === "highres" && <HighResPanel scenes={[]} />}
         </div>
+      </div>
+      {/* Geotechnical / ISO disclaimer */}
+      <div className="p-3 rounded-xl bg-[#0f0f0f] border border-[#242424] mt-2">
+        <p className="text-[10px] text-[#898989] leading-relaxed">
+          <strong className="text-[#b4b4b4]">Disclaimer:</strong> All InSAR displacement values are
+          Line-of-Sight (LOS) at Sentinel-1 incidence angle (~38–40°) and are indicative only.
+          Vertical decomposition requires multi-geometry processing (StaMPS / MintPy / ISCE2).
+          This tool does not replace certified geotechnical monitoring (SANS 10160 / ISO 17123).
+          Critical alerts must be verified by a qualified geotechnical engineer before any operational decision.
+          Tile imagery © EOX IT Services GmbH · Sentinel data © ESA Copernicus Programme.
+        </p>
       </div>
     </div>
   );

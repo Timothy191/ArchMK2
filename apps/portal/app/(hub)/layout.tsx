@@ -3,6 +3,12 @@ import { DEPARTMENTS } from "~/lib/departments";
 import { logout } from "~/app/actions";
 import { WeatherWidget } from "@/components/weather/WeatherWidget";
 import { AIAssistant } from "@/components/ai/AIAssistant";
+import dynamic from "next/dynamic";
+
+const Toggle3D = dynamic(() => import("@/components/3d/Toggle3D").then(mod => ({ default: mod.Toggle3D })), {
+  ssr: false,
+  loading: () => <div className="w-8 h-6" />
+});
 
 export default function HubLayout({
   children,
@@ -23,6 +29,7 @@ export default function HubLayout({
             </span>
           </div>
           <div className="flex items-center gap-3">
+            <Toggle3D />
             <WeatherWidget variant="header" />
             <form
               action={logout}

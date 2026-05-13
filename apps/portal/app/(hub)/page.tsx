@@ -2,6 +2,8 @@ import { createServerSupabaseClient } from "@repo/supabase/server";
 import { redirect } from "next/navigation";
 import { HubGrid } from "@/features/hub/components/HubGrid";
 
+export const dynamic = "force-dynamic";
+
 export default async function HubPage() {
   const supabase = await createServerSupabaseClient();
   const {

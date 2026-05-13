@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { STACItem } from "@/lib/monitoring-api";
-import { formatSceneDate } from "@/lib/monitoring-api";
+import { formatSceneDate, getSTACQuicklookUrl } from "@/lib/monitoring-api";
 
 export type SpectralComposite = "truecolor" | "falsecolor" | "ndvi" | "geology";
 
@@ -12,43 +12,134 @@ interface HyperspectralLayerProps {
   onCompositeChange: (composite: SpectralComposite) => void;
 }
 
-const COMPOSITES: { id: SpectralComposite; label: string; description: string; bands: string; use: string }[] = [
+const COMPOSITES: {
+  id: SpectralComposite;
+  label: string;
+  description: string;
+  bands: string;
+  resolution: string;
+  use: string;
+  color: string;
+}[] = [
   {
     id: "truecolor",
     label: "True Color",
     description: "Natural RGB composite",
     bands: "B04, B03, B02",
-    use: "Visual site overview, equipment tracking",
+    resolution: "10m",
+    use: "Visual site overview, equipment position verification",
+    color: "sky",
   },
   {
     id: "falsecolor",
-    label: "False Color",
-    description: "NIR-Red-Green composite",
+    label: "False Color (NIR)",
+    description: "NIR-Red-Green — vegetation appears red",
     bands: "B08, B04, B03",
-    use: "Vegetation health, revegetation monitoring",
+    resolution: "10m",
+    use: "Vegetation health, revegetation progress monitoring",
+    color: "emerald",
   },
   {
     id: "ndvi",
     label: "NDVI",
-    description: "Normalized Difference Vegetation Index",
+    description: "Normalised Difference Vegetation Index",
     bands: "(B08−B04)/(B08+B04)",
-    use: "Dust suppression coverage, reclamation progress",
+    resolution: "10m",
+    use: "Dust suppression effectiveness, reclamation compliance",
+    color: "lime",
   },
   {
     id: "geology",
-    label: "Geology / Minerals",
-    description: "SWIR mineral detection composite",
+    label: "SWIR Geology",
+    description: "SWIR-NIR-Blue mineral composite",
     bands: "B12, B08, B02",
-    use: "Mineral outcrop mapping, acid mine drainage detection",
+    resolution: "20m",
+    use: "Mineral outcrop mapping, AMD plume detection",
+    color: "violet",
   },
 ];
 
+const COMPOSITE_COLORS: Record<SpectralComposite, string> = {
+  truecolor: "sky",
+  falsecolor: "emerald",
+  ndvi: "lime",
+  geology: "violet",
+};
+
 const MINERAL_SIGNATURES = [
-  { mineral: "Iron Oxide", color: "#ef4444", band: "B04/B02 ratio > 2.0", concern: "Acid drainage indicator" },
-  { mineral: "Clay Minerals", color: "#f59e0b", band: "B12/B11 ratio", concern: "Tailings mineralogy" },
-  { mineral: "Carbonate", color: "#6366f1", band: "B11 reflectance", concern: "Neutralisation potential" },
-  { mineral: "Sulfide", color: "#8b5cf6", band: "B12 absorption", concern: "AMD risk zone" },
+  {
+    mineral: "Iron Oxide / Gossan",
+    color: "#ef4444",
+    bands: "B04/B02 > 2.0",
+    concern: "AMD precursor, acid generating waste",
+    risk: "high",
+  },
+  {
+    mineral: "Jarosite",
+    color: "#f97316",
+    bands: "B11/B12 ratio",
+    concern: "Active sulfide oxidation zone",
+    risk: "high",
+  },
+  {
+    mineral: "Kaolinite / Clay",
+    color: "#f59e0b",
+    bands: "B12/B11 ratio",
+    concern: "Tailings mineralogy, slimes dam stability",
+    risk: "medium",
+  },
+  {
+    mineral: "Carbonate",
+    color: "#6366f1",
+    bands: "B11 absorption",
+    concern: "Neutralisation potential — positive indicator",
+    risk: "low",
+  },
+  {
+    mineral: "Sulfide Exposure",
+    color: "#8b5cf6",
+    bands: "B12 dark absorption",
+    concern: "Direct AMD risk — needs encapsulation",
+    risk: "high",
+  },
+  {
+    mineral: "Chlorophyll / Algae",
+    color: "#3ecf8e",
+    bands: "B08 high reflectance",
+    concern: "Water body eutrophication from AMD leachate",
+    risk: "medium",
+  },
 ];
+
+const RISK_COLORS: Record<string, string> = {
+  high:   "text-red-400",
+  medium: "text-amber-400",
+  low:    "text-emerald-400",
+};
+
+function sceneAgeDays(datetime: string): number {
+  return Math.floor((Date.now() - new Date(datetime).getTime()) / 86400000);
+}
+
+function getActiveClass(composite: SpectralComposite, color: string) {
+  const map: Record<string, string> = {
+    sky:     "bg-sky-500/10 border-sky-500/40",
+    emerald: "bg-emerald-500/10 border-emerald-500/40",
+    lime:    "bg-lime-500/10 border-lime-500/40",
+    violet:  "bg-violet-500/10 border-violet-500/40",
+  };
+  return map[color] ?? "bg-[#3ecf8e]/10 border-[#3ecf8e]/40";
+}
+
+function getActiveLabelClass(composite: SpectralComposite, color: string) {
+  const map: Record<string, string> = {
+    sky:     "text-sky-400",
+    emerald: "text-emerald-400",
+    lime:    "text-lime-400",
+    violet:  "text-violet-400",
+  };
+  return map[color] ?? "text-[#3ecf8e]";
+}
 
 export function HyperspectralLayer({
   scenes,
@@ -62,13 +153,13 @@ export function HyperspectralLayer({
       {/* Info Banner */}
       <div className="p-4 rounded-xl bg-violet-500/10 border border-violet-500/20">
         <div className="flex items-start gap-3">
-          <span className="text-violet-400 text-lg mt-0.5">🌈</span>
+          <span className="text-violet-400 text-xl mt-0.5">🌈</span>
           <div>
-            <p className="text-sm font-medium text-violet-400">Sentinel-2 Multispectral (13 bands)</p>
+            <p className="text-sm font-semibold text-violet-400">Sentinel-2 Multispectral — 13 Bands</p>
             <p className="text-xs text-[#898989] mt-1 leading-relaxed">
-              Sentinel-2 captures 13 spectral bands from visible to SWIR at 10–60m resolution.
-              Band combinations reveal mineral composition, vegetation health, and water quality —
-              critical for AMD detection in nearby rivers.
+              Sentinel-2 MSI captures 13 spectral bands from 443 nm (coastal) to 2190 nm (SWIR2)
+              at 10–60 m resolution, 5-day global revisit. Band combinations reveal mineral composition,
+              vegetation health, and water quality — critical for AMD detection and reclamation compliance.
             </p>
           </div>
         </div>
@@ -80,45 +171,58 @@ export function HyperspectralLayer({
           Band Composite
         </p>
         <div className="grid grid-cols-2 gap-2">
-          {COMPOSITES.map((comp) => (
-            <button
-              key={comp.id}
-              onClick={() => onCompositeChange(comp.id)}
-              className={`text-left p-3 rounded-xl border transition-colors ${
-                activeComposite === comp.id
-                  ? "bg-violet-500/10 border-violet-500/40"
-                  : "bg-[#171717] border-[#363636] hover:bg-[#242424]"
-              }`}
-            >
-              <p className={`text-sm font-medium ${
-                activeComposite === comp.id ? "text-violet-400" : "text-[#fafafa]"
-              }`}>
-                {comp.label}
-              </p>
-              <p className="text-[10px] text-[#898989] mt-0.5">{comp.bands}</p>
-              <p className="text-[10px] text-[#b4b4b4] mt-1">{comp.use}</p>
-            </button>
-          ))}
+          {COMPOSITES.map((comp) => {
+            const isActive = activeComposite === comp.id;
+            const color = COMPOSITE_COLORS[comp.id];
+            return (
+              <button
+                key={comp.id}
+                onClick={() => onCompositeChange(comp.id)}
+                className={`text-left p-3 rounded-xl border transition-colors ${
+                  isActive
+                    ? getActiveClass(comp.id, color)
+                    : "bg-[#171717] border-[#363636] hover:bg-[#242424]"
+                }`}
+              >
+                <div className="flex items-center justify-between mb-0.5">
+                  <p className={`text-sm font-medium ${
+                    isActive ? getActiveLabelClass(comp.id, color) : "text-[#fafafa]"
+                  }`}>
+                    {comp.label}
+                  </p>
+                  <span className="text-[9px] text-[#898989] font-mono">{comp.resolution}</span>
+                </div>
+                <p className="text-[10px] text-[#898989] font-mono">{comp.bands}</p>
+                <p className="text-[10px] text-[#b4b4b4] mt-1 leading-snug">{comp.use}</p>
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* Mineral Signatures */}
-      <div className="p-4 rounded-xl bg-[#171717] border border-[#363636]">
-        <p className="text-xs font-medium text-[#b4b4b4] uppercase tracking-wider mb-3">
-          Mineral / AMD Spectral Signatures
+      {/* AMD Risk Panel */}
+      <div className="p-4 rounded-xl bg-red-500/5 border border-red-500/20">
+        <p className="text-xs font-semibold text-red-400 uppercase tracking-wider mb-1">
+          AMD Risk — Spectral Indicators
         </p>
-        <div className="space-y-2">
+        <p className="text-[10px] text-[#898989] mb-3">
+          Acid Mine Drainage precursors detectable in Sentinel-2 SWIR bands.
+          Use SWIR Geology composite to identify high-risk zones.
+        </p>
+        <div className="space-y-2.5">
           {MINERAL_SIGNATURES.map((sig) => (
-            <div key={sig.mineral} className="flex items-center gap-3">
-              <div
-                className="w-3 h-3 rounded shrink-0"
-                style={{ background: sig.color }}
-              />
+            <div key={sig.mineral} className="flex items-start gap-3">
+              <div className="w-2.5 h-2.5 rounded-sm shrink-0 mt-0.5" style={{ background: sig.color }} />
               <div className="flex-1 min-w-0">
-                <p className="text-xs text-[#fafafa]">{sig.mineral}</p>
-                <p className="text-[10px] text-[#898989]">{sig.concern}</p>
+                <div className="flex items-center gap-2">
+                  <p className="text-xs font-medium text-[#fafafa]">{sig.mineral}</p>
+                  <span className={`text-[9px] font-medium uppercase ${RISK_COLORS[sig.risk]}`}>
+                    {sig.risk}
+                  </span>
+                </div>
+                <p className="text-[10px] text-[#898989] mt-0.5">{sig.concern}</p>
+                <p className="text-[9px] text-[#898989] font-mono mt-0.5">{sig.bands}</p>
               </div>
-              <span className="text-[10px] text-[#898989] font-mono">{sig.band}</span>
             </div>
           ))}
         </div>
@@ -132,48 +236,81 @@ export function HyperspectralLayer({
         {scenes.length === 0 ? (
           <div className="p-4 rounded-xl bg-[#171717] border border-[#363636] text-center">
             <p className="text-[#898989] text-sm">No cloud-free scenes in range</p>
-            <p className="text-[#898989] text-xs mt-1">Expand time window or increase cloud cover threshold</p>
+            <p className="text-[#898989] text-xs mt-1">
+              Copernicus STAC query returned 0 results — expand time window or cloud cover threshold
+            </p>
           </div>
         ) : (
           <div className="space-y-2">
-            {scenes.slice(0, 5).map((scene) => {
+            {scenes.slice(0, 6).map((scene) => {
               const cloud = scene.properties["eo:cloud_cover"];
+              const ageDays = sceneAgeDays(scene.properties.datetime);
+              const quicklook = getSTACQuicklookUrl(scene);
+              const isExpanded = expandedScene === scene.id;
+
               return (
-                <button
+                <div
                   key={scene.id}
-                  onClick={() => setExpandedScene(expandedScene === scene.id ? null : scene.id)}
-                  className="w-full text-left p-3 rounded-xl border bg-[#171717] border-[#363636] hover:bg-[#242424] transition-colors"
+                  className="rounded-xl border bg-[#171717] border-[#363636] overflow-hidden"
                 >
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm text-[#fafafa] font-medium truncate max-w-[160px]">
-                      {scene.id.slice(0, 20)}…
-                    </p>
-                    <div className="flex items-center gap-2">
-                      {cloud !== undefined && (
-                        <span className={`text-[10px] px-2 py-0.5 rounded-full ${
-                          cloud < 10 ? "bg-[#3ecf8e]/20 text-[#3ecf8e]" :
-                          cloud < 25 ? "bg-amber-500/20 text-amber-400" :
-                          "bg-red-500/20 text-red-400"
-                        }`}>
-                          ☁ {cloud.toFixed(0)}%
-                        </span>
-                      )}
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-violet-500/20 text-violet-400">
-                        S2
+                  <button
+                    onClick={() => setExpandedScene(isExpanded ? null : scene.id)}
+                    className="w-full text-left p-3 hover:bg-[#1e1e1e] transition-colors"
+                  >
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs text-[#fafafa] font-medium font-mono truncate max-w-[150px]">
+                        {scene.id.slice(0, 20)}…
+                      </p>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        {cloud !== undefined && (
+                          <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
+                            cloud < 10 ? "bg-[#3ecf8e]/20 text-[#3ecf8e]" :
+                            cloud < 25 ? "bg-amber-500/20 text-amber-400" :
+                            "bg-red-500/20 text-red-400"
+                          }`}>
+                            ☁ {cloud.toFixed(0)}%
+                          </span>
+                        )}
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-violet-500/20 text-violet-400">S2</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 mt-1 text-[10px] text-[#898989]">
+                      <span>{formatSceneDate(scene.properties.datetime)}</span>
+                      <span className={ageDays > 14 ? "text-amber-400" : "text-[#3ecf8e]"}>
+                        {ageDays}d ago
                       </span>
                     </div>
-                  </div>
-                  <p className="text-xs text-[#898989] mt-1">
-                    📅 {formatSceneDate(scene.properties.datetime)}
-                  </p>
-                  {expandedScene === scene.id && scene.properties["s2:mgrs_tile"] && (
-                    <div className="mt-2 pt-2 border-t border-[#363636]">
-                      <p className="text-xs text-[#898989]">
-                        🗺 MGRS Tile: {scene.properties["s2:mgrs_tile"]}
-                      </p>
+                  </button>
+
+                  {isExpanded && (
+                    <div className="px-3 pb-3 pt-0 border-t border-[#242424]">
+                      {quicklook && (
+                        <img
+                          src={quicklook}
+                          alt="Scene quicklook"
+                          className="w-full h-24 object-cover rounded-lg mt-2 mb-2"
+                          loading="lazy"
+                        />
+                      )}
+                      <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[10px]">
+                        {scene.properties["s2:mgrs_tile"] && (
+                          <>
+                            <span className="text-[#898989]">MGRS Tile</span>
+                            <span className="text-[#fafafa] font-mono">{scene.properties["s2:mgrs_tile"]}</span>
+                          </>
+                        )}
+                        <span className="text-[#898989]">Platform</span>
+                        <span className="text-[#fafafa]">{scene.properties.platform ?? "Sentinel-2"}</span>
+                        {cloud !== undefined && (
+                          <>
+                            <span className="text-[#898989]">Cloud cover</span>
+                            <span className="text-[#fafafa]">{cloud.toFixed(1)}%</span>
+                          </>
+                        )}
+                      </div>
                     </div>
                   )}
-                </button>
+                </div>
               );
             })}
           </div>
