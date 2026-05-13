@@ -1,3 +1,5 @@
+import "@testing-library/jest-dom";
+
 // Jest setup file — provide Web API globals that Next.js server modules expect
 // but jsdom may not define in all versions.
 

@@ -2,6 +2,9 @@ import { createServerSupabaseClient } from "@repo/supabase/server";
 import { GlassCard } from "@repo/ui/GlassCard";
 import { DEPARTMENTS } from "~/lib/departments";
 import { notFound } from "next/navigation";
+import { ScadaPanel } from "@/features/departments/components/control-room/ScadaPanel";
+import { AlertPanel } from "@/features/departments/components/control-room/AlertPanel";
+import { ControlRoomActivityFeed } from "@/features/departments/components/control-room/ControlRoomActivityFeed";
 
 export default async function DepartmentDashboard({
   params,
@@ -13,7 +16,6 @@ export default async function DepartmentDashboard({
 
   const supabase = await createServerSupabaseClient();
 
-  // Resolve department name to UUID
   const { data: department } = await supabase
     .from("departments")
     .select("id")
@@ -41,34 +43,53 @@ export default async function DepartmentDashboard({
     .eq("department_id", deptId)
     .eq("active", true);
 
+  const isControlRoom = params.department === "control-room";
+
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-semibold text-white">Dashboard</h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <GlassCard>
-          <p className="text-white/50 text-sm">Today&apos;s Log</p>
-          <p className="text-2xl font-bold text-white mt-1">
-            {shiftCount > 0
-              ? `${shiftCount} shift${shiftCount > 1 ? "s" : ""} logged`
-              : "Not logged"}
-          </p>
-          {latestShift && (
-            <p className="text-white/40 text-xs mt-1">Latest: {latestShift}</p>
-          )}
-        </GlassCard>
-        <GlassCard>
-          <p className="text-white/50 text-sm">Active Machines</p>
-          <p className="text-2xl font-bold text-white mt-1">
-            {machineCount ?? 0}
-          </p>
-        </GlassCard>
-        <GlassCard>
-          <p className="text-white/50 text-sm">Status</p>
-          <p className="text-2xl font-bold text-emerald-400 mt-1">
-            Operational
-          </p>
-        </GlassCard>
-      </div>
+      {isControlRoom ? (
+        <>
+          <h2 className="text-2xl font-semibold text-white">
+            Control Room
+          </h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <ScadaPanel departmentId={deptId} />
+            <AlertPanel departmentId={deptId} />
+          </div>
+          <ControlRoomActivityFeed departmentId={deptId} />
+        </>
+      ) : (
+        <>
+          <h2 className="text-2xl font-semibold text-white">Dashboard</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <GlassCard>
+              <p className="text-white/50 text-sm">Today&apos;s Log</p>
+              <p className="text-2xl font-bold text-white mt-1">
+                {shiftCount > 0
+                  ? `${shiftCount} shift${shiftCount > 1 ? "s" : ""} logged`
+                  : "Not logged"}
+              </p>
+              {latestShift && (
+                <p className="text-white/40 text-xs mt-1">
+                  Latest: {latestShift}
+                </p>
+              )}
+            </GlassCard>
+            <GlassCard>
+              <p className="text-white/50 text-sm">Active Machines</p>
+              <p className="text-2xl font-bold text-white mt-1">
+                {machineCount ?? 0}
+              </p>
+            </GlassCard>
+            <GlassCard>
+              <p className="text-white/50 text-sm">Status</p>
+              <p className="text-2xl font-bold text-emerald-400 mt-1">
+                Operational
+              </p>
+            </GlassCard>
+          </div>
+        </>
+      )}
     </div>
   );
 }

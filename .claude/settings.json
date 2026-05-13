@@ -8,14 +8,39 @@
     "code-simplifier@claude-plugins-official": true
   },
   "hooks": {
-    "PreToolUse:Edit": [
-      "If the file path ends with .env, .env.local, or any file containing secrets (keys, tokens, passwords), BLOCK the edit and ask the user for explicit confirmation before proceeding."
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "If the file path ends with .env, .env.local, or any file containing secrets (keys, tokens, passwords), BLOCK the edit and ask the user for explicit confirmation before proceeding."
+          }
+        ]
+      }
     ],
-    "PostToolUse:Edit": [
-      "If the edited file is TypeScript or TSX (ends with .ts or .tsx), run `cd apps/portal && npx tsc --noEmit` to verify types. Report any errors.",
-      "If the edited file is under apps/portal/, run `cd apps/portal && npx eslint <file_path> --max-warnings 0` to verify lint. Report any errors.",
-      "If the edited file is under apps/portal/ and is a TSX component, verify it does NOT use `font-bold`, `font-semibold`, `bg-white/5`, `border-white/10`, `text-white/50`, `text-white/70`, `shadow`, `box-shadow`, or direct `clsx`/`twMerge` imports. Report any violations.",
-      "If the edited file is a test file (*.test.ts, *.test.tsx, *.spec.ts), run `cd apps/portal && npx jest <file_path> --no-coverage` to verify the test passes. Report any failures."
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "If the edited file is TypeScript or TSX (ends with .ts or .tsx), run `cd apps/portal && npx tsc --noEmit` to verify types. Report any errors."
+          },
+          {
+            "type": "prompt",
+            "prompt": "If the edited file is under apps/portal/, run `cd apps/portal && npx eslint <file_path> --max-warnings 0` to verify lint. Report any errors."
+          },
+          {
+            "type": "prompt",
+            "prompt": "If the edited file is under apps/portal/ and is a TSX component, verify it does NOT use `font-bold`, `font-semibold`, `bg-white/5`, `border-white/10`, `text-white/50`, `text-white/70`, `shadow`, `box-shadow`, or direct `clsx`/`twMerge` imports. Report any violations."
+          },
+          {
+            "type": "prompt",
+            "prompt": "If the edited file is a test file (*.test.ts, *.test.tsx, *.spec.ts), run `cd apps/portal && npx jest <file_path> --no-coverage` to verify the test passes. Report any failures."
+          }
+        ]
+      }
     ]
   }
 }

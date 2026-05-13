@@ -1,6 +1,14 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "ui": "tui",
+  "globalEnv": [
+    "NEXT_PUBLIC_SUPABASE_URL",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+    "SUPABASE_URL",
+    "SUPABASE_SERVICE_KEY",
+    "SUPABASE_ANON_KEY",
+    "PORT"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],

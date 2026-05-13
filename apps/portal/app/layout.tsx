@@ -13,7 +13,7 @@ export default function RootLayout({
 }): JSX.Element {
   return (
     <html lang="en" className="dark">
-      <body className="bg-slate-950 text-white min-h-screen font-sans antialiased">
+      <body className="bg-[#0f0f0f] text-[#fafafa] min-h-screen font-sans antialiased">
         {children}
       </body>
     </html>

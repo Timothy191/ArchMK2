@@ -1,9 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { submitDailyLog } from "../../../actions";
-import { GlassCard } from "@repo/ui/GlassCard";
+import { createBrowserSupabaseClient } from "@repo/supabase/client";
 
 interface Machine {
   id: string;
@@ -11,226 +9,111 @@ interface Machine {
   machine_type: string;
 }
 
-export function DailyLogForm({
-  departmentId,
-  departmentSlug,
-  machines,
-}: {
+interface DailyLogFormProps {
   departmentId: string;
   departmentSlug: string;
   machines: Machine[];
-}) {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
-  const router = useRouter();
+}
 
-  const today = new Date().toISOString().split("T")[0];
+export function DailyLogForm({
+  departmentId,
+  machines,
+}: DailyLogFormProps) {
+  const [shift, setShift] = useState<"day" | "night">("day");
+  const [notes, setNotes] = useState("");
+  const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setLoading(true);
-    setError("");
-    setSuccess(false);
+    setStatus("submitting");
 
-    const formData = new FormData(e.currentTarget);
-    const result = await submitDailyLog(departmentId, departmentSlug, formData);
+    const supabase = createBrowserSupabaseClient();
+    const today = new Date().toISOString().split("T")[0];
 
-    setLoading(false);
-    if (result.error) {
-      setError(result.error);
+    const { error } = await supabase.from("daily_logs").insert({
+      department_id: departmentId,
+      log_date: today,
+      shift,
+      notes: notes || null,
+    });
+
+    if (error) {
+      console.error(error);
+      setStatus("error");
     } else {
-      setSuccess(true);
-      router.refresh();
-      setTimeout(() => setSuccess(false), 3000);
+      setStatus("success");
+      setNotes("");
     }
-  };
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {success && (
-        <GlassCard className="border-emerald-500/30 bg-emerald-500/5">
-          <p className="text-emerald-400 text-sm font-medium">
-            Daily log submitted successfully
-          </p>
-        </GlassCard>
-      )}
-
-      {error && (
-        <GlassCard className="border-red-500/30 bg-red-500/5">
-          <p className="text-red-400 text-sm">{error}</p>
-        </GlassCard>
-      )}
-
-      {/* Shift & Date */}
-      <GlassCard>
-        <h3 className="text-sm font-medium text-[#b4b4b4] uppercase tracking-wider mb-4">
-          Shift Details
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm text-[#898989] mb-1">Date</label>
-            <input
-              type="date"
-              name="log_date"
-              defaultValue={today}
-              required
-              className="w-full px-4 py-2.5 rounded-lg bg-[#171717] border border-[#363636] text-[#fafafa] focus:outline-none focus:ring-2 focus:ring-[#3ecf8e]/30"
-            />
-          </div>
-          <div>
-            <label className="block text-sm text-[#898989] mb-1">Shift</label>
-            <select
-              name="shift"
-              required
-              className="w-full px-4 py-2.5 rounded-lg bg-[#171717] border border-[#363636] text-[#fafafa] focus:outline-none focus:ring-2 focus:ring-[#3ecf8e]/30"
+      {/* Shift selector */}
+      <div className="space-y-2">
+        <label className="block text-sm text-[#898989]">Shift</label>
+        <div className="flex gap-3">
+          {(["day", "night"] as const).map((s) => (
+            <button
+              key={s}
+              type="button"
+              onClick={() => setShift(s)}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                shift === s
+                  ? "bg-[#2e2e2e] text-[#fafafa] border border-[#3ecf8e]"
+                  : "bg-[#171717] text-[#898989] border border-[#363636] hover:text-[#fafafa]"
+              }`}
             >
-              <option value="day">Day</option>
-              <option value="night">Night</option>
-            </select>
-          </div>
-        </div>
-        <div className="mt-4">
-          <label className="block text-sm text-[#898989] mb-1">Notes</label>
-          <textarea
-            name="notes"
-            rows={3}
-            placeholder="Enter any observations or issues..."
-            className="w-full px-4 py-2.5 rounded-lg bg-[#171717] border border-[#363636] text-[#fafafa] placeholder-[#898989] focus:outline-none focus:ring-2 focus:ring-[#3ecf8e]/30 resize-none"
-          />
-        </div>
-      </GlassCard>
-
-      {/* Machine Hours */}
-      <GlassCard>
-        <h3 className="text-sm font-medium text-[#b4b4b4] uppercase tracking-wider mb-4">
-          Machine Hours
-        </h3>
-        <div className="space-y-3">
-          {machines.map((machine, idx) => (
-            <div key={machine.id} className="flex items-center gap-4">
-              <div className="flex-1">
-                <p className="text-[#fafafa] text-sm font-medium">
-                  {machine.name}
-                </p>
-                <p className="text-[#898989] text-xs">{machine.machine_type}</p>
-              </div>
-              <input
-                type="hidden"
-                name={`machine_hours[${idx}].machine_id`}
-                value={machine.id}
-              />
-              <div className="w-32">
-                <input
-                  type="number"
-                  name={`machine_hours[${idx}].hours_worked`}
-                  min="0"
-                  max="24"
-                  step="0.5"
-                  defaultValue="0"
-                  className="w-full px-3 py-2 rounded-lg bg-[#171717] border border-[#363636] text-[#fafafa] text-right focus:outline-none focus:ring-2 focus:ring-[#3ecf8e]/30"
-                />
-              </div>
-              <span className="text-[#898989] text-sm w-12">hrs</span>
-            </div>
+              {s === "day" ? "Day Shift" : "Night Shift"}
+            </button>
           ))}
-          {machines.length === 0 && (
-            <p className="text-[#898989] text-sm">
-              No active machines for this department.
-            </p>
-          )}
         </div>
-      </GlassCard>
+      </div>
 
-      {/* Fuel Logs */}
-      <GlassCard>
-        <h3 className="text-sm font-medium text-[#b4b4b4] uppercase tracking-wider mb-4">
-          Diesel Consumption
-        </h3>
-        <div className="space-y-3">
-          {machines.map((machine, idx) => (
-            <div key={`fuel-${machine.id}`} className="flex items-center gap-4">
-              <div className="flex-1">
-                <p className="text-[#fafafa] text-sm font-medium">
-                  {machine.name}
-                </p>
-              </div>
-              <input
-                type="hidden"
-                name={`fuel_logs[${idx}].machine_id`}
-                value={machine.id}
-              />
-              <div className="w-32">
-                <input
-                  type="number"
-                  name={`fuel_logs[${idx}].diesel_litres`}
-                  min="0"
-                  step="0.1"
-                  defaultValue="0"
-                  className="w-full px-3 py-2 rounded-lg bg-[#171717] border border-[#363636] text-[#fafafa] text-right focus:outline-none focus:ring-2 focus:ring-[#3ecf8e]/30"
-                />
-              </div>
-              <span className="text-[#898989] text-sm w-12">L</span>
-            </div>
-          ))}
-          {machines.length === 0 && (
-            <p className="text-[#898989] text-sm">
-              No active machines for this department.
-            </p>
-          )}
-        </div>
-      </GlassCard>
-
-      {/* Production */}
-      <GlassCard>
-        <h3 className="text-sm font-medium text-[#b4b4b4] uppercase tracking-wider mb-4">
-          Production
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm text-[#898989] mb-1">
-              Coal Removed (tonnes)
-            </label>
-            <input
-              type="number"
-              name="coal_tonnes"
-              min="0"
-              step="0.01"
-              defaultValue="0"
-              className="w-full px-4 py-2.5 rounded-lg bg-[#171717] border border-[#363636] text-[#fafafa] focus:outline-none focus:ring-2 focus:ring-[#3ecf8e]/30"
-            />
-          </div>
-          <div>
-            <label className="block text-sm text-[#898989] mb-1">
-              Waste Removed (tonnes)
-            </label>
-            <input
-              type="number"
-              name="waste_tonnes"
-              min="0"
-              step="0.01"
-              defaultValue="0"
-              className="w-full px-4 py-2.5 rounded-lg bg-[#171717] border border-[#363636] text-[#fafafa] focus:outline-none focus:ring-2 focus:ring-[#3ecf8e]/30"
-            />
+      {/* Machines list (read-only reference) */}
+      {machines.length > 0 && (
+        <div className="space-y-2">
+          <label className="block text-sm text-[#898989]">Machines</label>
+          <div className="flex flex-wrap gap-2">
+            {machines.map((m) => (
+              <span
+                key={m.id}
+                className="px-3 py-1 rounded-full text-xs bg-[#171717] text-[#b4b4b4] border border-[#363636]"
+              >
+                {m.name}
+              </span>
+            ))}
           </div>
         </div>
-      </GlassCard>
+      )}
 
-      <div className="flex justify-end gap-3">
-        <button
-          type="button"
-          onClick={() => router.push(`/${departmentSlug}`)}
-          className="px-6 py-2.5 rounded-lg border border-[#363636] text-[#898989] hover:text-[#fafafa] hover:bg-[#242424] transition-colors"
-        >
-          Cancel
-        </button>
+      {/* Notes */}
+      <div className="space-y-2">
+        <label className="block text-sm text-[#898989]">Notes</label>
+        <textarea
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          rows={4}
+          className="w-full px-4 py-3 rounded-lg bg-[#171717] border border-[#363636] text-[#fafafa] placeholder-[#898989] focus:outline-none focus:ring-2 focus:ring-[#3ecf8e]/30 resize-none"
+          placeholder="Enter any observations or issues..."
+        />
+      </div>
+
+      {/* Actions */}
+      <div className="flex items-center gap-4">
         <button
           type="submit"
-          disabled={loading}
-          className="px-6 py-2.5 rounded-lg bg-[#0f0f0f] text-[#fafafa] font-medium hover:bg-[#1a1a1a] transition-colors disabled:opacity-50"
+          disabled={status === "submitting"}
+          className="px-6 py-2.5 rounded-full bg-[#0f0f0f] text-[#fafafa] text-sm font-medium hover:bg-[#1a1a1a] transition-colors disabled:opacity-50"
         >
-          {loading ? "Submitting..." : "Submit Daily Log"}
+          {status === "submitting" ? "Saving..." : "Save Daily Log"}
         </button>
+
+        {status === "success" && (
+          <span className="text-sm text-emerald-400">Log saved successfully.</span>
+        )}
+        {status === "error" && (
+          <span className="text-sm text-red-400">Failed to save log. Please try again.</span>
+        )}
       </div>
     </form>
   );
