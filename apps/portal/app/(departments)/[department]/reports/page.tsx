@@ -2,6 +2,8 @@ import { createServerSupabaseClient } from "@repo/supabase/server";
 import { DEPARTMENTS } from "~/lib/departments";
 import { notFound } from "next/navigation";
 import { GlassCard } from "@repo/ui/GlassCard";
+import { SecondaryButton } from "@repo/ui/SecondaryButton";
+import { Input } from "@repo/ui/Input";
 
 export default async function ReportsPage({
   params,
@@ -132,13 +134,14 @@ export default async function ReportsPage({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-medium text-[#fafafa]">Reports</h2>
-        <a
-          href={`data:text/csv;charset=utf-8,${encodeURIComponent(csvContent)}`}
-          download={`${params.department}-report-${from}-to-${to}.csv`}
-          className="px-4 py-2 rounded-lg bg-[#0f0f0f] hover:bg-[#1a1a1a] text-[#fafafa] text-sm font-medium transition-colors"
-        >
-          Download CSV
-        </a>
+        <SecondaryButton variant="rounded-lg" size="sm" asChild>
+          <a
+            href={`data:text/csv;charset=utf-8,${encodeURIComponent(csvContent)}`}
+            download={`${params.department}-report-${from}-to-${to}.csv`}
+          >
+            Download CSV
+          </a>
+        </SecondaryButton>
       </div>
 
       {/* Summary Cards */}
@@ -174,20 +177,20 @@ export default async function ReportsPage({
         <form method="GET" className="flex items-end gap-4">
           <div>
             <label className="block text-sm text-[#898989] mb-1">From</label>
-            <input
+            <Input
               type="date"
               name="from"
               defaultValue={from}
-              className="px-4 py-2 rounded-lg bg-[#171717] border border-[#363636] text-[#fafafa] focus:outline-none focus:ring-2 focus:ring-[#3ecf8e]/30"
+              className="px-4 py-2"
             />
           </div>
           <div>
             <label className="block text-sm text-[#898989] mb-1">To</label>
-            <input
+            <Input
               type="date"
               name="to"
               defaultValue={to}
-              className="px-4 py-2 rounded-lg bg-[#171717] border border-[#363636] text-[#fafafa] focus:outline-none focus:ring-2 focus:ring-[#3ecf8e]/30"
+              className="px-4 py-2"
             />
           </div>
           <button

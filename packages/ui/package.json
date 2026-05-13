@@ -41,6 +41,8 @@
     ],
     "./components/*": "./src/components/*.tsx",
     "./GlassCard": "./src/components/GlassCard.tsx",
-    "./DepartmentLayout": "./src/components/DepartmentLayout.tsx"
+    "./DepartmentLayout": "./src/components/DepartmentLayout.tsx",
+    "./SecondaryButton": "./src/components/SecondaryButton.tsx",
+    "./Input": "./src/components/Input.tsx"
   }
 }

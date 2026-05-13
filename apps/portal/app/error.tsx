@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { SecondaryButton } from "@repo/ui/SecondaryButton";
 
 export default function RootError({
   error,
@@ -22,12 +23,7 @@ export default function RootError({
         <p className="text-[#898989] text-sm">
           {error.message || "An unexpected error occurred."}
         </p>
-        <button
-          onClick={reset}
-          className="px-6 py-2.5 rounded-full bg-[#0f0f0f] text-[#fafafa] text-sm font-medium border border-[#363636] hover:bg-[#1a1a1a] transition-colors"
-        >
-          Try again
-        </button>
+        <SecondaryButton onClick={reset}>Try again</SecondaryButton>
       </div>
     </div>
   );

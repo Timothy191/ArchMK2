@@ -66,3 +66,33 @@ export const DEPARTMENT_TABS = [
   { name: "reports", label: "Reports", icon: "FileText" },
   { name: "tools", label: "Tools", icon: "Wrench" },
 ] as const;
+
+/**
+ * Control Room specific tabs - optimized for mining operations monitoring
+ * with automation-focused design for operators
+ */
+export const CONTROL_ROOM_TABS = [
+  { name: "dashboard", label: "Dashboard", icon: "ChartBar" },
+  { name: "hourly-loads", label: "Hourly Loads", icon: "Clock" },
+  { name: "machine-operations", label: "Machine Ops", icon: "Engine" },
+  { name: "operational-delays", label: "Delays", icon: "AlertTriangle" },
+  { name: "engineering-notes", label: "Engineering", icon: "Wrench" },
+  { name: "excavator-activity", label: "Excavator", icon: "Pickaxe" },
+  { name: "roll-over", label: "Roll Over", icon: "GitCommitHorizontal" },
+  { name: "machines", label: "Machine DB", icon: "Database" },
+  { name: "reports", label: "Reports", icon: "FileText" },
+] as const;
+
+export type DepartmentTab = typeof DEPARTMENT_TABS[number];
+export type ControlRoomTab = typeof CONTROL_ROOM_TABS[number];
+
+/**
+ * Get tabs for a specific department
+ * Control Room gets specialized tabs, others get standard tabs
+ */
+export function getDepartmentTabs(departmentName: string) {
+  if (departmentName === "control-room") {
+    return CONTROL_ROOM_TABS;
+  }
+  return DEPARTMENT_TABS;
+}

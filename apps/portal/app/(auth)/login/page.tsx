@@ -1,6 +1,8 @@
 import { createServerSupabaseClient } from "@repo/supabase/server";
 import { redirect } from "next/navigation";
-import { LoginForm } from "@/features/auth/components/LoginForm";
+import { LoginForm } from "./LoginForm";
+
+export const dynamic = "force-dynamic";
 
 export default async function LoginPage() {
   const supabase = await createServerSupabaseClient();
@@ -13,14 +15,12 @@ export default async function LoginPage() {
   }
 
   return (
-    <>
-      <div className="mb-8 text-center">
-        <h1 className="text-2xl font-medium text-[#fafafa]">Arch-Systems</h1>
-        <p className="text-[#898989] text-sm mt-1">
-          Sign in to your account
-        </p>
+    <div className="space-y-6">
+      <div className="text-center">
+        <h1 className="text-2xl font-semibold text-[#fafafa]">Arch-Systems</h1>
+        <p className="text-[#898989] text-sm mt-2">Sign in to your account</p>
       </div>
       <LoginForm />
-    </>
+    </div>
   );
 }

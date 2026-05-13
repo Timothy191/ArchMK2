@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Arch Systems is a multi-departmental business portal for an opencast coal mine. It is a single Next.js 14 App Router application within a Turborepo monorepo, using Supabase for auth and PostgreSQL with Row Level Security (RLS).
+Arch Systems is a multi-departmental business portal for an opencast coal mine. It is a Next.js 14 App Router application within a Turborepo monorepo, using Supabase for auth and PostgreSQL with Row Level Security (RLS).
 
 **Tech Stack:**
 - **Frontend:** Next.js 14 (App Router), React 18, Tailwind CSS, Framer Motion
@@ -21,7 +21,7 @@ Arch Systems is a multi-departmental business portal for an opencast coal mine. 
 
 ```
 ├── apps/
-│   └── portal/              # Next.js 14 app (the only frontend)
+│   └── portal/              # Next.js 14 app (main frontend, localhost:3000)
 │       ├── app/             # Route groups: (auth), (departments), (hub)
 │       ├── features/        # Co-located feature components (auth, departments, hub)
 │       └── lib/             # App-level constants (departments.ts, machines.ts)
@@ -31,6 +31,9 @@ Arch Systems is a multi-departmental business portal for an opencast coal mine. 
 │   ├── database/            # Migrations, seeds, types
 │   ├── eslint-config/       # Shared ESLint config
 │   └── typescript-config/   # Shared TS config
+├── overview/                # Separate static Next.js app (localhost:3001, output: 'export')
+│   ├── app/                 # Static overview/documentation site
+│   └── dist/                # Export output directory
 ```
 
 ### Package Exports
@@ -152,10 +155,10 @@ The `features/` directory co-locates reusable components by domain:
 
 ## UI Patterns
 
-- **Glassmorphism**: `backdrop-blur-md bg-[#171717] border border-[#363636] rounded-xl`
+- **Glassmorphism**: `rounded-2xl border border-[#363636] bg-[#242424]` (base card). Add `backdrop-blur-md` for translucent overlay cards. Interactive cards add `hover:border-[#393939] hover:bg-[#2e2e2e]`. Use the `<GlassCard>` component from `@repo/ui` instead of inline classes.
 - **Colors**: Static `colorStyles` map in `app/page.tsx` (avoids dynamic Tailwind class purging)
 - **Motion**: `framer-motion` for hover scale/y-offset on cards
-- **Icons**: Inline SVGs (not `@phosphor-icons/react` which is installed but unused)
+- **Icons**: Inline SVGs and `lucide-react` (installed in both `portal` and `overview`)
 
 ## Common Pitfalls
 
@@ -232,6 +235,10 @@ docker compose -f docker-compose.tools.yml up -d
 
 # Deploy to local server
 pnpm deploy:local
+
+# Overview static site (runs on localhost:3001, output: 'export')
+pnpm --filter arch-systems-overview dev
+pnpm --filter arch-systems-overview build
 ```
 
 ## Testing
@@ -264,9 +271,20 @@ A custom agent (`.claude/agents/design-system-reviewer.md`) audits diffs for vis
 
 **Allowed:**
 - `bg-[#0f0f0f]`, `bg-[#171717]`, `bg-[#242424]`, `border-[#363636]`
+- `hover:bg-[#1a1a1a]`, `hover:bg-[#2e2e2e]`, `hover:border-[#393939]` — hover/active states
 - `text-[#fafafa]`, `text-[#b4b4b4]`, `text-[#898989]`
 - `text-[#3ecf8e]`, `text-[#00c573]`
 - `focus:ring-[#3ecf8e]/30`
+
+**Status/Accent Colors (Tailwind semantic classes):**
+- `text-emerald-*`, `bg-emerald-*`, `border-emerald-*` — success/active
+- `text-amber-*`, `bg-amber-*`, `border-amber-*` — warning/pending
+- `text-red-*`, `bg-red-*`, `border-red-*` — error/critical
+- `text-blue-*`, `bg-blue-*`, `border-blue-*` — info/tools
+- `text-indigo-*`, `bg-indigo-*` — night shift
+- `text-violet-*`, `bg-violet-*`, `border-violet-*` — admin
+- `text-orange-*`, `border-orange-*` — drilling dept
+- `text-cyan-*`, `border-cyan-*` — training dept
 
 ## Claude Code Configuration
 
@@ -288,3 +306,9 @@ Recent additions (git: c44c52c):
 ### Next.js Configuration
 
 `apps/portal/next.config.mjs` is minimal and only sets `transpilePackages: ["@repo/ui", "@repo/supabase"]`.
+
+`overview/next.config.mjs` is a static-export configuration (`output: 'export'`, `distDir: 'dist'`) for the overview/documentation site.
+
+### Git Hooks
+
+The root `package.json` configures `husky` and `lint-staged`. On commit, `lint-staged` runs `eslint --fix` on all staged `*.{js,ts,tsx}` files.

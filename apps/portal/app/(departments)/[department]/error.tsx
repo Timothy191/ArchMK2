@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
+import { SecondaryButton } from "@repo/ui/SecondaryButton";
 
 export default function DepartmentError({
   error,
@@ -21,12 +22,9 @@ export default function DepartmentError({
         {error.message || "Failed to load department data."}
       </p>
       <div className="flex items-center gap-3">
-        <button
-          onClick={reset}
-          className="px-4 py-2 rounded-full bg-[#0f0f0f] text-[#fafafa] text-sm font-medium border border-[#363636] hover:bg-[#1a1a1a] transition-colors"
-        >
+        <SecondaryButton size="sm" onClick={reset}>
           Try again
-        </button>
+        </SecondaryButton>
         <Link
           href="/"
           className="px-4 py-2 rounded-full text-[#898989] text-sm hover:text-[#fafafa] transition-colors"

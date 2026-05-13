@@ -10,6 +10,8 @@ export async function addMachine(formData: FormData) {
   const name = formData.get("name") as string;
   const machineType = formData.get("machine_type") as string;
   const serialNumber = (formData.get("serial_number") as string) || null;
+  const binFactorStr = formData.get("bin_factor") as string;
+  const binFactor = binFactorStr ? parseFloat(binFactorStr) : null;
 
   if (!departmentId || !name || !machineType) {
     return { error: "Missing required fields" };
@@ -20,6 +22,7 @@ export async function addMachine(formData: FormData) {
     name,
     machine_type: machineType,
     serial_number: serialNumber,
+    bin_factor: binFactor,
     active: true,
   });
 

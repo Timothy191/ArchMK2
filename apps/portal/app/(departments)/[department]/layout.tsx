@@ -1,5 +1,5 @@
 import { DepartmentLayout } from "@repo/ui/DepartmentLayout";
-import { DEPARTMENTS, DEPARTMENT_TABS } from "~/lib/departments";
+import { DEPARTMENTS, getDepartmentTabs } from "~/lib/departments";
 import { notFound } from "next/navigation";
 
 export default async function DepartmentRootLayout({
@@ -12,8 +12,10 @@ export default async function DepartmentRootLayout({
   const dept = DEPARTMENTS.find((d) => d.name === params.department);
   if (!dept) notFound();
 
+  const tabs = getDepartmentTabs(params.department);
+
   return (
-    <DepartmentLayout department={dept} tabs={DEPARTMENT_TABS}>
+    <DepartmentLayout department={dept} tabs={tabs}>
       {children}
     </DepartmentLayout>
   );

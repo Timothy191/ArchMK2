@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { createBrowserSupabaseClient } from "@repo/supabase/client";
+import { SecondaryButton } from "@repo/ui/SecondaryButton";
 
 interface Machine {
   id: string;
@@ -100,13 +101,12 @@ export function DailyLogForm({
 
       {/* Actions */}
       <div className="flex items-center gap-4">
-        <button
+        <SecondaryButton
           type="submit"
           disabled={status === "submitting"}
-          className="px-6 py-2.5 rounded-full bg-[#0f0f0f] text-[#fafafa] text-sm font-medium hover:bg-[#1a1a1a] transition-colors disabled:opacity-50"
         >
           {status === "submitting" ? "Saving..." : "Save Daily Log"}
-        </button>
+        </SecondaryButton>
 
         {status === "success" && (
           <span className="text-sm text-emerald-400">Log saved successfully.</span>

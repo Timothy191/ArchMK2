@@ -2,6 +2,7 @@ import { createServerSupabaseClient } from "@repo/supabase/server";
 import { DEPARTMENTS } from "~/lib/departments";
 import { notFound } from "next/navigation";
 import { GlassCard } from "@repo/ui/GlassCard";
+import { Input } from "@repo/ui/Input";
 import Link from "next/link";
 
 export default async function HistoryPage({
@@ -57,25 +58,25 @@ export default async function HistoryPage({
         <form method="GET" className="flex items-end gap-4">
           <div>
             <label className="block text-sm text-[#898989] mb-1">From</label>
-            <input
+            <Input
               type="date"
               name="from"
               defaultValue={from}
-              className="px-4 py-2 rounded-lg bg-[#171717] border border-[#363636] text-[#fafafa] focus:outline-none focus:ring-2 focus:ring-[#3ecf8e]/30"
+              className="px-4 py-2"
             />
           </div>
           <div>
             <label className="block text-sm text-[#898989] mb-1">To</label>
-            <input
+            <Input
               type="date"
               name="to"
               defaultValue={to}
-              className="px-4 py-2 rounded-lg bg-[#171717] border border-[#363636] text-[#fafafa] focus:outline-none focus:ring-2 focus:ring-[#3ecf8e]/30"
+              className="px-4 py-2"
             />
           </div>
           <button
             type="submit"
-            className="px-4 py-2 rounded-lg bg-white/10 text-[#fafafa] text-sm font-medium hover:bg-white/20 transition-colors"
+            className="px-4 py-2 rounded-lg bg-[#242424] text-[#fafafa] text-sm font-medium hover:bg-[#2e2e2e] transition-colors"
           >
             Filter
           </button>

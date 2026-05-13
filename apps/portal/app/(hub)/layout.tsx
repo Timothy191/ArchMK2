@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { DEPARTMENTS } from "~/lib/departments";
 import { logout } from "~/app/actions";
+import { WeatherWidget } from "@/components/weather/WeatherWidget";
+import { AIAssistant } from "@/components/ai/AIAssistant";
 
 export default function HubLayout({
   children,
@@ -20,17 +22,20 @@ export default function HubLayout({
               Hub
             </span>
           </div>
-          <form
-            action={logout}
-            className="inline"
-          >
-            <button
-              type="submit"
-              className="px-3 py-1.5 rounded-lg text-xs text-[#898989] hover:text-[#fafafa] hover:bg-[#242424] transition-colors"
+          <div className="flex items-center gap-3">
+            <WeatherWidget variant="header" />
+            <form
+              action={logout}
+              className="inline"
             >
-              Sign out
-            </button>
-          </form>
+              <button
+                type="submit"
+                className="px-3 py-1.5 rounded-lg text-xs text-[#898989] hover:text-[#fafafa] hover:bg-[#242424] transition-colors"
+              >
+                Sign out
+              </button>
+            </form>
+          </div>
         </div>
       </header>
 
@@ -61,6 +66,9 @@ export default function HubLayout({
 
         <main className="flex-1 p-6">{children}</main>
       </div>
+
+      {/* AI Assistant */}
+      <AIAssistant context="Hub Dashboard" />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { SecondaryButton } from "@repo/ui/SecondaryButton";
 
 export default function HubError({
   error,
@@ -19,12 +20,9 @@ export default function HubError({
       <p className="text-[#898989] text-sm">
         {error.message || "Failed to load hub data."}
       </p>
-      <button
-        onClick={reset}
-        className="px-4 py-2 rounded-full bg-[#0f0f0f] text-[#fafafa] text-sm font-medium border border-[#363636] hover:bg-[#1a1a1a] transition-colors"
-      >
+      <SecondaryButton size="sm" onClick={reset}>
         Try again
-      </button>
+      </SecondaryButton>
     </div>
   );
 }
