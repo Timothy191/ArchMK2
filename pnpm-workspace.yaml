@@ -1,6 +1,7 @@
 packages:
   - "apps/*"
   - "packages/*"
+  - "overview"
 
 catalog:
   lucide-react: ^0.451.0

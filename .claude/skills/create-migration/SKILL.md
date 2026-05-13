@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 ## Purpose
 
-Create Supabase migrations with proper RLS policies, following Plantcor OS security patterns.
+Create Supabase migrations with proper RLS policies, following Arch Systems security patterns.
 
 ## Process
 
