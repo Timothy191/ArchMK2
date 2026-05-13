@@ -6,4 +6,15 @@ module.exports = {
   parserOptions: {
     project: true,
   },
+  overrides: [
+    {
+      files: [
+        "**/*.test.ts",
+        "**/*.test.tsx",
+        "**/*.spec.ts",
+        "**/setupTests.ts",
+      ],
+      env: { jest: true },
+    },
+  ],
 };

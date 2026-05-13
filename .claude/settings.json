@@ -1,5 +1,12 @@
 {
   "enabledPlugins": {
     "claude-md-management@claude-plugins-official": true
+  },
+  "hooks": {
+    "PostToolUse:Edit": [
+      "If the edited file is TypeScript or TSX (ends with .ts or .tsx), run `cd apps/portal && npx tsc --noEmit` to verify types. Report any errors.",
+      "If the edited file is under apps/portal/, run `cd apps/portal && npx eslint <file_path> --max-warnings 0` to verify lint. Report any errors.",
+      "If the edited file is under apps/portal/ and is a TSX component, verify it does NOT use `font-bold`, `font-semibold`, `bg-white/5`, `border-white/10`, `text-white/50`, `text-white/70`, `shadow`, `box-shadow`, or direct `clsx`/`twMerge` imports. Report any violations."
+    ]
   }
 }

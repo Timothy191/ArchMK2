@@ -16,7 +16,7 @@ const RESTRICTED_ROUTES: Record<string, string[]> = {
   tools: ["admin", "supervisor"],
 };
 
-function normalizeRole(role: unknown): string {
+export function normalizeRole(role: unknown): string {
   return typeof role === "string" && role.length > 0 ? role : "operator";
 }
 
