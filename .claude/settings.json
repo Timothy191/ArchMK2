@@ -7,50 +7,5 @@
     "vercel@claude-plugins-official": true,
     "code-review@claude-plugins-official": true,
     "code-simplifier@claude-plugins-official": true
-  },
-  "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Edit|Write",
-        "hooks": [
-          {
-            "type": "prompt",
-            "prompt": "If the file path ends with .env, .env.local, or any file containing secrets (keys, tokens, passwords), BLOCK the edit and ask the user for explicit confirmation before proceeding."
-          }
-        ]
-      },
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "prompt",
-            "prompt": "If the Bash command includes git add with .env, .env.local, .env.* or files matching *.env*, BLOCK and warn about committing secrets. Remind user to add to .gitignore instead."
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "matcher": "Write|Edit",
-        "hooks": [
-          {
-            "type": "prompt",
-            "prompt": "If the edited file is TypeScript or TSX (ends with .ts or .tsx), run `pnpm --filter portal type-check` to verify types. Report any errors."
-          },
-          {
-            "type": "prompt",
-            "prompt": "If the edited file is under apps/portal/ or packages/, run `pnpm lint` to verify linting. Report any errors."
-          },
-          {
-            "type": "prompt",
-            "prompt": "If the edited file is under apps/portal/ or packages/ui/ and is a TSX component, verify it does NOT use `font-bold`, `font-semibold`, `bg-white/5`, `border-white/10`, `text-white/50`, `text-white/70`, `shadow`, `box-shadow`, or direct `clsx`/`twMerge` imports. Report any violations."
-          },
-          {
-            "type": "prompt",
-            "prompt": "If the edited file is a test file (*.test.ts, *.test.tsx, *.spec.ts), run `pnpm --filter portal test -- --testPathPattern=<file_name>` to verify the test passes. Report any failures."
-          }
-        ]
-      }
-    ]
   }
 }
