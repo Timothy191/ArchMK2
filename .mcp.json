@@ -4,9 +4,9 @@
       "command": "npx",
       "args": ["-y", "@upstash/context7-mcp@latest"]
     },
-    "supabase": {
+    "playwright": {
       "command": "npx",
-      "args": ["-y", "@supabase/mcp-server-supabase@latest"]
+      "args": ["-y", "@playwright/mcp@latest"]
     }
   }
 }
