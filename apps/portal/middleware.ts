@@ -11,19 +11,44 @@ const DEPARTMENT_ROUTES = [
   "training",
 ];
 
-const VALID_ROLES = ["admin", "supervisor", "operator", "viewer"] as const;
-type Role = (typeof VALID_ROLES)[number];
-
-const RESTRICTED_ROUTES: Record<string, Role[]> = {
+const RESTRICTED_ROUTES: Record<string, string[]> = {
   "control-room": ["control_room_operator", "admin"],
   tools: ["admin", "supervisor"],
 };
 
-function normalizeRole(role: unknown): Role {
-  if (typeof role === "string" && VALID_ROLES.includes(role as Role)) {
-    return role as Role;
+function normalizeRole(role: unknown): string {
+  return typeof role === "string" && role.length > 0 ? role : "operator";
+}
+
+function redirectWithError(request: NextRequest, error: string) {
+  const url = new URL("/", request.url);
+  url.searchParams.set("error", error);
+  return NextResponse.redirect(url);
+}
+
+// Simple in-module cache for department slug -> UUID lookups
+const deptSlugToId = new Map<string, string>();
+let deptCacheTime = 0;
+const CACHE_TTL_MS = 60_000;
+
+async function resolveDeptUuid(
+  supabase: Awaited<ReturnType<typeof createMiddlewareClient>>["supabase"],
+  slug: string,
+): Promise<string | null> {
+  const cached = deptSlugToId.get(slug);
+  if (cached && Date.now() - deptCacheTime < CACHE_TTL_MS) {
+    return cached;
   }
-  return "operator";
+  const { data } = await supabase
+    .from("departments")
+    .select("id")
+    .eq("name", slug)
+    .single();
+  if (data?.id) {
+    deptSlugToId.set(slug, data.id);
+    deptCacheTime = Date.now();
+  }
+  return data?.id || null;
 }
 
 export async function middleware(request: NextRequest) {
@@ -59,46 +84,32 @@ export async function middleware(request: NextRequest) {
   // Check restricted top-level routes
   for (const [route, allowedRoles] of Object.entries(RESTRICTED_ROUTES)) {
     if (pathname.startsWith(`/${route}`) && !allowedRoles.includes(userRole)) {
-      const redirectUrl = new URL("/", request.url);
-      redirectUrl.searchParams.set("error", "unauthorized_department");
-      return NextResponse.redirect(redirectUrl);
+      return redirectWithError(request, "unauthorized_department");
     }
   }
 
   // Also check /{dept}/tools restriction
   if (
     secondSegment === "tools" &&
+    RESTRICTED_ROUTES.tools &&
     !RESTRICTED_ROUTES.tools.includes(userRole)
   ) {
-    const redirectUrl = new URL("/", request.url);
-    redirectUrl.searchParams.set("error", "unauthorized_department");
-    return NextResponse.redirect(redirectUrl);
+    return redirectWithError(request, "unauthorized_department");
   }
 
   // Check department isolation
   if (topSegment && DEPARTMENT_ROUTES.includes(topSegment)) {
     const isAdmin = userRole === "admin";
 
-    // Resolve department slug to UUID for proper comparison
-    const { data: deptData } = await supabase
-      .from("departments")
-      .select("id")
-      .eq("name", topSegment)
-      .single();
-
-    const deptUuid = deptData?.id;
+    const deptUuid = await resolveDeptUuid(supabase, topSegment);
     if (!deptUuid) {
-      const redirectUrl = new URL("/", request.url);
-      redirectUrl.searchParams.set("error", "unknown_department");
-      return NextResponse.redirect(redirectUrl);
+      return redirectWithError(request, "unknown_department");
     }
 
     const hasAccess =
       isAdmin || userDept === deptUuid || accessible.includes(deptUuid);
     if (!hasAccess) {
-      const redirectUrl = new URL("/", request.url);
-      redirectUrl.searchParams.set("error", "unauthorized_department");
-      return NextResponse.redirect(redirectUrl);
+      return redirectWithError(request, "unauthorized_department");
     }
   }
 
@@ -106,5 +117,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*))"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };

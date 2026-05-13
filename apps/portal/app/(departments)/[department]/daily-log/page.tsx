@@ -45,17 +45,17 @@ export default async function DailyLogPage({
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-semibold text-white">Daily Log</h2>
+      <h2 className="text-2xl font-medium text-[#fafafa]">Daily Log</h2>
 
       {allShiftsLogged ? (
         <GlassCard className="border-emerald-500/20">
           <p className="text-emerald-400 text-sm font-medium">
             &#10003; All shifts logged for today
           </p>
-          <p className="text-white/70 text-sm mt-1">
+          <p className="text-[#b4b4b4] text-sm mt-1">
             <a
               href={`/${params.department}/history`}
-              className="text-blue-400 hover:underline"
+              className="text-[#00c573] hover:underline"
             >
               View History
             </a>
@@ -76,7 +76,6 @@ export default async function DailyLogPage({
             departmentId={deptId}
             departmentSlug={params.department}
             machines={machines || []}
-            existingShifts={existingShifts}
           />
         </>
       )}

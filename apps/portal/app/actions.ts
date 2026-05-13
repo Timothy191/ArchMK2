@@ -9,7 +9,11 @@ function getStringValue(value: FormDataEntryValue | undefined): string {
   return typeof value === "string" ? value : "";
 }
 
-export async function submitDailyLog(departmentId: string, formData: FormData) {
+export async function submitDailyLog(
+  departmentId: string,
+  departmentSlug: string,
+  formData: FormData,
+) {
   const supabase = await createServerSupabaseClient();
   const {
     data: { user },
@@ -33,7 +37,8 @@ export async function submitDailyLog(departmentId: string, formData: FormData) {
           hours_worked: 0,
         };
         if (field === "hours_worked") {
-          machineHours[idx].hours_worked = parseFloat(getStringValue(value));
+          machineHours[idx].hours_worked =
+            parseFloat(getStringValue(value)) || 0;
         } else {
           machineHours[idx].machine_id = getStringValue(value);
         }
@@ -46,7 +51,7 @@ export async function submitDailyLog(departmentId: string, formData: FormData) {
         const field = match[2] as "machine_id" | "diesel_litres";
         fuelLogs[idx] = fuelLogs[idx] || { machine_id: "", diesel_litres: 0 };
         if (field === "diesel_litres") {
-          fuelLogs[idx].diesel_litres = parseFloat(getStringValue(value));
+          fuelLogs[idx].diesel_litres = parseFloat(getStringValue(value)) || 0;
         } else {
           fuelLogs[idx].machine_id = getStringValue(value);
         }
@@ -54,22 +59,24 @@ export async function submitDailyLog(departmentId: string, formData: FormData) {
     }
   }
 
+  const filteredMachineHours = machineHours.filter(
+    (m) => m.machine_id && m.hours_worked > 0,
+  );
+  const filteredFuelLogs = fuelLogs.filter(
+    (f) => f.machine_id && f.diesel_litres > 0,
+  );
+
   const parsed = dailyLogFormSchema.safeParse({
     log_date: getStringValue(raw.log_date),
     shift: getStringValue(raw.shift) as "day" | "night",
     notes: getStringValue(raw.notes) || undefined,
-    machine_hours: machineHours.filter(
-      (m) => m.machine_id && m.hours_worked > 0,
-    ),
-    fuel_logs:
-      fuelLogs.filter((f) => f.machine_id && f.diesel_litres > 0).length > 0
-        ? fuelLogs.filter((f) => f.machine_id && f.diesel_litres > 0)
-        : undefined,
+    machine_hours: filteredMachineHours,
+    fuel_logs: filteredFuelLogs.length > 0 ? filteredFuelLogs : undefined,
     production:
       raw.coal_tonnes || raw.waste_tonnes
         ? {
-            coal_tonnes: parseFloat(getStringValue(raw.coal_tonnes)),
-            waste_tonnes: parseFloat(getStringValue(raw.waste_tonnes)),
+            coal_tonnes: parseFloat(getStringValue(raw.coal_tonnes)) || 0,
+            waste_tonnes: parseFloat(getStringValue(raw.waste_tonnes)) || 0,
           }
         : undefined,
   });
@@ -105,8 +112,10 @@ export async function submitDailyLog(departmentId: string, formData: FormData) {
     return { error: rpcError.message };
   }
 
-  // Revalidate with slug (departmentId is the UUID; caller passes slug via separate param if needed)
-  // We don't know the slug here from UUID without a DB lookup, so we revalidate generically
-  // The daily-log page will handle its own revalidation via client refresh
+  revalidatePath(`/${departmentSlug}`);
+  revalidatePath(`/${departmentSlug}/daily-log`);
+  revalidatePath(`/${departmentSlug}/history`);
+  revalidatePath(`/${departmentSlug}/reports`);
+
   return { success: true, logId };
 }

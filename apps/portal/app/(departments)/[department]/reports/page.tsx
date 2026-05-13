@@ -71,6 +71,31 @@ export default async function ReportsPage({
   const totalWaste =
     productionLogs?.reduce((sum, p) => sum + (p.waste_tonnes || 0), 0) || 0;
 
+  // Pre-aggregate child records for O(1) lookup during render
+  const machineHoursByLog = new Map<string, number>();
+  machineHours?.forEach((m) => {
+    machineHoursByLog.set(
+      m.daily_log_id,
+      (machineHoursByLog.get(m.daily_log_id) || 0) + (m.hours_worked || 0),
+    );
+  });
+
+  const fuelLogsByLog = new Map<string, number>();
+  fuelLogs?.forEach((f) => {
+    fuelLogsByLog.set(
+      f.daily_log_id,
+      (fuelLogsByLog.get(f.daily_log_id) || 0) + (f.diesel_litres || 0),
+    );
+  });
+
+  const productionByLog = new Map<
+    string,
+    { coal_tonnes: number; waste_tonnes: number }
+  >();
+  productionLogs?.forEach((p) => {
+    productionByLog.set(p.daily_log_id, p);
+  });
+
   const csvRows = [
     [
       "Date",
@@ -82,15 +107,15 @@ export default async function ReportsPage({
       "Waste (t)",
     ],
     ...(logs || []).map((log) => {
-      const mh = machineHours?.filter((m) => m.daily_log_id === log.id) || [];
-      const fl = fuelLogs?.filter((f) => f.daily_log_id === log.id) || [];
-      const pl = productionLogs?.find((p) => p.daily_log_id === log.id);
+      const mh = machineHoursByLog.get(log.id) || 0;
+      const fl = fuelLogsByLog.get(log.id) || 0;
+      const pl = productionByLog.get(log.id);
       return [
         log.log_date,
         log.shift,
         log.notes || "",
-        mh.reduce((s, m) => s + (m.hours_worked || 0), 0).toFixed(2),
-        fl.reduce((s, f) => s + (f.diesel_litres || 0), 0).toFixed(2),
+        mh.toFixed(2),
+        fl.toFixed(2),
         (pl?.coal_tonnes || 0).toFixed(2),
         (pl?.waste_tonnes || 0).toFixed(2),
       ];
@@ -106,11 +131,11 @@ export default async function ReportsPage({
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-semibold text-white">Reports</h2>
+        <h2 className="text-2xl font-medium text-[#fafafa]">Reports</h2>
         <a
           href={`data:text/csv;charset=utf-8,${encodeURIComponent(csvContent)}`}
           download={`${params.department}-report-${from}-to-${to}.csv`}
-          className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium transition-colors"
+          className="px-4 py-2 rounded-lg bg-[#0f0f0f] hover:bg-[#1a1a1a] text-[#fafafa] text-sm font-medium transition-colors"
         >
           Download CSV
         </a>
@@ -119,26 +144,26 @@ export default async function ReportsPage({
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <GlassCard>
-          <p className="text-white/50 text-sm">Total Machine Hours</p>
-          <p className="text-2xl font-bold text-white mt-1">
+          <p className="text-[#898989] text-sm">Total Machine Hours</p>
+          <p className="text-2xl font-medium text-[#fafafa] mt-1">
             {totalHours.toFixed(1)}
           </p>
         </GlassCard>
         <GlassCard>
-          <p className="text-white/50 text-sm">Diesel Consumed (L)</p>
-          <p className="text-2xl font-bold text-white mt-1">
+          <p className="text-[#898989] text-sm">Diesel Consumed (L)</p>
+          <p className="text-2xl font-medium text-[#fafafa] mt-1">
             {totalFuel.toFixed(1)}
           </p>
         </GlassCard>
         <GlassCard>
-          <p className="text-white/50 text-sm">Coal Removed (t)</p>
-          <p className="text-2xl font-bold text-emerald-400 mt-1">
+          <p className="text-[#898989] text-sm">Coal Removed (t)</p>
+          <p className="text-2xl font-medium text-emerald-400 mt-1">
             {totalCoal.toFixed(1)}
           </p>
         </GlassCard>
         <GlassCard>
-          <p className="text-white/50 text-sm">Waste Removed (t)</p>
-          <p className="text-2xl font-bold text-amber-400 mt-1">
+          <p className="text-[#898989] text-sm">Waste Removed (t)</p>
+          <p className="text-2xl font-medium text-amber-400 mt-1">
             {totalWaste.toFixed(1)}
           </p>
         </GlassCard>
@@ -148,26 +173,26 @@ export default async function ReportsPage({
       <GlassCard>
         <form method="GET" className="flex items-end gap-4">
           <div>
-            <label className="block text-sm text-white/50 mb-1">From</label>
+            <label className="block text-sm text-[#898989] mb-1">From</label>
             <input
               type="date"
               name="from"
               defaultValue={from}
-              className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+              className="px-4 py-2 rounded-lg bg-[#171717] border border-[#363636] text-[#fafafa] focus:outline-none focus:ring-2 focus:ring-[#3ecf8e]/30"
             />
           </div>
           <div>
-            <label className="block text-sm text-white/50 mb-1">To</label>
+            <label className="block text-sm text-[#898989] mb-1">To</label>
             <input
               type="date"
               name="to"
               defaultValue={to}
-              className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+              className="px-4 py-2 rounded-lg bg-[#171717] border border-[#363636] text-[#fafafa] focus:outline-none focus:ring-2 focus:ring-[#3ecf8e]/30"
             />
           </div>
           <button
             type="submit"
-            className="px-4 py-2 rounded-lg bg-white/10 text-white text-sm font-medium hover:bg-white/20 transition-colors"
+            className="px-4 py-2 rounded-lg bg-[#242424] text-[#fafafa] text-sm font-medium hover:bg-[#2e2e2e] transition-colors"
           >
             Update
           </button>
@@ -180,41 +205,37 @@ export default async function ReportsPage({
           <table className="w-full text-left">
             <thead>
               <tr className="border-b border-white/10">
-                <th className="px-6 py-3 text-xs font-semibold text-white/50 uppercase tracking-wider">
+                <th className="px-6 py-3 text-xs font-medium text-[#898989] uppercase tracking-wider">
                   Date
                 </th>
-                <th className="px-6 py-3 text-xs font-semibold text-white/50 uppercase tracking-wider">
+                <th className="px-6 py-3 text-xs font-medium text-[#898989] uppercase tracking-wider">
                   Shift
                 </th>
-                <th className="px-6 py-3 text-xs font-semibold text-white/50 uppercase tracking-wider text-right">
+                <th className="px-6 py-3 text-xs font-medium text-[#898989] uppercase tracking-wider text-right">
                   Hours
                 </th>
-                <th className="px-6 py-3 text-xs font-semibold text-white/50 uppercase tracking-wider text-right">
+                <th className="px-6 py-3 text-xs font-medium text-[#898989] uppercase tracking-wider text-right">
                   Fuel (L)
                 </th>
-                <th className="px-6 py-3 text-xs font-semibold text-white/50 uppercase tracking-wider text-right">
+                <th className="px-6 py-3 text-xs font-medium text-[#898989] uppercase tracking-wider text-right">
                   Coal (t)
                 </th>
-                <th className="px-6 py-3 text-xs font-semibold text-white/50 uppercase tracking-wider text-right">
+                <th className="px-6 py-3 text-xs font-medium text-[#898989] uppercase tracking-wider text-right">
                   Waste (t)
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y divide-[#363636]">
               {logs?.map((log) => {
-                const mh =
-                  machineHours?.filter((m) => m.daily_log_id === log.id) || [];
-                const fl =
-                  fuelLogs?.filter((f) => f.daily_log_id === log.id) || [];
-                const pl = productionLogs?.find(
-                  (p) => p.daily_log_id === log.id,
-                );
+                const mh = machineHoursByLog.get(log.id) || 0;
+                const fl = fuelLogsByLog.get(log.id) || 0;
+                const pl = productionByLog.get(log.id);
                 return (
                   <tr
                     key={log.id}
-                    className="hover:bg-white/[0.02] transition-colors"
+                    className="hover:bg-[#242424] transition-colors"
                   >
-                    <td className="px-6 py-4 text-white text-sm">
+                    <td className="px-6 py-4 text-[#fafafa] text-sm">
                       {log.log_date}
                     </td>
                     <td className="px-6 py-4">
@@ -228,15 +249,11 @@ export default async function ReportsPage({
                         {log.shift}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-white/60 text-sm text-right">
-                      {mh
-                        .reduce((s, m) => s + (m.hours_worked || 0), 0)
-                        .toFixed(1)}
+                    <td className="px-6 py-4 text-[#898989] text-sm text-right">
+                      {mh.toFixed(1)}
                     </td>
-                    <td className="px-6 py-4 text-white/60 text-sm text-right">
-                      {fl
-                        .reduce((s, f) => s + (f.diesel_litres || 0), 0)
-                        .toFixed(1)}
+                    <td className="px-6 py-4 text-[#898989] text-sm text-right">
+                      {fl.toFixed(1)}
                     </td>
                     <td className="px-6 py-4 text-emerald-400 text-sm text-right">
                       {(pl?.coal_tonnes || 0).toFixed(1)}
@@ -251,7 +268,7 @@ export default async function ReportsPage({
                 <tr>
                   <td
                     colSpan={6}
-                    className="px-6 py-12 text-center text-white/30 text-sm"
+                    className="px-6 py-12 text-center text-[#898989] text-sm"
                   >
                     No data found for the selected date range.
                   </td>

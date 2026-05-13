@@ -13,9 +13,11 @@ interface Machine {
 
 export function DailyLogForm({
   departmentId,
+  departmentSlug,
   machines,
 }: {
   departmentId: string;
+  departmentSlug: string;
   machines: Machine[];
 }) {
   const [loading, setLoading] = useState(false);
@@ -32,7 +34,7 @@ export function DailyLogForm({
     setSuccess(false);
 
     const formData = new FormData(e.currentTarget);
-    const result = await submitDailyLog(departmentId, formData);
+    const result = await submitDailyLog(departmentId, departmentSlug, formData);
 
     setLoading(false);
     if (result.error) {
@@ -62,26 +64,26 @@ export function DailyLogForm({
 
       {/* Shift & Date */}
       <GlassCard>
-        <h3 className="text-sm font-semibold text-white/70 uppercase tracking-wider mb-4">
+        <h3 className="text-sm font-medium text-[#b4b4b4] uppercase tracking-wider mb-4">
           Shift Details
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm text-white/50 mb-1">Date</label>
+            <label className="block text-sm text-[#898989] mb-1">Date</label>
             <input
               type="date"
               name="log_date"
               defaultValue={today}
               required
-              className="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+              className="w-full px-4 py-2.5 rounded-lg bg-[#171717] border border-[#363636] text-[#fafafa] focus:outline-none focus:ring-2 focus:ring-[#3ecf8e]/30"
             />
           </div>
           <div>
-            <label className="block text-sm text-white/50 mb-1">Shift</label>
+            <label className="block text-sm text-[#898989] mb-1">Shift</label>
             <select
               name="shift"
               required
-              className="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+              className="w-full px-4 py-2.5 rounded-lg bg-[#171717] border border-[#363636] text-[#fafafa] focus:outline-none focus:ring-2 focus:ring-[#3ecf8e]/30"
             >
               <option value="day">Day</option>
               <option value="night">Night</option>
@@ -89,27 +91,29 @@ export function DailyLogForm({
           </div>
         </div>
         <div className="mt-4">
-          <label className="block text-sm text-white/50 mb-1">Notes</label>
+          <label className="block text-sm text-[#898989] mb-1">Notes</label>
           <textarea
             name="notes"
             rows={3}
             placeholder="Enter any observations or issues..."
-            className="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-blue-500/50 resize-none"
+            className="w-full px-4 py-2.5 rounded-lg bg-[#171717] border border-[#363636] text-[#fafafa] placeholder-[#898989] focus:outline-none focus:ring-2 focus:ring-[#3ecf8e]/30 resize-none"
           />
         </div>
       </GlassCard>
 
       {/* Machine Hours */}
       <GlassCard>
-        <h3 className="text-sm font-semibold text-white/70 uppercase tracking-wider mb-4">
+        <h3 className="text-sm font-medium text-[#b4b4b4] uppercase tracking-wider mb-4">
           Machine Hours
         </h3>
         <div className="space-y-3">
           {machines.map((machine, idx) => (
             <div key={machine.id} className="flex items-center gap-4">
               <div className="flex-1">
-                <p className="text-white text-sm font-medium">{machine.name}</p>
-                <p className="text-white/40 text-xs">{machine.machine_type}</p>
+                <p className="text-[#fafafa] text-sm font-medium">
+                  {machine.name}
+                </p>
+                <p className="text-[#898989] text-xs">{machine.machine_type}</p>
               </div>
               <input
                 type="hidden"
@@ -124,14 +128,14 @@ export function DailyLogForm({
                   max="24"
                   step="0.5"
                   defaultValue="0"
-                  className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-right focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                  className="w-full px-3 py-2 rounded-lg bg-[#171717] border border-[#363636] text-[#fafafa] text-right focus:outline-none focus:ring-2 focus:ring-[#3ecf8e]/30"
                 />
               </div>
-              <span className="text-white/30 text-sm w-12">hrs</span>
+              <span className="text-[#898989] text-sm w-12">hrs</span>
             </div>
           ))}
           {machines.length === 0 && (
-            <p className="text-white/30 text-sm">
+            <p className="text-[#898989] text-sm">
               No active machines for this department.
             </p>
           )}
@@ -140,14 +144,16 @@ export function DailyLogForm({
 
       {/* Fuel Logs */}
       <GlassCard>
-        <h3 className="text-sm font-semibold text-white/70 uppercase tracking-wider mb-4">
+        <h3 className="text-sm font-medium text-[#b4b4b4] uppercase tracking-wider mb-4">
           Diesel Consumption
         </h3>
         <div className="space-y-3">
           {machines.map((machine, idx) => (
             <div key={`fuel-${machine.id}`} className="flex items-center gap-4">
               <div className="flex-1">
-                <p className="text-white text-sm font-medium">{machine.name}</p>
+                <p className="text-[#fafafa] text-sm font-medium">
+                  {machine.name}
+                </p>
               </div>
               <input
                 type="hidden"
@@ -161,14 +167,14 @@ export function DailyLogForm({
                   min="0"
                   step="0.1"
                   defaultValue="0"
-                  className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-right focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                  className="w-full px-3 py-2 rounded-lg bg-[#171717] border border-[#363636] text-[#fafafa] text-right focus:outline-none focus:ring-2 focus:ring-[#3ecf8e]/30"
                 />
               </div>
-              <span className="text-white/30 text-sm w-12">L</span>
+              <span className="text-[#898989] text-sm w-12">L</span>
             </div>
           ))}
           {machines.length === 0 && (
-            <p className="text-white/30 text-sm">
+            <p className="text-[#898989] text-sm">
               No active machines for this department.
             </p>
           )}
@@ -177,12 +183,12 @@ export function DailyLogForm({
 
       {/* Production */}
       <GlassCard>
-        <h3 className="text-sm font-semibold text-white/70 uppercase tracking-wider mb-4">
+        <h3 className="text-sm font-medium text-[#b4b4b4] uppercase tracking-wider mb-4">
           Production
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm text-white/50 mb-1">
+            <label className="block text-sm text-[#898989] mb-1">
               Coal Removed (tonnes)
             </label>
             <input
@@ -191,11 +197,11 @@ export function DailyLogForm({
               min="0"
               step="0.01"
               defaultValue="0"
-              className="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+              className="w-full px-4 py-2.5 rounded-lg bg-[#171717] border border-[#363636] text-[#fafafa] focus:outline-none focus:ring-2 focus:ring-[#3ecf8e]/30"
             />
           </div>
           <div>
-            <label className="block text-sm text-white/50 mb-1">
+            <label className="block text-sm text-[#898989] mb-1">
               Waste Removed (tonnes)
             </label>
             <input
@@ -204,7 +210,7 @@ export function DailyLogForm({
               min="0"
               step="0.01"
               defaultValue="0"
-              className="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+              className="w-full px-4 py-2.5 rounded-lg bg-[#171717] border border-[#363636] text-[#fafafa] focus:outline-none focus:ring-2 focus:ring-[#3ecf8e]/30"
             />
           </div>
         </div>
@@ -213,15 +219,15 @@ export function DailyLogForm({
       <div className="flex justify-end gap-3">
         <button
           type="button"
-          onClick={() => router.push(`/${departmentId}`)}
-          className="px-6 py-2.5 rounded-lg border border-white/10 text-white/70 hover:text-white hover:bg-white/5 transition-colors"
+          onClick={() => router.push(`/${departmentSlug}`)}
+          className="px-6 py-2.5 rounded-lg border border-[#363636] text-[#898989] hover:text-[#fafafa] hover:bg-[#242424] transition-colors"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={loading}
-          className="px-6 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-medium transition-colors disabled:opacity-50"
+          className="px-6 py-2.5 rounded-lg bg-[#0f0f0f] text-[#fafafa] font-medium hover:bg-[#1a1a1a] transition-colors disabled:opacity-50"
         >
           {loading ? "Submitting..." : "Submit Daily Log"}
         </button>

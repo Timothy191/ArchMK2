@@ -31,24 +31,24 @@ export default async function MachinesPage({
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-semibold text-white">Machines</h2>
+      <h2 className="text-2xl font-medium text-[#fafafa]">Machines</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <GlassCard>
-          <p className="text-white/50 text-sm">Total Machines</p>
-          <p className="text-2xl font-bold text-white mt-1">
+          <p className="text-[#898989] text-sm">Total Machines</p>
+          <p className="text-2xl font-medium text-[#fafafa] mt-1">
             {machines?.length ?? 0}
           </p>
         </GlassCard>
         <GlassCard>
-          <p className="text-white/50 text-sm">Active</p>
-          <p className="text-2xl font-bold text-emerald-400 mt-1">
+          <p className="text-[#898989] text-sm">Active</p>
+          <p className="text-2xl font-medium text-emerald-400 mt-1">
             {activeCount}
           </p>
         </GlassCard>
         <GlassCard>
-          <p className="text-white/50 text-sm">Inactive</p>
-          <p className="text-2xl font-bold text-white/60 mt-1">
+          <p className="text-[#898989] text-sm">Inactive</p>
+          <p className="text-2xl font-medium text-[#898989] mt-1">
             {(machines?.length ?? 0) - activeCount}
           </p>
         </GlassCard>
@@ -59,13 +59,13 @@ export default async function MachinesPage({
           <GlassCard key={machine.id}>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-white font-medium">{machine.name}</p>
+                <p className="text-[#fafafa] font-medium">{machine.name}</p>
                 <div className="flex items-center gap-3 mt-1">
-                  <span className="text-white/40 text-xs">
+                  <span className="text-[#898989] text-xs">
                     {machine.machine_type}
                   </span>
                   {machine.serial_number && (
-                    <span className="text-white/30 text-xs">
+                    <span className="text-[#898989] text-xs">
                       SN: {machine.serial_number}
                     </span>
                   )}
@@ -75,7 +75,7 @@ export default async function MachinesPage({
                 className={`px-2.5 py-1 rounded-full text-xs font-medium ${
                   machine.active
                     ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                    : "bg-white/5 text-white/40 border border-white/10"
+                    : "bg-[#171717] text-[#898989] border border-[#363636]"
                 }`}
               >
                 {machine.active ? "Active" : "Inactive"}
@@ -85,7 +85,7 @@ export default async function MachinesPage({
         ))}
         {(!machines || machines.length === 0) && (
           <GlassCard>
-            <p className="text-white/30 text-sm text-center py-8">
+            <p className="text-[#898989] text-sm text-center py-8">
               No machines registered for this department.
             </p>
           </GlassCard>
