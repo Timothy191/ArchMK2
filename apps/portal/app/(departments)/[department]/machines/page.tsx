@@ -2,6 +2,7 @@ import { createServerSupabaseClient } from "@repo/supabase/server";
 import { DEPARTMENTS } from "~/lib/departments";
 import { notFound } from "next/navigation";
 import { GlassCard } from "@repo/ui/GlassCard";
+import { AddMachineForm } from "@/features/departments/components/machines/AddMachineForm";
 
 export default async function MachinesPage({
   params,
@@ -31,7 +32,10 @@ export default async function MachinesPage({
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-medium text-[#fafafa]">Machines</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-medium text-[#fafafa]">Machines</h2>
+        <AddMachineForm departmentId={department.id} />
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <GlassCard>

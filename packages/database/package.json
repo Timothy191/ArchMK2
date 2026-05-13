@@ -1,0 +1,13 @@
+{
+  "name": "@repo/database",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "supabase:dev": "pnpx supabase start",
+    "supabase:push": "pnpx supabase db push",
+    "supabase:reset": "pnpx supabase db reset"
+  },
+  "devDependencies": {
+    "supabase": "catalog:"
+  }
+}

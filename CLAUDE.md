@@ -1,8 +1,21 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+---
+
 # Plantcor OS — Claude Code Guide
 
 ## Project Overview
 
 Plantcor OS is a multi-departmental business portal for an opencast coal mine. It is a single Next.js 14 App Router application within a Turborepo monorepo, using Supabase for auth and PostgreSQL with Row Level Security (RLS).
+
+**Tech Stack:**
+- **Frontend:** Next.js 14 (App Router), React 18, Tailwind CSS, Framer Motion
+- **Backend:** Supabase (Auth, Postgres, RLS)
+- **Monorepo:** pnpm workspaces, Turborepo
+- **Testing:** Jest (unit), Playwright (E2E)
+- **Node:** 20.17.0+ (Volta-managed)
 
 ## Monorepo Structure
 
@@ -10,12 +23,26 @@ Plantcor OS is a multi-departmental business portal for an opencast coal mine. I
 ├── apps/
 │   └── portal/              # Next.js 14 app (the only frontend)
 ├── packages/
-│   ├── ui/                  # Shared UI components (GlassCard, DepartmentLayout)
+│   ├── ui/                  # Shared UI components (GlassCard, DepartmentLayout, shadcn)
 │   ├── supabase/            # Supabase SSR clients (CRITICAL: see SSR Split below)
 │   ├── database/            # Migrations, seeds, types
 │   ├── eslint-config/       # Shared ESLint config
 │   └── typescript-config/   # Shared TS config
 ```
+
+### Package Exports
+
+**@repo/ui** — Component library with custom exports:
+- `@repo/ui/GlassCard` — Glassmorphic card component
+- `@repo/ui/DepartmentLayout` — Department page wrapper
+- `@repo/ui/lib/*` — Utilities (including `cn()` for className merging)
+- `@repo/ui/hooks/*` — React hooks
+- `@repo/ui/components/*` — shadcn components
+
+**@repo/supabase** — Subpath exports only (see SSR Split):
+- `@repo/supabase/server` — Server Components, Server Actions, Middleware
+- `@repo/supabase/client` — Client Components (browser)
+- `@repo/supabase/middleware` — Next.js middleware
 
 ## Critical Rule: Monorepo Boundaries
 
@@ -126,28 +153,109 @@ All department routes live under `app/(departments)/[department]/`:
 
 ## Environment Variables
 
+**Frontend** (`apps/portal/.env.local`):
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 ```
 
-Place in `apps/portal/.env.local`.
+**Backend/Server** (from `.env.example`):
+```bash
+PORT=8000
+SUPABASE_URL=
+SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_KEY=
+```
+
+Global environment variables configured in `turbo.json`: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `SUPABASE_ANON_KEY`, `PORT`.
 
 ## Commands
 
 ```bash
-# Dev server
+# Dev server (runs portal app)
 pnpm dev
 
 # Type check
 pnpm --filter portal type-check
 
-# Build
+# Build all packages + app
+pnpm build
+
+# Build portal only
 pnpm --filter portal build
 
-# Supabase local
+# Lint
+pnpm lint
+
+# Format code
+pnpm format
+
+# Run E2E tests (ensure dev server running first)
+pnpm test:e2e
+
+# Supabase local development
 pnpm --filter @repo/database supabase:dev
 
 # Docker tools (n8n + Flowise)
 docker compose -f docker-compose.tools.yml up -d
+
+# Deploy to local server
+pnpm deploy:local
 ```
+
+### Package-Specific Commands
+
+```bash
+# UI component development
+pnpm ui                    # Opens shadcn CLI
+
+# Database migrations
+pnpm --filter @repo/database supabase:push    # Push local migrations to remote
+pnpm --filter @repo/database supabase:pull    # Pull remote schema to local
+```
+
+## Testing
+
+### E2E Tests (Playwright)
+
+```bash
+pnpm test:e2e
+```
+
+Config in `playwright.config.ts`:
+- Test dir: `./e2e`
+- Browser: Chromium (system Chrome at `/usr/bin/google-chrome`)
+- Base URL: `http://localhost:3000`
+
+### Unit Tests (Jest)
+
+```bash
+pnpm --filter portal test
+```
+
+## Design System Reviewer
+
+A custom agent (`design-system-reviewer.md`) audits diffs for visual regressions and forbidden patterns:
+
+**Forbidden:**
+- `bg-white/5`, `bg-white/10`, `border-white/10`, `text-white/50`, `text-white/70`
+- `font-semibold`, `font-bold` (max: `font-medium`)
+- `shadow-*` classes (depth from border color only)
+- Direct `clsx`/`tailwind-merge` imports (use `cn()` from `@repo/ui/lib/utils`)
+- Direct `@supabase/supabase-js` imports (use `@repo/supabase/*`)
+- New tables/migrations without `ENABLE ROW LEVEL SECURITY`
+
+**Allowed:**
+- `bg-[#0f0f0f]`, `bg-[#171717]`, `bg-[#242424]`, `border-[#363636]`
+- `text-[#fafafa]`, `text-[#b4b4b4]`, `text-[#898989]`
+- `text-[#3ecf8e]`, `text-[#00c573]`
+- `focus:ring-[#3ecf8e]/30`
+
+## Additional Notes
+
+### Hub and Control Room
+
+Recent additions (git: c44c52c):
+- `/hub` route restored with loading/error boundaries
+- `/control-room` route added with specialized components
+- Admin routes under `/app/admin/`

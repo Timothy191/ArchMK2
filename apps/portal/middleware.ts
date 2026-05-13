@@ -14,6 +14,7 @@ const DEPARTMENT_ROUTES = [
 const RESTRICTED_ROUTES: Record<string, string[]> = {
   "control-room": ["control_room_operator", "admin"],
   tools: ["admin", "supervisor"],
+  admin: ["admin"],
 };
 
 export function normalizeRole(role: unknown): string {
