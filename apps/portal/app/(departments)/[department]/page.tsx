@@ -6,6 +6,7 @@ import { ScadaPanel } from "@/features/departments/components/control-room/Scada
 import { AlertPanel } from "@/features/departments/components/control-room/AlertPanel";
 import { ControlRoomActivityFeed } from "@/features/departments/components/control-room/ControlRoomActivityFeed";
 import { WeatherWidget } from "@/components/weather/WeatherWidget";
+import { SatelliteMonitoringDashboard } from "@/features/departments/components/satellite/SatelliteMonitoringDashboard";
 
 export default async function DepartmentDashboard({
   params,
@@ -72,6 +73,11 @@ export default async function DepartmentDashboard({
   const totalLoads = todayLoads?.reduce((sum, l) => sum + (l.total_loads || 0), 0) || 0;
 
   const isControlRoom = params.department === "control-room";
+  const isSatelliteMonitoring = params.department === "satellite-monitoring";
+
+  if (isSatelliteMonitoring) {
+    return <SatelliteMonitoringDashboard />;
+  }
 
   return (
     <div className="space-y-6">

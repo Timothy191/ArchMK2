@@ -56,6 +56,13 @@ export const DEPARTMENTS: Department[] = [
     description: "LMS, certifications & competency tracking",
     color: "cyan",
   },
+  {
+    name: "satellite-monitoring",
+    displayName: "Satellite Monitoring",
+    icon: "Satellite",
+    description: "SAR/InSAR, hyperspectral & high-resolution imagery",
+    color: "indigo",
+  },
 ];
 
 export const DEPARTMENT_TABS = [
@@ -81,6 +88,14 @@ export const CONTROL_ROOM_TABS = [
   { name: "roll-over", label: "Roll Over", icon: "GitCommitHorizontal" },
   { name: "machines", label: "Machine DB", icon: "Database" },
   { name: "reports", label: "Reports", icon: "FileText" },
+  { name: "satellite", label: "Satellite", icon: "Satellite" },
+] as const;
+
+export const SATELLITE_MONITORING_TABS = [
+  { name: "dashboard", label: "Overview", icon: "ChartBar" },
+  { name: "sar", label: "SAR / InSAR", icon: "ChartBar" },
+  { name: "hyperspectral", label: "Hyperspectral", icon: "ChartBar" },
+  { name: "highres", label: "High-Res", icon: "ChartBar" },
 ] as const;
 
 export type DepartmentTab = typeof DEPARTMENT_TABS[number];
@@ -93,6 +108,9 @@ export type ControlRoomTab = typeof CONTROL_ROOM_TABS[number];
 export function getDepartmentTabs(departmentName: string) {
   if (departmentName === "control-room") {
     return CONTROL_ROOM_TABS;
+  }
+  if (departmentName === "satellite-monitoring") {
+    return SATELLITE_MONITORING_TABS;
   }
   return DEPARTMENT_TABS;
 }

@@ -52,7 +52,7 @@ export default function HubLayout({
             <div className="pt-4 pb-1 px-3 text-xs font-medium text-[#898989] uppercase tracking-wider">
               Departments
             </div>
-            {DEPARTMENTS.map((dept) => (
+            {DEPARTMENTS.filter((d) => d.name !== "satellite-monitoring").map((dept) => (
               <Link
                 key={dept.name}
                 href={`/${dept.name}`}
@@ -61,6 +61,15 @@ export default function HubLayout({
                 {dept.displayName}
               </Link>
             ))}
+            <div className="pt-4 pb-1 px-3 text-xs font-medium text-[#898989] uppercase tracking-wider">
+              Advanced
+            </div>
+            <Link
+              href="/satellite-monitoring"
+              className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-[#898989] hover:text-[#fafafa] hover:bg-[#242424] transition-colors"
+            >
+              🛰️ Satellite Monitoring
+            </Link>
           </nav>
         </aside>
 

@@ -1,0 +1,99 @@
+"use client";
+
+import dynamic from "next/dynamic";
+import { useState } from "react";
+import { GlassCard } from "@repo/ui/GlassCard";
+import { DeformationSummary } from "@/components/monitoring/DeformationAlertCard";
+import {
+  generateDeformationReadings,
+  DEFAULT_MINE_CENTER,
+  type DeformationReading,
+} from "@/lib/monitoring-api";
+
+const MonitoringMap = dynamic(
+  () => import("@/components/monitoring/MonitoringMap").then((m) => m.MonitoringMap),
+  { ssr: false, loading: () => <div className="h-[340px] bg-[#171717] border border-[#363636] rounded-xl animate-pulse" /> }
+);
+
+const readings = generateDeformationReadings(DEFAULT_MINE_CENTER.lat, DEFAULT_MINE_CENTER.lon);
+
+export default function ControlRoomSatellitePage() {
+  const [selectedReading, setSelectedReading] = useState<DeformationReading | null>(null);
+  const critical = readings.filter((r) => r.level === "critical").length;
+  const moderate = readings.filter((r) => r.level === "moderate").length;
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-semibold text-white">Satellite Monitoring</h2>
+          <p className="text-[#898989] text-sm mt-0.5">
+            Sentinel-1 InSAR deformation · Real-time site overview
+          </p>
+        </div>
+        <a
+          href="/satellite-monitoring"
+          className="px-3 py-1.5 text-xs font-medium text-[#3ecf8e] border border-[#3ecf8e]/30 rounded-lg hover:bg-[#3ecf8e]/10 transition-colors"
+        >
+          Full Dashboard →
+        </a>
+      </div>
+
+      {/* Summary KPIs */}
+      <div className="grid grid-cols-3 gap-3">
+        <GlassCard>
+          <p className="text-[#898989] text-xs uppercase tracking-wide">Critical Alerts</p>
+          <p className={`text-2xl font-bold mt-1 ${critical > 0 ? "text-red-400" : "text-[#3ecf8e]"}`}>
+            {critical}
+          </p>
+        </GlassCard>
+        <GlassCard>
+          <p className="text-[#898989] text-xs uppercase tracking-wide">Moderate</p>
+          <p className={`text-2xl font-bold mt-1 ${moderate > 0 ? "text-orange-400" : "text-[#fafafa]"}`}>
+            {moderate}
+          </p>
+        </GlassCard>
+        <GlassCard>
+          <p className="text-[#898989] text-xs uppercase tracking-wide">Sensor</p>
+          <p className="text-sm font-bold text-[#fafafa] mt-1">Sentinel-1</p>
+          <p className="text-[#898989] text-xs">InSAR</p>
+        </GlassCard>
+      </div>
+
+      {/* Map */}
+      <MonitoringMap
+        center={DEFAULT_MINE_CENTER}
+        zoom={12}
+        deformationReadings={readings}
+        activeLayer="optical"
+        height="340px"
+        onReadingClick={setSelectedReading}
+      />
+
+      {/* Selected reading detail */}
+      {selectedReading && (
+        <GlassCard className="p-4">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm font-semibold text-[#fafafa]">
+              {selectedReading.location}
+            </p>
+            <button
+              onClick={() => setSelectedReading(null)}
+              className="text-[#898989] hover:text-[#fafafa] text-xs"
+            >
+              ✕
+            </button>
+          </div>
+          <p className="text-xs text-[#898989]">
+            Shift: <span className="text-[#fafafa]">{selectedReading.shiftMm} mm</span> ·
+            Trend: <span className="text-[#fafafa] capitalize">{selectedReading.trend}</span> ·
+            Area: <span className="text-[#fafafa] capitalize">{selectedReading.area.replace("-", " ")}</span>
+          </p>
+        </GlassCard>
+      )}
+
+      {/* Alert list */}
+      <DeformationSummary readings={readings} onReadingClick={setSelectedReading} />
+    </div>
+  );
+}

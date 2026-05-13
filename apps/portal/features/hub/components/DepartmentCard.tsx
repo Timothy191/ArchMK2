@@ -10,6 +10,7 @@ import {
   Monitor,
   HardHat,
   GraduationCap,
+  Satellite,
 } from "lucide-react";
 import type { Department } from "~/lib/departments";
 
@@ -21,6 +22,7 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Monitor,
   HardHat,
   GraduationCap,
+  Satellite,
 };
 
 const COLOR_MAP: Record<string, string> = {
@@ -31,6 +33,7 @@ const COLOR_MAP: Record<string, string> = {
   red: "border-red-500/20 text-red-400",
   orange: "border-orange-500/20 text-orange-400",
   cyan: "border-cyan-500/20 text-cyan-400",
+  indigo: "border-indigo-500/20 text-indigo-400",
 };
 
 interface DepartmentCardProps {

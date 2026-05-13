@@ -31,8 +31,8 @@ Arch Systems is a multi-departmental business portal for an opencast coal mine. 
 │   ├── database/            # Migrations, seeds, types
 │   ├── eslint-config/       # Shared ESLint config
 │   └── typescript-config/   # Shared TS config
-├── overview/                # Separate static Next.js app (localhost:3001, output: 'export')
-│   ├── app/                 # Static overview/documentation site
+├── overview/                # Static architecture visualization app (localhost:3001, output: 'export')
+│   ├── app/                 # Uses @xyflow/react for interactive diagrams
 │   └── dist/                # Export output directory
 ```
 
@@ -41,6 +41,8 @@ Arch Systems is a multi-departmental business portal for an opencast coal mine. 
 **@repo/ui** — Component library with custom exports:
 - `@repo/ui/GlassCard` — Glassmorphic card component
 - `@repo/ui/DepartmentLayout` — Department page wrapper
+- `@repo/ui/SecondaryButton` — Secondary action button
+- `@repo/ui/Input` — Form input component
 - `@repo/ui/lib/*` — Utilities (including `cn()` for className merging)
 - `@repo/ui/hooks/*` — React hooks
 - `@repo/ui/components/*` — shadcn components
@@ -107,7 +109,7 @@ The barrel file (`packages/supabase/src/index.ts`) intentionally does NOT export
      - `/admin` → `admin` only
    - Caches department slug → UUID lookups in memory with a 60s TTL to avoid repeated DB hits
 
-2. **Login** (`app/login/LoginForm.tsx`):
+2. **Login** (`app/(auth)/login/LoginForm.tsx`):
 
    - Client component using `createBrowserSupabaseClient`
    - Email/password sign-in
@@ -127,36 +129,63 @@ auth.is_admin()             → boolean
 auth.has_department_access(dept_id UUID)  → checks department match or accessible_departments array
 ```
 
-Tables:
+Tables (migration 001 — core):
 
 - `departments` — 7 rows (drilling, production, access-control, engineering, control-room, safety, training)
 - `employees` — linked to `auth.users` via `auth_id`
-- `machines` — per-department equipment
+- `machines` — per-department equipment (includes `bin_factor` column from migration 003)
 - `daily_logs` — append-only (no DELETE policies), one per shift per day
 - `machine_hours`, `fuel_logs`, `production_logs` — child tables of `daily_logs`
 
+Tables (migration 002 — control room):
+
+- `operators` — shift operators per department
+- `sites` — mine sites
+- `machine_operations` — start/end time tracking, computed `hours_worked` column
+- `hourly_loads` — originally 24h grid, revised to 12-hour shift structure (migration 003)
+- `delay_categories` — 8 seeded categories (includes Operator Unavailable, Material Shortage from migration 003)
+- `excavator_activity` — excavator shift tracking
+- `dozer_rolls` — dozer roll-over records
+- `report_templates`, `generated_reports` — report generation system
+
+Tables (migration 003 — revisions):
+
+- `engineering_notes` — issue_type, severity, status workflow (open/in_progress/resolved)
+- `operational_delays` — delay tracking linked to categories
+- `shift_notes` — **DROPPED** (replaced by operational_delays + engineering_notes)
+
+**Known gap:** `packages/database/src/types.ts` only covers migration 001 tables. Types for operators, sites, machine_operations, hourly_loads, delay_categories, excavator_activity, dozer_rolls, report_templates, generated_reports, engineering_notes, and operational_delays are missing.
+
 ## Department Pages
 
-All department routes live under `app/(departments)/[department]/`:
+All department routes live under `app/(departments)/[department]/`. Standard departments see a different tab set than Control Room:
 
-| Route               | Purpose                                             |
-| ------------------- | --------------------------------------------------- |
-| `/[dept]`           | Dashboard with today's summary cards                |
-| `/[dept]/daily-log` | Submit shift logs (machine hours, fuel, production) |
-| `/[dept]/machines`  | List department machines                            |
-| `/[dept]/history`   | Browse past daily logs                              |
-| `/[dept]/reports`   | Aggregate data + CSV export                         |
-| `/[dept]/tools`     | iframe embeds for n8n / Flowise                     |
+**Standard departments** (drilling, production, access-control, engineering, safety, training): Dashboard, Daily Log, Machines, History, Reports, Tools
 
-The `features/` directory co-locates reusable components by domain:
-- `features/auth/components/LoginForm.tsx`
-- `features/departments/components/control-room/AlertPanel.tsx`
-- `features/hub/components/DepartmentCard.tsx`
+**Control Room** (`control-room`): Dashboard, Hourly Loads, Machine Ops, Delays, Engineering Notes, Excavator, Roll Over, Machine DB, Reports
+
+| Route                         | Purpose                                             |
+| ----------------------------- | --------------------------------------------------- |
+| `/[dept]`                     | Dashboard with today's summary cards                |
+| `/[dept]/daily-log`           | Submit shift logs (machine hours, fuel, production) |
+| `/[dept]/machines`            | List department machines                            |
+| `/[dept]/history`             | Browse past daily logs                              |
+| `/[dept]/reports`            | Aggregate data + CSV export                         |
+| `/[dept]/tools`              | iframe embeds for n8n / Flowise                     |
+| `/[dept]/hourly-loads`       | 12-hour shift loads grid (Control Room)             |
+| `/[dept]/machine-operations` | Machine ops tracking with start/end times (CR)      |
+| `/[dept]/operational-delays`  | Delay tracking with categories (Control Room)      |
+| `/[dept]/engineering-notes`   | Engineering notes with severity/status (CR)         |
+| `/[dept]/excavator-activity`  | Excavator activity monitoring (Control Room)        |
+| `/[dept]/roll-over`           | Dozer roll-over tracking (Control Room)             |
+
+Tab configuration is defined in `lib/departments.ts` — the `DEPARTMENTS` array maps each slug to its tab set.
 
 ## UI Patterns
 
 - **Glassmorphism**: `rounded-2xl border border-[#363636] bg-[#242424]` (base card). Add `backdrop-blur-md` for translucent overlay cards. Interactive cards add `hover:border-[#393939] hover:bg-[#2e2e2e]`. Use the `<GlassCard>` component from `@repo/ui` instead of inline classes.
 - **Colors**: Static `colorStyles` map in `app/page.tsx` (avoids dynamic Tailwind class purging)
+- **Weather**: Hub and drilling dashboard use Open-Meteo API (free, no key required) via `lib/weather-api.ts`
 - **Motion**: `framer-motion` for hover scale/y-offset on cards
 - **Icons**: Inline SVGs and `lucide-react` (installed in both `portal` and `overview`)
 
@@ -169,6 +198,8 @@ The `features/` directory co-locates reusable components by domain:
 | Dashboard crash on multi-shift        | `.single()` with 2 logs/day             | Use `.maybeSingle()` or aggregate  |
 | Daily log form hidden after 1st shift | Checks any log, not per-shift           | Filter by shift in existence check |
 | Trigger fails on signup               | `raw_user_meta` vs `raw_user_meta_data` | Fix column name in trigger         |
+| Outdated DB types                     | `packages/database/src/types.ts` only covers migration 001 | Regenerate or manually add types for 002/003 tables |
+| Duplicate addMachine actions           | Two `addMachine` server actions exist (root `actions.ts` and `machines/actions.ts`) | Consolidate into one canonical action |
 
 ## Environment Variables
 
@@ -298,10 +329,19 @@ The repository includes project-specific Claude Code automation:
 
 ### Hub and Control Room
 
-Recent additions (git: c44c52c):
-- `/hub` route restored with loading/error boundaries
-- `/control-room` route added with specialized components
-- Admin routes under `/app/admin/`
+- `/hub` — Authenticated landing page with department cards and weather
+- Control Room has its own specialized tab set (hourly loads, machine ops, delays, engineering notes, excavator, roll-over)
+- Admin routes under `/app/admin/` — role-gated to `admin` only
+
+### Server Actions
+
+Server actions are co-located with their routes:
+- `app/actions.ts` — `logout()`
+- `app/(departments)/[department]/machines/actions.ts` — `addMachine()`
+
+### Overview App
+
+The `overview/` app is a separate static Next.js site (`output: 'export'`) for system architecture visualization. It uses `@xyflow/react` for interactive node diagrams and runs on `localhost:3001`. It has its own Tailwind config with the same dark color palette but does not share `@repo/ui` components.
 
 ### Next.js Configuration
 

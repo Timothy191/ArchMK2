@@ -1,0 +1,248 @@
+"use client";
+
+import dynamic from "next/dynamic";
+import { useState } from "react";
+import { GlassCard } from "@repo/ui/GlassCard";
+import { SARLayerPanel } from "@/components/monitoring/SARLayer";
+import { HyperspectralLayer, type SpectralComposite } from "@/components/monitoring/HyperspectralLayer";
+import { HighResPanel } from "@/components/monitoring/HighResPanel";
+import { DeformationSummary } from "@/components/monitoring/DeformationAlertCard";
+import {
+  generateDeformationReadings,
+  DEFAULT_MINE_CENTER,
+  DEFAULT_MINE_BBOX,
+  type DeformationReading,
+} from "@/lib/monitoring-api";
+
+const MonitoringMap = dynamic(
+  () => import("@/components/monitoring/MonitoringMap").then((m) => m.MonitoringMap),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-[480px] bg-[#171717] border border-[#363636] rounded-xl flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-2 border-[#3ecf8e] border-t-transparent rounded-full animate-spin" />
+          <p className="text-[#898989] text-sm">Loading satellite map…</p>
+        </div>
+      </div>
+    ),
+  }
+);
+
+type ActiveTab = "overview" | "sar" | "hyperspectral" | "highres";
+type MapLayer = "none" | "sar" | "optical" | "ndvi" | "geology";
+
+const TABS: { id: ActiveTab; label: string; icon: string }[] = [
+  { id: "overview", label: "Overview", icon: "🌍" },
+  { id: "sar", label: "SAR / InSAR", icon: "📡" },
+  { id: "hyperspectral", label: "Hyperspectral", icon: "🌈" },
+  { id: "highres", label: "High-Res Imagery", icon: "🛰️" },
+];
+
+const TAB_LAYER_MAP: Record<ActiveTab, MapLayer> = {
+  overview: "optical",
+  sar: "sar",
+  hyperspectral: "ndvi",
+  highres: "optical",
+};
+
+const readings = generateDeformationReadings(DEFAULT_MINE_CENTER.lat, DEFAULT_MINE_CENTER.lon);
+
+interface SatelliteMonitoringDashboardProps {
+  defaultTab?: ActiveTab;
+}
+
+export function SatelliteMonitoringDashboard({ defaultTab = "overview" }: SatelliteMonitoringDashboardProps) {
+  const [activeTab, setActiveTab] = useState<ActiveTab>(defaultTab);
+  const [activeComposite, setActiveComposite] = useState<SpectralComposite>("truecolor");
+  const [selectedReading, setSelectedReading] = useState<DeformationReading | null>(null);
+
+  const critical = readings.filter((r) => r.level === "critical").length;
+  const moderate = readings.filter((r) => r.level === "moderate").length;
+  const minor = readings.filter((r) => r.level === "minor").length;
+  const stable = readings.filter((r) => r.level === "stable").length;
+
+  const compositeToLayer: Record<SpectralComposite, MapLayer> = {
+    truecolor: "optical",
+    falsecolor: "optical",
+    ndvi: "ndvi",
+    geology: "geology",
+  };
+
+  const mapLayer: MapLayer =
+    activeTab === "hyperspectral"
+      ? compositeToLayer[activeComposite]
+      : TAB_LAYER_MAP[activeTab];
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-start justify-between flex-wrap gap-3">
+        <div>
+          <h1 className="text-2xl font-semibold text-white">Advanced Satellite Monitoring</h1>
+          <p className="text-[#898989] text-sm mt-1">
+            SAR / InSAR · Hyperspectral · High-Resolution Imagery · Copernicus / ESA
+          </p>
+        </div>
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#171717] border border-[#363636]">
+          <span className="w-2 h-2 rounded-full bg-[#3ecf8e] animate-pulse" />
+          <span className="text-xs text-[#898989]">Sentinel-1 active pass</span>
+        </div>
+      </div>
+
+      {/* KPI strip */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <GlassCard>
+          <p className="text-[#898989] text-xs uppercase tracking-wide">Critical</p>
+          <p className={`text-2xl font-bold mt-1 ${critical > 0 ? "text-red-400" : "text-[#3ecf8e]"}`}>
+            {critical}
+          </p>
+          <p className="text-[#898989] text-xs mt-0.5">deformation alerts</p>
+        </GlassCard>
+        <GlassCard>
+          <p className="text-[#898989] text-xs uppercase tracking-wide">Moderate</p>
+          <p className={`text-2xl font-bold mt-1 ${moderate > 0 ? "text-orange-400" : "text-[#fafafa]"}`}>
+            {moderate}
+          </p>
+          <p className="text-[#898989] text-xs mt-0.5">zones monitored</p>
+        </GlassCard>
+        <GlassCard>
+          <p className="text-[#898989] text-xs uppercase tracking-wide">Minor</p>
+          <p className={`text-2xl font-bold mt-1 ${minor > 0 ? "text-amber-400" : "text-[#fafafa]"}`}>
+            {minor}
+          </p>
+          <p className="text-[#898989] text-xs mt-0.5">within threshold</p>
+        </GlassCard>
+        <GlassCard>
+          <p className="text-[#898989] text-xs uppercase tracking-wide">Stable</p>
+          <p className="text-2xl font-bold text-[#3ecf8e] mt-1">{stable}</p>
+          <p className="text-[#898989] text-xs mt-0.5">no movement</p>
+        </GlassCard>
+      </div>
+
+      {/* Tab bar */}
+      <div className="flex flex-wrap gap-1 p-1 bg-[#171717] border border-[#363636] rounded-xl w-fit">
+        {TABS.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors ${
+              activeTab === tab.id
+                ? "bg-[#3ecf8e] text-[#171717] font-medium"
+                : "text-[#898989] hover:text-[#fafafa]"
+            }`}
+          >
+            <span>{tab.icon}</span>
+            <span>{tab.label}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Main content: map + sidebar */}
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-6">
+        {/* Left: map + detail */}
+        <div className="space-y-4">
+          <MonitoringMap
+            center={DEFAULT_MINE_CENTER}
+            zoom={12}
+            deformationReadings={readings}
+            activeLayer={mapLayer}
+            height="480px"
+            onReadingClick={setSelectedReading}
+          />
+
+          {selectedReading && (
+            <GlassCard className="p-4">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-base font-semibold text-[#fafafa]">
+                  📍 {selectedReading.location}
+                </p>
+                <button
+                  onClick={() => setSelectedReading(null)}
+                  className="text-[#898989] hover:text-[#fafafa] text-sm"
+                >
+                  ✕
+                </button>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
+                <div>
+                  <p className="text-[#898989] text-xs">Shift</p>
+                  <p className="text-[#fafafa] font-medium">
+                    {selectedReading.shiftMm > 0 ? "+" : ""}
+                    {selectedReading.shiftMm} mm
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[#898989] text-xs">Trend</p>
+                  <p className="text-[#fafafa] font-medium capitalize">{selectedReading.trend}</p>
+                </div>
+                <div>
+                  <p className="text-[#898989] text-xs">Area</p>
+                  <p className="text-[#fafafa] font-medium capitalize">
+                    {selectedReading.area.replace(/-/g, " ")}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[#898989] text-xs">Sensor</p>
+                  <p className="text-[#fafafa] font-medium">{selectedReading.sensor}</p>
+                </div>
+              </div>
+            </GlassCard>
+          )}
+
+          {/* Overview bbox info */}
+          {activeTab === "overview" && (
+            <GlassCard className="p-4">
+              <p className="text-xs font-medium text-[#b4b4b4] uppercase tracking-wider mb-3">
+                Site Bounding Box
+              </p>
+              <div className="grid grid-cols-2 gap-2 text-xs font-mono">
+                <div className="p-2 bg-[#0f0f0f] rounded-lg">
+                  <span className="text-[#898989]">W: </span>
+                  <span className="text-[#fafafa]">{DEFAULT_MINE_BBOX.west}°</span>
+                </div>
+                <div className="p-2 bg-[#0f0f0f] rounded-lg">
+                  <span className="text-[#898989]">E: </span>
+                  <span className="text-[#fafafa]">{DEFAULT_MINE_BBOX.east}°</span>
+                </div>
+                <div className="p-2 bg-[#0f0f0f] rounded-lg">
+                  <span className="text-[#898989]">S: </span>
+                  <span className="text-[#fafafa]">{DEFAULT_MINE_BBOX.south}°</span>
+                </div>
+                <div className="p-2 bg-[#0f0f0f] rounded-lg">
+                  <span className="text-[#898989]">N: </span>
+                  <span className="text-[#fafafa]">{DEFAULT_MINE_BBOX.north}°</span>
+                </div>
+              </div>
+              <p className="text-[10px] text-[#898989] mt-2">
+                Configure in{" "}
+                <code className="text-[#3ecf8e]">lib/monitoring-api.ts</code>{" "}
+                →{" "}
+                <code className="text-[#3ecf8e]">DEFAULT_MINE_BBOX</code>
+              </p>
+            </GlassCard>
+          )}
+        </div>
+
+        {/* Right: contextual panel */}
+        <div className="overflow-y-auto max-h-[900px] space-y-0">
+          {activeTab === "overview" && (
+            <DeformationSummary
+              readings={readings}
+              onReadingClick={setSelectedReading}
+            />
+          )}
+          {activeTab === "sar" && <SARLayerPanel scenes={[]} />}
+          {activeTab === "hyperspectral" && (
+            <HyperspectralLayer
+              scenes={[]}
+              activeComposite={activeComposite}
+              onCompositeChange={setActiveComposite}
+            />
+          )}
+          {activeTab === "highres" && <HighResPanel scenes={[]} />}
+        </div>
+      </div>
+    </div>
+  );
+}
