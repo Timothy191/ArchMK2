@@ -1,5 +1,7 @@
 import { getDepartmentContext } from "~/lib/dept-context";
 import { DailyLogForm } from "./DailyLogForm";
+import { SafetyIncidentForm } from "@/features/departments/components/safety/SafetyIncidentForm";
+import { SafetyIncidentsList } from "@/features/departments/components/safety/SafetyIncidentsList";
 import { GlassCard } from "@repo/ui/GlassCard";
 
 export default async function DailyLogPage({
@@ -9,6 +11,64 @@ export default async function DailyLogPage({
 }) {
   const { deptId, supabase, today } = await getDepartmentContext(params);
 
+  const isSafety = params.department === "safety";
+
+  if (isSafety) {
+    // Fetch categories and severities for safety incident form
+    const { data: categories } = await supabase
+      .from("safety_incident_categories")
+      .select("id, name, color, icon")
+      .order("sort_order");
+
+    const { data: severities } = await supabase
+      .from("safety_severities")
+      .select("id, level, color")
+      .order("sort_order");
+
+    // Fetch today's safety incidents
+    const { data: todayIncidents } = await supabase
+      .from("safety_incidents")
+      .select(
+        "id, incident_type, severity_id, severity:severities(color), category:categories(name), description, location, injured_parties, status, shift_type, created_at"
+      )
+      .eq("department_id", deptId)
+      .eq("incident_date", today)
+      .order("created_at", { ascending: false });
+
+    const formattedIncidents = (todayIncidents || []).map((inc) => ({
+      ...inc,
+      severity_color: Array.isArray(inc.severity) ? inc.severity[0]?.color : inc.severity?.color,
+      category_name: Array.isArray(inc.category) ? inc.category[0]?.name : inc.category?.name,
+    }));
+
+    return (
+      <div className="space-y-6">
+        <h2 className="text-2xl font-medium text-[#fafafa]">Safety Daily Log</h2>
+
+        {formattedIncidents.length > 0 && (
+          <GlassCard className="border-amber-500/20">
+            <p className="text-amber-400 text-sm font-medium">
+              {formattedIncidents.length} incident
+              {formattedIncidents.length > 1 ? "s" : ""} logged today
+            </p>
+          </GlassCard>
+        )}
+
+        <SafetyIncidentForm
+          departmentId={deptId}
+          categories={categories || []}
+          severities={severities || []}
+        />
+
+        <div className="space-y-4">
+          <h3 className="text-lg font-medium text-[#fafafa]">Today&apos;s Incidents</h3>
+          <SafetyIncidentsList incidents={formattedIncidents} />
+        </div>
+      </div>
+    );
+  }
+
+  // Standard daily log for non-safety departments
   const { data: machines } = await supabase
     .from("machines")
     .select("id, name, machine_type")

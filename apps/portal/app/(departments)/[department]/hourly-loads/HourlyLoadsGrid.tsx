@@ -4,6 +4,9 @@ import { useState, useCallback } from "react";
 import { GlassCard } from "@repo/ui/GlassCard";
 import { createBrowserSupabaseClient } from "@repo/supabase/client";
 import { useRouter } from "next/navigation";
+import { exportToExcel, parseExcel } from "@repo/utils";
+import { SecondaryButton } from "@repo/ui/SecondaryButton";
+import { Download, Upload } from "lucide-react";
 
 interface Machine {
   id: string;
@@ -142,8 +145,74 @@ export function HourlyLoadsGrid({
     } catch (err) {
       console.error("Failed to save:", err);
       alert("Failed to save. Please try again.");
+    }
+  };
+
+  const handleExport = () => {
+    const exportData = machines.map((machine) => {
+      const data: any = { Machine: machine.name, Type: machine.machine_type };
+      HOURS_12.forEach((hour, index) => {
+        const label = `${hourLabels[index]}:00`;
+        data[label] = getHourValue(machine.id, hour);
+      });
+      data.Total = getMachineTotal(machine.id);
+      return data;
+    });
+
+    exportToExcel(
+      exportData,
+      `hourly-loads-${selectedShift}-${today}`,
+      "Hourly Loads"
+    );
+  };
+
+  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setSaving(true);
+    try {
+      const data = await parseExcel(file);
+      
+      // Process each row
+      for (const row of data) {
+        const machineName = row.Machine;
+        const machine = machines.find(m => m.name === machineName);
+        if (!machine) continue;
+
+        const updateData: any = {
+          department_id: departmentId,
+          machine_id: machine.id,
+          load_date: today,
+          shift_type: selectedShift,
+        };
+
+        let hasData = false;
+        HOURS_12.forEach((hour, index) => {
+          const label = `${hourLabels[index]}:00`;
+          if (row[label] !== undefined) {
+            updateData[`hour_${hour.toString().padStart(2, "0")}`] = parseInt(row[label], 10) || 0;
+            hasData = true;
+          }
+        });
+
+        if (hasData) {
+          const { error } = await supabase
+            .from("hourly_loads")
+            .upsert(updateData, { onConflict: "department_id,machine_id,load_date,shift_type" });
+          
+          if (error) console.error(`Error importing for ${machineName}:`, error);
+        }
+      }
+
+      router.refresh();
+      alert("Import completed successfully!");
+    } catch (err) {
+      console.error("Import failed:", err);
+      alert("Failed to parse Excel file. Please ensure it follows the exported template.");
     } finally {
       setSaving(false);
+      if (e.target) e.target.value = "";
     }
   };
 
@@ -168,32 +237,62 @@ export function HourlyLoadsGrid({
 
   return (
     <div className="space-y-4">
-      {/* Shift Selector */}
-      <div className="flex items-center gap-4">
-        <span className="text-[#898989] text-sm">Shift:</span>
+      {/* Shift Selector & Actions */}
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <span className="text-[#898989] text-sm">Shift:</span>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setSelectedShift("day")}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                selectedShift === "day"
+                  ? "bg-amber-500 text-[#171717]"
+                  : "bg-[#171717] border border-[#363636] text-[#898989] hover:text-[#fafafa]"
+              }`}
+            >
+              Day (06:00 - 17:59)
+            </button>
+            <button
+              type="button"
+              onClick={() => setSelectedShift("night")}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                selectedShift === "night"
+                  ? "bg-blue-500 text-white"
+                  : "bg-[#171717] border border-[#363636] text-[#898989] hover:text-[#fafafa]"
+              }`}
+            >
+              Night (18:00 - 05:59)
+            </button>
+          </div>
+        </div>
+
         <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={() => setSelectedShift("day")}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              selectedShift === "day"
-                ? "bg-amber-500 text-[#171717]"
-                : "bg-[#171717] border border-[#363636] text-[#898989] hover:text-[#fafafa]"
-            }`}
+          <input
+            type="file"
+            id="excel-import"
+            accept=".xlsx, .xls"
+            className="hidden"
+            onChange={handleImport}
+          />
+          <SecondaryButton
+            size="sm"
+            variant="rounded-lg"
+            onClick={() => document.getElementById("excel-import")?.click()}
+            disabled={saving}
           >
-            Day (06:00 - 17:59)
-          </button>
-          <button
-            type="button"
-            onClick={() => setSelectedShift("night")}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              selectedShift === "night"
-                ? "bg-blue-500 text-white"
-                : "bg-[#171717] border border-[#363636] text-[#898989] hover:text-[#fafafa]"
-            }`}
+            <Upload className="w-4 h-4 mr-2" />
+            Import
+          </SecondaryButton>
+          <SecondaryButton
+            size="sm"
+            variant="rounded-lg"
+            onClick={handleExport}
+            disabled={saving}
           >
-            Night (18:00 - 05:59)
-          </button>
+            <Download className="w-4 h-4 mr-2" />
+            Export
+          </SecondaryButton>
         </div>
       </div>
 
@@ -269,7 +368,7 @@ export function HourlyLoadsGrid({
                   );
                 })}
                 <td className="p-3 border-b border-l border-[#363636] text-center">
-                  <span className="text-[#3ecf8e] font-semibold">
+                  <span className="text-[#3ecf8e] font-medium">
                     {getMachineTotal(machine.id)}
                   </span>
                 </td>

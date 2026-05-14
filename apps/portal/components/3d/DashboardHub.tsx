@@ -6,7 +6,7 @@ import { Html } from "@react-three/drei";
 import * as THREE from "three";
 
 interface DashboardHubProps {
-  onDepartmentClick: (dept: string) => void;
+  onDepartmentClick: (_dept: string) => void;
 }
 
 const DEPARTMENTS: Array<{

@@ -9,7 +9,10 @@ import {
   Calculator,
   StickyNote,
   Factory,
+  ArrowUpRight,
 } from "lucide-react";
+import { Card } from "@repo/ui/components/ui/card";
+import { cn } from "@repo/ui/lib/utils";
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   CheckSquare,
@@ -50,22 +53,23 @@ export function ToolCard({ tool, index }: ToolCardProps) {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: 0.2 + index * 0.04 }}
+      whileHover={{ y: -2 }}
     >
-      <Link
-        href={`/tools/${tool.name}`}
-        className="group flex items-center gap-3 rounded-xl border border-[#363636] bg-[#171717] p-3 hover:bg-[#242424] transition-all duration-300"
-      >
-        <div className={`p-2 rounded-lg border ${colorClass}`}>
-          <Icon className="w-4 h-4" />
-        </div>
-        <div className="min-w-0">
-          <h3 className="text-[#fafafa] text-sm font-medium truncate">
-            {tool.displayName}
-          </h3>
-          <p className="text-[#898989] text-xs truncate">
-            {tool.description}
-          </p>
-        </div>
+      <Link href={`/tools/${tool.name}`} className="block">
+        <Card className="group flex items-center gap-3 bg-[#171717] border-[#363636] p-3 hover:bg-[#242424] hover:border-[#424242] transition-all duration-300 relative overflow-hidden">
+          <div className={cn("p-2 rounded-lg border", colorClass)}>
+            <Icon className="w-4 h-4" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <h3 className="text-[#fafafa] text-sm font-medium truncate group-hover:text-[#3ecf8e] transition-colors">
+              {tool.displayName}
+            </h3>
+            <p className="text-[#898989] text-[11px] truncate">
+              {tool.description}
+            </p>
+          </div>
+          <ArrowUpRight className="w-3 h-3 text-[#363636] group-hover:text-[#898989] transition-colors" />
+        </Card>
       </Link>
     </motion.div>
   );

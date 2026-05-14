@@ -74,8 +74,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(redirectUrl);
   }
 
-  // Fetch authoritative role/department from employees table (not user_metadata,
-  // which is client-writeable via supabase.auth.updateUser())
+  // Fetch authoritative role/department from employees table
   const { data: employee } = await supabase
     .from("employees")
     .select("role, department_id, accessible_departments")

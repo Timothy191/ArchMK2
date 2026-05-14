@@ -7,6 +7,7 @@ import { AlertPanel } from "@/features/departments/components/control-room/Alert
 import { ControlRoomActivityFeed } from "@/features/departments/components/control-room/ControlRoomActivityFeed";
 import { WeatherWidget } from "@/components/weather/WeatherWidget";
 import { SatelliteMonitoringDashboard } from "@/features/departments/components/satellite/SatelliteMonitoringDashboard";
+import { SafetyDashboard } from "@/features/departments/components/safety/SafetyDashboard";
 
 export default async function DepartmentDashboard({
   params,
@@ -74,9 +75,14 @@ export default async function DepartmentDashboard({
 
   const isControlRoom = params.department === "control-room";
   const isSatelliteMonitoring = params.department === "satellite-monitoring";
+  const isSafety = params.department === "safety";
 
   if (isSatelliteMonitoring) {
     return <SatelliteMonitoringDashboard />;
+  }
+
+  if (isSafety) {
+    return <SafetyDashboard deptId={deptId} />;
   }
 
   return (
@@ -84,7 +90,7 @@ export default async function DepartmentDashboard({
       {isControlRoom ? (
         <>
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-semibold text-white">
+            <h2 className="text-2xl font-medium text-white">
               Control Room Dashboard
             </h2>
             <p className="text-[#898989] text-sm">
@@ -148,7 +154,7 @@ export default async function DepartmentDashboard({
               + Log Operation
             </a>
             <a
-              href={`/${params.department}/notes-delays`}
+              href={`/${params.department}/operational-delays`}
               className="px-4 py-2 bg-[#171717] border border-[#363636] text-[#fafafa] font-medium rounded-lg hover:bg-[#242424] transition-colors text-sm"
             >
               + Add Note
@@ -169,7 +175,7 @@ export default async function DepartmentDashboard({
         </>
       ) : (
         <>
-          <h2 className="text-2xl font-semibold text-white">Dashboard</h2>
+          <h2 className="text-2xl font-medium text-white">Dashboard</h2>
 
           {/* Weather for drilling department - critical for outdoor operations */}
           {params.department === "drilling" && (

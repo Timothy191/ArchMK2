@@ -21,12 +21,6 @@ export default async function ExcavatorActivityPage({
     .ilike("machine_type", "%excavator%")
     .order("name");
 
-  // Fetch operators
-  const { data: operators } = await supabase
-    .from("operators")
-    .select("id, full_name")
-    .eq("active", true)
-    .order("full_name");
 
   // Fetch today's activity
   const { data: todayActivity } = await supabase

@@ -4,6 +4,11 @@ export interface Department {
   icon: string;
   description: string;
   color: string;
+  status?: "active" | "maintenance" | "alert";
+  stats?: {
+    label: string;
+    value: string;
+  };
 }
 
 export const DEPARTMENTS: Department[] = [
@@ -13,6 +18,8 @@ export const DEPARTMENTS: Department[] = [
     icon: "Drill",
     description: "Drill rig operations & bit depth telemetry",
     color: "amber",
+    status: "active",
+    stats: { label: "Depth", value: "1,240m" },
   },
   {
     name: "production",
@@ -20,6 +27,8 @@ export const DEPARTMENTS: Department[] = [
     icon: "Factory",
     description: "Coal yield, tonnage & extraction tracking",
     color: "emerald",
+    status: "active",
+    stats: { label: "Yield", value: "85%" },
   },
   {
     name: "access-control",
@@ -27,6 +36,8 @@ export const DEPARTMENTS: Department[] = [
     icon: "ShieldCheck",
     description: "Site access, badging & security",
     color: "blue",
+    status: "active",
+    stats: { label: "On-site", value: "142" },
   },
   {
     name: "engineering",
@@ -34,6 +45,8 @@ export const DEPARTMENTS: Department[] = [
     icon: "Wrench",
     description: "Equipment specs, maintenance & CAD",
     color: "violet",
+    status: "maintenance",
+    stats: { label: "Pending", value: "12" },
   },
   {
     name: "control-room",
@@ -41,6 +54,8 @@ export const DEPARTMENTS: Department[] = [
     icon: "Monitor",
     description: "SCADA systems & real-time monitoring",
     color: "red",
+    status: "active",
+    stats: { label: "Alerts", value: "0" },
   },
   {
     name: "safety",
@@ -48,6 +63,8 @@ export const DEPARTMENTS: Department[] = [
     icon: "HardHat",
     description: "Incident logs, compliance & inspections",
     color: "orange",
+    status: "active",
+    stats: { label: "LTI-free", value: "450d" },
   },
   {
     name: "training",
@@ -55,6 +72,8 @@ export const DEPARTMENTS: Department[] = [
     icon: "GraduationCap",
     description: "LMS, certifications & competency tracking",
     color: "cyan",
+    status: "active",
+    stats: { label: "Courses", value: "8" },
   },
   {
     name: "satellite-monitoring",
@@ -62,6 +81,8 @@ export const DEPARTMENTS: Department[] = [
     icon: "Satellite",
     description: "SAR/InSAR, hyperspectral & high-resolution imagery",
     color: "indigo",
+    status: "active",
+    stats: { label: "Imagery", value: "Latest" },
   },
 ];
 

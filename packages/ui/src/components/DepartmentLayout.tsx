@@ -68,19 +68,33 @@ export function DepartmentLayout({
 
   return (
     <div className="flex h-screen">
-      <aside className="w-60 shrink-0 border-r border-[#363636] bg-[#171717] flex flex-col">
-        <div className="p-4 border-b border-[#363636]">
+      <aside className="w-64 shrink-0 border-r border-[#363636] bg-[#0f0f0f] flex flex-col">
+        <div className="p-4 border-b border-[#363636] bg-[#171717]/50 backdrop-blur-sm">
           <Link
             href="/"
-            className="text-[#898989] text-xs hover:text-[#b4b4b4] transition-colors"
+            className="flex items-center gap-2 text-[#898989] text-[10px] uppercase tracking-widest font-bold hover:text-[#fafafa] transition-colors group"
           >
-            &larr; Back to Hub
+            <span className="group-hover:-translate-x-1 transition-transform">&larr;</span> Back to Hub
           </Link>
-          <h2 className="text-lg font-medium text-[#fafafa] mt-2">
-            {department.displayName}
-          </h2>
+          <div className="mt-4 flex items-center gap-3">
+            <div className={cn("p-2 rounded-lg border bg-opacity-10 ", 
+              department.color === "amber" && "border-amber-500/20 text-amber-400 bg-amber-500",
+              department.color === "emerald" && "border-emerald-500/20 text-emerald-400 bg-emerald-500",
+              department.color === "blue" && "border-blue-500/20 text-blue-400 bg-blue-500",
+              department.color === "violet" && "border-violet-500/20 text-violet-400 bg-violet-500",
+              department.color === "red" && "border-red-500/20 text-red-400 bg-red-500",
+              department.color === "orange" && "border-orange-500/20 text-orange-400 bg-orange-500",
+              department.color === "cyan" && "border-cyan-500/20 text-cyan-400 bg-cyan-500",
+              department.color === "indigo" && "border-indigo-500/20 text-indigo-400 bg-indigo-500"
+            )}>
+              <BarChart2 className="w-4 h-4" />
+            </div>
+            <h2 className="text-lg font-medium text-[#fafafa] tracking-tight">
+              {department.displayName}
+            </h2>
+          </div>
         </div>
-        <nav className="flex-1 p-2 space-y-1">
+        <nav className="flex-1 p-3 space-y-1 overflow-y-auto custom-scrollbar">
           {tabs.map((tab) => {
             const href =
               tab.name === "dashboard" ? basePath : `${basePath}/${tab.name}`;
@@ -93,18 +107,30 @@ export function DepartmentLayout({
                 key={tab.name}
                 href={href}
                 className={cn(
-                  "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors",
+                  "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all relative group",
                   isActive
-                    ? "bg-[#2e2e2e] text-[#fafafa] border-l-2 border-[#3ecf8e]"
-                    : "text-[#898989] hover:text-[#fafafa] hover:bg-[#242424]",
+                    ? "bg-[#242424] text-[#fafafa] border border-[#363636]  font-medium"
+                    : "text-[#898989] hover:text-[#fafafa] hover:bg-[#171717]",
                 )}
               >
-                {Icon && <Icon className="w-4 h-4 shrink-0" />}
+                {Icon && <Icon className={cn("w-4 h-4 shrink-0 transition-colors", isActive ? "text-[#3ecf8e]" : "group-hover:text-[#fafafa]")} />}
                 {tab.label}
+                {isActive && (
+                  <motion.div 
+                    layoutId="active-tab"
+                    className="absolute right-2 w-1 h-4 rounded-full bg-[#3ecf8e]"
+                  />
+                )}
               </Link>
             );
           })}
         </nav>
+        <div className="p-4 border-t border-[#363636] bg-[#171717]/30">
+          <div className="flex items-center gap-2 px-2 py-1.5 rounded-md border border-[#363636] bg-[#0f0f0f]">
+            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="text-[10px] text-[#898989] font-medium uppercase tracking-wider">Connection Secure</span>
+          </div>
+        </div>
       </aside>
 
       <main className="flex-1 overflow-auto p-6">

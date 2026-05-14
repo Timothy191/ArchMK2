@@ -9,7 +9,12 @@ import { notFound } from "next/navigation";
  *
  * @returns `{ dept, deptId, supabase, today }`
  */
-export async function getDepartmentContext(params: { department: string }) {
+export async function getDepartmentContext(params: { department: string }): Promise<{
+  dept: (typeof DEPARTMENTS)[number];
+  deptId: string;
+  supabase: Awaited<ReturnType<typeof createServerSupabaseClient>>;
+  today: string;
+}> {
   const dept = DEPARTMENTS.find((d) => d.name === params.department);
   if (!dept) notFound();
 
@@ -23,14 +28,14 @@ export async function getDepartmentContext(params: { department: string }) {
 
   if (!department) notFound();
 
-  const today = new Date().toISOString().split("T")[0];
+  const today = new Date().toISOString().split("T")[0] ?? "";
 
   return {
     dept,
-    deptId: department.id,
+    deptId: department.id as string,
     supabase,
     today,
-  } as const;
+  };
 }
 
 /**

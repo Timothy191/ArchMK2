@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { createBrowserSupabaseClient } from "@repo/supabase/client";
 import { GlassCard } from "@repo/ui/GlassCard";
+import { MachineControl } from "./MachineControl";
 
 interface Machine {
   id: string;
@@ -127,6 +128,8 @@ export function ScadaPanel({ departmentId }: ScadaPanelProps) {
           </GlassCard>
         )}
       </div>
+
+      <MachineControl />
     </div>
   );
 }

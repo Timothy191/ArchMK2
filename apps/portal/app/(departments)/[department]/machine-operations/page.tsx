@@ -92,7 +92,7 @@ export default async function MachineOperationsPage({
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-semibold text-[#fafafa]">
+        <h2 className="text-2xl font-medium text-[#fafafa]">
           Machine Operations
         </h2>
         <p className="text-[#898989] text-sm">

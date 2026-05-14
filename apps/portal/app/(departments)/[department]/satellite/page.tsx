@@ -26,7 +26,7 @@ export default function ControlRoomSatellitePage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-semibold text-white">Satellite Monitoring</h2>
+          <h2 className="text-xl font-medium text-white">Satellite Monitoring</h2>
           <p className="text-[#898989] text-sm mt-0.5">
             Sentinel-1 InSAR deformation · Real-time site overview
           </p>
@@ -74,7 +74,7 @@ export default function ControlRoomSatellitePage() {
       {selectedReading && (
         <GlassCard className="p-4">
           <div className="flex items-center justify-between mb-2">
-            <p className="text-sm font-semibold text-[#fafafa]">
+            <p className="text-sm font-medium text-[#fafafa]">
               {selectedReading.location}
             </p>
             <button

@@ -11,6 +11,7 @@
     "ui": "pnpm --filter @repo/ui ui",
     "test:e2e": "playwright test",
     "deploy:local": "bash scripts/deploy-local.sh",
+    "fresh-start": "bash scripts/fresh-start.sh",
     "prepare": "husky"
   },
   "lint-staged": {

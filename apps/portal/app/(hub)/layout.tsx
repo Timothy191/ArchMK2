@@ -1,8 +1,12 @@
 import Link from "next/link";
 import { DEPARTMENTS } from "~/lib/departments";
-import { logout } from "~/app/actions";
 import { WeatherWidget } from "@/components/weather/WeatherWidget";
 import { AIAssistant } from "@/components/ai/AIAssistant";
+import { UserNav } from "@/components/nav/UserNav";
+import { 
+  LayoutDashboard, 
+  Satellite as SatelliteIcon,
+} from "lucide-react";
 import dynamic from "next/dynamic";
 
 const Toggle3D = dynamic(() => import("@/components/3d/Toggle3D").then(mod => ({ default: mod.Toggle3D })), {
@@ -31,52 +35,59 @@ export default function HubLayout({
           <div className="flex items-center gap-3">
             <Toggle3D />
             <WeatherWidget variant="header" />
-            <form
-              action={logout}
-              className="inline"
-            >
-              <button
-                type="submit"
-                className="px-3 py-1.5 rounded-lg text-xs text-[#898989] hover:text-[#fafafa] hover:bg-[#242424] transition-colors"
-              >
-                Sign out
-              </button>
-            </form>
+            <div className="h-4 w-[1px] bg-[#363636] mx-1" />
+            <UserNav />
           </div>
         </div>
       </header>
 
       <div className="flex">
         {/* Sidebar */}
-        <aside className="hidden lg:block w-60 shrink-0 border-r border-[#363636] bg-[#171717] min-h-[calc(100vh-53px)]">
-          <nav className="p-3 space-y-1">
-            <Link
-              href="/"
-              className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-[#898989] hover:text-[#fafafa] hover:bg-[#242424] transition-colors"
-            >
-              Dashboard
-            </Link>
-            <div className="pt-4 pb-1 px-3 text-xs font-medium text-[#898989] uppercase tracking-wider">
-              Departments
-            </div>
-            {DEPARTMENTS.filter((d) => d.name !== "satellite-monitoring").map((dept) => (
+        <aside className="hidden lg:block w-64 shrink-0 border-r border-[#363636] bg-[#0f0f0f] min-h-[calc(100vh-53px)]">
+          <nav className="p-4 space-y-6">
+            <div>
+              <div className="px-3 mb-2 text-[10px] font-bold text-[#4a4a4a] uppercase tracking-[0.2em]">
+                Main Navigation
+              </div>
               <Link
-                key={dept.name}
-                href={`/${dept.name}`}
-                className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-[#898989] hover:text-[#fafafa] hover:bg-[#242424] transition-colors"
+                href="/"
+                className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-[#fafafa] bg-[#242424] border border-[#363636] shadow-sm transition-all"
               >
-                {dept.displayName}
+                <LayoutDashboard className="w-4 h-4 text-emerald-400" />
+                Operations Hub
               </Link>
-            ))}
-            <div className="pt-4 pb-1 px-3 text-xs font-medium text-[#898989] uppercase tracking-wider">
-              Advanced
             </div>
-            <Link
-              href="/satellite-monitoring"
-              className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-[#898989] hover:text-[#fafafa] hover:bg-[#242424] transition-colors"
-            >
-              🛰️ Satellite Monitoring
-            </Link>
+
+            <div>
+              <div className="px-3 mb-2 text-[10px] font-bold text-[#4a4a4a] uppercase tracking-[0.2em]">
+                Departments
+              </div>
+              <div className="space-y-1">
+                {DEPARTMENTS.filter((d) => d.name !== "satellite-monitoring").map((dept) => (
+                  <Link
+                    key={dept.name}
+                    href={`/${dept.name}`}
+                    className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-[#898989] hover:text-[#fafafa] hover:bg-[#171717] transition-all group"
+                  >
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#363636] group-hover:bg-[#fafafa] transition-colors" />
+                    {dept.displayName}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <div className="px-3 mb-2 text-[10px] font-bold text-[#4a4a4a] uppercase tracking-[0.2em]">
+                Advanced Systems
+              </div>
+              <Link
+                href="/satellite-monitoring"
+                className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-[#898989] hover:text-[#fafafa] hover:bg-[#171717] transition-all"
+              >
+                <SatelliteIcon className="w-4 h-4 text-indigo-400" />
+                Satellite Monitoring
+              </Link>
+            </div>
           </nav>
         </aside>
 

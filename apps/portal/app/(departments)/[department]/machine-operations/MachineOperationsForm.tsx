@@ -364,7 +364,7 @@ export function MachineOperationsForm({
         {hoursWorked !== null && (
           <div className="flex items-center gap-4 p-3 bg-[#1f1f1f] rounded-lg border border-[#363636]">
             <span className="text-[#898989] text-sm">Hours Worked:</span>
-            <span className="text-2xl font-semibold text-[#3ecf8e]">
+            <span className="text-2xl font-medium text-[#3ecf8e]">
               {hoursWorked.toFixed(2)}h
             </span>
             <span className="text-[#898989] text-xs">(auto-calculated)</span>

@@ -2,6 +2,8 @@ import { createServerSupabaseClient } from "@repo/supabase/server";
 import { redirect } from "next/navigation";
 import { HubGrid } from "@/features/hub/components/HubGrid";
 import { ToolCard } from "@/features/hub/components/ToolCard";
+import { SystemHealth } from "@/features/hub/components/SystemHealth";
+import { ProductionTrend } from "@/features/hub/components/ProductionTrend";
 import { PRODUCTIVITY_TOOLS } from "~/lib/departments";
 
 export const dynamic = "force-dynamic";
@@ -24,11 +26,13 @@ export default async function HubPage() {
             Operations Hub
           </h1>
           <p className="text-[#898989] text-sm mt-1">
-            Select a department to manage operations.
+            Real-time multi-departmental monitoring and control.
           </p>
         </div>
 
+        <SystemHealth />
         <HubGrid />
+        <ProductionTrend />
       </div>
 
       <div className="space-y-6">

@@ -51,7 +51,7 @@ export default async function RollOverPage({
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-semibold text-[#fafafa]">
+        <h2 className="text-2xl font-medium text-[#fafafa]">
           Roll Over (Dozers)
         </h2>
         <p className="text-[#898989] text-sm">
@@ -128,7 +128,7 @@ export default async function RollOverPage({
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-[#3ecf8e] font-semibold">
+                  <p className="text-[#3ecf8e] font-medium">
                     {roll.blade_passes} passes
                   </p>
                   {roll.material_moved_tonnes && (

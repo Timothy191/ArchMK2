@@ -31,6 +31,7 @@ pnpm dev                  # Start Next.js dev server (portal app only)
 pnpm build                # Build all packages via Turborepo
 pnpm lint                 # Lint all packages
 pnpm format               # Format with Prettier
+pnpm fresh-start          # Full reset: clean install, rebuild, and start
 
 # Testing
 pnpm --filter portal test              # Run Jest unit tests for portal
@@ -76,6 +77,7 @@ packages/
   hooks/              → @repo/hooks (empty, reserved)
   types/              → @repo/types (empty, reserved)
   utils/              → @repo/utils (empty, reserved)
+  eval/               → Python eval harness (pytest, datasets, metrics)
 apps/overview/        → Standalone Next.js app for overview dashboards
 ```
 
@@ -94,6 +96,11 @@ apps/overview/        → Standalone Next.js app for overview dashboards
 ### Feature Organization
 
 Department-specific component logic lives in `apps/portal/features/departments/components/<dept>/` (control-room, engineering, machines, satellite). Hub components are in `features/hub/components/`. Shared layout and primitives come from `@repo/ui`.
+
+### Tool Integrations
+
+- **n8n & Flowise**: Embedded via `ToolCard` components in the department tools page. Configured in `apps/portal/lib/tools.ts` (`EXTERNAL_TOOLS` array). The `GET /api/tools/status` endpoint performs 3-second timeout HEAD health checks and returns `{ status: "online" | "offline" | "unknown", responseTime }`. The client polls this every 30s.
+- **Univer SDK**: Embedded spreadsheet component at `features/departments/components/tools/UniverSheet.tsx`. Uses `@univerjs/preset-sheets-core` via `createUniver()` + `useEffect` pattern. CSS is imported once inside the component — do not import it in `layout.tsx` to avoid global CSS ordering issues.
 
 ### Shared Server Utilities (apps/portal/lib)
 
@@ -164,6 +171,8 @@ cp apps/portal/.env.example apps/portal/.env
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `SUPABASE_ANON_KEY` (server-side)
+- `N8N_URL` (optional, default `http://localhost:5678`)
+- `FLOWISE_URL` (optional, default `http://localhost:3000`)
 - `PORT` (optional, default 3000)
 
 ## Local Deployment Flow
@@ -184,3 +193,4 @@ cp apps/portal/.env.example apps/portal/.env
 - **Univer CSS import**: `@univerjs/preset-sheets-core/lib/index.css` must be imported once in the app (it is imported in `UniverSheet.tsx`). Do not import it in `layout.tsx` to avoid global CSS ordering issues.
 
 - **Skills and agents**: Domain-specific rules live in `.claude/skills/` (load `project-conventions` before coding) and `.claude/agents/` (use `security-reviewer` after auth changes, `design-system-reviewer` after UI changes, `test-writer` when adding tests).
+- **Adding a new embedded tool**: Add an entry to `EXTERNAL_TOOLS` in `apps/portal/lib/tools.ts`. The `ToolCard` component and `/api/tools/status` route will pick it up automatically.

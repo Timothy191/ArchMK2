@@ -2,7 +2,7 @@
 
 import { useRef, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
-import { Sphere, Html } from "@react-three/drei";
+import { Html } from "@react-three/drei";
 import * as THREE from "three";
 
 interface Site {
@@ -15,7 +15,7 @@ interface Site {
 }
 
 interface OperationsGlobeProps {
-  onSiteSelect: (siteName: string) => void;
+  onSiteSelect: (_siteName: string) => void;
   selectedSite: string | null;
 }
 

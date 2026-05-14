@@ -14,13 +14,12 @@
         "matcher": "Write|Edit",
         "hooks": [
           {
-            "type": "command",
-            "command": "jq -r '.tool_response.filePath // .tool_input.file_path' | { read -r f; [ -n \"$f\" ] && pnpm exec prettier --write \"$f\" 2>/dev/null; }",
+            "command": "jq -r '.tool_response.filePath // .tool_input.file_path // .tool_input.TargetFile' | { read -r f; [ -n \"$f\" ] && [ \"$f\" != \"null\" ] && [ -f \"$f\" ] && pnpm exec prettier --write \"$f\"; }",
             "statusMessage": "Formatting..."
           },
           {
             "type": "command",
-            "command": "jq -r '.tool_response.filePath // .tool_input.file_path' | { read -r f; [ -n \"$f\" ] && [[ \"$f\" == */apps/portal/* ]] && [[ \"$f\" =~ \\.(ts|tsx|js|jsx)$ ]] && pnpm --filter portal exec eslint \"$f\" --max-warnings 0; }",
+            "command": "jq -r '.tool_response.filePath // .tool_input.file_path // .tool_input.TargetFile' | { read -r f; [ -n \"$f\" ] && [ \"$f\" != \"null\" ] && [ -f \"$f\" ] && [[ \"$f\" == */apps/portal/* ]] && [[ \"$f\" =~ \\.(ts|tsx|js|jsx)$ ]] && pnpm --filter portal exec eslint \"$f\" --max-warnings 0; }",
             "statusMessage": "Linting...",
             "async": true
           }
