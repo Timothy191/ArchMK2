@@ -1,0 +1,49 @@
+import { createServerSupabaseClient } from "@repo/supabase/server";
+import { DEPARTMENTS } from "./departments";
+import { notFound } from "next/navigation";
+
+/**
+ * Resolves department context for a server component page.
+ * Validates the department slug, fetches the department UUID from Supabase,
+ * and calls notFound() if the department doesn't exist.
+ *
+ * @returns `{ dept, deptId, supabase, today }`
+ */
+export async function getDepartmentContext(params: { department: string }) {
+  const dept = DEPARTMENTS.find((d) => d.name === params.department);
+  if (!dept) notFound();
+
+  const supabase = await createServerSupabaseClient();
+
+  const { data: department } = await supabase
+    .from("departments")
+    .select("id")
+    .eq("name", params.department)
+    .single();
+
+  if (!department) notFound();
+
+  const today = new Date().toISOString().split("T")[0];
+
+  return {
+    dept,
+    deptId: department.id,
+    supabase,
+    today,
+  } as const;
+}
+
+/**
+ * Checks that the current department matches one of the allowed departments.
+ * Calls notFound() if the department is not in the allowed list.
+ * Use this for tabs that should only be accessible by specific departments.
+ */
+export function requireDepartment(
+  departmentSlug: string,
+  allowed: string | string[],
+) {
+  const allowedList = Array.isArray(allowed) ? allowed : [allowed];
+  if (!allowedList.includes(departmentSlug)) {
+    notFound();
+  }
+}

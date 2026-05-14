@@ -1,6 +1,4 @@
-import { createServerSupabaseClient } from "@repo/supabase/server";
-import { DEPARTMENTS } from "~/lib/departments";
-import { notFound } from "next/navigation";
+import { getDepartmentContext } from "~/lib/dept-context";
 import { DailyLogForm } from "./DailyLogForm";
 import { GlassCard } from "@repo/ui/GlassCard";
 
@@ -9,20 +7,7 @@ export default async function DailyLogPage({
 }: {
   params: { department: string };
 }) {
-  const dept = DEPARTMENTS.find((d) => d.name === params.department);
-  if (!dept) notFound();
-
-  const supabase = await createServerSupabaseClient();
-
-  const { data: department } = await supabase
-    .from("departments")
-    .select("id")
-    .eq("name", params.department)
-    .single();
-
-  if (!department) notFound();
-
-  const deptId = department.id;
+  const { deptId, supabase, today } = await getDepartmentContext(params);
 
   const { data: machines } = await supabase
     .from("machines")
@@ -31,7 +16,6 @@ export default async function DailyLogPage({
     .eq("active", true)
     .order("name");
 
-  const today = new Date().toISOString().split("T")[0];
   const { data: todayLogs } = await supabase
     .from("daily_logs")
     .select("id, shift, notes")

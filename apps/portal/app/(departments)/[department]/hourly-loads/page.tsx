@@ -1,7 +1,6 @@
-import { createServerSupabaseClient } from "@repo/supabase/server";
-import { DEPARTMENTS } from "~/lib/departments";
-import { notFound } from "next/navigation";
-import { GlassCard } from "@repo/ui/GlassCard";
+import { getDepartmentContext, requireDepartment } from "~/lib/dept-context";
+import { KPIGrid, KPICard } from "@repo/ui/KPI";
+import { PageHeader } from "@repo/ui/PageHeader";
 import { HourlyLoadsGrid } from "./HourlyLoadsGrid";
 
 export default async function HourlyLoadsPage({
@@ -9,26 +8,9 @@ export default async function HourlyLoadsPage({
 }: {
   params: { department: string };
 }) {
-  const dept = DEPARTMENTS.find((d) => d.name === params.department);
-  if (!dept) notFound();
+  requireDepartment(params.department, "control-room");
 
-  // Only for control-room department
-  if (params.department !== "control-room") {
-    notFound();
-  }
-
-  const supabase = await createServerSupabaseClient();
-
-  const { data: department } = await supabase
-    .from("departments")
-    .select("id")
-    .eq("name", params.department)
-    .single();
-
-  if (!department) notFound();
-
-  const deptId = department.id;
-  const today = new Date().toISOString().split("T")[0];
+  const { deptId, supabase, today } = await getDepartmentContext(params);
 
   // Fetch machines
   const { data: machines } = await supabase
@@ -56,52 +38,35 @@ export default async function HourlyLoadsPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-semibold text-[#fafafa]">
-          Hourly Loads Sheet
-        </h2>
-        <p className="text-[#898989] text-sm">
-          {new Date().toLocaleDateString("en-ZA", {
-            weekday: "long",
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          })}
-        </p>
-      </div>
+      <PageHeader title="Hourly Loads Sheet" />
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <GlassCard>
-          <p className="text-[#898989] text-sm">Total Loads Today</p>
-          <p className="text-2xl font-medium text-[#3ecf8e] mt-1">
-            {grandTotal.toLocaleString()}
-          </p>
-        </GlassCard>
-        <GlassCard>
-          <p className="text-[#898989] text-sm">Machines Active</p>
-          <p className="text-2xl font-medium text-emerald-400 mt-1">
-            {loadsByMachine.size}
-          </p>
-        </GlassCard>
-        <GlassCard>
-          <p className="text-[#898989] text-sm">Avg Loads per Machine</p>
-          <p className="text-2xl font-medium text-[#fafafa] mt-1">
-            {loadsByMachine.size > 0
+      <KPIGrid cols={3}>
+        <KPICard
+          label="Total Loads Today"
+          value={grandTotal.toLocaleString()}
+          color="green"
+        />
+        <KPICard
+          label="Machines Active"
+          value={loadsByMachine.size}
+          color="green"
+        />
+        <KPICard
+          label="Avg Loads per Machine"
+          value={
+            loadsByMachine.size > 0
               ? Math.round(grandTotal / loadsByMachine.size)
-              : 0}
-          </p>
-        </GlassCard>
-      </div>
+              : 0
+          }
+        />
+      </KPIGrid>
 
-      {/* Hourly Loads Grid */}
       <HourlyLoadsGrid
         departmentId={deptId}
         machines={machines || []}
         hourlyLoads={hourlyLoads || []}
       />
 
-      {/* Legend */}
       <div className="flex items-center gap-6 text-xs text-[#898989]">
         <div className="flex items-center gap-2">
           <span className="w-3 h-3 rounded bg-[#3ecf8e]/20 border border-[#3ecf8e]"></span>

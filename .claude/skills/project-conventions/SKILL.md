@@ -46,6 +46,23 @@ disable-model-invocation: false
 - Add new shadcn components via `pnpm ui` (runs in `@repo/ui` package)
 - Component files: PascalCase (`Button.tsx`). Utility files: camelCase (`formatDate.ts`)
 
+### Shared Components (@repo/ui)
+
+- `GlassCard` — Card container with dark theme styling and optional hover animation
+- `DepartmentLayout` — Sidebar + content layout for department pages
+- `KPI` / `KPICard` — Summary metric cards with color variants (`default`, `green`, `amber`, `red`, `blue`)
+- `KPIGrid` — Responsive grid layout for KPI cards (2, 3, or 4 columns)
+- `PageHeader` — Title + date header used across all department tab pages
+- `ShiftToggle` — Day/night shift selector with `getCurrentShift()` helper
+- `FormFields` — `FormInput`, `FormSelect`, `FormTextarea`, `SubmitButton` with consistent dark theme styling
+- `Input` — Styled text input
+- `SecondaryButton` — Secondary action button
+
+### Shared Utilities (apps/portal/lib)
+
+- `getDepartmentContext(params)` — Server component helper that validates department, fetches dept ID from Supabase, returns `{ dept, deptId, supabase, today }`. Calls `notFound()` on invalid departments.
+- `requireDepartment(slug, allowed)` — Guards tabs to specific departments. Calls `notFound()` if department not in allowed list.
+
 ## Testing
 
 - Unit tests: Jest with `ts-jest`, files: `<name>.test.ts` or `<name>.test.tsx`

@@ -68,7 +68,7 @@ pnpm --filter arch-systems-overview dev   # Start the overview dashboard app (po
 ```
 apps/portal/          → Next.js 14 app (App Router, React 18)
 packages/
-  ui/                 → @repo/ui — shared components (GlassCard, DepartmentLayout, shadcn primitives, Tailwind config)
+  ui/                 → @repo/ui — shared components (GlassCard, DepartmentLayout, KPI, PageHeader, ShiftToggle, FormFields, shadcn primitives, Tailwind config)
   supabase/           → @repo/supabase — Supabase client wrappers (browser, server, middleware)
   database/           → @repo/database — SQL migrations
   eslint-config/      → @repo/eslint-config
@@ -94,6 +94,22 @@ apps/overview/        → Standalone Next.js app for overview dashboards
 ### Feature Organization
 
 Department-specific component logic lives in `apps/portal/features/departments/components/<dept>/` (control-room, engineering, machines, satellite). Hub components are in `features/hub/components/`. Shared layout and primitives come from `@repo/ui`.
+
+### Shared Server Utilities (apps/portal/lib)
+
+- `getDepartmentContext(params)` — Resolves `{ dept, deptId, supabase, today }` for server component pages. Validates department slug, fetches UUID from Supabase, calls `notFound()` on invalid departments. Use this instead of repeating the lookup pattern.
+- `requireDepartment(slug, allowed)` — Guards tabs to specific departments (e.g. `requireDepartment(slug, "control-room")`). Calls `notFound()` if unauthorized.
+
+### Shared UI Components (@repo/ui)
+
+- `GlassCard` — Card container with dark theme styling and optional hover animation
+- `DepartmentLayout` — Sidebar + content layout for department pages
+- `KPI` / `KPICard` — Summary metric cards with color variants (`default`, `green`, `amber`, `red`, `blue`)
+- `KPIGrid` — Responsive grid layout for KPI cards (2, 3, or 4 columns)
+- `PageHeader` — Title + formatted date header used across department tab pages
+- `ShiftToggle` — Day/night shift selector with `getCurrentShift()` helper
+- `FormFields` — `FormInput`, `FormSelect`, `FormTextarea`, `SubmitButton` with consistent dark theme styling
+- `Input`, `SecondaryButton` — Basic form controls
 
 ### Supabase Auth & RLS
 
@@ -165,5 +181,6 @@ cp apps/portal/.env.example apps/portal/.env
 - **3D version mismatch**: The portal uses React 18. `@react-three/fiber` must stay on v8.x and `@react-three/drei` on v9.x. Upgrading to v9/v10 requires React 19.
 - **Middleware auth bypass**: Never commit changes that bypass the unauthenticated redirect in `apps/portal/middleware.ts` without explicit security review.
 - **Migration source of truth**: Author migrations in `packages/database/migrations/`; `packages/supabase/supabase/migrations/` is a deploy-time copy.
+- **Univer CSS import**: `@univerjs/preset-sheets-core/lib/index.css` must be imported once in the app (it is imported in `UniverSheet.tsx`). Do not import it in `layout.tsx` to avoid global CSS ordering issues.
 
 - **Skills and agents**: Domain-specific rules live in `.claude/skills/` (load `project-conventions` before coding) and `.claude/agents/` (use `security-reviewer` after auth changes, `design-system-reviewer` after UI changes, `test-writer` when adding tests).
