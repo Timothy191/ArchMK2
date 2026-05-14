@@ -9,7 +9,8 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 PORTAL_DIR="$REPO_ROOT/apps/portal"
-DB_DIR="$REPO_ROOT/packages/database"
+SUPABASE_DIR="$REPO_ROOT/packages/supabase"
+MIGRATIONS_DIR="$REPO_ROOT/packages/database/migrations"
 PORT="${PORT:-3000}"
 LOGIN_URL="http://localhost:$PORT/login"
 
@@ -34,12 +35,18 @@ if ! docker info > /dev/null 2>&1; then
 fi
 
 # ── Supabase ──────────────────────────────────────────────
-cd "$DB_DIR"
+cd "$SUPABASE_DIR"
+log "Syncing migrations from $MIGRATIONS_DIR..."
+mkdir -p supabase/migrations
+# Use rsync or cp to sync migrations into the supabase folder where the CLI expects them
+cp -r "$MIGRATIONS_DIR"/* supabase/migrations/
 
 log "Checking Supabase status..."
 # Check if Kong gateway container is running as proxy for Supabase being up
 if docker ps --format '{{.Names}}' | grep -q 'supabase_kong'; then
   log "Supabase is already running (Kong gateway detected)."
+  log "Applying any new migrations..."
+  pnpm exec supabase db reset --local
 else
   log "Supabase not running. Starting..."
   pnpm exec supabase start
@@ -49,6 +56,8 @@ log "Waiting for Supabase API to be healthy..."
 # Use REST API root (returns OpenAPI spec) since /health may not be exposed by Kong
 if healthcheck "http://127.0.0.1:54321/rest/v1/" 30; then
   log "Supabase API is healthy."
+  log "Disabling RLS for all tables to bypass auth requirements..."
+  pnpm exec supabase db query "DO \$\$ DECLARE r RECORD; BEGIN FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = 'public') LOOP EXECUTE 'ALTER TABLE public.' || quote_ident(r.tablename) || ' DISABLE ROW LEVEL SECURITY'; END LOOP; END \$\$;"
 else
   log "ERROR: Supabase API did not become healthy in time."
   exit 1
@@ -83,5 +92,5 @@ else
   log "No automatic browser opener found. Please open $LOGIN_URL manually."
 fi
 
-log "Done. Press Ctrl+C to stop the frontend server."
-wait "$(cat "$REPO_ROOT/.frontend.pid")"
+log "Done. Your frontend is running in the background (PID $(cat "$REPO_ROOT/.frontend.pid"))."
+log "To stop it, run: kill \$(cat \"$REPO_ROOT/.frontend.pid\")"

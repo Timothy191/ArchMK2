@@ -9,6 +9,7 @@ const DEPARTMENT_ROUTES = [
   "control-room",
   "safety",
   "training",
+  "satellite-monitoring",
 ];
 
 const RESTRICTED_ROUTES: Record<string, string[]> = {
@@ -73,10 +74,17 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(redirectUrl);
   }
 
-  // Normalize role before any authorization checks
-  const userRole = normalizeRole(user.user_metadata?.role);
-  const userDept = user.user_metadata?.department_id;
-  const accessible = user.user_metadata?.accessible_departments || [];
+  // Fetch authoritative role/department from employees table (not user_metadata,
+  // which is client-writeable via supabase.auth.updateUser())
+  const { data: employee } = await supabase
+    .from("employees")
+    .select("role, department_id, accessible_departments")
+    .eq("auth_id", user.id)
+    .single();
+
+  const userRole = normalizeRole(employee?.role);
+  const userDept = employee?.department_id ?? null;
+  const accessible = employee?.accessible_departments ?? [];
 
   const pathSegments = pathname.split("/").filter(Boolean);
   const topSegment = pathSegments[0];

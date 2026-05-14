@@ -1,8 +1,4 @@
-import type { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "Sign In — Arch-Systems",
-};
+"use client";
 
 export default function AuthLayout({
   children,
@@ -10,23 +6,55 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative min-h-screen flex items-center justify-center p-4 overflow-hidden bg-[#0f0f0f]">
-      {/* Video Background */}
+    <div className="relative min-h-screen flex items-center justify-center p-4 overflow-hidden bg-[#0a0a0a]">
+      {/* Animated Gradient Background */}
       <div className="fixed inset-0 -z-10">
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="auto"
-          className="absolute inset-0 w-full h-full object-cover opacity-100"
-        >
-          <source src="/background.mp4" type="video/mp4" />
-        </video>
-        <div className="absolute inset-0 bg-[#0f0f0f]/70" />
+        {/* Base gradient with animation */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a0a] via-[#1a1a2e] to-[#16213e]" />
+        
+        {/* Animated overlay */}
+        <div 
+          className="absolute inset-0 opacity-50"
+          style={{
+            background: "linear-gradient(135deg, rgba(62, 207, 142, 0.1) 0%, transparent 50%, rgba(0, 197, 115, 0.1) 100%)",
+          }}
+        />
+        
+        {/* Glow effects */}
+        <div 
+          className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full opacity-20"
+          style={{
+            background: "radial-gradient(circle, #3ecf8e 0%, transparent 70%)",
+            filter: "blur(60px)",
+          }}
+        />
+        <div 
+          className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full opacity-15"
+          style={{
+            background: "radial-gradient(circle, #00c573 0%, transparent 70%)",
+            filter: "blur(50px)",
+          }}
+        />
+        
+        {/* Grid overlay */}
+        <div 
+          className="absolute inset-0 opacity-5"
+          style={{
+            backgroundImage: "linear-gradient(rgba(62, 207, 142, 0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(62, 207, 142, 0.3) 1px, transparent 1px)",
+            backgroundSize: "50px 50px",
+          }}
+        />
+        
+        {/* Vignette */}
+        <div 
+          className="absolute inset-0"
+          style={{
+            background: "radial-gradient(ellipse at center, transparent 0%, #0a0a0a 70%)",
+          }}
+        />
       </div>
 
-      <div className="relative z-10 w-full max-w-sm animate-fade-in">
+      <div className="relative z-10 w-full max-w-sm">
         {children}
       </div>
     </div>

@@ -4,6 +4,42 @@ import { cn } from "../lib/utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
+import {
+  BarChart2,
+  Clock,
+  Cpu,
+  AlertTriangle,
+  Wrench,
+  Pickaxe,
+  GitCommit,
+  Database,
+  FileText,
+  Satellite,
+  ClipboardList,
+  History,
+  Radio,
+  Layers,
+  ScanSearch,
+} from "lucide-react";
+import type { LucideProps } from "lucide-react";
+
+const ICON_MAP: Record<string, React.ComponentType<LucideProps>> = {
+  BarChart2,
+  Clock,
+  Cpu,
+  AlertTriangle,
+  Wrench,
+  Pickaxe,
+  GitCommit,
+  Database,
+  FileText,
+  Satellite,
+  ClipboardList,
+  History,
+  Radio,
+  Layers,
+  ScanSearch,
+};
 
 interface Tab {
   name: string;
@@ -51,6 +87,7 @@ export function DepartmentLayout({
             const isActive =
               pathname === href ||
               (tab.name === "dashboard" && pathname === basePath);
+            const Icon = ICON_MAP[tab.icon];
             return (
               <Link
                 key={tab.name}
@@ -62,6 +99,7 @@ export function DepartmentLayout({
                     : "text-[#898989] hover:text-[#fafafa] hover:bg-[#242424]",
                 )}
               >
+                {Icon && <Icon className="w-4 h-4 shrink-0" />}
                 {tab.label}
               </Link>
             );

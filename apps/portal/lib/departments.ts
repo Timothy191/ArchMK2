@@ -65,11 +65,49 @@ export const DEPARTMENTS: Department[] = [
   },
 ];
 
+export const PRODUCTIVITY_TOOLS = [
+  {
+    name: "tasks",
+    displayName: "Tasks",
+    icon: "CheckSquare",
+    description: "Manage your daily to-do list",
+    color: "emerald",
+  },
+  {
+    name: "documents",
+    displayName: "Documents",
+    icon: "FileText",
+    description: "Access shared files & templates",
+    color: "blue",
+  },
+  {
+    name: "schedule",
+    displayName: "Schedule",
+    icon: "Calendar",
+    description: "View site-wide shift calendar",
+    color: "amber",
+  },
+  {
+    name: "calculations",
+    displayName: "Calculations",
+    icon: "Calculator",
+    description: "Quick operational formulas",
+    color: "violet",
+  },
+  {
+    name: "notes",
+    displayName: "Notes",
+    icon: "StickyNote",
+    description: "Personal and shared site notes",
+    color: "cyan",
+  },
+];
+
 export const DEPARTMENT_TABS = [
-  { name: "dashboard", label: "Dashboard", icon: "ChartBar" },
-  { name: "daily-log", label: "Daily Log", icon: "ClipboardText" },
-  { name: "machines", label: "Machines", icon: "Engine" },
-  { name: "history", label: "History", icon: "ClockCounterClockwise" },
+  { name: "dashboard", label: "Dashboard", icon: "BarChart2" },
+  { name: "daily-log", label: "Daily Log", icon: "ClipboardList" },
+  { name: "machines", label: "Machines", icon: "Cpu" },
+  { name: "history", label: "History", icon: "History" },
   { name: "reports", label: "Reports", icon: "FileText" },
   { name: "tools", label: "Tools", icon: "Wrench" },
 ] as const;
@@ -79,23 +117,33 @@ export const DEPARTMENT_TABS = [
  * with automation-focused design for operators
  */
 export const CONTROL_ROOM_TABS = [
-  { name: "dashboard", label: "Dashboard", icon: "ChartBar" },
+  { name: "dashboard", label: "Dashboard", icon: "BarChart2" },
   { name: "hourly-loads", label: "Hourly Loads", icon: "Clock" },
-  { name: "machine-operations", label: "Machine Ops", icon: "Engine" },
+  { name: "machine-operations", label: "Machine Ops", icon: "Cpu" },
   { name: "operational-delays", label: "Delays", icon: "AlertTriangle" },
   { name: "engineering-notes", label: "Engineering", icon: "Wrench" },
   { name: "excavator-activity", label: "Excavator", icon: "Pickaxe" },
-  { name: "roll-over", label: "Roll Over", icon: "GitCommitHorizontal" },
+  { name: "roll-over", label: "Roll Over", icon: "GitCommit" },
   { name: "machines", label: "Machine DB", icon: "Database" },
   { name: "reports", label: "Reports", icon: "FileText" },
   { name: "satellite", label: "Satellite", icon: "Satellite" },
 ] as const;
 
+export const ENGINEERING_TABS = [
+  { name: "dashboard", label: "Dashboard", icon: "BarChart2" },
+  { name: "breakdowns", label: "Breakdowns", icon: "AlertTriangle" },
+  { name: "daily-log", label: "Daily Log", icon: "ClipboardList" },
+  { name: "machines", label: "Machines", icon: "Cpu" },
+  { name: "history", label: "History", icon: "History" },
+  { name: "reports", label: "Reports", icon: "FileText" },
+  { name: "tools", label: "Tools", icon: "Wrench" },
+] as const;
+
 export const SATELLITE_MONITORING_TABS = [
-  { name: "dashboard", label: "Overview", icon: "ChartBar" },
-  { name: "sar", label: "SAR / InSAR", icon: "ChartBar" },
-  { name: "hyperspectral", label: "Hyperspectral", icon: "ChartBar" },
-  { name: "highres", label: "High-Res", icon: "ChartBar" },
+  { name: "dashboard", label: "Overview", icon: "BarChart2" },
+  { name: "sar", label: "SAR / InSAR", icon: "Radio" },
+  { name: "hyperspectral", label: "Hyperspectral", icon: "Layers" },
+  { name: "highres", label: "High-Res", icon: "ScanSearch" },
 ] as const;
 
 export type DepartmentTab = typeof DEPARTMENT_TABS[number];
@@ -111,6 +159,9 @@ export function getDepartmentTabs(departmentName: string) {
   }
   if (departmentName === "satellite-monitoring") {
     return SATELLITE_MONITORING_TABS;
+  }
+  if (departmentName === "engineering") {
+    return ENGINEERING_TABS;
   }
   return DEPARTMENT_TABS;
 }

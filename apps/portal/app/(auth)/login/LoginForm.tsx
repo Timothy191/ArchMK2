@@ -43,17 +43,17 @@ export function LoginForm() {
     >
       <div className="space-y-2">
         <label htmlFor="email" className="block text-sm font-medium text-[#b4b4b4]">
-          Email
+          Username
         </label>
         <Input
           id="email"
-          type="email"
+          type="text"
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           variant="login"
           className="px-4 py-2.5"
-          placeholder="admin@plantcor.local"
+          placeholder="Admin@123#"
         />
       </div>
 
@@ -70,7 +70,7 @@ export function LoginForm() {
           onChange={(e) => setPassword(e.target.value)}
           variant="login"
           className="px-4 py-2.5"
-          placeholder="••••••"
+          placeholder="Yugioh@123#"
         />
       </div>
 
