@@ -7,5 +7,25 @@
     "frontend-design@claude-plugins-official": true,
     "code-review@claude-plugins-official": true,
     "code-simplifier@claude-plugins-official": true
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_response.filePath // .tool_input.file_path' | { read -r f; [ -n \"$f\" ] && pnpm exec prettier --write \"$f\" 2>/dev/null; }",
+            "statusMessage": "Formatting..."
+          },
+          {
+            "type": "command",
+            "command": "jq -r '.tool_response.filePath // .tool_input.file_path' | { read -r f; [ -n \"$f\" ] && [[ \"$f\" == */apps/portal/* ]] && [[ \"$f\" =~ \\.(ts|tsx|js|jsx)$ ]] && pnpm --filter portal exec eslint \"$f\" --max-warnings 0; }",
+            "statusMessage": "Linting...",
+            "async": true
+          }
+        ]
+      }
+    ]
   }
 }

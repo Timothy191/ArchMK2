@@ -13,17 +13,20 @@ Create Supabase migrations with proper RLS policies, following Arch Systems secu
 ## Process
 
 1. **Ask for migration details:**
+
    - Table name (or existing table to modify)
    - Columns and types
    - Who should have access (which departments/roles)
    - Should it be append-only (like daily_logs)?
 
 2. **Generate migration file:**
-   - Create in `packages/database/supabase/migrations/`
+
+   - Create in `packages/database/migrations/`
    - Naming: `YYYYMMDDHHMMSS_<description>.sql`
    - Include: table creation, RLS enable, policies, indexes
 
 3. **RLS Policy Checklist:**
+
    - [ ] `ENABLE ROW LEVEL SECURITY`
    - [ ] SELECT policy for authorized users
    - [ ] INSERT policy (with department check if needed)
@@ -32,9 +35,9 @@ Create Supabase migrations with proper RLS policies, following Arch Systems secu
    - [ ] Use `auth.user_department_id()` for department isolation
    - [ ] Use `auth.is_admin()` for admin-only access
 
-4. **Update TypeScript types:**
-   - Run `pnpm --filter @repo/supabase gen-types` (if available)
-   - Or note that types need regeneration
+4. **TypeScript types:**
+   - Run `pnpm --filter @repo/supabase gen-types` to regenerate types after migration changes
+   - If the script does not exist, note that types need regeneration
 
 ## Template
 
@@ -54,13 +57,13 @@ ALTER TABLE schema.table_name ENABLE ROW LEVEL SECURITY;
 -- Policies
 CREATE POLICY select_authorized ON schema.table_name
   FOR SELECT USING (
-    auth.is_admin() OR 
+    auth.is_admin() OR
     auth.has_department_access(department_id)
   );
 
 CREATE POLICY insert_authorized ON schema.table_name
   FOR INSERT WITH CHECK (
-    auth.is_admin() OR 
+    auth.is_admin() OR
     auth.has_department_access(department_id)
   );
 
