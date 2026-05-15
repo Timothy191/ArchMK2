@@ -15,8 +15,8 @@ export function ShiftToggle({ value, onChange }: ShiftToggleProps) {
           onClick={() => onChange(shift)}
           className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
             value === shift
-              ? "bg-[#3ecf8e] text-[#171717]"
-              : "bg-[#171717] border border-[#363636] text-[#898989] hover:text-[#fafafa]"
+              ? "bg-[var(--accent-cyan)] text-[var(--bg-secondary)]"
+              : "bg-[var(--card)] border border-[var(--border-default)] text-[var(--text-muted)] hover:text-[var(--text-heading)]"
           }`}
         >
           {shift === "day" ? "Day" : "Night"}

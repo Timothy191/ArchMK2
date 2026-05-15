@@ -34,39 +34,39 @@ export default async function AdminPage() {
   const deptMap = new Map(departments?.map((d) => [d.id, d.display_name]) ?? []);
 
   return (
-    <div className="min-h-screen bg-[#0f0f0f] text-[#fafafa]">
-      <header className="sticky top-0 z-50 border-b border-[#363636] bg-[#0f0f0f]/80 backdrop-blur">
+    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-heading)]">
+      <header className="sticky top-0 z-50 border-b border-[var(--border-default)] bg-[var(--bg-primary)]/80 backdrop-blur">
         <div className="flex items-center justify-between px-6 py-3">
-          <span className="text-lg font-medium text-[#fafafa]">Admin Dashboard</span>
+          <span className="text-lg font-medium text-[var(--text-heading)]">Admin Dashboard</span>
         </div>
       </header>
 
       <main className="p-6 max-w-5xl mx-auto space-y-6">
-        <h1 className="text-2xl font-medium text-[#fafafa]">Employees</h1>
+        <h1 className="text-2xl font-medium text-[var(--text-heading)]">Employees</h1>
 
         <GlassCard className="overflow-hidden p-0">
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-[#363636]">
-                  <th className="px-6 py-3 text-xs font-medium text-[#898989] uppercase tracking-wider">
+                <tr className="border-b border-[var(--border-default)]">
+                  <th className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
                     Name
                   </th>
-                  <th className="px-6 py-3 text-xs font-medium text-[#898989] uppercase tracking-wider">
+                  <th className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
                     Role
                   </th>
-                  <th className="px-6 py-3 text-xs font-medium text-[#898989] uppercase tracking-wider">
+                  <th className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
                     Department
                   </th>
-                  <th className="px-6 py-3 text-xs font-medium text-[#898989] uppercase tracking-wider">
+                  <th className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
                     Created
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#363636]">
+              <tbody className="divide-y divide-[var(--border-default)]">
                 {employees?.map((emp) => (
-                  <tr key={emp.id} className="hover:bg-[#242424] transition-colors">
-                    <td className="px-6 py-4 text-[#fafafa] text-sm">{emp.full_name}</td>
+                  <tr key={emp.id} className="hover:bg-[var(--bg-tertiary)] transition-colors">
+                    <td className="px-6 py-4 text-[var(--text-heading)] text-sm">{emp.full_name}</td>
                     <td className="px-6 py-4">
                       <span
                         className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${
@@ -74,16 +74,16 @@ export default async function AdminPage() {
                             ? "bg-violet-500/10 text-violet-400"
                             : emp.role === "supervisor"
                               ? "bg-amber-500/10 text-amber-400"
-                              : "bg-[#171717] text-[#898989] border border-[#363636]"
+                              : "bg-[var(--card)] text-[var(--text-muted)] border border-[var(--border-default)]"
                         }`}
                       >
                         {emp.role}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-[#898989] text-sm">
+                    <td className="px-6 py-4 text-[var(--text-muted)] text-sm">
                       {deptMap.get(emp.department_id) || "Unassigned"}
                     </td>
-                    <td className="px-6 py-4 text-[#898989] text-sm">
+                    <td className="px-6 py-4 text-[var(--text-muted)] text-sm">
                       {new Date(emp.created_at).toLocaleDateString()}
                     </td>
                   </tr>
@@ -92,7 +92,7 @@ export default async function AdminPage() {
                   <tr>
                     <td
                       colSpan={4}
-                      className="px-6 py-12 text-center text-[#898989] text-sm"
+                      className="px-6 py-12 text-center text-[var(--text-muted)] text-sm"
                     >
                       No employees found.
                     </td>

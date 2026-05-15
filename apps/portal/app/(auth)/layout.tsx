@@ -6,7 +6,7 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative min-h-screen flex items-center justify-center p-4 overflow-hidden bg-[#0a0a0a]">
+    <div className="relative min-h-screen flex items-center justify-center p-4 overflow-hidden bg-[var(--bg-primary)]">
       {/* Animated Gradient Background */}
       <div className="fixed inset-0 -z-10">
         {/* Base gradient with animation */}
@@ -24,14 +24,14 @@ export default function AuthLayout({
         <div 
           className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full opacity-20"
           style={{
-            background: "radial-gradient(circle, #3ecf8e 0%, transparent 70%)",
+            background: "radial-gradient(circle, var(--accent-cyan) 0%, transparent 70%)",
             filter: "blur(60px)",
           }}
         />
         <div 
           className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full opacity-15"
           style={{
-            background: "radial-gradient(circle, #00c573 0%, transparent 70%)",
+            background: "radial-gradient(circle, var(--accent-cyan) 0%, transparent 70%)",
             filter: "blur(50px)",
           }}
         />

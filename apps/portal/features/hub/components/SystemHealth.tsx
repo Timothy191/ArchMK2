@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Activity, Shield, Zap, Globe } from "lucide-react";
-import { Card, CardContent } from "@repo/ui/components/ui/card";
+import { SpotlightCard } from "@repo/ui/SpotlightCard";
 import { SparkAreaChart } from "@tremor/react";
 
 export function SystemHealth() {
@@ -11,67 +11,77 @@ export function SystemHealth() {
       label: "Network Latency", 
       value: "24ms", 
       icon: Activity, 
-      color: "text-emerald-400",
+      color: "emerald",
       data: [18, 22, 19, 24, 21, 26, 24] 
     },
     { 
       label: "Security Status", 
       value: "Optimal", 
       icon: Shield, 
-      color: "text-blue-400",
+      color: "blue",
       data: [100, 100, 98, 100, 100, 100, 100] 
     },
     { 
       label: "System Load", 
       value: "14%", 
       icon: Zap, 
-      color: "text-amber-400",
+      color: "amber",
       data: [12, 15, 14, 18, 16, 13, 14] 
     },
     { 
       label: "Active Nodes", 
       value: "156", 
       icon: Globe, 
-      color: "text-violet-400",
+      color: "violet",
       data: [150, 152, 154, 156, 155, 156, 156] 
     },
   ];
+
+  const COLOR_CONFIG: Record<string, { text: string; glow: string }> = {
+    emerald: { text: "text-emerald-400", glow: "rgba(16, 185, 129, 0.1)" },
+    blue: { text: "text-blue-400", glow: "rgba(59, 130, 246, 0.1)" },
+    amber: { text: "text-amber-400", glow: "rgba(245, 158, 11, 0.1)" },
+    violet: { text: "text-violet-400", glow: "rgba(139, 92, 246, 0.1)" },
+  };
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
       {stats.map((stat, i) => (
         <motion.div
           key={stat.label}
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: i * 0.05 }}
         >
-          <Card className="bg-[#171717] border-[#363636] shadow-sm">
-            <CardContent className="p-4 flex items-center justify-between gap-3">
+          <SpotlightCard 
+            spotlightColor={COLOR_CONFIG[stat.color].glow}
+            className="bg-[var(--bg-tertiary)]/40 border-[var(--border-default)] group"
+          >
+            <div className="p-4 flex items-center justify-between gap-3">
               <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-lg bg-[#242424] border border-[#363636] ${stat.color}`}>
+                <div className={`p-2 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-default)] ${COLOR_CONFIG[stat.color].text} transition-transform duration-300 group-hover:scale-110`}>
                   <stat.icon className="w-4 h-4" />
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase tracking-wider text-[#898989] font-medium">
+                  <p className="text-[10px] uppercase font-bold tracking-[0.15em] text-[var(--text-muted)]">
                     {stat.label}
                   </p>
-                  <p className="text-sm font-medium text-[#fafafa]">
+                  <p className="text-sm font-bold text-[#fafafa] tracking-tight">
                     {stat.value}
                   </p>
                 </div>
               </div>
-              <div className="w-16 h-8">
+              <div className="w-16 h-8 opacity-60 group-hover:opacity-100 transition-opacity duration-300">
                 <SparkAreaChart
                   data={stat.data.map((val, i) => ({ month: i, performance: val }))}
                   categories={["performance"]}
                   index="month"
-                  colors={[stat.color.replace("text-", "").replace("-400", "")]}
+                  colors={[stat.color]}
                   className="h-full w-full"
                 />
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </SpotlightCard>
         </motion.div>
       ))}
     </div>

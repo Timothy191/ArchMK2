@@ -3,12 +3,13 @@ import { notFound } from "next/navigation";
 
 const VALID_TABS = ["sar", "hyperspectral", "highres"] as const;
 
-export default function SatelliteTabPage({
+export default async function SatelliteTabPage({
   params,
 }: {
-  params: { satelliteTab: string };
+  params: Promise<{ satelliteTab: string }>;
 }) {
-  const tab = params.satelliteTab;
+  const { satelliteTab } = await params;
+  const tab = satelliteTab;
   if (!VALID_TABS.includes(tab as (typeof VALID_TABS)[number])) {
     notFound();
   }

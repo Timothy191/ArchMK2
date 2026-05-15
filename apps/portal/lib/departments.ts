@@ -5,6 +5,7 @@ export interface Department {
   description: string;
   color: string;
   status?: "active" | "maintenance" | "alert";
+  gridSpan?: string;
   stats?: {
     label: string;
     value: string;
@@ -19,6 +20,7 @@ export const DEPARTMENTS: Department[] = [
     description: "Drill rig operations & bit depth telemetry",
     color: "amber",
     status: "active",
+    gridSpan: "md:col-span-2 xl:col-span-1",
     stats: { label: "Depth", value: "1,240m" },
   },
   {
@@ -28,6 +30,7 @@ export const DEPARTMENTS: Department[] = [
     description: "Coal yield, tonnage & extraction tracking",
     color: "emerald",
     status: "active",
+    gridSpan: "md:col-span-1 xl:col-span-2",
     stats: { label: "Yield", value: "85%" },
   },
   {
@@ -37,6 +40,7 @@ export const DEPARTMENTS: Department[] = [
     description: "Site access, badging & security",
     color: "blue",
     status: "active",
+    gridSpan: "md:col-span-1 xl:col-span-1",
     stats: { label: "On-site", value: "142" },
   },
   {
@@ -46,6 +50,7 @@ export const DEPARTMENTS: Department[] = [
     description: "Equipment specs, maintenance & CAD",
     color: "violet",
     status: "maintenance",
+    gridSpan: "md:col-span-1 xl:col-span-1",
     stats: { label: "Pending", value: "12" },
   },
   {
@@ -55,6 +60,7 @@ export const DEPARTMENTS: Department[] = [
     description: "SCADA systems & real-time monitoring",
     color: "red",
     status: "active",
+    gridSpan: "md:col-span-2 xl:col-span-1",
     stats: { label: "Alerts", value: "0" },
   },
   {
@@ -64,6 +70,7 @@ export const DEPARTMENTS: Department[] = [
     description: "Incident logs, compliance & inspections",
     color: "orange",
     status: "active",
+    gridSpan: "md:col-span-1 xl:col-span-1",
     stats: { label: "LTI-free", value: "450d" },
   },
   {
@@ -73,6 +80,7 @@ export const DEPARTMENTS: Department[] = [
     description: "LMS, certifications & competency tracking",
     color: "cyan",
     status: "active",
+    gridSpan: "md:col-span-1 xl:col-span-1",
     stats: { label: "Courses", value: "8" },
   },
   {
@@ -82,6 +90,7 @@ export const DEPARTMENTS: Department[] = [
     description: "SAR/InSAR, hyperspectral & high-resolution imagery",
     color: "indigo",
     status: "active",
+    gridSpan: "md:col-span-2 xl:col-span-1",
     stats: { label: "Imagery", value: "Latest" },
   },
 ];

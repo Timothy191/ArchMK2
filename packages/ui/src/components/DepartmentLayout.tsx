@@ -68,16 +68,16 @@ export function DepartmentLayout({
 
   return (
     <div className="flex h-screen">
-      <aside className="w-64 shrink-0 border-r border-[#363636] bg-[#0f0f0f] flex flex-col">
-        <div className="p-4 border-b border-[#363636] bg-[#171717]/50 backdrop-blur-sm">
+      <aside className="w-64 shrink-0 border-r border-[var(--border-default)] bg-[var(--bg-primary)] flex flex-col">
+        <div className="p-4 border-b border-[var(--border-default)] bg-[var(--card)]/50 backdrop-blur-sm">
           <Link
             href="/"
-            className="flex items-center gap-2 text-[#898989] text-[10px] uppercase tracking-widest font-bold hover:text-[#fafafa] transition-colors group"
+            className="flex items-center gap-2 text-[var(--text-muted)] text-[10px] uppercase tracking-widest font-bold hover:text-[var(--text-heading)] transition-colors group"
           >
             <span className="group-hover:-translate-x-1 transition-transform">&larr;</span> Back to Hub
           </Link>
           <div className="mt-4 flex items-center gap-3">
-            <div className={cn("p-2 rounded-lg border bg-opacity-10 ", 
+            <div className={cn("p-2 rounded-lg border bg-opacity-10 ",
               department.color === "amber" && "border-amber-500/20 text-amber-400 bg-amber-500",
               department.color === "emerald" && "border-emerald-500/20 text-emerald-400 bg-emerald-500",
               department.color === "blue" && "border-blue-500/20 text-blue-400 bg-blue-500",
@@ -89,7 +89,7 @@ export function DepartmentLayout({
             )}>
               <BarChart2 className="w-4 h-4" />
             </div>
-            <h2 className="text-lg font-medium text-[#fafafa] tracking-tight">
+            <h2 className="text-lg font-medium text-[var(--text-heading)] tracking-tight">
               {department.displayName}
             </h2>
           </div>
@@ -109,26 +109,26 @@ export function DepartmentLayout({
                 className={cn(
                   "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all relative group",
                   isActive
-                    ? "bg-[#242424] text-[#fafafa] border border-[#363636]  font-medium"
-                    : "text-[#898989] hover:text-[#fafafa] hover:bg-[#171717]",
+                    ? "bg-[var(--bg-tertiary)] text-[var(--text-heading)] border border-[var(--border-default)] font-medium"
+                    : "text-[var(--text-muted)] hover:text-[var(--text-heading)] hover:bg-[var(--card)]",
                 )}
               >
-                {Icon && <Icon className={cn("w-4 h-4 shrink-0 transition-colors", isActive ? "text-[#3ecf8e]" : "group-hover:text-[#fafafa]")} />}
+                {Icon && <Icon className={cn("w-4 h-4 shrink-0 transition-colors", isActive ? "text-[var(--accent-cyan)]" : "group-hover:text-[var(--text-heading)]")} />}
                 {tab.label}
                 {isActive && (
-                  <motion.div 
+                  <motion.div
                     layoutId="active-tab"
-                    className="absolute right-2 w-1 h-4 rounded-full bg-[#3ecf8e]"
+                    className="absolute right-2 w-1 h-4 rounded-full bg-[var(--accent-cyan)]"
                   />
                 )}
               </Link>
             );
           })}
         </nav>
-        <div className="p-4 border-t border-[#363636] bg-[#171717]/30">
-          <div className="flex items-center gap-2 px-2 py-1.5 rounded-md border border-[#363636] bg-[#0f0f0f]">
+        <div className="p-4 border-t border-[var(--border-default)] bg-[var(--card)]/30">
+          <div className="flex items-center gap-2 px-2 py-1.5 rounded-md border border-[var(--border-default)] bg-[var(--bg-primary)]">
             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-[10px] text-[#898989] font-medium uppercase tracking-wider">Connection Secure</span>
+            <span className="text-[10px] text-[var(--text-muted)] font-medium uppercase tracking-wider">Connection Secure</span>
           </div>
         </div>
       </aside>

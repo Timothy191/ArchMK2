@@ -8,13 +8,14 @@ import { MachineOperationsList } from "./MachineOperationsList";
 export default async function MachineOperationsPage({
   params,
 }: {
-  params: { department: string };
+  params: Promise<{ department: string }>;
 }) {
-  const dept = DEPARTMENTS.find((d) => d.name === params.department);
+  const { department: deptSlug } = await params;
+  const dept = DEPARTMENTS.find((d) => d.name === deptSlug);
   if (!dept) notFound();
 
   // Only for control-room department
-  if (params.department !== "control-room") {
+  if (deptSlug !== "control-room") {
     notFound();
   }
 
@@ -23,7 +24,7 @@ export default async function MachineOperationsPage({
   const { data: department } = await supabase
     .from("departments")
     .select("id")
-    .eq("name", params.department)
+    .eq("name", deptSlug)
     .single();
 
   if (!department) notFound();
@@ -56,7 +57,9 @@ export default async function MachineOperationsPage({
   // Fetch today's operations with pre-populated data
   const { data: todayOperations } = await supabase
     .from("machine_operations")
-    .select("*, machine:machines(name, bin_factor), operator:operators(full_name), site:sites(name)")
+    .select(
+      "*, machine:machines(name, bin_factor), operator:operators(full_name), site:sites(name)",
+    )
     .eq("department_id", deptId)
     .eq("shift_date", today)
     .order("start_time", { ascending: false });
@@ -69,20 +72,23 @@ export default async function MachineOperationsPage({
     .eq("load_date", today);
 
   // Calculate today's totals
-  const totalHours = todayOperations?.reduce((sum, op) => {
-    return sum + (op.hours_worked || 0);
-  }, 0) || 0;
+  const totalHours =
+    todayOperations?.reduce((sum, op) => {
+      return sum + (op.hours_worked || 0);
+    }, 0) || 0;
 
-  const activeMachines = new Set(todayOperations?.map(op => op.machine_id)).size;
+  const activeMachines = new Set(todayOperations?.map((op) => op.machine_id))
+    .size;
 
   // Calculate total material moved (BCM) - sum of (loads × bin_factor)
   let totalMaterialBCM = 0;
-  todayOperations?.forEach(op => {
+  todayOperations?.forEach((op) => {
     const binFactor = op.machine?.bin_factor || 0;
     // Find loads for this machine across both shifts
-    const machineLoads = todayLoads
-      ?.filter(l => l.machine_id === op.machine_id)
-      ?.reduce((sum, l) => sum + (l.total_loads || 0), 0) || 0;
+    const machineLoads =
+      todayLoads
+        ?.filter((l) => l.machine_id === op.machine_id)
+        ?.reduce((sum, l) => sum + (l.total_loads || 0), 0) || 0;
     totalMaterialBCM += machineLoads * binFactor;
   });
 
@@ -92,10 +98,10 @@ export default async function MachineOperationsPage({
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-medium text-[#fafafa]">
+        <h2 className="text-2xl font-medium text-[var(--text-heading)]">
           Machine Operations
         </h2>
-        <p className="text-[#898989] text-sm">
+        <p className="text-[var(--text-muted)] text-sm">
           {new Date().toLocaleDateString("en-ZA", {
             weekday: "long",
             year: "numeric",
@@ -108,25 +114,25 @@ export default async function MachineOperationsPage({
       {/* Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <GlassCard>
-          <p className="text-[#898989] text-sm">Today&apos;s Hours</p>
-          <p className="text-2xl font-medium text-[#fafafa] mt-1">
+          <p className="text-[var(--text-muted)] text-sm">Today&apos;s Hours</p>
+          <p className="text-2xl font-medium text-[var(--text-heading)] mt-1">
             {totalHours.toFixed(1)}h
           </p>
         </GlassCard>
         <GlassCard>
-          <p className="text-[#898989] text-sm">Active Machines</p>
+          <p className="text-[var(--text-muted)] text-sm">Active Machines</p>
           <p className="text-2xl font-medium text-emerald-400 mt-1">
             {activeMachines}
           </p>
         </GlassCard>
         <GlassCard>
-          <p className="text-[#898989] text-sm">Material Moved</p>
-          <p className="text-2xl font-medium text-[#3ecf8e] mt-1">
+          <p className="text-[var(--text-muted)] text-sm">Material Moved</p>
+          <p className="text-2xl font-medium text-[var(--accent-cyan)] mt-1">
             {totalMaterialBCM.toFixed(1)} BCM
           </p>
         </GlassCard>
         <GlassCard>
-          <p className="text-[#898989] text-sm">BCM/Hour</p>
+          <p className="text-[var(--text-muted)] text-sm">BCM/Hour</p>
           <p className="text-2xl font-medium text-amber-400 mt-1">
             {avgBcmPerHour.toFixed(1)}
           </p>
@@ -144,11 +150,11 @@ export default async function MachineOperationsPage({
 
       {/* Today's Operations List */}
       <div className="space-y-4">
-        <h3 className="text-lg font-medium text-[#fafafa]">
+        <h3 className="text-lg font-medium text-[var(--text-heading)]">
           Today&apos;s Operations
         </h3>
-        <MachineOperationsList 
-          operations={todayOperations || []} 
+        <MachineOperationsList
+          operations={todayOperations || []}
           todayLoads={todayLoads || []}
         />
       </div>

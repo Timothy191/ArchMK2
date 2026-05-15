@@ -6,9 +6,10 @@ import ToolsPageClient from "~/features/departments/components/tools/ToolsPageCl
 export default async function ToolsPage({
   params,
 }: {
-  params: { department: string };
+  params: Promise<{ department: string }>;
 }) {
-  const dept = DEPARTMENTS.find((d) => d.name === params.department);
+  const { department } = await params;
+  const dept = DEPARTMENTS.find((d) => d.name === department);
   if (!dept) notFound();
 
   // Build initial tools list (all unknown status until client checks)

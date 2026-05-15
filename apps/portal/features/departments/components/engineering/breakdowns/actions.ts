@@ -2,11 +2,21 @@
 
 import { createServerSupabaseClient } from "@repo/supabase/server";
 import { revalidatePath } from "next/cache";
-import type { CreateBreakdownInput, BookOutInput, DirectCheckoutInput } from "./types";
+import { logAuditEvent } from "@/lib/audit";
+import type {
+  CreateBreakdownInput,
+  BookOutInput,
+  DirectCheckoutInput,
+} from "./types";
 
-export async function createBreakdown(departmentId: string, input: CreateBreakdownInput) {
+export async function createBreakdown(
+  departmentId: string,
+  input: CreateBreakdownInput,
+) {
   const supabase = await createServerSupabaseClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) throw new Error("Unauthorized");
 
@@ -24,15 +34,33 @@ export async function createBreakdown(departmentId: string, input: CreateBreakdo
 
   if (error) throw new Error(error.message);
 
+  await logAuditEvent({
+    action: "insert",
+    tableName: "breakdowns",
+    newData: { fleet_id: input.fleet_id.toUpperCase(), reason: input.reason },
+    departmentId,
+  });
+
   revalidatePath("/engineering/breakdowns");
   return { success: true };
 }
 
-export async function bookOutBreakdown(breakdownId: string, input: BookOutInput) {
+export async function bookOutBreakdown(
+  breakdownId: string,
+  input: BookOutInput,
+) {
   const supabase = await createServerSupabaseClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) throw new Error("Unauthorized");
+
+  const { data: before } = await supabase
+    .from("breakdowns")
+    .select("status, date_out, time_out, repair_notes")
+    .eq("id", breakdownId)
+    .single();
 
   const { error } = await supabase
     .from("breakdowns")
@@ -47,13 +75,31 @@ export async function bookOutBreakdown(breakdownId: string, input: BookOutInput)
 
   if (error) throw new Error(error.message);
 
+  await logAuditEvent({
+    action: "update",
+    tableName: "breakdowns",
+    recordId: breakdownId,
+    oldData: before ?? undefined,
+    newData: {
+      status: "completed",
+      date_out: input.date_out,
+      time_out: input.time_out,
+      repair_notes: input.repair_notes || null,
+    },
+  });
+
   revalidatePath("/engineering/breakdowns");
   return { success: true };
 }
 
-export async function directCheckout(departmentId: string, input: DirectCheckoutInput) {
+export async function directCheckout(
+  departmentId: string,
+  input: DirectCheckoutInput,
+) {
   const supabase = await createServerSupabaseClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) throw new Error("Unauthorized");
 
@@ -75,15 +121,34 @@ export async function directCheckout(departmentId: string, input: DirectCheckout
 
   if (error) throw new Error(error.message);
 
+  await logAuditEvent({
+    action: "insert",
+    tableName: "breakdowns",
+    newData: {
+      fleet_id: input.fleet_id.toUpperCase(),
+      reason: input.reason,
+      status: "completed",
+    },
+    departmentId,
+  });
+
   revalidatePath("/engineering/breakdowns");
   return { success: true };
 }
 
 export async function softDeleteBreakdown(breakdownId: string) {
   const supabase = await createServerSupabaseClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) throw new Error("Unauthorized");
+
+  const { data: before } = await supabase
+    .from("breakdowns")
+    .select("status, fleet_id, deleted_at")
+    .eq("id", breakdownId)
+    .single();
 
   const { error } = await supabase
     .from("breakdowns")
@@ -91,6 +156,14 @@ export async function softDeleteBreakdown(breakdownId: string) {
     .eq("id", breakdownId);
 
   if (error) throw new Error(error.message);
+
+  await logAuditEvent({
+    action: "delete",
+    tableName: "breakdowns",
+    recordId: breakdownId,
+    oldData: before ?? undefined,
+    newData: { deleted_at: new Date().toISOString() },
+  });
 
   revalidatePath("/engineering/breakdowns");
   return { success: true };

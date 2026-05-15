@@ -143,19 +143,19 @@ export function OperationalDelaysForm({ departmentId, machines, categories }: Op
   return (
     <GlassCard>
       <form onSubmit={handleSubmit} className="space-y-6">
-        <h3 className="text-lg font-medium text-[#fafafa]">
+        <h3 className="text-lg font-medium text-[var(--text-heading)]">
           Log Operational Delay
         </h3>
 
         {/* Template Buttons */}
         <div className="flex flex-wrap gap-2">
-          <span className="text-[#898989] text-sm mr-2 py-2">Quick:</span>
+          <span className="text-[var(--text-muted)] text-sm mr-2 py-2">Quick:</span>
           {TEMPLATES.map((template) => (
             <button
               key={template.label}
               type="button"
               onClick={() => handleTemplateClick(template)}
-              className="px-3 py-1.5 bg-[#171717] hover:bg-[#242424] border border-[#363636] rounded-lg text-[#b4b4b4] text-sm transition-colors"
+              className="px-3 py-1.5 bg-[var(--card)] hover:bg-[var(--bg-tertiary)] border border-[var(--border-default)] rounded-lg text-[var(--text-secondary)] text-sm transition-colors"
             >
               {template.label}
             </button>
@@ -165,7 +165,7 @@ export function OperationalDelaysForm({ departmentId, machines, categories }: Op
         {/* Delay Type & Shift */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <label className="text-[#b4b4b4] text-sm block">
+            <label className="text-[var(--text-secondary)] text-sm block">
               Delay Type <span className="text-red-400">*</span>
             </label>
             <select
@@ -173,7 +173,7 @@ export function OperationalDelaysForm({ departmentId, machines, categories }: Op
               onChange={(e) =>
                 setFormData(prev => ({ ...prev, delayType: e.target.value }))
               }
-              className="w-full bg-[#171717] border border-[#363636] rounded-lg px-3 py-2.5 text-[#fafafa] text-sm focus:outline-none focus:border-[#3ecf8e] transition-colors"
+              className="w-full bg-[var(--card)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-cyan)] transition-colors"
             >
               <option value="">Select type...</option>
               {DELAY_TYPES.map((type) => (
@@ -188,7 +188,7 @@ export function OperationalDelaysForm({ departmentId, machines, categories }: Op
           </div>
 
           <div className="space-y-2">
-            <label className="text-[#b4b4b4] text-sm block">Shift</label>
+            <label className="text-[var(--text-secondary)] text-sm block">Shift</label>
             <div className="flex gap-2">
               {["day", "night"].map((shift) => (
                 <button
@@ -202,8 +202,8 @@ export function OperationalDelaysForm({ departmentId, machines, categories }: Op
                   }
                   className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
                     formData.shiftType === shift
-                      ? "bg-[#3ecf8e] text-[#171717]"
-                      : "bg-[#171717] border border-[#363636] text-[#898989] hover:text-[#fafafa]"
+                      ? "bg-[var(--accent-cyan)] text-[var(--bg-secondary)]"
+                      : "bg-[var(--card)] border border-[var(--border-default)] text-[var(--text-muted)] hover:text-[var(--text-heading)]"
                   }`}
                 >
                   {shift.charAt(0).toUpperCase() + shift.slice(1)}
@@ -216,15 +216,15 @@ export function OperationalDelaysForm({ departmentId, machines, categories }: Op
         {/* Category & Machine */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <label className="text-[#b4b4b4] text-sm block">
-              Category <span className="text-[#898989]">(Optional)</span>
+            <label className="text-[var(--text-secondary)] text-sm block">
+              Category <span className="text-[var(--text-muted)]">(Optional)</span>
             </label>
             <select
               value={formData.categoryId}
               onChange={(e) =>
                 setFormData(prev => ({ ...prev, categoryId: e.target.value }))
               }
-              className="w-full bg-[#171717] border border-[#363636] rounded-lg px-3 py-2.5 text-[#fafafa] text-sm focus:outline-none focus:border-[#3ecf8e] transition-colors"
+              className="w-full bg-[var(--card)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-cyan)] transition-colors"
             >
               <option value="">Select category...</option>
               {categories.map((cat) => (
@@ -236,15 +236,15 @@ export function OperationalDelaysForm({ departmentId, machines, categories }: Op
           </div>
 
           <div className="space-y-2">
-            <label className="text-[#b4b4b4] text-sm block">
-              Affected Machine <span className="text-[#898989]">(Optional)</span>
+            <label className="text-[var(--text-secondary)] text-sm block">
+              Affected Machine <span className="text-[var(--text-muted)]">(Optional)</span>
             </label>
             <select
               value={formData.affectedMachineId}
               onChange={(e) =>
                 setFormData(prev => ({ ...prev, affectedMachineId: e.target.value }))
               }
-              className="w-full bg-[#171717] border border-[#363636] rounded-lg px-3 py-2.5 text-[#fafafa] text-sm focus:outline-none focus:border-[#3ecf8e] transition-colors"
+              className="w-full bg-[var(--card)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-cyan)] transition-colors"
             >
               <option value="">No specific machine</option>
               {machines.map((m) => (
@@ -258,7 +258,7 @@ export function OperationalDelaysForm({ departmentId, machines, categories }: Op
 
         {/* Delay Minutes */}
         <div className="space-y-2">
-          <label className="text-[#b4b4b4] text-sm block">
+          <label className="text-[var(--text-secondary)] text-sm block">
             Duration <span className="text-red-400">*</span>
           </label>
           <div className="flex items-center gap-2">
@@ -271,9 +271,9 @@ export function OperationalDelaysForm({ departmentId, machines, categories }: Op
                 setFormData((prev) => ({ ...prev, delayMinutes: e.target.value }))
               }
               placeholder="Minutes"
-              className="w-32 bg-[#171717] border border-[#363636] rounded-lg px-3 py-2.5 text-[#fafafa] text-sm focus:outline-none focus:border-[#3ecf8e]"
+              className="w-32 bg-[var(--card)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-cyan)]"
             />
-            <span className="text-[#898989] text-sm">minutes</span>
+            <span className="text-[var(--text-muted)] text-sm">minutes</span>
           </div>
           {errors.delayMinutes && (
             <p className="text-red-400 text-xs">{errors.delayMinutes}</p>
@@ -282,7 +282,7 @@ export function OperationalDelaysForm({ departmentId, machines, categories }: Op
 
         {/* Description */}
         <div className="space-y-2">
-          <label className="text-[#b4b4b4] text-sm block">
+          <label className="text-[var(--text-secondary)] text-sm block">
             Description <span className="text-red-400">*</span>
           </label>
           <textarea
@@ -293,13 +293,13 @@ export function OperationalDelaysForm({ departmentId, machines, categories }: Op
             placeholder="Describe the delay..."
             rows={3}
             maxLength={300}
-            className="w-full bg-[#171717] border border-[#363636] rounded-lg px-3 py-2.5 text-[#fafafa] text-sm focus:outline-none focus:border-[#3ecf8e] transition-colors resize-none"
+            className="w-full bg-[var(--card)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-cyan)] transition-colors resize-none"
           />
           <div className="flex justify-between">
             {errors.description && (
               <p className="text-red-400 text-xs">{errors.description}</p>
             )}
-            <p className="text-[#898989] text-xs ml-auto">
+            <p className="text-[var(--text-muted)] text-xs ml-auto">
               {formData.description.length}/300
             </p>
           </div>
@@ -307,8 +307,8 @@ export function OperationalDelaysForm({ departmentId, machines, categories }: Op
 
         {/* Impact */}
         <div className="space-y-2">
-          <label className="text-[#b4b4b4] text-sm block">
-            Impact <span className="text-[#898989]">(Optional)</span>
+          <label className="text-[var(--text-secondary)] text-sm block">
+            Impact <span className="text-[var(--text-muted)]">(Optional)</span>
           </label>
           <textarea
             value={formData.impactDescription}
@@ -318,14 +318,14 @@ export function OperationalDelaysForm({ departmentId, machines, categories }: Op
             placeholder="Impact on production/plan..."
             rows={2}
             maxLength={200}
-            className="w-full bg-[#171717] border border-[#363636] rounded-lg px-3 py-2.5 text-[#fafafa] text-sm focus:outline-none focus:border-[#3ecf8e] transition-colors resize-none"
+            className="w-full bg-[var(--card)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-cyan)] transition-colors resize-none"
           />
         </div>
 
         {/* Recovery Action */}
         <div className="space-y-2">
-          <label className="text-[#b4b4b4] text-sm block">
-            Recovery Action <span className="text-[#898989]">(Optional)</span>
+          <label className="text-[var(--text-secondary)] text-sm block">
+            Recovery Action <span className="text-[var(--text-muted)]">(Optional)</span>
           </label>
           <textarea
             value={formData.recoveryAction}
@@ -335,7 +335,7 @@ export function OperationalDelaysForm({ departmentId, machines, categories }: Op
             placeholder="How was the delay resolved?"
             rows={2}
             maxLength={200}
-            className="w-full bg-[#171717] border border-[#363636] rounded-lg px-3 py-2.5 text-[#fafafa] text-sm focus:outline-none focus:border-[#3ecf8e] transition-colors resize-none"
+            className="w-full bg-[var(--card)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-cyan)] transition-colors resize-none"
           />
         </div>
 
@@ -344,7 +344,7 @@ export function OperationalDelaysForm({ departmentId, machines, categories }: Op
           <button
             type="submit"
             disabled={isSubmitting}
-            className="bg-[#3ecf8e] hover:bg-[#35b37d] disabled:bg-[#2e2e2e] disabled:text-[#898989] text-[#171717] font-medium py-2.5 px-6 rounded-lg transition-colors"
+            className="bg-[var(--accent-cyan)] hover:bg-[var(--accent-cyan)] disabled:bg-[var(--bg-tertiary)] disabled:text-[var(--text-muted)] text-[var(--bg-secondary)] font-medium py-2.5 px-6 rounded-lg transition-colors"
           >
             {isSubmitting ? "Saving..." : "Log Delay"}
           </button>

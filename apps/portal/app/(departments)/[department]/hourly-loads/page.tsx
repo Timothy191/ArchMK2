@@ -6,11 +6,14 @@ import { HourlyLoadsGrid } from "./HourlyLoadsGrid";
 export default async function HourlyLoadsPage({
   params,
 }: {
-  params: { department: string };
+  params: Promise<{ department: string }>;
 }) {
-  requireDepartment(params.department, "control-room");
+  const { department } = await params;
+  requireDepartment(department, "control-room");
 
-  const { deptId, supabase, today } = await getDepartmentContext(params);
+  const { deptId, supabase, today } = await getDepartmentContext({
+    department,
+  });
 
   // Fetch machines
   const { data: machines } = await supabase
@@ -67,13 +70,13 @@ export default async function HourlyLoadsPage({
         hourlyLoads={hourlyLoads || []}
       />
 
-      <div className="flex items-center gap-6 text-xs text-[#898989]">
+      <div className="flex items-center gap-6 text-xs text-[var(--text-muted)]">
         <div className="flex items-center gap-2">
-          <span className="w-3 h-3 rounded bg-[#3ecf8e]/20 border border-[#3ecf8e]"></span>
+          <span className="w-3 h-3 rounded bg-[var(--accent-cyan)]/20 border border-[var(--accent-cyan)]"></span>
           <span>Active hour with loads</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="w-3 h-3 rounded bg-[#171717] border border-[#363636]"></span>
+          <span className="w-3 h-3 rounded bg-[var(--card)] border border-[var(--border-default)]"></span>
           <span>No loads recorded</span>
         </div>
         <p className="ml-auto">

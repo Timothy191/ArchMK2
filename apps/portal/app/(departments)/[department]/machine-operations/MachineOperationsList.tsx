@@ -35,7 +35,7 @@ export function MachineOperationsList({ operations, todayLoads }: MachineOperati
   if (operations.length === 0) {
     return (
       <GlassCard>
-        <p className="text-[#898989] text-sm text-center py-8">
+        <p className="text-[var(--text-muted)] text-sm text-center py-8">
           No operations logged today. Use the form above to add operations.
         </p>
       </GlassCard>
@@ -124,10 +124,10 @@ function OperationCard({
 
           {/* Machine & Details */}
           <div>
-            <p className="text-[#fafafa] font-medium">
+            <p className="text-[var(--text-heading)] font-medium">
               {operation.machine?.name || "Unknown Machine"}
             </p>
-            <div className="flex items-center gap-3 mt-0.5 text-xs text-[#898989]">
+            <div className="flex items-center gap-3 mt-0.5 text-xs text-[var(--text-muted)]">
               <span>{operation.operator?.full_name || "No Operator"}</span>
               <span className="text-[#363636]">|</span>
               <span>{operation.site?.name || "No Site"}</span>
@@ -137,7 +137,7 @@ function OperationCard({
 
         {/* Time, Hours & BCM */}
         <div className="text-right">
-          <p className="text-[#fafafa] text-sm">
+          <p className="text-[var(--text-heading)] text-sm">
             {formatTime(operation.start_time)} -{" "}
             {operation.end_time ? formatTime(operation.end_time) : "In Progress"}
           </p>
@@ -150,7 +150,7 @@ function OperationCard({
             {binFactor > 0 && (
               <>
                 <span className="text-[#363636]">|</span>
-                <span className="text-[#3ecf8e] text-xs">
+                <span className="text-[var(--accent-cyan)] text-xs">
                   {materialBCM.toFixed(1)} BCM
                 </span>
                 <span className="text-[#363636]">|</span>

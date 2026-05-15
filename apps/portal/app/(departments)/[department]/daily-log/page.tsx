@@ -7,11 +7,14 @@ import { GlassCard } from "@repo/ui/GlassCard";
 export default async function DailyLogPage({
   params,
 }: {
-  params: { department: string };
+  params: Promise<{ department: string }>;
 }) {
-  const { deptId, supabase, today } = await getDepartmentContext(params);
+  const { department } = await params;
+  const { deptId, supabase, today } = await getDepartmentContext({
+    department,
+  });
 
-  const isSafety = params.department === "safety";
+  const isSafety = department === "safety";
 
   if (isSafety) {
     // Fetch categories and severities for safety incident form
@@ -29,21 +32,27 @@ export default async function DailyLogPage({
     const { data: todayIncidents } = await supabase
       .from("safety_incidents")
       .select(
-        "id, incident_type, severity_id, severity:severities(color), category:categories(name), description, location, injured_parties, status, shift_type, created_at"
+        "id, incident_type, severity_id, severity:severities(color), category:categories(name), description, location, injured_parties, status, shift_type, created_at",
       )
       .eq("department_id", deptId)
       .eq("incident_date", today)
       .order("created_at", { ascending: false });
 
-    const formattedIncidents = (todayIncidents || []).map((inc) => ({
+    const formattedIncidents = (todayIncidents || []).map((inc: any) => ({
       ...inc,
-      severity_color: Array.isArray(inc.severity) ? inc.severity[0]?.color : inc.severity?.color,
-      category_name: Array.isArray(inc.category) ? inc.category[0]?.name : inc.category?.name,
+      severity_color: Array.isArray(inc.severity)
+        ? inc.severity[0]?.color
+        : inc.severity?.color,
+      category_name: Array.isArray(inc.category)
+        ? inc.category[0]?.name
+        : inc.category?.name,
     }));
 
     return (
       <div className="space-y-6">
-        <h2 className="text-2xl font-medium text-[#fafafa]">Safety Daily Log</h2>
+        <h2 className="text-2xl font-medium text-[var(--text-heading)]">
+          Safety Daily Log
+        </h2>
 
         {formattedIncidents.length > 0 && (
           <GlassCard className="border-amber-500/20">
@@ -61,7 +70,9 @@ export default async function DailyLogPage({
         />
 
         <div className="space-y-4">
-          <h3 className="text-lg font-medium text-[#fafafa]">Today&apos;s Incidents</h3>
+          <h3 className="text-lg font-medium text-[var(--text-heading)]">
+            Today&apos;s Incidents
+          </h3>
           <SafetyIncidentsList incidents={formattedIncidents} />
         </div>
       </div>
@@ -89,17 +100,19 @@ export default async function DailyLogPage({
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-medium text-[#fafafa]">Daily Log</h2>
+      <h2 className="text-2xl font-medium text-[var(--text-heading)]">
+        Daily Log
+      </h2>
 
       {allShiftsLogged ? (
         <GlassCard className="border-emerald-500/20">
           <p className="text-emerald-400 text-sm font-medium">
             &#10003; All shifts logged for today
           </p>
-          <p className="text-[#b4b4b4] text-sm mt-1">
+          <p className="text-[var(--text-secondary)] text-sm mt-1">
             <a
-              href={`/${params.department}/history`}
-              className="text-[#00c573] hover:underline"
+              href={`/${department}/history`}
+              className="text-[var(--accent-cyan)] hover:underline"
             >
               View History
             </a>
@@ -118,7 +131,7 @@ export default async function DailyLogPage({
           )}
           <DailyLogForm
             departmentId={deptId}
-            departmentSlug={params.department}
+            departmentSlug={department}
             machines={machines || []}
           />
         </>

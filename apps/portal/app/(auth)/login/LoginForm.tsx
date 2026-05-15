@@ -39,10 +39,10 @@ export function LoginForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-4 rounded-2xl border border-[#363636] bg-[#242424] backdrop-blur-md p-6"
+      className="space-y-4 rounded-2xl border border-[var(--border-default)] bg-[var(--bg-tertiary)] backdrop-blur-md p-6"
     >
       <div className="space-y-2">
-        <label htmlFor="email" className="block text-sm font-medium text-[#b4b4b4]">
+        <label htmlFor="email" className="block text-sm font-medium text-[var(--text-secondary)]">
           Username
         </label>
         <Input
@@ -58,7 +58,7 @@ export function LoginForm() {
       </div>
 
       <div className="space-y-2">
-        <label htmlFor="password" className="block text-sm font-medium text-[#b4b4b4]">
+        <label htmlFor="password" className="block text-sm font-medium text-[var(--text-secondary)]">
           Password
         </label>
         <Input
@@ -81,7 +81,7 @@ export function LoginForm() {
       <button
         type="submit"
         disabled={loading}
-        className="w-full px-4 py-2.5 rounded-lg bg-[#3ecf8e] text-[#0f0f0f] text-sm font-semibold hover:bg-[#35b87d] active:scale-[0.98] transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full px-4 py-2.5 rounded-lg bg-[var(--accent-cyan)] text-[#0f0f0f] text-sm font-semibold hover:bg-[#35b87d] active:scale-[0.98] transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {loading ? "Signing in..." : "Sign In"}
       </button>

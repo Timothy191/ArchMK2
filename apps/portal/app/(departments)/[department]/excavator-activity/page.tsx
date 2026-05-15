@@ -6,11 +6,14 @@ import { GlassCard } from "@repo/ui/GlassCard";
 export default async function ExcavatorActivityPage({
   params,
 }: {
-  params: { department: string };
+  params: Promise<{ department: string }>;
 }) {
-  requireDepartment(params.department, "control-room");
+  const { department } = await params;
+  requireDepartment(department, "control-room");
 
-  const { deptId, supabase, today } = await getDepartmentContext(params);
+  const { deptId, supabase, today } = await getDepartmentContext({
+    department,
+  });
 
   // Fetch excavators only
   const { data: excavators } = await supabase
@@ -20,7 +23,6 @@ export default async function ExcavatorActivityPage({
     .eq("active", true)
     .ilike("machine_type", "%excavator%")
     .order("name");
-
 
   // Fetch today's activity
   const { data: todayActivity } = await supabase
@@ -58,16 +60,16 @@ export default async function ExcavatorActivityPage({
 
       <GlassCard>
         <div className="text-center py-8">
-          <p className="text-[#fafafa] font-medium mb-2">
+          <p className="text-[var(--text-heading)] font-medium mb-2">
             Excavator Activity Tracking
           </p>
-          <p className="text-[#898989] text-sm max-w-md mx-auto">
+          <p className="text-[var(--text-muted)] text-sm max-w-md mx-auto">
             Track passes, loads, and cycle times for excavators. This module
             will include forms for logging activity and automatic calculation of
             estimated tonnes moved.
           </p>
-          <div className="mt-4 flex items-center justify-center gap-2 text-xs text-[#898989]">
-            <span className="w-2 h-2 rounded-full bg-[#3ecf8e]"></span>
+          <div className="mt-4 flex items-center justify-center gap-2 text-xs text-[var(--text-muted)]">
+            <span className="w-2 h-2 rounded-full bg-[var(--accent-cyan)]"></span>
             Found {excavators?.length || 0} excavators in database
           </div>
         </div>
@@ -75,26 +77,26 @@ export default async function ExcavatorActivityPage({
 
       {todayActivity && todayActivity.length > 0 && (
         <div className="space-y-4">
-          <h3 className="text-lg font-medium text-[#fafafa]">
+          <h3 className="text-lg font-medium text-[var(--text-heading)]">
             Today&apos;s Activity
           </h3>
           {todayActivity.map((activity) => (
             <GlassCard key={activity.id} className="py-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-[#fafafa] font-medium">
+                  <p className="text-[var(--text-heading)] font-medium">
                     {activity.machine?.name}
                   </p>
-                  <p className="text-[#898989] text-xs">
+                  <p className="text-[var(--text-muted)] text-xs">
                     {activity.operator?.full_name} • {activity.shift_type} shift
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-[#3ecf8e] font-medium">
+                  <p className="text-[var(--accent-cyan)] font-medium">
                     {activity.passes} passes / {activity.loads} loads
                   </p>
                   {activity.avg_cycle_time_seconds && (
-                    <p className="text-[#898989] text-xs">
+                    <p className="text-[var(--text-muted)] text-xs">
                       Avg cycle:{" "}
                       {Math.round(activity.avg_cycle_time_seconds / 60)}min
                     </p>

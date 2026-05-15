@@ -17,8 +17,8 @@ export default function DepartmentError({
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-medium text-[#fafafa]">Error</h2>
-      <p className="text-[#898989] text-sm">
+      <h2 className="text-2xl font-medium text-[var(--text-heading)]">Error</h2>
+      <p className="text-[var(--text-muted)] text-sm">
         {error.message || "Failed to load department data."}
       </p>
       <div className="flex items-center gap-3">
@@ -27,7 +27,7 @@ export default function DepartmentError({
         </SecondaryButton>
         <Link
           href="/"
-          className="px-4 py-2 rounded-full text-[#898989] text-sm hover:text-[#fafafa] transition-colors"
+          className="px-4 py-2 rounded-full text-[var(--text-muted)] text-sm hover:text-[var(--text-heading)] transition-colors"
         >
           Back to Hub
         </Link>

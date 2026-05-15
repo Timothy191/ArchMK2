@@ -1,132 +1,40 @@
+@custom-variant dark (&:is(.dark *));
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 240 5.9% 10%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 240 5.9% 10%;
-    --radius: 0.5rem;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
+@import "@repo/theme/css";
 
-    /* Tremor */
-    --tremor-brand-faint: 217 91% 91%;
-    --tremor-brand-muted: 217 91% 81%;
-    --tremor-brand-subtle: 217 91% 61%;
-    --tremor-brand-default: 217 91% 60%;
-    --tremor-brand-emphasis: 217 91% 45%;
-    --tremor-brand-inverted: 0 0% 100%;
-    --tremor-background-muted: 210 40% 96.1%;
-    --tremor-background-subtle: 210 40% 96.1%;
-    --tremor-background-default: 0 0% 100%;
-    --tremor-background-emphasis: 215.4 16.3% 46.9%;
-    --tremor-border-default: 214.3 31.8% 91.4%;
-    --tremor-ring-default: 215 20.2% 65.1%;
-    --tremor-content-subtle: 215.4 16.3% 56.9%;
-    --tremor-content-default: 215.4 16.3% 46.9%;
-    --tremor-content-emphasis: 215 25% 27%;
-    --tremor-content-strong: 222.2 47.4% 11.2%;
-    --tremor-content-inverted: 0 0% 100%;
+@theme inline {
+  --animate-shine: shine var(--duration) infinite linear;
+  --animate-marquee: marquee var(--duration) infinite linear;
+  --animate-marquee-vertical: marquee-vertical var(--duration) linear infinite;
+  @keyframes shine {
+    0% {
+      background-position: 0% 0%;
+    }
+    50% {
+      background-position: 100% 100%;
+    }
+    to {
+      background-position: 0% 0%;
+    }
   }
-
-  .dark {
-    --background: 240 10% 2%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 4%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 4%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 161 72% 53%; /* Plantcor Green #3ecf8e */
-    --primary-foreground: 161 72% 10%;
-    --secondary: 240 3.7% 10%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 10%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 12%;
-    --input: 240 3.7% 12%;
-    --ring: 161 72% 53%;
-    --chart-1: 161 72% 53%;
-    --chart-2: 217 91% 60%;
-    --chart-3: 35 92% 58%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-
-    /* Tremor Dark Refined */
-    --tremor-brand-faint: 161 72% 5%;
-    --tremor-brand-muted: 161 72% 15%;
-    --tremor-brand-subtle: 161 72% 30%;
-    --tremor-brand-default: 161 72% 53%;
-    --tremor-brand-emphasis: 161 72% 70%;
-    --tremor-brand-inverted: 161 72% 5%;
-    --tremor-background-muted: 240 10% 6%;
-    --tremor-background-subtle: 240 10% 8%;
-    --tremor-background-default: 240 10% 3%;
-    --tremor-background-emphasis: 240 10% 80%;
-    --tremor-border-default: 240 10% 12%;
-    --tremor-ring-default: 161 72% 20%;
-    --tremor-content-subtle: 240 5% 40%;
-    --tremor-content-default: 240 5% 70%;
-    --tremor-content-emphasis: 0 0% 100%;
-    --tremor-content-strong: 0 0% 100%;
-    --tremor-content-inverted: 0 0% 0%;
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(calc(-100% - var(--gap)));
+    }
+  }
+  @keyframes marquee-vertical {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(calc(-100% - var(--gap)));
+    }
   }
 }
-
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-}
-
-/* Premium Background Animations */
-@keyframes float-slow {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(10%, 10%) scale(1.1); }
-  66% { transform: translate(-5%, 15%) scale(0.9); }
-}
-@keyframes float-delayed {
-  0%, 100% { transform: translate(0, 0) scale(1.1); }
-  33% { transform: translate(-10%, -10%) scale(0.9); }
-  66% { transform: translate(5%, -15%) scale(1); }
-}
-@keyframes grid-drift {
-  0% { background-position: 0 0; }
-  100% { background-position: 40px 40px; }
-}
-@keyframes pulse-slow {
-  0%, 100% { opacity: 0.3; transform: scale(1); }
-  50% { opacity: 0.6; transform: scale(1.2); }
-}
-
-.animate-float-slow { animation: float-slow 20s infinite ease-in-out; }
-.animate-float-delayed { animation: float-delayed 25s infinite ease-in-out; }
-.animate-grid-drift { animation: grid-drift 10s linear infinite; }
-.animate-pulse-slow { animation: pulse-slow 15s infinite ease-in-out; }

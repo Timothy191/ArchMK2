@@ -2,23 +2,28 @@ import { DepartmentLayout } from "@repo/ui/DepartmentLayout";
 import { DEPARTMENTS, getDepartmentTabs } from "~/lib/departments";
 import { notFound } from "next/navigation";
 import { AIAssistant } from "@/components/ai/AIAssistant";
+import { ActiveDepartmentSetter } from "@/components/nav/ActiveDepartmentSetter";
 
 export default async function DepartmentRootLayout({
   children,
   params,
 }: {
   children: React.ReactNode;
-  params: { department: string };
+  params: Promise<{ department: string }>;
 }) {
-  const dept = DEPARTMENTS.find((d) => d.name === params.department);
+  const { department } = await params;
+  const dept = DEPARTMENTS.find((d) => d.name === department);
   if (!dept) notFound();
 
-  const tabs = getDepartmentTabs(params.department);
+  const tabs = getDepartmentTabs(department);
 
   return (
-    <DepartmentLayout department={dept} tabs={tabs}>
-      {children}
-      <AIAssistant context={`${dept.displayName} Department`} />
-    </DepartmentLayout>
+    <>
+      <ActiveDepartmentSetter department={department} />
+      <DepartmentLayout department={dept} tabs={tabs}>
+        {children}
+        <AIAssistant context={`${dept.displayName} Department`} />
+      </DepartmentLayout>
+    </>
   );
 }

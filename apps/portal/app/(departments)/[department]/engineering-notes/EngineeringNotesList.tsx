@@ -53,7 +53,7 @@ export function EngineeringNotesList({ notes }: EngineeringNotesListProps) {
   if (notes.length === 0) {
     return (
       <GlassCard>
-        <p className="text-[#898989] text-sm text-center py-8">
+        <p className="text-[var(--text-muted)] text-sm text-center py-8">
           No engineering issues logged today.
         </p>
       </GlassCard>
@@ -98,9 +98,9 @@ export function EngineeringNotesList({ notes }: EngineeringNotesListProps) {
 }
 
 function NoteCard({ note }: { note: EngineeringNote }) {
-  const issueColor = ISSUE_TYPE_COLORS[note.issue_type] || "#898989";
-  const severityColor = SEVERITY_COLORS[note.severity] || "#898989";
-  const statusColor = STATUS_COLORS[note.status] || "#898989";
+  const issueColor = ISSUE_TYPE_COLORS[note.issue_type] || "var(--text-muted)";
+  const severityColor = SEVERITY_COLORS[note.severity] || "var(--text-muted)";
+  const statusColor = STATUS_COLORS[note.status] || "var(--text-muted)";
 
   return (
     <GlassCard
@@ -143,25 +143,25 @@ function NoteCard({ note }: { note: EngineeringNote }) {
 
           {/* Machine */}
           {note.machine && (
-            <span className="text-[#898989] text-xs">
+            <span className="text-[var(--text-muted)] text-xs">
               {note.machine.name}
             </span>
           )}
 
           {/* Time */}
-          <span className="text-[#898989] text-xs ml-auto">
+          <span className="text-[var(--text-muted)] text-xs ml-auto">
             {formatTime(note.created_at)}
           </span>
         </div>
 
         {/* Description */}
-        <p className="text-[#fafafa] text-sm">{note.description}</p>
+        <p className="text-[var(--text-heading)] text-sm">{note.description}</p>
 
         {/* Action Taken */}
         {note.action_taken && (
           <div className="text-sm">
-            <span className="text-[#3ecf8e]">Action:</span>{" "}
-            <span className="text-[#b4b4b4]">{note.action_taken}</span>
+            <span className="text-[var(--accent-cyan)]">Action:</span>{" "}
+            <span className="text-[var(--text-secondary)]">{note.action_taken}</span>
           </div>
         )}
 

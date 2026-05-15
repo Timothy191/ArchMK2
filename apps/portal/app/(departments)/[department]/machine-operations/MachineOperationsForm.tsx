@@ -214,11 +214,11 @@ export function MachineOperationsForm({
     <GlassCard>
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-medium text-[#fafafa]">
+          <h3 className="text-lg font-medium text-[var(--text-heading)]">
             Log Machine Operation
           </h3>
           {lastSaved && (
-            <span className="text-[#898989] text-xs">
+            <span className="text-[var(--text-muted)] text-xs">
               Draft saved {lastSaved.toLocaleTimeString()}
             </span>
           )}
@@ -227,7 +227,7 @@ export function MachineOperationsForm({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {/* Machine Dropdown */}
           <div className="space-y-2">
-            <label className="text-[#b4b4b4] text-sm block">
+            <label className="text-[var(--text-secondary)] text-sm block">
               Machine <span className="text-red-400">*</span>
             </label>
             <select
@@ -235,7 +235,7 @@ export function MachineOperationsForm({
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, machineId: e.target.value }))
               }
-              className="w-full bg-[#171717] border border-[#363636] rounded-lg px-3 py-2.5 text-[#fafafa] text-sm focus:outline-none focus:border-[#3ecf8e] transition-colors"
+              className="w-full bg-[var(--card)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-cyan)] transition-colors"
             >
               <option value="">Select machine...</option>
               {machines.map((m) => (
@@ -251,7 +251,7 @@ export function MachineOperationsForm({
 
           {/* Operator Dropdown */}
           <div className="space-y-2">
-            <label className="text-[#b4b4b4] text-sm block">
+            <label className="text-[var(--text-secondary)] text-sm block">
               Operator <span className="text-red-400">*</span>
             </label>
             <select
@@ -259,7 +259,7 @@ export function MachineOperationsForm({
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, operatorId: e.target.value }))
               }
-              className="w-full bg-[#171717] border border-[#363636] rounded-lg px-3 py-2.5 text-[#fafafa] text-sm focus:outline-none focus:border-[#3ecf8e] transition-colors"
+              className="w-full bg-[var(--card)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-cyan)] transition-colors"
             >
               <option value="">Select operator...</option>
               {operators.map((op) => (
@@ -275,7 +275,7 @@ export function MachineOperationsForm({
 
           {/* Site Dropdown */}
           <div className="space-y-2">
-            <label className="text-[#b4b4b4] text-sm block">
+            <label className="text-[var(--text-secondary)] text-sm block">
               Site/Location <span className="text-red-400">*</span>
             </label>
             <select
@@ -283,7 +283,7 @@ export function MachineOperationsForm({
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, siteId: e.target.value }))
               }
-              className="w-full bg-[#171717] border border-[#363636] rounded-lg px-3 py-2.5 text-[#fafafa] text-sm focus:outline-none focus:border-[#3ecf8e] transition-colors"
+              className="w-full bg-[var(--card)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-cyan)] transition-colors"
             >
               <option value="">Select site...</option>
               {sites.map((s) => (
@@ -299,7 +299,7 @@ export function MachineOperationsForm({
 
           {/* Shift Type */}
           <div className="space-y-2">
-            <label className="text-[#b4b4b4] text-sm block">
+            <label className="text-[var(--text-secondary)] text-sm block">
               Shift <span className="text-red-400">*</span>
             </label>
             <div className="flex gap-2">
@@ -315,8 +315,8 @@ export function MachineOperationsForm({
                   }
                   className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
                     formData.shiftType === shift
-                      ? "bg-[#3ecf8e] text-[#171717]"
-                      : "bg-[#171717] border border-[#363636] text-[#898989] hover:text-[#fafafa]"
+                      ? "bg-[var(--accent-cyan)] text-[var(--bg-secondary)]"
+                      : "bg-[var(--card)] border border-[var(--border-default)] text-[var(--text-muted)] hover:text-[var(--text-heading)]"
                   }`}
                 >
                   {shift.charAt(0).toUpperCase() + shift.slice(1)}
@@ -327,7 +327,7 @@ export function MachineOperationsForm({
 
           {/* Start Time */}
           <div className="space-y-2">
-            <label className="text-[#b4b4b4] text-sm block">
+            <label className="text-[var(--text-secondary)] text-sm block">
               Start Time <span className="text-red-400">*</span>
             </label>
             <input
@@ -336,7 +336,7 @@ export function MachineOperationsForm({
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, startTime: e.target.value }))
               }
-              className="w-full bg-[#171717] border border-[#363636] rounded-lg px-3 py-2.5 text-[#fafafa] text-sm focus:outline-none focus:border-[#3ecf8e] transition-colors"
+              className="w-full bg-[var(--card)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-cyan)] transition-colors"
             />
             {errors.startTime && (
               <p className="text-red-400 text-xs">{errors.startTime}</p>
@@ -345,14 +345,14 @@ export function MachineOperationsForm({
 
           {/* End Time */}
           <div className="space-y-2">
-            <label className="text-[#b4b4b4] text-sm block">End Time</label>
+            <label className="text-[var(--text-secondary)] text-sm block">End Time</label>
             <input
               type="time"
               value={formData.endTime}
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, endTime: e.target.value }))
               }
-              className="w-full bg-[#171717] border border-[#363636] rounded-lg px-3 py-2.5 text-[#fafafa] text-sm focus:outline-none focus:border-[#3ecf8e] transition-colors"
+              className="w-full bg-[var(--card)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-cyan)] transition-colors"
             />
             {errors.endTime && (
               <p className="text-red-400 text-xs">{errors.endTime}</p>
@@ -362,12 +362,12 @@ export function MachineOperationsForm({
 
         {/* Hours Worked Display */}
         {hoursWorked !== null && (
-          <div className="flex items-center gap-4 p-3 bg-[#1f1f1f] rounded-lg border border-[#363636]">
-            <span className="text-[#898989] text-sm">Hours Worked:</span>
-            <span className="text-2xl font-medium text-[#3ecf8e]">
+          <div className="flex items-center gap-4 p-3 bg-[var(--bg-secondary)] rounded-lg border border-[var(--border-default)]">
+            <span className="text-[var(--text-muted)] text-sm">Hours Worked:</span>
+            <span className="text-2xl font-medium text-[var(--accent-cyan)]">
               {hoursWorked.toFixed(2)}h
             </span>
-            <span className="text-[#898989] text-xs">(auto-calculated)</span>
+            <span className="text-[var(--text-muted)] text-xs">(auto-calculated)</span>
           </div>
         )}
 
@@ -376,7 +376,7 @@ export function MachineOperationsForm({
           <button
             type="submit"
             disabled={isSubmitting}
-            className="bg-[#3ecf8e] hover:bg-[#35b37d] disabled:bg-[#2e2e2e] disabled:text-[#898989] text-[#171717] font-medium py-2.5 px-6 rounded-lg transition-colors min-w-[120px]"
+            className="bg-[var(--accent-cyan)] hover:bg-[var(--accent-cyan)] disabled:bg-[var(--bg-tertiary)] disabled:text-[var(--text-muted)] text-[var(--bg-secondary)] font-medium py-2.5 px-6 rounded-lg transition-colors min-w-[120px]"
           >
             {isSubmitting ? "Saving..." : "Save Operation"}
           </button>
@@ -387,8 +387,8 @@ export function MachineOperationsForm({
         </div>
 
         {/* Help Text */}
-        <p className="text-[#898989] text-xs">
-          <span className="text-[#3ecf8e]">Tip:</span> End time is optional. You can
+        <p className="text-[var(--text-muted)] text-xs">
+          <span className="text-[var(--accent-cyan)]">Tip:</span> End time is optional. You can
           come back and add it later. Hours are calculated automatically.
         </p>
       </form>

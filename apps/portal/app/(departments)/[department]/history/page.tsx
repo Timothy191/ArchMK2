@@ -9,10 +9,12 @@ export default async function HistoryPage({
   params,
   searchParams,
 }: {
-  params: { department: string };
-  searchParams: { from?: string; to?: string };
+  params: Promise<{ department: string }>;
+  searchParams: Promise<{ from?: string; to?: string }>;
 }) {
-  const dept = DEPARTMENTS.find((d) => d.name === params.department);
+  const { department: deptSlug } = await params;
+  const { from: fromParam, to: toParam } = await searchParams;
+  const dept = DEPARTMENTS.find((d) => d.name === deptSlug);
   if (!dept) notFound();
 
   const supabase = await createServerSupabaseClient();
@@ -20,7 +22,7 @@ export default async function HistoryPage({
   const { data: department } = await supabase
     .from("departments")
     .select("id")
-    .eq("name", params.department)
+    .eq("name", deptSlug)
     .single();
 
   if (!department) notFound();
@@ -28,9 +30,9 @@ export default async function HistoryPage({
   const deptId = department.id;
 
   // Default to last 30 days
-  const to = searchParams.to || new Date().toISOString().split("T")[0];
+  const to = toParam || new Date().toISOString().split("T")[0];
   const from =
-    searchParams.from ||
+    fromParam ||
     new Date(Date.now() - 30 * 86400000).toISOString().split("T")[0];
 
   const { data: logs } = await supabase
@@ -44,10 +46,12 @@ export default async function HistoryPage({
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-medium text-[#fafafa]">History</h2>
+        <h2 className="text-2xl font-medium text-[var(--text-heading)]">
+          History
+        </h2>
         <Link
-          href={`/${params.department}/reports?from=${from}&to=${to}`}
-          className="px-4 py-2 rounded-lg bg-[#242424] text-[#00c573] text-sm font-medium hover:bg-[#2e2e2e] transition-colors"
+          href={`/${deptSlug}/reports?from=${from}&to=${to}`}
+          className="px-4 py-2 rounded-lg bg-[var(--bg-tertiary)] text-[var(--accent-cyan)] text-sm font-medium hover:bg-[var(--bg-tertiary)] transition-colors"
         >
           Export CSV
         </Link>
@@ -57,7 +61,9 @@ export default async function HistoryPage({
       <GlassCard>
         <form method="GET" className="flex items-end gap-4">
           <div>
-            <label className="block text-sm text-[#898989] mb-1">From</label>
+            <label className="block text-sm text-[var(--text-muted)] mb-1">
+              From
+            </label>
             <Input
               type="date"
               name="from"
@@ -66,7 +72,9 @@ export default async function HistoryPage({
             />
           </div>
           <div>
-            <label className="block text-sm text-[#898989] mb-1">To</label>
+            <label className="block text-sm text-[var(--text-muted)] mb-1">
+              To
+            </label>
             <Input
               type="date"
               name="to"
@@ -76,7 +84,7 @@ export default async function HistoryPage({
           </div>
           <button
             type="submit"
-            className="px-4 py-2 rounded-lg bg-[#242424] text-[#fafafa] text-sm font-medium hover:bg-[#2e2e2e] transition-colors"
+            className="px-4 py-2 rounded-lg bg-[var(--bg-tertiary)] text-[var(--text-heading)] text-sm font-medium hover:bg-[var(--bg-tertiary)] transition-colors"
           >
             Filter
           </button>
@@ -88,28 +96,28 @@ export default async function HistoryPage({
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="border-b border-[#363636]">
-                <th className="px-6 py-3 text-xs font-medium text-[#898989] uppercase tracking-wider">
+              <tr className="border-b border-[var(--border-default)]">
+                <th className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
                   Date
                 </th>
-                <th className="px-6 py-3 text-xs font-medium text-[#898989] uppercase tracking-wider">
+                <th className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
                   Shift
                 </th>
-                <th className="px-6 py-3 text-xs font-medium text-[#898989] uppercase tracking-wider">
+                <th className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
                   Notes
                 </th>
-                <th className="px-6 py-3 text-xs font-medium text-[#898989] uppercase tracking-wider">
+                <th className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
                   Created
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#363636]">
+            <tbody className="divide-y divide-[var(--border-default)]">
               {logs?.map((log) => (
                 <tr
                   key={log.id}
-                  className="hover:bg-[#242424] transition-colors"
+                  className="hover:bg-[var(--bg-tertiary)] transition-colors"
                 >
-                  <td className="px-6 py-4 text-[#fafafa] text-sm">
+                  <td className="px-6 py-4 text-[var(--text-heading)] text-sm">
                     {log.log_date}
                   </td>
                   <td className="px-6 py-4">
@@ -123,10 +131,10 @@ export default async function HistoryPage({
                       {log.shift}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-[#898989] text-sm truncate max-w-xs">
+                  <td className="px-6 py-4 text-[var(--text-muted)] text-sm truncate max-w-xs">
                     {log.notes || "—"}
                   </td>
-                  <td className="px-6 py-4 text-[#898989] text-sm">
+                  <td className="px-6 py-4 text-[var(--text-muted)] text-sm">
                     {new Date(log.created_at).toLocaleDateString()}
                   </td>
                 </tr>
@@ -135,7 +143,7 @@ export default async function HistoryPage({
                 <tr>
                   <td
                     colSpan={4}
-                    className="px-6 py-12 text-center text-[#898989] text-sm"
+                    className="px-6 py-12 text-center text-[var(--text-muted)] text-sm"
                   >
                     No logs found for the selected date range.
                   </td>

@@ -228,7 +228,7 @@ export function HourlyLoadsGrid({
   if (machines.length === 0) {
     return (
       <GlassCard>
-        <p className="text-[#898989] text-sm text-center py-8">
+        <p className="text-[var(--text-muted)] text-sm text-center py-8">
           No machines available. Add machines in the Machine DB tab first.
         </p>
       </GlassCard>
@@ -240,15 +240,15 @@ export function HourlyLoadsGrid({
       {/* Shift Selector & Actions */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <span className="text-[#898989] text-sm">Shift:</span>
+          <span className="text-[var(--text-muted)] text-sm">Shift:</span>
           <div className="flex gap-2">
             <button
               type="button"
               onClick={() => setSelectedShift("day")}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 selectedShift === "day"
-                  ? "bg-amber-500 text-[#171717]"
-                  : "bg-[#171717] border border-[#363636] text-[#898989] hover:text-[#fafafa]"
+                  ? "bg-amber-500 text-[var(--bg-secondary)]"
+                  : "bg-[var(--card)] border border-[var(--border-default)] text-[var(--text-muted)] hover:text-[var(--text-heading)]"
               }`}
             >
               Day (06:00 - 17:59)
@@ -259,7 +259,7 @@ export function HourlyLoadsGrid({
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 selectedShift === "night"
                   ? "bg-blue-500 text-white"
-                  : "bg-[#171717] border border-[#363636] text-[#898989] hover:text-[#fafafa]"
+                  : "bg-[var(--card)] border border-[var(--border-default)] text-[var(--text-muted)] hover:text-[var(--text-heading)]"
               }`}
             >
               Night (18:00 - 05:59)
@@ -300,31 +300,31 @@ export function HourlyLoadsGrid({
         <table className="w-full">
           <thead>
             <tr>
-              <th className="text-left text-[#898989] text-xs font-medium p-3 border-b border-r border-[#363636] sticky left-0 bg-[#1f1f1f] z-10">
+              <th className="text-left text-[var(--text-muted)] text-xs font-medium p-3 border-b border-r border-[var(--border-default)] sticky left-0 bg-[var(--bg-secondary)] z-10">
                 Machine
               </th>
               {HOURS_12.map((hour, index) => (
                 <th
                   key={hour}
-                  className="text-center text-[#898989] text-xs font-medium p-2 border-b border-[#363636] w-14"
+                  className="text-center text-[var(--text-muted)] text-xs font-medium p-2 border-b border-[var(--border-default)] w-14"
                 >
                   {hourLabels[index]}:00
                 </th>
               ))}
-              <th className="text-center text-[#3ecf8e] text-xs font-medium p-3 border-b border-l border-[#363636]">
+              <th className="text-center text-[var(--accent-cyan)] text-xs font-medium p-3 border-b border-l border-[var(--border-default)]">
                 Total
               </th>
             </tr>
           </thead>
           <tbody>
             {machines.map((machine) => (
-              <tr key={machine.id} className="hover:bg-[#242424]/50">
-                <td className="p-3 border-b border-r border-[#363636] sticky left-0 bg-[#1f1f1f] z-10">
+              <tr key={machine.id} className="hover:bg-[var(--bg-tertiary)]/50">
+                <td className="p-3 border-b border-r border-[var(--border-default)] sticky left-0 bg-[var(--bg-secondary)] z-10">
                   <div>
-                    <p className="text-[#fafafa] text-sm font-medium">
+                    <p className="text-[var(--text-heading)] text-sm font-medium">
                       {machine.name}
                     </p>
-                    <p className="text-[#898989] text-xs">{machine.machine_type}</p>
+                    <p className="text-[var(--text-muted)] text-xs">{machine.machine_type}</p>
                   </div>
                 </td>
                 {HOURS_12.map((hour) => {
@@ -337,7 +337,7 @@ export function HourlyLoadsGrid({
                   return (
                     <td
                       key={hour}
-                      className="p-1 border-b border-[#363636] text-center"
+                      className="p-1 border-b border-[var(--border-default)] text-center"
                     >
                       {isEditing ? (
                         <input
@@ -350,15 +350,15 @@ export function HourlyLoadsGrid({
                           onBlur={handleSave}
                           disabled={saving}
                           autoFocus
-                          className="w-12 h-8 bg-[#171717] border border-[#3ecf8e] rounded text-center text-[#fafafa] text-sm focus:outline-none"
+                          className="w-12 h-8 bg-[var(--card)] border border-[var(--accent-cyan)] rounded text-center text-[var(--text-heading)] text-sm focus:outline-none"
                         />
                       ) : (
                         <button
                           onClick={() => handleCellClick(machine.id, hour)}
                           className={`w-12 h-8 rounded text-sm font-medium transition-colors ${
                             hasValue
-                              ? "bg-[#3ecf8e]/20 text-[#3ecf8e] border border-[#3ecf8e]/50 hover:bg-[#3ecf8e]/30"
-                              : "bg-[#171717] text-[#898989] border border-[#363636] hover:bg-[#242424]"
+                              ? "bg-[var(--accent-cyan)]/20 text-[var(--accent-cyan)] border border-[var(--accent-cyan)]/50 hover:bg-[var(--accent-cyan)]/30"
+                              : "bg-[var(--card)] text-[var(--text-muted)] border border-[var(--border-default)] hover:bg-[var(--bg-tertiary)]"
                           }`}
                         >
                           {hasValue ? value : "-"}
@@ -367,8 +367,8 @@ export function HourlyLoadsGrid({
                     </td>
                   );
                 })}
-                <td className="p-3 border-b border-l border-[#363636] text-center">
-                  <span className="text-[#3ecf8e] font-medium">
+                <td className="p-3 border-b border-l border-[var(--border-default)] text-center">
+                  <span className="text-[var(--accent-cyan)] font-medium">
                     {getMachineTotal(machine.id)}
                   </span>
                 </td>

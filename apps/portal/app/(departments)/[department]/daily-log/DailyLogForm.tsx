@@ -51,7 +51,7 @@ export function DailyLogForm({
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Shift selector */}
       <div className="space-y-2">
-        <label className="block text-sm text-[#898989]">Shift</label>
+        <label className="block text-sm text-[var(--text-muted)]">Shift</label>
         <div className="flex gap-3">
           {(["day", "night"] as const).map((s) => (
             <button
@@ -60,8 +60,8 @@ export function DailyLogForm({
               onClick={() => setShift(s)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 shift === s
-                  ? "bg-[#2e2e2e] text-[#fafafa] border border-[#3ecf8e]"
-                  : "bg-[#171717] text-[#898989] border border-[#363636] hover:text-[#fafafa]"
+                  ? "bg-[var(--bg-tertiary)] text-[var(--text-heading)] border border-[var(--accent-cyan)]"
+                  : "bg-[var(--card)] text-[var(--text-muted)] border border-[var(--border-default)] hover:text-[var(--text-heading)]"
               }`}
             >
               {s === "day" ? "Day Shift" : "Night Shift"}
@@ -73,12 +73,12 @@ export function DailyLogForm({
       {/* Machines list (read-only reference) */}
       {machines.length > 0 && (
         <div className="space-y-2">
-          <label className="block text-sm text-[#898989]">Machines</label>
+          <label className="block text-sm text-[var(--text-muted)]">Machines</label>
           <div className="flex flex-wrap gap-2">
             {machines.map((m) => (
               <span
                 key={m.id}
-                className="px-3 py-1 rounded-full text-xs bg-[#171717] text-[#b4b4b4] border border-[#363636]"
+                className="px-3 py-1 rounded-full text-xs bg-[var(--card)] text-[var(--text-secondary)] border border-[var(--border-default)]"
               >
                 {m.name}
               </span>
@@ -89,12 +89,12 @@ export function DailyLogForm({
 
       {/* Notes */}
       <div className="space-y-2">
-        <label className="block text-sm text-[#898989]">Notes</label>
+        <label className="block text-sm text-[var(--text-muted)]">Notes</label>
         <textarea
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           rows={4}
-          className="w-full px-4 py-3 rounded-lg bg-[#171717] border border-[#363636] text-[#fafafa] placeholder-[#898989] focus:outline-none focus:ring-2 focus:ring-[#3ecf8e]/30 resize-none"
+          className="w-full px-4 py-3 rounded-lg bg-[var(--card)] border border-[var(--border-default)] text-[var(--text-heading)] placeholder-[#898989] focus:outline-none focus:ring-2 focus:ring-[var(--accent-cyan)]/30 resize-none"
           placeholder="Enter any observations or issues..."
         />
       </div>

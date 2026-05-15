@@ -1,7 +1,7 @@
 import { cn } from "../lib/utils";
 
 const inputStyles =
-  "w-full bg-[#171717] border border-[#363636] rounded-lg px-3 py-2.5 text-[#fafafa] text-sm focus:outline-none focus:border-[#3ecf8e] transition-colors";
+  "w-full bg-[var(--card)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-cyan)] transition-colors";
 
 interface FormInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
@@ -18,9 +18,9 @@ export function FormInput({
 }: FormInputProps) {
   return (
     <div className="space-y-2">
-      <label className="block text-sm text-[#b4b4b4]">
+      <label className="block text-sm text-[var(--text-secondary)]">
         {label}
-        {optional && <span className="text-[#898989]"> (Optional)</span>}
+        {optional && <span className="text-[var(--text-muted)]"> (Optional)</span>}
         {!optional && props.required && (
           <span className="text-red-400"> *</span>
         )}
@@ -51,9 +51,9 @@ export function FormSelect({
 }: FormSelectProps) {
   return (
     <div className="space-y-2">
-      <label className="block text-sm text-[#b4b4b4]">
+      <label className="block text-sm text-[var(--text-secondary)]">
         {label}
-        {optional && <span className="text-[#898989]"> (Optional)</span>}
+        {optional && <span className="text-[var(--text-muted)]"> (Optional)</span>}
       </label>
       <select className={cn(inputStyles, className)} {...props}>
         <option value="">{placeholder}</option>
@@ -84,9 +84,9 @@ export function FormTextarea({
 }: FormTextareaProps) {
   return (
     <div className="space-y-2">
-      <label className="block text-sm text-[#b4b4b4]">
+      <label className="block text-sm text-[var(--text-secondary)]">
         {label}
-        {optional && <span className="text-[#898989]"> (Optional)</span>}
+        {optional && <span className="text-[var(--text-muted)]"> (Optional)</span>}
       </label>
       <textarea
         className={cn(inputStyles, "resize-none", className)}
@@ -113,8 +113,8 @@ export function SubmitButton({
       type="submit"
       disabled={loading || props.disabled}
       className={cn(
-        "bg-[#3ecf8e] hover:bg-[#35b37d] disabled:bg-[#2e2e2e] disabled:text-[#898989]",
-        "text-[#171717] font-medium py-2.5 px-6 rounded-lg transition-colors",
+        "bg-[var(--accent-cyan)] hover:bg-[var(--accent-cyan)]/90 disabled:bg-[var(--bg-tertiary)] disabled:text-[var(--text-muted)]",
+        "text-[var(--bg-secondary)] font-medium py-2.5 px-6 rounded-lg transition-colors",
         className,
       )}
       {...props}

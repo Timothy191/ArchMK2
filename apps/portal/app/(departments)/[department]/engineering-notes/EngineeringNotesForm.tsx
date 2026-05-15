@@ -117,14 +117,14 @@ export function EngineeringNotesForm({ departmentId, machines }: EngineeringNote
   return (
     <GlassCard>
       <form onSubmit={handleSubmit} className="space-y-6">
-        <h3 className="text-lg font-medium text-[#fafafa]">
+        <h3 className="text-lg font-medium text-[var(--text-heading)]">
           Log Engineering Issue
         </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Issue Type */}
           <div className="space-y-2">
-            <label className="text-[#b4b4b4] text-sm block">
+            <label className="text-[var(--text-secondary)] text-sm block">
               Issue Type <span className="text-red-400">*</span>
             </label>
             <select
@@ -132,7 +132,7 @@ export function EngineeringNotesForm({ departmentId, machines }: EngineeringNote
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, issueType: e.target.value }))
               }
-              className="w-full bg-[#171717] border border-[#363636] rounded-lg px-3 py-2.5 text-[#fafafa] text-sm focus:outline-none focus:border-[#3ecf8e] transition-colors"
+              className="w-full bg-[var(--card)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-cyan)] transition-colors"
             >
               <option value="">Select type...</option>
               {ISSUE_TYPES.map((type) => (
@@ -148,7 +148,7 @@ export function EngineeringNotesForm({ departmentId, machines }: EngineeringNote
 
           {/* Severity */}
           <div className="space-y-2">
-            <label className="text-[#b4b4b4] text-sm block">
+            <label className="text-[var(--text-secondary)] text-sm block">
               Severity <span className="text-red-400">*</span>
             </label>
             <select
@@ -156,7 +156,7 @@ export function EngineeringNotesForm({ departmentId, machines }: EngineeringNote
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, severity: e.target.value }))
               }
-              className="w-full bg-[#171717] border border-[#363636] rounded-lg px-3 py-2.5 text-[#fafafa] text-sm focus:outline-none focus:border-[#3ecf8e] transition-colors"
+              className="w-full bg-[var(--card)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-cyan)] transition-colors"
             >
               <option value="">Select severity...</option>
               {SEVERITY_LEVELS.map((sev) => (
@@ -172,15 +172,15 @@ export function EngineeringNotesForm({ departmentId, machines }: EngineeringNote
 
           {/* Machine (Optional) */}
           <div className="space-y-2">
-            <label className="text-[#b4b4b4] text-sm block">
-              Affected Machine <span className="text-[#898989]">(Optional)</span>
+            <label className="text-[var(--text-secondary)] text-sm block">
+              Affected Machine <span className="text-[var(--text-muted)]">(Optional)</span>
             </label>
             <select
               value={formData.machineId}
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, machineId: e.target.value }))
               }
-              className="w-full bg-[#171717] border border-[#363636] rounded-lg px-3 py-2.5 text-[#fafafa] text-sm focus:outline-none focus:border-[#3ecf8e] transition-colors"
+              className="w-full bg-[var(--card)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-cyan)] transition-colors"
             >
               <option value="">No specific machine</option>
               {machines.map((m) => (
@@ -194,7 +194,7 @@ export function EngineeringNotesForm({ departmentId, machines }: EngineeringNote
 
         {/* Shift Type */}
         <div className="space-y-2">
-          <label className="text-[#b4b4b4] text-sm block">Shift</label>
+          <label className="text-[var(--text-secondary)] text-sm block">Shift</label>
           <div className="flex gap-2 max-w-xs">
             {["day", "night"].map((shift) => (
               <button
@@ -208,8 +208,8 @@ export function EngineeringNotesForm({ departmentId, machines }: EngineeringNote
                 }
                 className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
                   formData.shiftType === shift
-                    ? "bg-[#3ecf8e] text-[#171717]"
-                    : "bg-[#171717] border border-[#363636] text-[#898989] hover:text-[#fafafa]"
+                    ? "bg-[var(--accent-cyan)] text-[var(--bg-secondary)]"
+                    : "bg-[var(--card)] border border-[var(--border-default)] text-[var(--text-muted)] hover:text-[var(--text-heading)]"
                 }`}
               >
                 {shift.charAt(0).toUpperCase() + shift.slice(1)}
@@ -220,7 +220,7 @@ export function EngineeringNotesForm({ departmentId, machines }: EngineeringNote
 
         {/* Description */}
         <div className="space-y-2">
-          <label className="text-[#b4b4b4] text-sm block">
+          <label className="text-[var(--text-secondary)] text-sm block">
             Description <span className="text-red-400">*</span>
           </label>
           <textarea
@@ -231,13 +231,13 @@ export function EngineeringNotesForm({ departmentId, machines }: EngineeringNote
             placeholder="Describe the engineering issue..."
             rows={3}
             maxLength={500}
-            className="w-full bg-[#171717] border border-[#363636] rounded-lg px-3 py-2.5 text-[#fafafa] text-sm focus:outline-none focus:border-[#3ecf8e] transition-colors resize-none"
+            className="w-full bg-[var(--card)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-cyan)] transition-colors resize-none"
           />
           <div className="flex justify-between">
             {errors.description && (
               <p className="text-red-400 text-xs">{errors.description}</p>
             )}
-            <p className="text-[#898989] text-xs ml-auto">
+            <p className="text-[var(--text-muted)] text-xs ml-auto">
               {formData.description.length}/500
             </p>
           </div>
@@ -245,8 +245,8 @@ export function EngineeringNotesForm({ departmentId, machines }: EngineeringNote
 
         {/* Action Taken */}
         <div className="space-y-2">
-          <label className="text-[#b4b4b4] text-sm block">
-            Action Taken <span className="text-[#898989]">(Optional)</span>
+          <label className="text-[var(--text-secondary)] text-sm block">
+            Action Taken <span className="text-[var(--text-muted)]">(Optional)</span>
           </label>
           <textarea
             value={formData.actionTaken}
@@ -256,7 +256,7 @@ export function EngineeringNotesForm({ departmentId, machines }: EngineeringNote
             placeholder="What was done to address this issue?"
             rows={2}
             maxLength={300}
-            className="w-full bg-[#171717] border border-[#363636] rounded-lg px-3 py-2.5 text-[#fafafa] text-sm focus:outline-none focus:border-[#3ecf8e] transition-colors resize-none"
+            className="w-full bg-[var(--card)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-cyan)] transition-colors resize-none"
           />
         </div>
 
@@ -271,9 +271,9 @@ export function EngineeringNotesForm({ departmentId, machines }: EngineeringNote
                 requiresFollowUp: e.target.checked,
               }))
             }
-            className="w-4 h-4 rounded border-[#363636] bg-[#171717] text-[#3ecf8e] focus:ring-[#3ecf8e]"
+            className="w-4 h-4 rounded border-[var(--border-default)] bg-[var(--card)] text-[var(--accent-cyan)] focus:ring-[var(--accent-cyan)]"
           />
-          <span className="text-[#b4b4b4] text-sm">Requires follow-up</span>
+          <span className="text-[var(--text-secondary)] text-sm">Requires follow-up</span>
         </label>
 
         {/* Submit */}
@@ -281,7 +281,7 @@ export function EngineeringNotesForm({ departmentId, machines }: EngineeringNote
           <button
             type="submit"
             disabled={isSubmitting}
-            className="bg-[#3ecf8e] hover:bg-[#35b37d] disabled:bg-[#2e2e2e] disabled:text-[#898989] text-[#171717] font-medium py-2.5 px-6 rounded-lg transition-colors"
+            className="bg-[var(--accent-cyan)] hover:bg-[var(--accent-cyan)] disabled:bg-[var(--bg-tertiary)] disabled:text-[var(--text-muted)] text-[var(--bg-secondary)] font-medium py-2.5 px-6 rounded-lg transition-colors"
           >
             {isSubmitting ? "Saving..." : "Log Issue"}
           </button>

@@ -17,8 +17,8 @@ export default async function LoginPage() {
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h1 className="text-2xl font-semibold text-[#fafafa]">Arch-Systems</h1>
-        <p className="text-[#898989] text-sm mt-2">Sign in to your account</p>
+        <h1 className="text-2xl font-semibold text-[var(--text-heading)]">Arch-Systems</h1>
+        <p className="text-[var(--text-muted)] text-sm mt-2">Sign in to your account</p>
       </div>
       <LoginForm />
     </div>

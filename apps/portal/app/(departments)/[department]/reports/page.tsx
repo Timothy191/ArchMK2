@@ -9,10 +9,12 @@ export default async function ReportsPage({
   params,
   searchParams,
 }: {
-  params: { department: string };
-  searchParams: { from?: string; to?: string };
+  params: Promise<{ department: string }>;
+  searchParams: Promise<{ from?: string; to?: string }>;
 }) {
-  const dept = DEPARTMENTS.find((d) => d.name === params.department);
+  const { department: deptSlug } = await params;
+  const { from: fromParam, to: toParam } = await searchParams;
+  const dept = DEPARTMENTS.find((d) => d.name === deptSlug);
   if (!dept) notFound();
 
   const supabase = await createServerSupabaseClient();
@@ -20,16 +22,16 @@ export default async function ReportsPage({
   const { data: department } = await supabase
     .from("departments")
     .select("id")
-    .eq("name", params.department)
+    .eq("name", deptSlug)
     .single();
 
   if (!department) notFound();
 
   const deptId = department.id;
 
-  const to = searchParams.to || new Date().toISOString().split("T")[0];
+  const to = toParam || new Date().toISOString().split("T")[0];
   const from =
-    searchParams.from ||
+    fromParam ||
     new Date(Date.now() - 30 * 86400000).toISOString().split("T")[0];
 
   const { data: logs } = await supabase
@@ -133,11 +135,13 @@ export default async function ReportsPage({
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-medium text-[#fafafa]">Reports</h2>
+        <h2 className="text-2xl font-medium text-[var(--text-heading)]">
+          Reports
+        </h2>
         <SecondaryButton variant="rounded-lg" size="sm" asChild>
           <a
             href={`data:text/csv;charset=utf-8,${encodeURIComponent(csvContent)}`}
-            download={`${params.department}-report-${from}-to-${to}.csv`}
+            download={`${deptSlug}-report-${from}-to-${to}.csv`}
           >
             Download CSV
           </a>
@@ -147,25 +151,29 @@ export default async function ReportsPage({
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <GlassCard>
-          <p className="text-[#898989] text-sm">Total Machine Hours</p>
-          <p className="text-2xl font-medium text-[#fafafa] mt-1">
+          <p className="text-[var(--text-muted)] text-sm">
+            Total Machine Hours
+          </p>
+          <p className="text-2xl font-medium text-[var(--text-heading)] mt-1">
             {totalHours.toFixed(1)}
           </p>
         </GlassCard>
         <GlassCard>
-          <p className="text-[#898989] text-sm">Diesel Consumed (L)</p>
-          <p className="text-2xl font-medium text-[#fafafa] mt-1">
+          <p className="text-[var(--text-muted)] text-sm">
+            Diesel Consumed (L)
+          </p>
+          <p className="text-2xl font-medium text-[var(--text-heading)] mt-1">
             {totalFuel.toFixed(1)}
           </p>
         </GlassCard>
         <GlassCard>
-          <p className="text-[#898989] text-sm">Coal Removed (t)</p>
+          <p className="text-[var(--text-muted)] text-sm">Coal Removed (t)</p>
           <p className="text-2xl font-medium text-emerald-400 mt-1">
             {totalCoal.toFixed(1)}
           </p>
         </GlassCard>
         <GlassCard>
-          <p className="text-[#898989] text-sm">Waste Removed (t)</p>
+          <p className="text-[var(--text-muted)] text-sm">Waste Removed (t)</p>
           <p className="text-2xl font-medium text-amber-400 mt-1">
             {totalWaste.toFixed(1)}
           </p>
@@ -176,7 +184,9 @@ export default async function ReportsPage({
       <GlassCard>
         <form method="GET" className="flex items-end gap-4">
           <div>
-            <label className="block text-sm text-[#898989] mb-1">From</label>
+            <label className="block text-sm text-[var(--text-muted)] mb-1">
+              From
+            </label>
             <Input
               type="date"
               name="from"
@@ -185,7 +195,9 @@ export default async function ReportsPage({
             />
           </div>
           <div>
-            <label className="block text-sm text-[#898989] mb-1">To</label>
+            <label className="block text-sm text-[var(--text-muted)] mb-1">
+              To
+            </label>
             <Input
               type="date"
               name="to"
@@ -195,7 +207,7 @@ export default async function ReportsPage({
           </div>
           <button
             type="submit"
-            className="px-4 py-2 rounded-lg bg-[#242424] text-[#fafafa] text-sm font-medium hover:bg-[#2e2e2e] transition-colors"
+            className="px-4 py-2 rounded-lg bg-[var(--bg-tertiary)] text-[var(--text-heading)] text-sm font-medium hover:bg-[var(--bg-tertiary)] transition-colors"
           >
             Update
           </button>
@@ -208,27 +220,27 @@ export default async function ReportsPage({
           <table className="w-full text-left">
             <thead>
               <tr className="border-b border-white/10">
-                <th className="px-6 py-3 text-xs font-medium text-[#898989] uppercase tracking-wider">
+                <th className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
                   Date
                 </th>
-                <th className="px-6 py-3 text-xs font-medium text-[#898989] uppercase tracking-wider">
+                <th className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
                   Shift
                 </th>
-                <th className="px-6 py-3 text-xs font-medium text-[#898989] uppercase tracking-wider text-right">
+                <th className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider text-right">
                   Hours
                 </th>
-                <th className="px-6 py-3 text-xs font-medium text-[#898989] uppercase tracking-wider text-right">
+                <th className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider text-right">
                   Fuel (L)
                 </th>
-                <th className="px-6 py-3 text-xs font-medium text-[#898989] uppercase tracking-wider text-right">
+                <th className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider text-right">
                   Coal (t)
                 </th>
-                <th className="px-6 py-3 text-xs font-medium text-[#898989] uppercase tracking-wider text-right">
+                <th className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider text-right">
                   Waste (t)
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#363636]">
+            <tbody className="divide-y divide-[var(--border-default)]">
               {logs?.map((log) => {
                 const mh = machineHoursByLog.get(log.id) || 0;
                 const fl = fuelLogsByLog.get(log.id) || 0;
@@ -236,9 +248,9 @@ export default async function ReportsPage({
                 return (
                   <tr
                     key={log.id}
-                    className="hover:bg-[#242424] transition-colors"
+                    className="hover:bg-[var(--bg-tertiary)] transition-colors"
                   >
-                    <td className="px-6 py-4 text-[#fafafa] text-sm">
+                    <td className="px-6 py-4 text-[var(--text-heading)] text-sm">
                       {log.log_date}
                     </td>
                     <td className="px-6 py-4">
@@ -252,10 +264,10 @@ export default async function ReportsPage({
                         {log.shift}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-[#898989] text-sm text-right">
+                    <td className="px-6 py-4 text-[var(--text-muted)] text-sm text-right">
                       {mh.toFixed(1)}
                     </td>
-                    <td className="px-6 py-4 text-[#898989] text-sm text-right">
+                    <td className="px-6 py-4 text-[var(--text-muted)] text-sm text-right">
                       {fl.toFixed(1)}
                     </td>
                     <td className="px-6 py-4 text-emerald-400 text-sm text-right">
@@ -271,7 +283,7 @@ export default async function ReportsPage({
                 <tr>
                   <td
                     colSpan={6}
-                    className="px-6 py-12 text-center text-[#898989] text-sm"
+                    className="px-6 py-12 text-center text-[var(--text-muted)] text-sm"
                   >
                     No data found for the selected date range.
                   </td>

@@ -7,11 +7,14 @@ import { EngineeringNotesList } from "./EngineeringNotesList";
 export default async function EngineeringNotesPage({
   params,
 }: {
-  params: { department: string };
+  params: Promise<{ department: string }>;
 }) {
-  requireDepartment(params.department, "control-room");
+  const { department } = await params;
+  requireDepartment(department, "control-room");
 
-  const { deptId, supabase, today } = await getDepartmentContext(params);
+  const { deptId, supabase, today } = await getDepartmentContext({
+    department,
+  });
 
   // Fetch machines for dropdown
   const { data: machines } = await supabase
@@ -54,7 +57,7 @@ export default async function EngineeringNotesPage({
       <EngineeringNotesForm departmentId={deptId} machines={machines || []} />
 
       <div className="space-y-4">
-        <h3 className="text-lg font-medium text-[#fafafa]">
+        <h3 className="text-lg font-medium text-[var(--text-heading)]">
           Today&apos;s Engineering Issues
         </h3>
         <EngineeringNotesList notes={todayNotes || []} />
