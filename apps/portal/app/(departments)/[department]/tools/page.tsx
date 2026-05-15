@@ -1,5 +1,4 @@
-import { DEPARTMENTS } from "~/lib/departments";
-import { notFound } from "next/navigation";
+import { getDepartmentContext } from "~/lib/dept-context";
 import { EXTERNAL_TOOLS } from "~/lib/tools";
 import ToolsPageClient from "~/features/departments/components/tools/ToolsPageClient";
 
@@ -9,10 +8,8 @@ export default async function ToolsPage({
   params: Promise<{ department: string }>;
 }) {
   const { department } = await params;
-  const dept = DEPARTMENTS.find((d) => d.name === department);
-  if (!dept) notFound();
+  const { dept } = await getDepartmentContext({ department });
 
-  // Build initial tools list (all unknown status until client checks)
   const initialTools = EXTERNAL_TOOLS.map((tool) => ({
     ...tool,
     status: "unknown" as const,

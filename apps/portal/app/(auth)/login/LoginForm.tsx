@@ -10,7 +10,7 @@ export function LoginForm() {
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirect") || "/";
 
-  const [email, setEmail] = useState("");
+  const [employeeId, setEmployeeId] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -22,7 +22,7 @@ export function LoginForm() {
 
     const supabase = createBrowserSupabaseClient();
     const { error: signInError } = await supabase.auth.signInWithPassword({
-      email,
+      email: employeeId,
       password,
     });
 
@@ -42,23 +42,30 @@ export function LoginForm() {
       className="space-y-4 rounded-2xl border border-[var(--border-default)] bg-[var(--bg-tertiary)] backdrop-blur-md p-6"
     >
       <div className="space-y-2">
-        <label htmlFor="email" className="block text-sm font-medium text-[var(--text-secondary)]">
-          Username
+        <label
+          htmlFor="employee-id"
+          className="block text-sm font-medium text-[var(--text-secondary)]"
+        >
+          Employee ID
         </label>
         <Input
-          id="email"
+          id="employee-id"
           type="text"
           required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          value={employeeId}
+          onChange={(e) => setEmployeeId(e.target.value)}
           variant="login"
           className="px-4 py-2.5"
-          placeholder="Admin@123#"
+          placeholder="e.g., PC-12345"
+          aria-label="Employee ID"
         />
       </div>
 
       <div className="space-y-2">
-        <label htmlFor="password" className="block text-sm font-medium text-[var(--text-secondary)]">
+        <label
+          htmlFor="password"
+          className="block text-sm font-medium text-[var(--text-secondary)]"
+        >
           Password
         </label>
         <Input
@@ -70,12 +77,21 @@ export function LoginForm() {
           onChange={(e) => setPassword(e.target.value)}
           variant="login"
           className="px-4 py-2.5"
-          placeholder="Yugioh@123#"
+          placeholder="Enter your password"
+          aria-label="Password"
         />
       </div>
 
       {error && (
-        <p className="text-sm text-red-400 text-center">{error}</p>
+        <p
+          className="text-sm text-red-400 text-center"
+          role="alert"
+          aria-live="polite"
+        >
+          {error.includes("Invalid login")
+            ? "Employee ID or password incorrect. Check Caps Lock and try again."
+            : error}
+        </p>
       )}
 
       <button
@@ -85,6 +101,15 @@ export function LoginForm() {
       >
         {loading ? "Signing in..." : "Sign In"}
       </button>
+
+      <div className="text-center">
+        <a
+          href="/reset-password"
+          className="text-xs text-[var(--text-muted)] hover:text-[var(--accent-cyan)] transition-colors"
+        >
+          Forgot password?
+        </a>
+      </div>
     </form>
   );
 }

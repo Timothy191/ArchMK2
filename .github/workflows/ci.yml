@@ -1,0 +1,76 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    env:
+      TURBO_TELEMETRY_DISABLED: 1
+      NEXT_TELEMETRY_DISABLED: 1
+      # Dummy values required for Next.js builds
+      NEXT_PUBLIC_SUPABASE_URL: http://localhost:54321
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: dummy-anon-key-for-ci
+      SUPABASE_URL: http://localhost:54321
+      SUPABASE_ANON_KEY: dummy-anon-key-for-ci
+      SUPABASE_SERVICE_KEY: dummy-service-key-for-ci
+      PORT: 3000
+      N8N_URL: http://localhost:5678
+      FLOWISE_URL: http://localhost:3000
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
+      PAYLOAD_SECRET: dummy-payload-secret-for-ci
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.12.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.17.0
+          cache: pnpm
+
+      - name: Restore Next.js build cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ github.workspace }}/apps/portal/.next/cache
+            ${{ github.workspace }}/apps/overview/.next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ hashFiles('apps/**/*.[jt]s', 'apps/**/*.[jt]sx', 'packages/**/*.[jt]s', 'packages/**/*.[jt]sx') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.yaml') }}-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Type check (portal)
+        run: pnpm --filter portal type-check
+
+      - name: Unit tests (portal)
+        run: pnpm --filter portal test
+
+      - name: Build portal
+        run: pnpm --filter portal build
+
+      - name: Build overview
+        run: pnpm --filter arch-systems-overview build

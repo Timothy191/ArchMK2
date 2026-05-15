@@ -38,7 +38,11 @@ const STATUSES = [
   { value: "closed", label: "Closed" },
 ];
 
-export function SafetyIncidentForm({ departmentId, categories, severities }: SafetyIncidentFormProps) {
+export function SafetyIncidentForm({
+  departmentId,
+  categories,
+  severities,
+}: SafetyIncidentFormProps) {
   const router = useRouter();
   const supabase = createBrowserSupabaseClient();
 
@@ -67,8 +71,10 @@ export function SafetyIncidentForm({ departmentId, categories, severities }: Saf
     const newErrors: Record<string, string> = {};
     if (!formData.incidentType) newErrors.incidentType = "Select incident type";
     if (!formData.severityId) newErrors.severityId = "Select severity";
-    if (!formData.description.trim()) newErrors.description = "Enter description";
-    if (formData.injuredParties < 0 || formData.injuredParties > 100) newErrors.injuredParties = "Invalid number";
+    if (!formData.description.trim())
+      newErrors.description = "Enter description";
+    if (formData.injuredParties < 0 || formData.injuredParties > 100)
+      newErrors.injuredParties = "Invalid number";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -134,20 +140,33 @@ export function SafetyIncidentForm({ departmentId, categories, severities }: Saf
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Incident Type */}
           <div className="space-y-2">
-            <label className="text-[#b4b4b4] text-sm block">
+            <label
+              htmlFor="incident-type"
+              className="text-[#b4b4b4] text-sm block"
+            >
               Type <span className="text-red-400">*</span>
             </label>
             <select
+              id="incident-type"
               value={formData.incidentType}
-              onChange={(e) => setFormData(prev => ({ ...prev, incidentType: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  incidentType: e.target.value,
+                }))
+              }
               className="w-full bg-[#171717] border border-[#363636] rounded-lg px-3 py-2.5 text-[#fafafa] text-sm focus:outline-none focus:border-[#3ecf8e] transition-colors"
             >
               <option value="">Select type...</option>
               {INCIDENT_TYPES.map((t) => (
-                <option key={t.value} value={t.value}>{t.label}</option>
+                <option key={t.value} value={t.value}>
+                  {t.label}
+                </option>
               ))}
             </select>
-            {errors.incidentType && <p className="text-red-400 text-xs">{errors.incidentType}</p>}
+            {errors.incidentType && (
+              <p className="text-red-400 text-xs">{errors.incidentType}</p>
+            )}
           </div>
 
           {/* Severity */}
@@ -157,7 +176,9 @@ export function SafetyIncidentForm({ departmentId, categories, severities }: Saf
             </label>
             <select
               value={formData.severityId}
-              onChange={(e) => setFormData(prev => ({ ...prev, severityId: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, severityId: e.target.value }))
+              }
               className="w-full bg-[#171717] border border-[#363636] rounded-lg px-3 py-2.5 text-[#fafafa] text-sm focus:outline-none focus:border-[#3ecf8e] transition-colors"
             >
               <option value="">Select severity...</option>
@@ -167,7 +188,9 @@ export function SafetyIncidentForm({ departmentId, categories, severities }: Saf
                 </option>
               ))}
             </select>
-            {errors.severityId && <p className="text-red-400 text-xs">{errors.severityId}</p>}
+            {errors.severityId && (
+              <p className="text-red-400 text-xs">{errors.severityId}</p>
+            )}
           </div>
 
           {/* Category */}
@@ -175,12 +198,16 @@ export function SafetyIncidentForm({ departmentId, categories, severities }: Saf
             <label className="text-[#b4b4b4] text-sm block">Category</label>
             <select
               value={formData.categoryId}
-              onChange={(e) => setFormData(prev => ({ ...prev, categoryId: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, categoryId: e.target.value }))
+              }
               className="w-full bg-[#171717] border border-[#363636] rounded-lg px-3 py-2.5 text-[#fafafa] text-sm focus:outline-none focus:border-[#3ecf8e] transition-colors"
             >
               <option value="">Select category...</option>
               {categories.map((c) => (
-                <option key={c.id} value={c.id}>{c.name}</option>
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
               ))}
             </select>
           </div>
@@ -195,7 +222,12 @@ export function SafetyIncidentForm({ departmentId, categories, severities }: Saf
                 <button
                   key={shift}
                   type="button"
-                  onClick={() => setFormData(prev => ({ ...prev, shiftType: shift as "day" | "night" }))}
+                  onClick={() =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      shiftType: shift as "day" | "night",
+                    }))
+                  }
                   className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
                     formData.shiftType === shift
                       ? "bg-[#3ecf8e] text-[#171717]"
@@ -209,16 +241,25 @@ export function SafetyIncidentForm({ departmentId, categories, severities }: Saf
           </div>
 
           <div className="space-y-2">
-            <label className="text-[#b4b4b4] text-sm block">Injured Parties</label>
+            <label className="text-[#b4b4b4] text-sm block">
+              Injured Parties
+            </label>
             <input
               type="number"
               min={0}
               max={100}
               value={formData.injuredParties}
-              onChange={(e) => setFormData(prev => ({ ...prev, injuredParties: parseInt(e.target.value) || 0 }))}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  injuredParties: parseInt(e.target.value) || 0,
+                }))
+              }
               className="w-full bg-[#171717] border border-[#363636] rounded-lg px-3 py-2.5 text-[#fafafa] text-sm focus:outline-none focus:border-[#3ecf8e]"
             />
-            {errors.injuredParties && <p className="text-red-400 text-xs">{errors.injuredParties}</p>}
+            {errors.injuredParties && (
+              <p className="text-red-400 text-xs">{errors.injuredParties}</p>
+            )}
           </div>
         </div>
 
@@ -229,15 +270,21 @@ export function SafetyIncidentForm({ departmentId, categories, severities }: Saf
           </label>
           <textarea
             value={formData.description}
-            onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, description: e.target.value }))
+            }
             placeholder="Describe the incident..."
             rows={4}
             maxLength={500}
             className="w-full bg-[#171717] border border-[#363636] rounded-lg px-3 py-2.5 text-[#fafafa] text-sm focus:outline-none focus:border-[#3ecf8e] transition-colors resize-none"
           />
           <div className="flex justify-between">
-            {errors.description && <p className="text-red-400 text-xs">{errors.description}</p>}
-            <p className="text-[#898989] text-xs ml-auto">{formData.description.length}/500</p>
+            {errors.description && (
+              <p className="text-red-400 text-xs">{errors.description}</p>
+            )}
+            <p className="text-[#898989] text-xs ml-auto">
+              {formData.description.length}/500
+            </p>
           </div>
         </div>
 
@@ -247,7 +294,9 @@ export function SafetyIncidentForm({ departmentId, categories, severities }: Saf
           <input
             type="text"
             value={formData.location}
-            onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, location: e.target.value }))
+            }
             placeholder="e.g., Main Pit, South Stockpile"
             className="w-full bg-[#171717] border border-[#363636] rounded-lg px-3 py-2.5 text-[#fafafa] text-sm focus:outline-none focus:border-[#3ecf8e]"
           />
@@ -260,17 +309,26 @@ export function SafetyIncidentForm({ departmentId, categories, severities }: Saf
             <input
               type="text"
               value={formData.rootCause}
-              onChange={(e) => setFormData(prev => ({ ...prev, rootCause: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, rootCause: e.target.value }))
+              }
               placeholder="Root cause of incident"
               className="w-full bg-[#171717] border border-[#363636] rounded-lg px-3 py-2.5 text-[#fafafa] text-sm focus:outline-none focus:border-[#3ecf8e]"
             />
           </div>
           <div className="space-y-2">
-            <label className="text-[#b4b4b4] text-sm block">Corrective Action</label>
+            <label className="text-[#b4b4b4] text-sm block">
+              Corrective Action
+            </label>
             <input
               type="text"
               value={formData.correctiveAction}
-              onChange={(e) => setFormData(prev => ({ ...prev, correctiveAction: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  correctiveAction: e.target.value,
+                }))
+              }
               placeholder="Action taken to prevent recurrence"
               className="w-full bg-[#171717] border border-[#363636] rounded-lg px-3 py-2.5 text-[#fafafa] text-sm focus:outline-none focus:border-[#3ecf8e]"
             />
@@ -285,7 +343,9 @@ export function SafetyIncidentForm({ departmentId, categories, severities }: Saf
               <button
                 key={s.value}
                 type="button"
-                onClick={() => setFormData(prev => ({ ...prev, status: s.value }))}
+                onClick={() =>
+                  setFormData((prev) => ({ ...prev, status: s.value }))
+                }
                 className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                   formData.status === s.value
                     ? "bg-[#3ecf8e] text-[#171717]"
@@ -307,7 +367,9 @@ export function SafetyIncidentForm({ departmentId, categories, severities }: Saf
           >
             {isSubmitting ? "Saving..." : "Log Incident"}
           </button>
-          {errors.submit && <p className="text-red-400 text-sm">{errors.submit}</p>}
+          {errors.submit && (
+            <p className="text-red-400 text-sm">{errors.submit}</p>
+          )}
         </div>
       </form>
     </GlassCard>

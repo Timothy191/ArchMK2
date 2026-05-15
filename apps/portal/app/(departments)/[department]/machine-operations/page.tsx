@@ -1,6 +1,4 @@
-import { createServerSupabaseClient } from "@repo/supabase/server";
-import { DEPARTMENTS } from "~/lib/departments";
-import { notFound } from "next/navigation";
+import { getDepartmentContext, requireDepartment } from "~/lib/dept-context";
 import { GlassCard } from "@repo/ui/GlassCard";
 import { MachineOperationsForm } from "./MachineOperationsForm";
 import { MachineOperationsList } from "./MachineOperationsList";
@@ -11,26 +9,10 @@ export default async function MachineOperationsPage({
   params: Promise<{ department: string }>;
 }) {
   const { department: deptSlug } = await params;
-  const dept = DEPARTMENTS.find((d) => d.name === deptSlug);
-  if (!dept) notFound();
-
-  // Only for control-room department
-  if (deptSlug !== "control-room") {
-    notFound();
-  }
-
-  const supabase = await createServerSupabaseClient();
-
-  const { data: department } = await supabase
-    .from("departments")
-    .select("id")
-    .eq("name", deptSlug)
-    .single();
-
-  if (!department) notFound();
-
-  const deptId = department.id;
-  const today = new Date().toISOString().split("T")[0];
+  requireDepartment(deptSlug, "control-room");
+  const { deptId, supabase, today } = await getDepartmentContext({
+    department: deptSlug,
+  });
 
   // Fetch machines with bin_factor for BCM calculations
   const { data: machines } = await supabase

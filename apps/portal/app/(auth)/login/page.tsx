@@ -17,10 +17,17 @@ export default async function LoginPage() {
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h1 className="text-2xl font-semibold text-[var(--text-heading)]">Arch-Systems</h1>
-        <p className="text-[var(--text-muted)] text-sm mt-2">Sign in to your account</p>
+        <h1 className="text-2xl font-semibold text-[var(--text-heading)]">
+          Plantcor
+        </h1>
+        <p className="text-[var(--text-muted)] text-sm mt-2">
+          Sign in to Arch-Systems
+        </p>
       </div>
       <LoginForm />
+      <p className="text-center text-xs text-[var(--text-muted)]">
+        Need help? Contact IT on channel 4.
+      </p>
     </div>
   );
 }

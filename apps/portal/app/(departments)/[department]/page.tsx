@@ -1,7 +1,5 @@
-import { createServerSupabaseClient } from "@repo/supabase/server";
 import { GlassCard } from "@repo/ui/GlassCard";
-import { DEPARTMENTS } from "~/lib/departments";
-import { notFound } from "next/navigation";
+import { getDepartmentContext } from "~/lib/dept-context";
 import { ScadaPanel } from "@/features/departments/components/control-room/ScadaPanel";
 import { AlertPanel } from "@/features/departments/components/control-room/AlertPanel";
 import { ControlRoomActivityFeed } from "@/features/departments/components/control-room/ControlRoomActivityFeed";
@@ -15,21 +13,9 @@ export default async function DepartmentDashboard({
   params: Promise<{ department: string }>;
 }) {
   const { department: deptSlug } = await params;
-  const dept = DEPARTMENTS.find((d) => d.name === deptSlug);
-  if (!dept) notFound();
-
-  const supabase = await createServerSupabaseClient();
-
-  const { data: department } = await supabase
-    .from("departments")
-    .select("id")
-    .eq("name", deptSlug)
-    .single();
-
-  if (!department) notFound();
-
-  const deptId = department.id;
-  const today = new Date().toISOString().split("T")[0];
+  const { dept, deptId, supabase, today } = await getDepartmentContext({
+    department: deptSlug,
+  });
 
   const { data: todayLogs } = await supabase
     .from("daily_logs")
@@ -216,8 +202,15 @@ export default async function DepartmentDashboard({
             <GlassCard>
               <p className="text-white/50 text-sm">Status</p>
               <p className="text-2xl font-bold text-emerald-400 mt-1">
-                Operational
+                {machineCount && machineCount > 0
+                  ? `${machineCount} machine${machineCount > 1 ? "s" : ""} active`
+                  : "No machines online"}
               </p>
+              {delayCount > 0 && (
+                <p className="text-amber-400 text-xs mt-1">
+                  {delayCount} active delay{delayCount > 1 ? "s" : ""}
+                </p>
+              )}
             </GlassCard>
           </div>
         </>

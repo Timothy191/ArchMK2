@@ -1,6 +1,4 @@
-import { createServerSupabaseClient } from "@repo/supabase/server";
-import { DEPARTMENTS } from "~/lib/departments";
-import { notFound } from "next/navigation";
+import { getDepartmentContext } from "~/lib/dept-context";
 import { GlassCard } from "@repo/ui/GlassCard";
 import { Input } from "@repo/ui/Input";
 import Link from "next/link";
@@ -14,20 +12,7 @@ export default async function HistoryPage({
 }) {
   const { department: deptSlug } = await params;
   const { from: fromParam, to: toParam } = await searchParams;
-  const dept = DEPARTMENTS.find((d) => d.name === deptSlug);
-  if (!dept) notFound();
-
-  const supabase = await createServerSupabaseClient();
-
-  const { data: department } = await supabase
-    .from("departments")
-    .select("id")
-    .eq("name", deptSlug)
-    .single();
-
-  if (!department) notFound();
-
-  const deptId = department.id;
+  const { deptId } = await getDepartmentContext({ department: deptSlug });
 
   // Default to last 30 days
   const to = toParam || new Date().toISOString().split("T")[0];

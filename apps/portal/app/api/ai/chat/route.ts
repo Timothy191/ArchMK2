@@ -1,7 +1,22 @@
 import { streamText, convertToModelMessages, stepCountIs, UIMessage } from "ai";
+import { z } from "zod";
 import { models } from "@/lib/ai/providers";
 import { systemPrompts } from "@/lib/ai/prompts";
 import { aiTools } from "@/lib/ai/tools";
+
+const ChatRequestSchema = z.object({
+  messages: z
+    .array(
+      z.object({
+        id: z.string().min(1).max(128),
+        role: z.enum(["user", "assistant", "system", "data"]),
+        content: z.string().max(32_768),
+        parts: z.any().optional(),
+      }),
+    )
+    .max(50),
+  context: z.string().max(4_096).optional(),
+});
 
 const rateLimits = new Map<string, { count: number; windowStart: number }>();
 const WINDOW_MS = 60_000;
@@ -25,15 +40,20 @@ export async function POST(req: Request) {
     return new Response("Rate limited", { status: 429 });
   }
 
-  const { messages, context }: { messages: UIMessage[]; context?: string } =
-    await req.json();
+  const body = await req.json();
+  const parsed = ChatRequestSchema.safeParse(body);
 
-  if (!messages || !Array.isArray(messages)) {
-    return new Response(JSON.stringify({ error: "Messages array required" }), {
-      status: 400,
-      headers: { "Content-Type": "application/json" },
-    });
+  if (!parsed.success) {
+    return new Response(
+      JSON.stringify({
+        error: "Invalid request",
+        details: parsed.error.issues,
+      }),
+      { status: 400, headers: { "Content-Type": "application/json" } },
+    );
   }
+
+  const { messages, context } = parsed.data;
 
   const convertedMessages = await convertToModelMessages(messages);
 

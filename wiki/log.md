@@ -105,3 +105,32 @@ Created comprehensive operational content:
 - **how-to-debug-issues.md** — General debugging
 
 Updated index.md: 42 total pages across all categories.
+
+## [2026-05-15] enhancement | Added VitePress visual wiki renderer
+
+Created VitePress-based documentation site in `docs/` directory:
+
+**Files Created**:
+- `docs/package.json` - Package manifest with VitePress dependency
+- `docs/wiki/.vitepress/config.mjs` - Site configuration with full navigation
+- `docs/wiki/index.md` - Homepage with quick links
+- `docs/wiki/quick-reference.md` - Task-based quick reference
+- `docs/README.md` - Setup and deployment instructions
+
+**Features**:
+- Full-text search across all 42 wiki pages
+- Organized sidebar navigation (Getting Started, Concepts, ADRs, Comparisons, Queries, Operations)
+- Dark mode by default
+- GitHub edit links for each page
+- Mobile-responsive design
+- Deployable to GitHub Pages, Vercel, or Netlify
+
+**Usage**:
+```bash
+cd docs
+pnpm install
+pnpm dev      # Local development
+pnpm build    # Static site generation
+```
+
+This provides a professional, browsable wiki alternative to the raw markdown files.

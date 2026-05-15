@@ -24,7 +24,7 @@
   },
   "devDependencies": {
     "@types/node": "catalog:",
-    "next": "^14.2.8",
+    "next": "^15.0.0",
     "supabase": "catalog:",
     "typescript": "catalog:"
   }

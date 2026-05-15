@@ -1,5 +1,4 @@
-import { createServerSupabaseClient } from "@repo/supabase/server";
-import { notFound } from "next/navigation";
+import { getDepartmentContext, requireDepartment } from "~/lib/dept-context";
 import { BreakdownsDashboard } from "@/features/departments/components/engineering/breakdowns";
 import type {
   Breakdown,
@@ -12,22 +11,10 @@ export default async function BreakdownsPage({
   params: Promise<{ department: string }>;
 }) {
   const { department: deptSlug } = await params;
-  if (deptSlug !== "engineering") {
-    notFound();
-  }
-
-  const supabase = await createServerSupabaseClient();
-
-  const { data: department } = await supabase
-    .from("departments")
-    .select("id")
-    .eq("name", "engineering")
-    .single();
-
-  if (!department) notFound();
-
-  const deptId = department.id;
-  const today = new Date().toISOString().split("T")[0];
+  requireDepartment(deptSlug, "engineering");
+  const { deptId, supabase, today } = await getDepartmentContext({
+    department: deptSlug,
+  });
 
   // Fetch all non-deleted breakdowns
   const { data: breakdowns } = await supabase

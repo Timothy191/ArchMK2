@@ -5,9 +5,20 @@ import Map from "react-map-gl/maplibre";
 import DeckGL from "@deck.gl/react";
 import { ScatterplotLayer } from "@deck.gl/layers";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { MAP_TILE_URLS, LAYER_META, type DeformationReading } from "@/lib/monitoring-api";
+import {
+  MAP_TILE_URLS,
+  LAYER_META,
+  type DeformationReading,
+} from "@/lib/monitoring-api";
 
-export type MapLayerKey = "none" | "sar" | "optical" | "ndvi" | "geology" | "terrain" | "osm";
+export type MapLayerKey =
+  | "none"
+  | "sar"
+  | "optical"
+  | "ndvi"
+  | "geology"
+  | "terrain"
+  | "osm";
 
 interface MonitoringMapProps {
   center?: { lat: number; lon: number };
@@ -20,19 +31,19 @@ interface MonitoringMapProps {
 }
 
 const LEVEL_COLORS: Record<string, string> = {
-  stable:   "#3ecf8e",
-  minor:    "#f59e0b",
+  stable: "#3ecf8e",
+  minor: "#f59e0b",
   moderate: "#f97316",
   critical: "#ef4444",
 };
 
 const LAYER_OPTIONS: { key: MapLayerKey; label: string }[] = [
-  { key: "optical",  label: "S2 Optical" },
-  { key: "terrain",  label: "Terrain" },
-  { key: "sar",      label: "SAR" },
-  { key: "ndvi",     label: "NDVI" },
-  { key: "geology",  label: "Geology" },
-  { key: "osm",      label: "Streets" },
+  { key: "optical", label: "S2 Optical" },
+  { key: "terrain", label: "Terrain" },
+  { key: "sar", label: "SAR" },
+  { key: "ndvi", label: "NDVI" },
+  { key: "geology", label: "Geology" },
+  { key: "osm", label: "Streets" },
 ];
 
 function buildDeformationGeoJSON(readings: DeformationReading[]) {
@@ -49,7 +60,14 @@ function buildDeformationGeoJSON(readings: DeformationReading[]) {
         velocityMmPerMonth: r.velocityMmPerMonth,
         sensor: r.sensor,
         color: LEVEL_COLORS[r.level] ?? "#3ecf8e",
-        radius: r.level === "critical" ? 14 : r.level === "moderate" ? 11 : r.level === "minor" ? 9 : 7,
+        radius:
+          r.level === "critical"
+            ? 14
+            : r.level === "moderate"
+              ? 11
+              : r.level === "minor"
+                ? 9
+                : 7,
       },
     })),
   };
@@ -69,7 +87,7 @@ export function MonitoringMap({
     longitude: center.lon,
     zoom: zoom,
     pitch: 0,
-    bearing: 0
+    bearing: 0,
   });
 
   const [currentLayer, setCurrentLayer] = useState<MapLayerKey>(activeLayer);
@@ -91,32 +109,45 @@ export function MonitoringMap({
         return [r, g, b, 200];
       },
       getRadius: (d: DeformationReading) => {
-        return d.level === "critical" ? 100 : d.level === "moderate" ? 70 : d.level === "minor" ? 50 : 30;
+        return d.level === "critical"
+          ? 100
+          : d.level === "moderate"
+            ? 70
+            : d.level === "minor"
+              ? 50
+              : 30;
       },
       pickable: true,
-      onClick: (info: any) => {
+      onClick: (info: { object?: DeformationReading }) => {
         if (info.object) {
           onReadingClick?.(info.object);
         }
       },
       updateTriggers: {
         getFillColor: [deformationReadings],
-        getRadius: [deformationReadings]
-      }
-    })
+        getRadius: [deformationReadings],
+      },
+    }),
   ];
 
   const tileUrl = MAP_TILE_URLS[currentLayer] ?? MAP_TILE_URLS.optical ?? "";
   const meta = LAYER_META[currentLayer] ?? LAYER_META.optical;
 
   return (
-    <div className="relative rounded-xl overflow-hidden border border-[#363636]" style={{ height }}>
+    <div
+      className="relative rounded-xl overflow-hidden border border-[#363636]"
+      style={{ height }}
+    >
       <DeckGL
         viewState={viewState}
-        onViewStateChange={(e: any) => setViewState(e.viewState)}
+        onViewStateChange={(e: { viewState: typeof viewState }) =>
+          setViewState(e.viewState)
+        }
         controller={true}
         layers={layers}
-        getCursor={({ isHovering }: any) => (isHovering ? "pointer" : "grab")}
+        getCursor={({ isHovering }: { isHovering?: boolean }) =>
+          isHovering ? "pointer" : "grab"
+        }
       >
         <Map
           mapStyle={{

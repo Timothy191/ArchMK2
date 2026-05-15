@@ -1,6 +1,4 @@
-import { createServerSupabaseClient } from "@repo/supabase/server";
-import { DEPARTMENTS } from "~/lib/departments";
-import { notFound } from "next/navigation";
+import { getDepartmentContext } from "~/lib/dept-context";
 import { GlassCard } from "@repo/ui/GlassCard";
 import { AddMachineForm } from "@/features/departments/components/machines/AddMachineForm";
 
@@ -10,23 +8,14 @@ export default async function MachinesPage({
   params: Promise<{ department: string }>;
 }) {
   const { department: deptSlug } = await params;
-  const dept = DEPARTMENTS.find((d) => d.name === deptSlug);
-  if (!dept) notFound();
-
-  const supabase = await createServerSupabaseClient();
-
-  const { data: department } = await supabase
-    .from("departments")
-    .select("id")
-    .eq("name", deptSlug)
-    .single();
-
-  if (!department) notFound();
+  const { deptId, supabase } = await getDepartmentContext({
+    department: deptSlug,
+  });
 
   const { data: machines } = await supabase
     .from("machines")
     .select("id, name, machine_type, serial_number, active, created_at")
-    .eq("department_id", department.id)
+    .eq("department_id", deptId)
     .order("name");
 
   const activeCount = machines?.filter((m) => m.active).length || 0;
@@ -37,7 +26,7 @@ export default async function MachinesPage({
         <h2 className="text-2xl font-medium text-[var(--text-heading)]">
           Machines
         </h2>
-        <AddMachineForm departmentId={department.id} />
+        <AddMachineForm departmentId={deptId} />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

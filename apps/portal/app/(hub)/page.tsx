@@ -2,7 +2,7 @@ import { createServerSupabaseClient } from "@repo/supabase/server";
 import { redirect } from "next/navigation";
 import { HubGrid } from "@/features/hub/components/HubGrid";
 import { ToolCard } from "@/features/hub/components/ToolCard";
-import { SystemHealth } from "@/features/hub/components/SystemHealth";
+import { UrgencyBar } from "@/features/hub/components/UrgencyBar";
 import { ProductionTrend } from "@/features/hub/components/ProductionTrend";
 import { PRODUCTIVITY_TOOLS } from "~/lib/departments";
 
@@ -18,6 +18,37 @@ export default async function HubPage() {
     redirect("/login");
   }
 
+  const today = new Date().toISOString().split("T")[0];
+
+  const [
+    { count: incidentCount },
+    { count: breakdownCount },
+    { count: offlineMachineCount },
+    { data: employee },
+  ] = await Promise.all([
+    supabase
+      .from("safety_incidents")
+      .select("id", { count: "exact", head: true })
+      .eq("incident_date", today)
+      .eq("status", "open"),
+    supabase
+      .from("breakdowns")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "active")
+      .is("deleted_at", null),
+    supabase
+      .from("machines")
+      .select("id", { count: "exact", head: true })
+      .eq("active", false),
+    supabase
+      .from("employees")
+      .select("accessible_departments")
+      .eq("auth_id", user.id)
+      .single(),
+  ]);
+
+  const accessibleDeptIds = employee?.accessible_departments ?? [];
+
   return (
     <div className="space-y-12 max-w-7xl mx-auto">
       <div className="space-y-6">
@@ -30,8 +61,12 @@ export default async function HubPage() {
           </p>
         </div>
 
-        <SystemHealth />
-        <HubGrid />
+        <UrgencyBar
+          incidents={incidentCount ?? 0}
+          breakdowns={breakdownCount ?? 0}
+          offlineMachines={offlineMachineCount ?? 0}
+        />
+        <HubGrid accessibleDeptIds={accessibleDeptIds} />
         <ProductionTrend />
       </div>
 

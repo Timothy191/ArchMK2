@@ -16,13 +16,12 @@ interface DailyLogFormProps {
   machines: Machine[];
 }
 
-export function DailyLogForm({
-  departmentId,
-  machines,
-}: DailyLogFormProps) {
+export function DailyLogForm({ departmentId, machines }: DailyLogFormProps) {
   const [shift, setShift] = useState<"day" | "night">("day");
   const [notes, setNotes] = useState("");
-  const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const [status, setStatus] = useState<
+    "idle" | "submitting" | "success" | "error"
+  >("idle");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -51,13 +50,20 @@ export function DailyLogForm({
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Shift selector */}
       <div className="space-y-2">
-        <label className="block text-sm text-[var(--text-muted)]">Shift</label>
-        <div className="flex gap-3">
+        <label
+          htmlFor="shift-day"
+          className="block text-sm text-[var(--text-muted)]"
+        >
+          Shift
+        </label>
+        <div className="flex gap-3" role="group" aria-label="Shift selection">
           {(["day", "night"] as const).map((s) => (
             <button
               key={s}
+              id={`shift-${s}`}
               type="button"
               onClick={() => setShift(s)}
+              aria-pressed={shift === s}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 shift === s
                   ? "bg-[var(--bg-tertiary)] text-[var(--text-heading)] border border-[var(--accent-cyan)]"
@@ -73,7 +79,9 @@ export function DailyLogForm({
       {/* Machines list (read-only reference) */}
       {machines.length > 0 && (
         <div className="space-y-2">
-          <label className="block text-sm text-[var(--text-muted)]">Machines</label>
+          <label className="block text-sm text-[var(--text-muted)]">
+            Machines
+          </label>
           <div className="flex flex-wrap gap-2">
             {machines.map((m) => (
               <span
@@ -89,30 +97,46 @@ export function DailyLogForm({
 
       {/* Notes */}
       <div className="space-y-2">
-        <label className="block text-sm text-[var(--text-muted)]">Notes</label>
+        <label
+          htmlFor="daily-log-notes"
+          className="block text-sm text-[var(--text-muted)]"
+        >
+          Notes
+        </label>
         <textarea
+          id="daily-log-notes"
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           rows={4}
           className="w-full px-4 py-3 rounded-lg bg-[var(--card)] border border-[var(--border-default)] text-[var(--text-heading)] placeholder-[#898989] focus:outline-none focus:ring-2 focus:ring-[var(--accent-cyan)]/30 resize-none"
           placeholder="Enter any observations or issues..."
+          aria-label="Daily log notes"
         />
       </div>
 
       {/* Actions */}
       <div className="flex items-center gap-4">
-        <SecondaryButton
-          type="submit"
-          disabled={status === "submitting"}
-        >
+        <SecondaryButton type="submit" disabled={status === "submitting"}>
           {status === "submitting" ? "Saving..." : "Save Daily Log"}
         </SecondaryButton>
 
         {status === "success" && (
-          <span className="text-sm text-emerald-400">Log saved successfully.</span>
+          <span
+            className="text-sm text-emerald-400"
+            role="status"
+            aria-live="polite"
+          >
+            Log saved successfully.
+          </span>
         )}
         {status === "error" && (
-          <span className="text-sm text-red-400">Failed to save log. Please try again.</span>
+          <span
+            className="text-sm text-red-400"
+            role="alert"
+            aria-live="assertive"
+          >
+            Failed to save log. Please try again.
+          </span>
         )}
       </div>
     </form>
