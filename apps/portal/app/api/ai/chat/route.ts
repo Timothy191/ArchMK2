@@ -1,36 +1,72 @@
-import { NextRequest, NextResponse } from "next/server";
-import { generateAIResponse, AIRequest } from "@/lib/ai/ai-service";
+import { streamText, convertToModelMessages, stepCountIs, UIMessage } from "ai";
+import { models } from "@/lib/ai/providers";
+import { systemPrompts } from "@/lib/ai/prompts";
+import { aiTools } from "@/lib/ai/tools";
 
-export async function POST(request: NextRequest) {
+const rateLimits = new Map<string, { count: number; windowStart: number }>();
+const WINDOW_MS = 60_000;
+const MAX_REQUESTS = 30;
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const entry = rateLimits.get(ip);
+  if (!entry || now - entry.windowStart > WINDOW_MS) {
+    rateLimits.set(ip, { count: 1, windowStart: now });
+    return true;
+  }
+  if (entry.count >= MAX_REQUESTS) return false;
+  entry.count++;
+  return true;
+}
+
+export async function POST(req: Request) {
+  const ip = req.headers.get("x-forwarded-for") ?? "unknown";
+  if (!checkRateLimit(ip)) {
+    return new Response("Rate limited", { status: 429 });
+  }
+
+  const { messages, context }: { messages: UIMessage[]; context?: string } =
+    await req.json();
+
+  if (!messages || !Array.isArray(messages)) {
+    return new Response(JSON.stringify({ error: "Messages array required" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  const convertedMessages = await convertToModelMessages(messages);
+
   try {
-    const body = await request.json();
-    const { messages, context, temperature, maxTokens } = body;
+    const result = streamText({
+      model: models.primary,
+      system: systemPrompts.chat(context),
+      messages: convertedMessages,
+      tools: aiTools,
+      stopWhen: stepCountIs(5),
+    });
 
-    if (!messages || !Array.isArray(messages)) {
-      return NextResponse.json(
-        { error: "Invalid request: messages array required" },
-        { status: 400 }
+    return result.toUIMessageStreamResponse();
+  } catch (error) {
+    // Try secondary provider if primary fails
+    console.warn("Primary provider failed, trying secondary:", error);
+
+    try {
+      const result = streamText({
+        model: models.secondary,
+        system: systemPrompts.chat(context),
+        messages: convertedMessages,
+        tools: aiTools,
+        stopWhen: stepCountIs(5),
+      });
+
+      return result.toUIMessageStreamResponse();
+    } catch (secondaryError) {
+      console.error("Chat streaming error:", secondaryError);
+      return new Response(
+        JSON.stringify({ error: "Failed to generate response" }),
+        { status: 500, headers: { "Content-Type": "application/json" } },
       );
     }
-
-    const aiRequest: AIRequest = {
-      messages: messages.map((m: any) => ({
-        role: m.role,
-        content: m.content,
-      })),
-      context,
-      temperature,
-      maxTokens,
-    };
-
-    const response = await generateAIResponse(aiRequest);
-
-    return NextResponse.json(response);
-  } catch (error) {
-    console.error("AI chat API error:", error);
-    return NextResponse.json(
-      { error: "Failed to generate AI response" },
-      { status: 500 }
-    );
   }
 }
