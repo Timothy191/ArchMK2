@@ -76,3 +76,32 @@ Researched and created 10 comparison pages documenting key architectural and tec
 10. **animation-libraries.md** — Framer Motion for real-time dashboard animations
 
 Updated index.md with comparisons section (23 total pages now).
+
+## [2026-05-15] content | Added operational guides, ADRs, and query pages
+
+Created comprehensive operational content:
+
+**Operational Guides (4)**:
+- **troubleshooting.md** — Common development issues and resolutions
+- **deployment.md** — Production deployment runbook
+- **onboarding.md** — New team member onboarding guide
+- **incident-response.md** — Production incident response playbook
+
+**Architecture Decision Records (7)**:
+- **adr-001-nextjs-app-router.md** — Next.js 15 App Router adoption
+- **adr-002-supabase-backend.md** — Supabase as backend platform
+- **adr-003-turborepo-monorepo.md** — Turborepo for monorepo
+- **adr-004-tailwind-design-system.md** — Tailwind CSS with design tokens
+- **adr-005-zustand-state-management.md** — Zustand for state management
+- **adr-006-multi-provider-ai.md** — Multi-provider AI architecture
+- **adr-007-react-19-adoption.md** — React 19 adoption strategy
+
+**Query-Based Summaries (6)**:
+- **how-to-add-department.md** — Adding new departments
+- **how-does-auth-work.md** — Authentication flow explained
+- **how-to-fetch-data.md** — Data fetching patterns
+- **why-query-returns-empty.md** — Database query debugging
+- **how-to-deploy-production.md** — Deployment guide
+- **how-to-debug-issues.md** — General debugging
+
+Updated index.md: 42 total pages across all categories.
