@@ -1,0 +1,15 @@
+/**
+ * Arch System — Focus & Accessibility
+ */
+
+/* WCAG 2.2 AA focus outlines */
+:focus-visible {
+  outline: 2px solid var(--accent-cyan);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Remove default focus for non-keyboard navigation */
+:focus:not(:focus-visible) {
+  outline: none;
+}
