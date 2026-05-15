@@ -1,7 +1,7 @@
 ---
 title: Arch-Systems (Plantcor)
 created: 2026-05-14
-updated: 2026-05-14
+updated: 2026-05-15
 type: entity
 tags: [system, application, company]
 sources: [raw/articles/arch-systems-project-overview.md]
@@ -13,19 +13,26 @@ confidence: high
 Arch-Systems (Plantcor) is a multi-departmental mining operations portal built as a monorepo. It provides authenticated access to department-specific dashboards for drilling, production, access control, engineering, control room, safety, training, and satellite monitoring.
 
 ## Technology Stack
-- **Frontend:** Next.js 14 (App Router, React 18), Tailwind CSS, shadcn/ui
+- **Frontend:** Next.js 15 (App Router, React 19), Tailwind CSS 3.4, shadcn/ui
 - **Backend:** Supabase (PostgreSQL, Auth, Storage)
-- **Build:** Turborepo + pnpm workspaces
-- **Testing:** Jest (unit), Playwright (E2E)
-- **3D:** @react-three/fiber + @react-three/drei (v8/v9 for React 18 compatibility)
-- **Maps:** react-map-gl + maplibre-gl
+- **Build:** Turborepo 2.1 + pnpm 9.12.0 workspaces
+- **Testing:** Jest 30 (unit), Playwright 1.60 (E2E)
+- **3D:** @react-three/fiber 8 + @react-three/drei 9
+- **Maps:** react-map-gl 8 + maplibre-gl 5
+- **AI:** ai SDK 6 with Groq, OpenRouter, Together providers
+- **State:** Zustand 5
 
 ## Monorepo Structure
-- `apps/portal/` → Next.js 14 app with App Router
-- `packages/ui/` → [[turborepo-monorepo|shared components]] (GlassCard, DepartmentLayout, KPI, etc.)
-- `packages/supabase/` → [[supabase-local-dev|Supabase client wrappers]]
-- `packages/database/` → SQL migrations
-- `apps/overview/` → Standalone dashboard app
+- `apps/portal/` → Next.js 15 app with App Router, React 19
+- `packages/ui/` → [[turborepo-monorepo|@repo/ui]] — shared components, shadcn primitives
+- `packages/theme/` → [[design-system|@repo/theme]] — design tokens, Tailwind preset
+- `packages/supabase/` → [[supabase-local-dev|@repo/supabase]] — client wrappers (browser, server, middleware)
+- `packages/database/` → [[database-schema|@repo/database]] — SQL migrations (7 migrations)
+- `packages/hooks/` → @repo/hooks — useLocalStorage, useDebounce
+- `packages/types/` → @repo/types — Department, Employee, Machine, Shift, DailyLog interfaces
+- `packages/utils/` → @repo/utils — cn(), formatDate(), getCurrentShift(), excel utilities
+- `apps/overview/` → Standalone Next.js app for architecture visualization (port 3002)
+- `apps/cms/` → Payload CMS v3 (headless, Postgres-backed)
 
 ## Key Shared Components
 - `GlassCard` — Card container with dark theme styling
@@ -56,7 +63,9 @@ Specialized routes:
 - `employees.accessible_departments` allows cross-department access
 
 ## Key Gotchas
-- @react-three/fiber v8.x + @react-three/drei v9.x required for React 18 compat
+- @react-three/fiber v8.x + @react-three/drei v9.x (React 19 compatible, though wiki mentions React 18 compat historically)
 - Never commit middleware auth bypass without security review
-- Migration source of truth: `packages/database/migrations/`
-- `@univerjs/preset-sheets-core/lib/index.css` import once only in `UniverSheet.tsx`
+- Migration source of truth: `packages/database/migrations/` (synced to `packages/supabase/supabase/migrations/` at deploy)
+- `@univerjs/preset-sheets-core/lib/index.css` import once only in `UniverSheet.tsx` — never in layout.tsx
+- React version divergence: `apps/overview` uses React 18, `apps/portal` uses React 19 — no cross-app component sharing
+- All Tailwind config originates from `@repo/theme` — never add theme values directly in portal

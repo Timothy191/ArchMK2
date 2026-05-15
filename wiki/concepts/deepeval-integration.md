@@ -1,41 +1,46 @@
 ---
-title: DeepEval Integration
+title: DeepEval Evaluation Suite
 created: 2026-05-14
 updated: 2026-05-14
 type: concept
-tags: [system, project, testing]
+tags: [testing, system, project]
 sources: [raw/articles/deepeval-integration-design.md]
-confidence: medium
+confidence: high
 ---
 
-# DeepEval Integration
+# DeepEval Evaluation Suite
 
-DeepEval is an LLM evaluation framework integrated into the Arch-Mk2 monorepo to assess both AI service quality and code generation compliance.
+The Arch-Systems evaluation suite (in `packages/eval/`) uses DeepEval to assess AI service quality and code generation compliance against project conventions.
 
-## Purpose
-1. **Portal AI Service Quality** — Evaluate prompts (predictive maintenance, shift handoff, safety compliance, equipment manual, translation) for hallucination, factual consistency, and answer relevancy.
-2. **Claude Code Generation Quality** — Custom test cases measuring whether generated code follows Arch-Mk2 conventions.
-
-## Architecture (packages/eval/)
-- `pyproject.toml` — Poetry project with DeepEval + deps
-- `conftest.py` — Pytest + DeepEval plugin config
+## Architecture
+- `pyproject.toml` — Poetry project, DeepEval + pytest
+- `conftest.py` — pytest + DeepEval plugin config, shared fixtures
+- `helpers.py` — `call_ai_service()` for live or cached AI calls
+- `datasets/golden_cases.json` — Pre-recorded expected inputs/outputs
+- `metrics/` — Custom BaseMetric subclasses
 - `tests/ai_service/` — AI prompt evaluation tests
 - `tests/code_generation/` — Code convention compliance tests
-- `datasets/golden_cases.json` — Pre-recorded expected inputs/outputs
-- `helpers.py` — `call_ai_service()` for live or cached AI endpoint calls
-- `metrics/` — Custom BaseMetric subclasses for design system, Supabase imports, RLS, and department patterns
+
+## AI Service Tests
+- `test_predictive_maintenance.py` — Hallucination + factual consistency
+- `test_shift_handoff.py` — Answer relevancy + hallucination
+- `test_safety_compliance.py` — Factual consistency + bias detection
+- `test_equipment_manual.py` — Answer relevancy + hallucination
+- `test_translation.py` — Factual consistency (terminology preservation)
 
 ## Custom Metrics
-- **DesignSystemComplianceMetric** — Forbidden Tailwind classes, correct design tokens, `cn()` and `GlassCard` usage
-- **SupabaseImportComplianceMetric** — Imports from `@repo/supabase/*`, never direct `@supabase/supabase-js`
-- **RLSCompletenessMetric** — `ENABLE ROW LEVEL SECURITY` on all tables, policies use auth helpers
-- **DepartmentPatternComplianceMetric** — `getDepartmentContext()`, `requireDepartment()`, `KPICard`, `PageHeader`
+- `DesignSystemComplianceMetric` — Forbidden Tailwind classes, correct tokens, `cn()` and `GlassCard`
+- `SupabaseImportComplianceMetric` — Imports from `@repo/supabase/*`, never direct `@supabase/supabase-js`
+- `RLSCompletenessMetric` — `ENABLE ROW LEVEL SECURITY`, policies use auth helpers
+- `DepartmentPatternComplianceMetric` — `getDepartmentContext()`, `requireDepartment()`, `KPICard`, `PageHeader`
 
 ## Configuration
-- Python 3.10+, Poetry-managed
-- Requires `OPENAI_API_KEY` for LLM-based metrics
+- `OPENAI_API_KEY` required for LLM-based metrics
+- `PORTAL_BASE_URL` for live AI tests (default: `http://localhost:3000`)
+- `EVAL_USE_CACHE=true` for cached mode (default)
 - Run via `cd packages/eval && poetry install && poetry run pytest`
 
 ## Related
-- [[arch-systems]] — the portal being evaluated
-- [[design-system]] — conventions enforced by DesignSystemComplianceMetric
+- [[arch-systems]] — the portal whose code and AI are evaluated
+- [[rls-policy]] — enforced by RLSCompletenessMetric
+- [[design-system]] — enforced by DesignSystemComplianceMetric
