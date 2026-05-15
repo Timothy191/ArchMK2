@@ -18,13 +18,13 @@
     "*.{js,ts,tsx}": "eslint --fix"
   },
   "devDependencies": {
-    "@playwright/test": "^1.56.1",
+    "@playwright/test": "^1.60.0",
     "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
     "husky": "^9.1.7",
-    "lint-staged": "^16.2.6",
+    "lint-staged": "^16.4.0",
     "prettier": "catalog:",
-    "supabase": "^2.54.10",
+    "supabase": "^2.98.2",
     "turbo": "2.1.1"
   },
   "packageManager": "pnpm@9.12.0",
@@ -36,6 +36,6 @@
     "pnpm": "9.12.0"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.76.1"
+    "@supabase/supabase-js": "^2.105.4"
   }
 }

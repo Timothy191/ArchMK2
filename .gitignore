@@ -23,7 +23,22 @@ coverage
 out/
 build
 dist
+apps/*/dist/
+apps/*/.next/
 
+# Agent runtime / personal skills (not project source)
+.claude/skills/
+.claude/hooks/scripts/db/
+.claude/hooks/scripts/search/
+.agents/
+.kiro/
+
+# IDE
+.vscode/
+
+# Tooling
+.mcp.json
+skills-lock.json
 
 # Debug
 npm-debug.log*

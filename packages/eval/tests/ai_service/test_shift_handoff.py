@@ -6,7 +6,7 @@ from deepeval.metrics import HallucinationMetric, AnswerRelevancyMetric
 from deepeval.test_case import LLMTestCase
 
 from datasets.golden_cases import SHIFT_HANDOFF_INPUTS
-from helpers import call_ai_service_sync
+from helpers import call_ai_service
 
 
 @pytest.mark.ai_service

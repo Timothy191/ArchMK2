@@ -50,11 +50,18 @@ cd packages/database && pnpm supabase:reset   # Reset local DB
 pnpm ui                   # Add shadcn components to @repo/ui
 
 # Other apps
-pnpm --filter arch-systems-overview dev   # Start the overview dashboard app (port 3001)
+pnpm --filter arch-systems-overview dev   # Start the overview dashboard app (port 3002)
+pnpm --filter cms dev     # Start Payload CMS dev server
+
+# Type checking
+pnpm --filter portal type-check           # Run tsc --noEmit for portal
 
 # Database migrations
 # Add new .sql files in packages/database/migrations/
 # They are synced to packages/supabase/supabase/migrations/ by deploy-local.sh
+
+# Turborepo tasks
+pnpm turbo db:pull        # Pull remote DB schema into packages/supabase/migrations/
 ```
 
 ## Requirements
@@ -62,24 +69,45 @@ pnpm --filter arch-systems-overview dev   # Start the overview dashboard app (po
 - **Node.js**: `>=20.17.0` (enforced in `engines` and `volta`)
 - **pnpm**: `9.12.0` (enforced via `packageManager` field)
 
+## Automation & Hooks
+
+- **Pre-commit**: `husky` + `lint-staged` run `eslint --fix` on staged `*.{js,ts,tsx}` files.
+- **Claude Code hooks** (`.claude/settings.json`):
+  - Secret scan on every `Write`/`Edit`
+  - Pre-push quality gate on `git push`
+  - Auto-format and auto-lint (`eslint --max-warnings 0`) after `Write`/`Edit` for portal files
+  - Session start / stop hooks that load and capture learned patterns
+  - Pre/Post compaction hooks that persist and reinject critical context
+  - File change watcher for `.env`, `package.json`, `tsconfig.json`, `pyproject.toml`
+
 ## Architecture
 
 ### Monorepo Structure (Turborepo + pnpm)
 
 ```
-apps/portal/          → Next.js 14 app (App Router, React 18)
+apps/portal/          → Next.js 15 app (App Router, React 19)
 packages/
-  ui/                 → @repo/ui — shared components (GlassCard, DepartmentLayout, KPI, PageHeader, ShiftToggle, FormFields, shadcn primitives, Tailwind config)
+  theme/               → @repo/theme — design tokens, CSS variables, Tailwind preset, React theme provider (single source of truth for all styling)
+  ui/                 → @repo/ui — shared components (GlassCard, DepartmentLayout, KPI, PageHeader, ShiftToggle, FormFields, shadcn primitives, re-exports theme Tailwind config)
   supabase/           → @repo/supabase — Supabase client wrappers (browser, server, middleware)
   database/           → @repo/database — SQL migrations
   eslint-config/      → @repo/eslint-config
   typescript-config/  → @repo/typescript-config
-  hooks/              → @repo/hooks (empty, reserved)
-  types/              → @repo/types (empty, reserved)
-  utils/              → @repo/utils (empty, reserved)
+  hooks/              → @repo/hooks — useLocalStorage, useDebounce
+  types/              → @repo/types — Department, Employee, Machine, Shift, DailyLog interfaces
+  utils/              → @repo/utils — cn, formatDate, getCurrentShift, excel utilities
   eval/               → Python eval harness (pytest, datasets, metrics)
-apps/overview/        → Standalone Next.js app for overview dashboards
+apps/overview/        → Standalone static Next.js app for architecture visualization (port 3002)
+apps/cms/             → Payload CMS v3 — headless CMS for content management (Postgres-backed)
 ```
+
+### pnpm Workspace Catalogs
+
+Versions for shared dependencies are centralized in `pnpm-workspace.yaml`:
+
+- Use `catalog:` to pull the workspace-wide version (e.g. `framer-motion`, `tailwindcss`, `eslint`, `typescript`, `lucide-react`, `sonner`, `shiki`, `cmdk`, `@tanstack/react-table`, `@atlaskit/pragmatic-drag-and-drop`, `@nivo/sankey`, `@nivo/calendar`, `react-signature-canvas`, `novel`, `qrcode.react`, `react-colorful`).
+- Use `catalog:react19` for React 19 packages (`react`, `react-dom`, and their `@types/*`).
+- When adding a new shared dependency, consider adding it to the catalog instead of pinning a version in a single package.
 
 ### Portal App Router Structure
 
@@ -90,8 +118,9 @@ apps/overview/        → Standalone Next.js app for overview dashboards
   - `control-room` gets: dashboard, hourly-loads, machine-operations, operational-delays, engineering-notes, excavator-activity, roll-over, machines, reports, satellite
   - `engineering` gets: dashboard, breakdowns, daily-log, machines, history, reports, tools
   - `satellite-monitoring` gets: overview, sar, hyperspectral, highres
+  - `safety` gets: dashboard, daily-log (with SafetyIncidentForm/SafetyIncidentsList), machines, history, reports, tools
 - `admin/` — Admin panel
-- `api/ai/` — AI service endpoint
+- `api/ai/chat` — AI chat endpoint (multi-provider with failover: Groq → OpenRouter → Together)
 
 ### Feature Organization
 
@@ -104,6 +133,9 @@ Department-specific component logic lives in `apps/portal/features/departments/c
 
 ### Shared Server Utilities (apps/portal/lib)
 
+- `monitoring-api.ts` — Satellite monitoring data layer: SAR/InSAR deformation readings, Copernicus STAC scene fetcher, deformation classification, map tile URLs. Cached via Next.js `revalidate`.
+- `weather-api.ts` — Open-Meteo weather integration (no API key required). Fetches current + 5-day forecast, provides operational weather alerts for mining conditions.
+- `ai/ai-service.ts` — Multi-provider AI service with failover (Groq → OpenRouter → Together), rate limiting, streaming, and pre-built prompt templates (predictiveMaintenance, shiftHandoff, safetyCompliance, equipmentManual, translate).
 - `getDepartmentContext(params)` — Resolves `{ dept, deptId, supabase, today }` for server component pages. Validates department slug, fetches UUID from Supabase, calls `notFound()` on invalid departments. Use this instead of repeating the lookup pattern.
 - `requireDepartment(slug, allowed)` — Guards tabs to specific departments (e.g. `requireDepartment(slug, "control-room")`). Calls `notFound()` if unauthorized.
 
@@ -111,12 +143,15 @@ Department-specific component logic lives in `apps/portal/features/departments/c
 
 - `GlassCard` — Card container with dark theme styling and optional hover animation
 - `DepartmentLayout` — Sidebar + content layout for department pages
-- `KPI` / `KPICard` — Summary metric cards with color variants (`default`, `green`, `amber`, `red`, `blue`)
+- `KPI` / `KPICard` — Summary metric cards with color variants (`default`, `green`, `amber`, `red`, `blue`, `cyan`, `indigo`, `alert`)
 - `KPIGrid` — Responsive grid layout for KPI cards (2, 3, or 4 columns)
 - `PageHeader` — Title + formatted date header used across department tab pages
 - `ShiftToggle` — Day/night shift selector with `getCurrentShift()` helper
 - `FormFields` — `FormInput`, `FormSelect`, `FormTextarea`, `SubmitButton` with consistent dark theme styling
 - `Input`, `SecondaryButton` — Basic form controls
+- **shadcn/ui primitives** (in `components/ui/`): button, card, badge, dialog, dropdown-menu, input, scroll-area, separator, skeleton, tabs, table
+- **Magic UI** (in `components/ui/`): shine-border, number-ticker, marquee, animated-grid-pattern
+- **Motion Primitives** (in `components/motion-primitives/`): spotlight, glow-effect, border-trail
 
 ### Supabase Auth & RLS
 
@@ -131,7 +166,7 @@ Department-specific component logic lives in `apps/portal/features/departments/c
 
 ### Database Schema
 
-Key tables: `departments`, `employees` (linked to `auth.users`), `machines`, `daily_logs`, `machine_hours`, `fuel_logs`, `production_logs`, `operators`, `sites`, `hourly_loads`, `breakdowns`. Auth trigger `handle_new_user()` auto-creates an employee row on signup with role defaulting to 'operator'.
+Key tables: `departments`, `employees` (linked to `auth.users`), `machines`, `daily_logs`, `machine_hours`, `fuel_logs`, `production_logs`, `operators`, `sites`, `hourly_loads` (12-hour shift grid), `breakdowns`, `machine_operations`, `delay_categories`, `excavator_activity`, `dozer_rolls`, `report_templates`, `generated_reports`, `engineering_notes`, `operational_delays`, `safety_severities`, `safety_incident_categories`, `safety_incidents`. Auth trigger `handle_new_user()` auto-creates an employee row on signup with role defaulting to 'operator'.
 
 ### Department Route Configuration
 
@@ -150,15 +185,29 @@ Department metadata (slug, display name, icon, color, description) and tab defin
 
 Load the `project-conventions` skill before any implementation task. It contains the authoritative design-system rules, Supabase import constraints, and code-style requirements used by this project.
 
+- **Server actions pattern**: Always start with `"use server"`, authenticate via `supabase.auth.getUser()`, use `createServerSupabaseClient()` from `@repo/supabase/server`, call `revalidatePath()` after mutations. Soft deletes use `deleted_at` timestamp, not row removal.
+- **Client form pattern**: Department data-entry forms use `createBrowserSupabaseClient()` for inserts, `router.refresh()` for revalidation, `useState` for form state with four-state pattern (`idle`/`submitting`/`success`/`error`), and auto-detect current shift via `getCurrentShift()`. Some forms auto-save drafts to localStorage.
+- **Real-time subscriptions**: Components like AlertPanel, ScadaPanel, and ControlRoomActivityFeed use `supabase.channel().on('postgres_changes', ...).subscribe()` for live data updates.
 - **Path aliases**: `@/` maps to `apps/portal/`, `~/` also maps to `apps/portal/` (Jest and TypeScript both configured)
 - **Dark theme**: Root layout sets `className="dark"` on `<html>`; Tailwind config uses CSS variable-based colors (`hsl(var(--...))`)
-- **Tailwind**: Shared config lives in `@repo/ui/tailwind.config`; portal extends it via re-export
-- **Animations**: `framer-motion` for UI transitions, `tailwindcss-animate` for CSS animations
+- **Tailwind**: Shared config is `@repo/theme/tailwind/preset.ts`; portal and `@repo/ui` both re-export it. All color values use CSS custom properties for runtime theme switching.
+- **Animations**: `framer-motion` / `motion` for UI transitions, `tailwindcss-animate` for CSS animations, Motion Primitives (spotlight, glow-effect, border-trail) for advanced effects
 - **Maps**: `react-map-gl` + `maplibre-gl` for satellite/GIS views
 - **3D**: `@react-three/fiber` + `@react-three/drei` for 3D visualizations
+- **Command palette**: `cmdk` for Cmd+K spotlight search
+- **Toasts**: `sonner` for toast notifications
+- **Data tables**: `@tanstack/react-table` for advanced grids (sort, filter, virtualize)
+- **Drag and drop**: `@atlaskit/pragmatic-drag-and-drop` for sortable lists and kanban
+- **Rich text**: `novel` for Notion-style WYSIWYG editing
+- **Code highlighting**: `shiki` for server-side syntax highlighting (AI chat, engineering notes)
+- **Signatures**: `react-signature-canvas` for digital sign-off on safety/shift forms
+- **QR codes**: `qrcode.react` for equipment ID and access control
+- **Color picker**: `react-colorful` for theme customization
+- **Specialized charts**: `@nivo/sankey`, `@nivo/calendar` for flow and time visualizations beyond Tremor
 - **Zod** for form/schema validation
 - **Video background**: Auth layout renders `public/background.mp4` with fade-in overlay
-- **Testing**: Jest (`jest-environment-jsdom`) for unit tests, Playwright for E2E
+- **Testing**: Jest (`jest-environment-jsdom`) for unit tests, Playwright for E2E. Mock pattern: `createMockSupabase` helper mocks `@repo/supabase/client` chainable query builder. Test files are co-located as `<Component>.test.tsx`. E2E tests run on Chromium only.
+- **Eval**: Python DeepEval suite in `packages/eval` — run with `cd packages/eval && poetry run pytest`. Requires `OPENAI_API_KEY` and a running portal for live tests, or `EVAL_USE_CACHE=true` for offline evaluation.
 
 ## Environment Variables
 
@@ -174,6 +223,9 @@ cp apps/portal/.env.example apps/portal/.env
 - `N8N_URL` (optional, default `http://localhost:5678`)
 - `FLOWISE_URL` (optional, default `http://localhost:3000`)
 - `PORT` (optional, default 3000)
+- `DATABASE_URL` (required for CMS app — Postgres connection string)
+- `PAYLOAD_SECRET` (required for CMS app — session encryption)
+- `GROQ_API_KEY`, `OPENROUTER_API_KEY`, `TOGETHER_API_KEY` (AI service providers)
 
 ## Local Deployment Flow
 
@@ -184,13 +236,19 @@ cp apps/portal/.env.example apps/portal/.env
 ## Notes
 
 - The root `README.md` is the generic Turborepo starter template and is stale for this project. Rely on this file for accurate context.
+- **MCP server**: `.mcp.json` configures `codebase-memory-mcp` (via `/home/timothy/.local/bin/codebase-memory-mcp`) for cross-session codebase memory and context retrieval.
 
 ## Gotchas
 
-- **3D version mismatch**: The portal uses React 18. `@react-three/fiber` must stay on v8.x and `@react-three/drei` on v9.x. Upgrading to v9/v10 requires React 19.
+- **Theme source of truth**: All Tailwind config, CSS variables, and design tokens originate from `@repo/theme`. Portal's `tailwind.config.ts` and `@repo/ui`'s both re-export `@repo/theme/tailwind`. Do not add theme values directly in the portal app.
+- **Department form state machine**: Forms use a four-state pattern (`idle` → `submitting` → `success`/`error`). After successful submission, call `router.refresh()` from client components (not `revalidatePath`). Some forms auto-save drafts to localStorage every 30s.
+- **KPI color variants**: `KPICard` supports 8 color variants: `default`, `green`, `amber`, `red`, `blue`, `cyan`, `indigo`, `alert`. The `alert` variant is used for critical/warning metrics.
+
+- **3D packages**: The portal uses React 19. `@react-three/fiber` v8.x and `@react-three/drei` v9.x currently work with React 19. Upgrading to R3F v9+ / Drei v10+ is now possible but requires testing API changes.
 - **Middleware auth bypass**: Never commit changes that bypass the unauthenticated redirect in `apps/portal/middleware.ts` without explicit security review.
 - **Migration source of truth**: Author migrations in `packages/database/migrations/`; `packages/supabase/supabase/migrations/` is a deploy-time copy.
 - **Univer CSS import**: `@univerjs/preset-sheets-core/lib/index.css` must be imported once in the app (it is imported in `UniverSheet.tsx`). Do not import it in `layout.tsx` to avoid global CSS ordering issues.
+- **React version divergence**: `apps/overview` uses React 18 (direct version), while `apps/portal`, `apps/cms`, and `@repo/ui` use React 19 via `catalog:react19`. Avoid cross-app React component sharing between overview and portal.
 
 - **Skills and agents**: Domain-specific rules live in `.claude/skills/` (load `project-conventions` before coding) and `.claude/agents/` (use `security-reviewer` after auth changes, `design-system-reviewer` after UI changes, `test-writer` when adding tests).
 - **Adding a new embedded tool**: Add an entry to `EXTERNAL_TOOLS` in `apps/portal/lib/tools.ts`. The `ToolCard` component and `/api/tools/status` route will pick it up automatically.

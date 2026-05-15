@@ -1,19 +1,35 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
-  "theme": "dark",
-  "enabledPlugins": {
-    "claude-md-management@claude-plugins-official": true,
-    "supabase@claude-plugins-official": true,
-    "frontend-design@claude-plugins-official": true,
-    "code-review@claude-plugins-official": true,
-    "code-simplifier@claude-plugins-official": true
-  },
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "tool == \"Edit\" || tool == \"Write\"",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"/home/timothy/Project/Arch-Mk2/.claude/hooks/scripts/secret-scan.js\""
+          }
+        ],
+        "description": "Secret detection on file writes"
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "Bash(git push*)",
+            "command": "node \"/home/timothy/Project/Arch-Mk2/.claude/hooks/scripts/pre-push-check.js\""
+          }
+        ],
+        "description": "Pre-push quality gate"
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "Write|Edit",
         "hooks": [
           {
+            "type": "command",
             "command": "jq -r '.tool_response.filePath // .tool_input.file_path // .tool_input.TargetFile' | { read -r f; [ -n \"$f\" ] && [ \"$f\" != \"null\" ] && [ -f \"$f\" ] && pnpm exec prettier --write \"$f\"; }",
             "statusMessage": "Formatting..."
           },
@@ -25,6 +41,75 @@
           }
         ]
       }
+    ],
+    "Stop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"/home/timothy/Project/Arch-Mk2/.claude/hooks/scripts/learn-capture.js\""
+          }
+        ],
+        "description": "Auto-capture [LEARN] blocks from responses"
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"/home/timothy/Project/Arch-Mk2/.claude/hooks/scripts/session-start.js\""
+          }
+        ],
+        "description": "Load LEARNED patterns and previous session context"
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"/home/timothy/Project/Arch-Mk2/.claude/hooks/scripts/pre-compact.js\""
+          }
+        ],
+        "description": "Save context state before compaction"
+      }
+    ],
+    "PostCompact": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"/home/timothy/Project/Arch-Mk2/.claude/hooks/scripts/post-compact.js\""
+          }
+        ],
+        "description": "Re-inject critical context after compaction"
+      }
+    ],
+    "FileChanged": [
+      {
+        "matcher": ".env|.envrc|package.json|tsconfig.json|pyproject.toml",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"/home/timothy/Project/Arch-Mk2/.claude/hooks/scripts/file-changed.js\""
+          }
+        ],
+        "description": "Watch for important config and dependency file changes"
+      }
     ]
-  }
+  },
+  "enabledPlugins": {
+    "claude-md-management@claude-plugins-official": true,
+    "supabase@claude-plugins-official": true,
+    "frontend-design@claude-plugins-official": true,
+    "code-review@claude-plugins-official": true,
+    "code-simplifier@claude-plugins-official": true,
+    "linear@claude-plugins-official": true
+  },
+  "theme": "dark"
 }
