@@ -241,6 +241,43 @@ The loop state machine (`.kiro/loop/index.js`) tracks: `idle → analyze → pla
 - Recovery (`recovery.js`) handles retries (3x, exponential backoff) and circuit break (5 errors/5min)
 - Context manager (`context.js`) monitors context pressure and triggers compaction
 
+## Vector Memory (Semantic Recall)
+
+The LTM now supports semantic search via TF-IDF vector similarity:
+- `python3 ltm/bin/vector.py index` — index all events and checkpoints
+- `python3 ltm/bin/vector.py search <query>` — find relevant memories by meaning
+- `python3 ltm/bin/vector.py status` — view index stats
+- Uses sklearn TF-IDF by default; auto-detects sentence-transformers if installed
+- Upgrade: `pip install sentence-transformers` for deep semantic embeddings
+
+Use `/recall <query>` to search project memory from agent context.
+
+## Multi-Agent Orchestrator
+
+For complex multi-file work, the orchestrator spawns subagents as subprocesses:
+- `.kiro/orchestrator/index.js` — decomposes tasks, spawns agents, aggregates results
+- `.kiro/orchestrator/worktree.js` — git worktree isolation per subagent
+- `.kiro/orchestrator/aggregator.js` — result merging and conflict resolution
+
+Supports `opencode`, `claude`, and `codex` as subprocess agents. Worktree isolation prevents file conflicts between parallel agents.
+
+Input format: `{ "units": [{ "id": "scout-1", "harness": "opencode", "instructions": "...", "isolated": true }] }`
+
+## MCP Tool Registry
+
+Unified MCP tool catalog at `.kiro/mcp/registry.json`:
+- `node .kiro/mcp/index.js discover` — query all MCP servers for tool lists
+- `node .kiro/mcp/index.js status` — view cached tool registry
+- `node .kiro/mcp/index.js find <tool>` — locate which server provides a tool
+
+## Evaluator-Optimizer Workflow
+
+End-to-end deep task workflow for automated PR generation:
+- `.kiro/evaluator-optimizer/index.js` — analyze → generate → evaluate → optimize → PR
+- Max 3 optimization iterations before stopping
+- Creates git branch, runs tests/lint/typecheck, generates PR description
+- Invoke via n8n Pattern 7 webhook: `POST /webhook/eval-optimizer`
+
 ## Advanced Tools
 
 | Tool | Location | Usage |
