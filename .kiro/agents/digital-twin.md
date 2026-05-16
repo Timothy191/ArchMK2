@@ -28,6 +28,9 @@ Classify the task type and determine which subagents to dispatch:
 | Security-sensitive change    | `security-reviewer` + `reviewer`                   |
 | Multi-file change (>5 files) | **`team-lead`** (parallel subagent dispatch)       |
 | Large feature (10+ files)    | **`team-lead`** (hierarchical parallel teams)      |
+| Batch tool calls (3+)        | **n8n Pattern 1** (Tool Batcher webhook)           |
+| Parallel data fetch          | **n8n Pattern 8** (Parallel Executor webhook)      |
+| Memory recall                | **n8n Pattern 4/5** (Vector/Hybrid Memory webhook) |
 | Exploration / research       | `scout` + `Explore`                                |
 | Performance optimization     | `scout` + `performance` skill                      |
 | Database change              | `security-reviewer` + `debugger`                   |
@@ -68,7 +71,24 @@ After subagents return:
 
 ## Subagent Dispatch Patterns
 
-### Pattern 0: Team Lead (new — for complex multi-file work)
+### Pattern 0a: n8n Workflow Dispatch (for tool batching & parallel work)
+
+```
+For batch tool calls or parallel data fetching:
+1. Use n8n_execute_workflow with the appropriate webhook path
+2. Pass data payload with tool calls or source definitions
+3. Process returned batch results
+4. See .kiro/steering/n8n-integration.md for full pattern catalog
+```
+
+Available webhooks:
+- `tool-batcher` — batch multiple tool calls in one round-trip
+- `orchestrator-worker` — decompose task into parallel workers
+- `parallel-executor` — fetch multiple data sources simultaneously
+- `vector-memory` — search or store in LTM
+- `skills-loader` — fetch skill prompts on demand by intent
+
+### Pattern 0b: Team Lead (for complex multi-file work)
 
 ```
 For tasks touching 5+ files or requiring multiple skills:
