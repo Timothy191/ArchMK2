@@ -31,7 +31,10 @@ apps/*/.next/
 .claude/hooks/scripts/db/
 .claude/hooks/scripts/search/
 .agents/
-.kiro/
+# .kiro/ agent config — tracked except local overrides and runtime data
+.kiro/settings.local.json
+.kiro/worktrees/
+!.kiro/worktrees/.gitkeep
 
 # IDE
 .vscode/
@@ -58,6 +61,13 @@ packages/supabase/supabase/
 # Archive / backup files
 *.zip
 *-old.*
+
+# --- ltm-power ---
+ltm/store/*.jsonl
+ltm/runtime/*
+ltm/reports/*
+ltm/snapshots/*
+# --- /ltm-power ---
 
 # Typescript
 *.tsbuildinfo
