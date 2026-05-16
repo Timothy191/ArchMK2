@@ -7,10 +7,14 @@
         "hooks": [
           {
             "type": "command",
+            "command": "node \"/home/timothy/Project/Arch-Mk2/.kiro/safety/index.js\""
+          },
+          {
+            "type": "command",
             "command": "node \"/home/timothy/Project/Arch-Mk2/.claude/hooks/scripts/tool-call-budget.js\""
           }
         ],
-        "description": "Track tool call budget per session"
+        "description": "Seven-layer safety gate + tool call budget tracking"
       },
       {
         "matcher": "tool == \"Edit\" || tool == \"Write\"",
@@ -43,6 +47,16 @@
       }
     ],
     "PostToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "HOOK_TYPE=postToolUse node \"/home/timothy/Project/Arch-Mk2/.kiro/loop/index.js\""
+          }
+        ],
+        "description": "Persist agentic loop state after each tool call"
+      },
       {
         "matcher": "Write|Edit",
         "hooks": [
@@ -91,9 +105,13 @@
           {
             "type": "command",
             "command": "node \"/home/timothy/Project/Arch-Mk2/.claude/hooks/scripts/session-start.js\""
+          },
+          {
+            "type": "command",
+            "command": "HOOK_TYPE=sessionStart node \"/home/timothy/Project/Arch-Mk2/.kiro/loop/index.js\""
           }
         ],
-        "description": "Load LEARNED patterns and previous session context"
+        "description": "Load LEARNED patterns, previous session context, restore loop state"
       }
     ],
     "PreCompact": [
@@ -127,9 +145,13 @@
           {
             "type": "command",
             "command": "node \"/home/timothy/Project/Arch-Mk2/.claude/hooks/scripts/subagent-start.js\""
+          },
+          {
+            "type": "command",
+            "command": "HOOK_TYPE=subagentStart node \"/home/timothy/Project/Arch-Mk2/.kiro/loop/index.js\""
           }
         ],
-        "description": "Log subagent dispatch for observability"
+        "description": "Log subagent dispatch + update loop state"
       }
     ],
     "SubagentStop": [
@@ -139,9 +161,13 @@
           {
             "type": "command",
             "command": "node \"/home/timothy/Project/Arch-Mk2/.claude/hooks/scripts/subagent-stop.js\""
+          },
+          {
+            "type": "command",
+            "command": "HOOK_TYPE=subagentStop node \"/home/timothy/Project/Arch-Mk2/.kiro/loop/index.js\""
           }
         ],
-        "description": "Log subagent completion for observability"
+        "description": "Log subagent completion + update loop state"
       }
     ],
     "Notification": [

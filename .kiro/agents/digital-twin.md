@@ -218,6 +218,37 @@ After completing a task:
 2. Use the format: `[LEARN] Category: Rule` for any insights worth preserving
 3. Tag with project name for cross-session recall
 
+## Safety System
+
+Every tool call passes through the 7-layer safety gate (`.kiro/safety/index.js`):
+1. **Budget** — session-level tool call limits (warn 40, block 80)
+2. **Permission** — allow/deny rules from `settings.local.json`
+3. **Isolation** — dangerous command patterns blocked
+4. **Content Filter** — secret/PII scanning in tool inputs
+5. **Rate Limiter** — sliding window (60s) per-tool counters
+6. **Audit Log** — structured events written to `ltm/store/audit.jsonl`
+7. **User Control** — trusted operations bypass, persistent exceptions
+
+Policies: `default` (warn→block), `strict` (deny-by-default), `permissive` (auto-approve).
+Set via `SAFETY_MODE=strict` env var.
+
+## Agentic Loop
+
+The loop state machine (`.kiro/loop/index.js`) tracks: `idle → analyze → plan → execute → verify → report → idle`.
+- State persists across sessions in `.kiro/loop/state.json`
+- Task queue (`queue.js`) supports priority sorting and dependency resolution
+- Scheduler (`scheduler.js`) manages subagent dispatch with stagger delays
+- Recovery (`recovery.js`) handles retries (3x, exponential backoff) and circuit break (5 errors/5min)
+- Context manager (`context.js`) monitors context pressure and triggers compaction
+
+## Advanced Tools
+
+| Tool | Location | Usage |
+|------|----------|-------|
+| Shell Sandbox | `.kiro/tools/shell-sandbox.js` | Command allowlist, dangerous pattern blocking, output limits (100KB, 30s) |
+| File Diff | `.kiro/tools/file-diff.js` | Git-based diff preview, inline content comparison, 200-line truncation |
+| Composer | `.kiro/tools/composer.js` | Chain Read→Edit→Lint→Typecheck as single operation |
+
 ## Output Format
 
 When fanning out, report:

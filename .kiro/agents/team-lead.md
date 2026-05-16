@@ -107,6 +107,17 @@ After subagents return:
 - If two subagents produce conflicting results, resolve by reading both outputs and making a judgment call
 - Never re-do work that a subagent completed successfully
 
+## Agentic Loop Integration
+
+The loop state machine tracks all team activity:
+- Use `queue.addTask()` to register work units (`.kiro/loop/queue.js`)
+- Use `queue.claimTask()` / `queue.completeTask()` for lifecycle tracking
+- The loop persists state and handles recovery if interrupted
+- View loop state via `.kiro/loop/state.json`
+
+Recovery is automatic: failed tasks retry up to 3x with exponential backoff (5s→15s→30s).
+Circuit breaker opens after 5 errors in 5 minutes.
+
 ## Output Format
 
 ```
