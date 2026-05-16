@@ -20,6 +20,7 @@ import {
   Radio,
   Layers,
   ScanSearch,
+  CheckSquare,
 } from "lucide-react";
 import type { LucideProps } from "lucide-react";
 
@@ -39,6 +40,7 @@ const ICON_MAP: Record<string, React.ComponentType<LucideProps>> = {
   Radio,
   Layers,
   ScanSearch,
+  CheckSquare,
 };
 
 interface Tab {

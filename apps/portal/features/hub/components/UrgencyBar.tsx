@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { AlertTriangle, Wrench, Activity } from "lucide-react";
+import { AnimatedNumber } from "@repo/ui/AnimatedNumber";
 
 interface UrgencyBarProps {
   incidents: number;
@@ -36,7 +37,8 @@ export function UrgencyBar({
         >
           <AlertTriangle className="w-4 h-4" />
           <span className="font-medium">
-            {incidents} open safety incident{incidents > 1 ? "s" : ""}
+            <AnimatedNumber value={incidents} duration={0.4} /> open safety
+            incident{incidents > 1 ? "s" : ""}
           </span>
         </Link>
       )}
@@ -47,7 +49,8 @@ export function UrgencyBar({
         >
           <Wrench className="w-4 h-4" />
           <span className="font-medium">
-            {breakdowns} active breakdown{breakdowns > 1 ? "s" : ""}
+            <AnimatedNumber value={breakdowns} duration={0.4} /> active
+            breakdown{breakdowns > 1 ? "s" : ""}
           </span>
         </Link>
       )}
@@ -55,7 +58,8 @@ export function UrgencyBar({
         <span className="flex items-center gap-2 text-sm text-[var(--text-muted)]">
           <Activity className="w-4 h-4" />
           <span>
-            {offlineMachines} machine{offlineMachines > 1 ? "s" : ""} offline
+            <AnimatedNumber value={offlineMachines} duration={0.4} /> machine
+            {offlineMachines > 1 ? "s" : ""} offline
           </span>
         </span>
       )}

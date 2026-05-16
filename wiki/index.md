@@ -2,7 +2,7 @@
 
 > Content catalog for the Arch-Systems (Plantcor) company knowledge base.
 > Read this first to find relevant pages for any query.
-> Last updated: 2026-05-15 | Total pages: 42 (12 concepts + 2 entities + 10 comparisons + 7 ADRs + 6 queries + 4 operational)
+> Last updated: 2026-05-16 | Total pages: 42 (12 concepts + 2 entities + 10 comparisons + 7 ADRs + 6 queries + 4 operational)
 > Current project version: 1.5.1 | Next.js 15 | React 19
 
 ## Quick Reference

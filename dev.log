@@ -1,0 +1,54 @@
+
+> arch-systems@1.5.1 dev /home/timothy/Project/Arch-Mk2
+> turbo run dev --filter=portal
+
+• turbo 2.9.14
+
+   • Packages in scope: portal
+   • Running dev in 1 packages
+   • Remote caching disabled
+
+portal:dev: cache bypass, force executing 762c3d1a4f454b46
+portal:dev: 
+portal:dev: > portal@1.0.0 dev /home/timothy/Project/Arch-Mk2/apps/portal
+portal:dev: > next dev
+portal:dev: 
+portal:dev: [@sentry/nextjs] DEPRECATION WARNING: disableLogger is deprecated and will be removed in a future version. Use webpack.treeshake.removeDebugLogging instead.
+portal:dev: [@sentry/nextjs] DEPRECATION WARNING: disableLogger is deprecated and will be removed in a future version. Use webpack.treeshake.removeDebugLogging instead.
+portal:dev:    ▲ Next.js 15.5.18
+portal:dev:    - Local:        http://localhost:3000
+portal:dev:    - Network:      http://10.219.249.81:3000
+portal:dev:    - Environments: .env.local, .env
+portal:dev:    - Experiments (use with caution):
+portal:dev:      · clientTraceMetadata
+portal:dev: 
+portal:dev:  ✓ Starting...
+portal:dev: [@sentry/nextjs] It seems like you don't have a global error handler set up. It is recommended that you add a 'global-error.js' file with Sentry instrumentation so that React rendering errors are reported to Sentry. Read more: https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/#react-render-errors-in-app-router (you can suppress this warning by setting SENTRY_SUPPRESS_GLOBAL_ERROR_HANDLER_FILE_WARNING=1 as environment variable)
+portal:dev: [@sentry/nextjs] DEPRECATION WARNING: It is recommended renaming your `sentry.client.config.ts` file, or moving its content to `instrumentation-client.ts`. When using Turbopack `sentry.client.config.ts` will no longer work. Read more about the `instrumentation-client.ts` file: https://nextjs.org/docs/app/api-reference/file-conventions/instrumentation-client
+portal:dev:  ○ Compiling /instrumentation ...
+portal:dev:  ✓ Compiled /instrumentation in 4.3s (1160 modules)
+portal:dev:  ✓ Ready in 8.8s
+portal:dev:  ○ Compiling /middleware ...
+portal:dev:  ✓ Compiled /middleware in 713ms (1469 modules)
+portal:dev: <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (195kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+portal:dev: <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (139kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+portal:dev: <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (101kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+portal:dev: <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (231kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+portal:dev:  ○ Compiling /login ...
+portal:dev: Browserslist: caniuse-lite is outdated. Please run:
+portal:dev:   npx update-browserslist-db@latest
+portal:dev:   Why you should do it regularly: https://github.com/browserslist/update-db#readme
+portal:dev:  ✓ Compiled /login in 19s (3646 modules)
+portal:dev:  ✓ Compiled in 2.7s (1167 modules)
+portal:dev:  GET /login 200 in 21841ms
+portal:dev:  ○ Compiling /[department] ...
+portal:dev:  ✓ Compiled /[department] in 20.3s (6695 modules)
+portal:dev:  GET /favicon.ico 200 in 21870ms
+portal:dev:  ✓ Compiled in 1543ms (2415 modules)
+portal:dev:  ✓ Compiled in 1204ms (2415 modules)
+portal:dev:  ✓ Compiled in 529ms (2415 modules)
+portal:dev:  ✓ Compiled in 2.3s (3187 modules)
+portal:dev:  ✓ Compiled in 2.9s (2415 modules)
+portal:dev:  ✓ Compiled in 818ms (2416 modules)
+portal:dev:  ✓ Compiled in 520ms (2416 modules)
+portal:dev:  ✓ Compiled in 3.9s (2416 modules)

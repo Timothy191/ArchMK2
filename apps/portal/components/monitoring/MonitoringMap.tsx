@@ -140,8 +140,9 @@ export function MonitoringMap({
     >
       <DeckGL
         viewState={viewState}
-        onViewStateChange={(e: { viewState: typeof viewState }) =>
-          setViewState(e.viewState)
+        onViewStateChange={
+          ((e: { viewState: typeof viewState }) =>
+            setViewState(e.viewState)) as any
         }
         controller={true}
         layers={layers}

@@ -20,8 +20,10 @@
       "outputs": [".next/**", "!.next/cache/**", "dist/**"]
     },
     "db:pull": {
-      "dependsOn": ["^build"],
       "outputs": ["packages/supabase/migrations/**"]
+    },
+    "type-check": {
+      "dependsOn": ["^build"]
     },
     "lint": {
       "dependsOn": ["^lint"]

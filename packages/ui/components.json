@@ -10,11 +10,15 @@
     "cssVariables": true,
     "prefix": ""
   },
+  "iconLibrary": "lucide",
   "aliases": {
     "components": "@repo/ui/components",
-    "ui": "@repo/ui/components/ui",
     "utils": "@repo/ui/lib/utils",
+    "ui": "@repo/ui/components/ui",
     "lib": "@repo/ui/lib",
     "hooks": "@repo/ui/hooks"
+  },
+  "registries": {
+    "@magicui": "https://magicui.design/r/{name}"
   }
 }

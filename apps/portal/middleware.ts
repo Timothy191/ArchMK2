@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createMiddlewareClient } from "@repo/supabase/middleware";
+import { cacheGet, cacheSet } from "@repo/redis/cache";
 
 const DEPARTMENT_ROUTES = [
   "drilling",
@@ -28,27 +29,21 @@ function redirectWithError(request: NextRequest, error: string) {
   return NextResponse.redirect(url);
 }
 
-// Simple in-module cache for department slug -> UUID lookups
-const deptSlugToId = new Map<string, string>();
-let deptCacheTime = 0;
-const CACHE_TTL_MS = 60_000;
-
 async function resolveDeptUuid(
   supabase: Awaited<ReturnType<typeof createMiddlewareClient>>["supabase"],
   slug: string,
 ): Promise<string | null> {
-  const cached = deptSlugToId.get(slug);
-  if (cached && Date.now() - deptCacheTime < CACHE_TTL_MS) {
-    return cached;
-  }
+  const cacheKey = `dept:uuid:${slug}`;
+  const cached = await cacheGet<string>(cacheKey);
+  if (cached) return cached;
+
   const { data } = await supabase
     .from("departments")
     .select("id")
     .eq("name", slug)
     .single();
   if (data?.id) {
-    deptSlugToId.set(slug, data.id);
-    deptCacheTime = Date.now();
+    await cacheSet(cacheKey, data.id, 3600); // 1 hour
   }
   return data?.id || null;
 }
@@ -60,6 +55,13 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const pathname = request.nextUrl.pathname;
+
+  // Skip public files (images, fonts, etc. in /public folder)
+  const PUBLIC_FILE_EXTENSIONS =
+    /\.(jpg|jpeg|png|gif|svg|ico|woff|woff2|ttf|otf|eot|mp4|webm|mp3|wav)$/i;
+  if (PUBLIC_FILE_EXTENSIONS.test(pathname)) {
+    return response;
+  }
 
   // Allow login page through
   if (pathname.startsWith("/login")) {

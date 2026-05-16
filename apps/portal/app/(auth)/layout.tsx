@@ -1,60 +1,41 @@
 "use client";
 
+import { useState } from "react";
+
 export default function AuthLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const [introComplete, setIntroComplete] = useState(false);
+
   return (
-    <div className="relative min-h-screen flex items-center justify-center p-4 overflow-hidden bg-[var(--bg-primary)]">
-      {/* Animated Gradient Background */}
-      <div className="fixed inset-0 -z-10">
-        {/* Base gradient with animation */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a0a] via-[#1a1a2e] to-[#16213e]" />
-        
-        {/* Animated overlay */}
+    <div className="relative min-h-screen flex items-center p-6 lg:p-12 overflow-hidden">
+      {/* Intro Video - plays once then fades */}
+      {!introComplete && (
         <div 
-          className="absolute inset-0 opacity-50"
-          style={{
-            background: "linear-gradient(135deg, rgba(62, 207, 142, 0.1) 0%, transparent 50%, rgba(0, 197, 115, 0.1) 100%)",
-          }}
-        />
-        
-        {/* Glow effects */}
-        <div 
-          className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full opacity-20"
-          style={{
-            background: "radial-gradient(circle, var(--accent-cyan) 0%, transparent 70%)",
-            filter: "blur(60px)",
-          }}
-        />
-        <div 
-          className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full opacity-15"
-          style={{
-            background: "radial-gradient(circle, var(--accent-cyan) 0%, transparent 70%)",
-            filter: "blur(50px)",
-          }}
-        />
-        
-        {/* Grid overlay */}
-        <div 
-          className="absolute inset-0 opacity-5"
-          style={{
-            backgroundImage: "linear-gradient(rgba(62, 207, 142, 0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(62, 207, 142, 0.3) 1px, transparent 1px)",
-            backgroundSize: "50px 50px",
-          }}
-        />
-        
-        {/* Vignette */}
-        <div 
-          className="absolute inset-0"
-          style={{
-            background: "radial-gradient(ellipse at center, transparent 0%, #0a0a0a 70%)",
-          }}
-        />
+          className={`fixed inset-0 z-50 transition-opacity duration-1000 ${introComplete ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+        >
+          <video
+            autoPlay
+            muted
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover"
+            onEnded={() => setIntroComplete(true)}
+          >
+            <source src="/intro.mp4" type="video/mp4" />
+          </video>
+        </div>
+      )}
+
+      {/* Content-specific overlays can stay here if they are only for auth, but the video should be gone */}
+      <div className={`fixed inset-0 -z-10 transition-opacity duration-1000 ${introComplete ? 'opacity-100' : 'opacity-0'}`}>
+        {/* We keep the overlays that are specific to the auth aesthetic if needed, 
+            but since GlobalBackground handles them now, we can simplify this. */}
       </div>
 
-      <div className="relative z-10 w-full max-w-sm">
+      {/* Left-aligned content container - fades in after intro */}
+      <div className={`relative z-10 w-full max-w-md max-h-[90vh] overflow-y-auto transition-all duration-1000 ${introComplete ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
         {children}
       </div>
     </div>

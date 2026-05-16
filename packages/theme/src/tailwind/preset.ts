@@ -187,6 +187,19 @@ const archTheme: Config = {
           "0%, 100%": { opacity: "0.3", transform: "scale(1)" },
           "50%": { opacity: "0.6", transform: "scale(1.2)" },
         },
+        "ken-burns": {
+          "0%": { transform: "scale(1) translate(0, 0)" },
+          "50%": { transform: "scale(1.08) translate(-1%, -1%)" },
+          "100%": { transform: "scale(1) translate(0, 0)" },
+        },
+        "gradient-shift": {
+          "0%, 100%": { opacity: "0.2", transform: "translateX(-5%)" },
+          "50%": { opacity: "0.4", transform: "translateX(5%)" },
+        },
+        "pulse-glow": {
+          "0%, 100%": { opacity: "0.15", transform: "scale(1)" },
+          "50%": { opacity: "0.25", transform: "scale(1.05)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -196,6 +209,9 @@ const archTheme: Config = {
         "float-delayed": "float-delayed 25s infinite ease-in-out",
         "grid-drift": "grid-drift 10s linear infinite",
         "pulse-slow": "pulse-slow 15s infinite ease-in-out",
+        "ken-burns": "ken-burns 20s ease-in-out infinite",
+        "gradient-shift": "gradient-shift 8s ease-in-out infinite",
+        "pulse-glow": "pulse-glow 6s ease-in-out infinite",
       },
     },
   },

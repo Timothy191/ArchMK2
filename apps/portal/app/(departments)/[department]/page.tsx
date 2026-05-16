@@ -4,6 +4,7 @@ import { ScadaPanel } from "@/features/departments/components/control-room/Scada
 import { AlertPanel } from "@/features/departments/components/control-room/AlertPanel";
 import { ControlRoomActivityFeed } from "@/features/departments/components/control-room/ControlRoomActivityFeed";
 import { WeatherWidget } from "@/components/weather/WeatherWidget";
+import { ShiftCoverageWidget } from "@/features/departments/components/control-room/ShiftCoverageWidget";
 import { SatelliteMonitoringDashboard } from "@/features/departments/components/satellite/SatelliteMonitoringDashboard";
 import { SafetyDashboard } from "@/features/departments/components/safety/SafetyDashboard";
 
@@ -165,6 +166,8 @@ export default async function DepartmentDashboard({
               Update Loads
             </a>
           </div>
+
+          <ShiftCoverageWidget departmentId={deptId} />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <ScadaPanel departmentId={deptId} />

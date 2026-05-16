@@ -134,3 +134,32 @@ pnpm build    # Static site generation
 ```
 
 This provides a professional, browsable wiki alternative to the raw markdown files.
+
+## [2026-05-16] enhancement | Database schema review and improvements
+
+- Enhanced wiki/SCHEMA.md with comprehensive database documentation (528 lines)
+  - Core entities tables with column specifications
+  - Operational tables (daily_logs, machine_hours, fuel_logs, production_logs)
+  - Control room tables (machine_operations, hourly_loads, excavator_activity)
+  - Safety department tables (safety_incidents, severities, categories)
+  - Engineering department tables (breakdowns)
+  - AI memory system with vector store
+  - Row Level Security policies and helper functions
+  - Index strategy and performance recommendations
+
+- Created wiki/SCHEMA_IMPROVEMENTS.md (238 lines)
+  - Priority-based improvement plan (Critical, High, Medium, Low)
+  - Schema quality scores
+  - Implementation phases
+
+- Created migration 010_schema_improvements.sql (141 lines)
+  - Added 15+ missing foreign key indexes
+  - Added updated_at timestamps to daily_logs, machine_hours, fuel_logs, production_logs
+  - Added deleted_at soft delete to operators, sites, mine_blocks, delay_categories, report_templates
+  - Created native PostgreSQL enum types (role_type, shift_type, memory_type, etc.)
+  - Added constraint for non-negative hourly_loads values
+
+- Updated wiki/concepts/database-schema.md
+  - Added migration 008-009-010 references
+  - Added schema improvements section
+  - Added performance scorecard table

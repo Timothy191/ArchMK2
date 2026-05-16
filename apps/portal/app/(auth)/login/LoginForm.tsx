@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createBrowserSupabaseClient } from "@repo/supabase/client";
 import { Input } from "@repo/ui/Input";
+import { AnimatedButton } from "@repo/ui/AnimatedButton";
 
 export function LoginForm() {
   const router = useRouter();
@@ -14,6 +15,16 @@ export function LoginForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Auto-fill from query params if present
+  useState(() => {
+    if (typeof window !== "undefined") {
+      const emailParam = searchParams.get("email") || searchParams.get("employeeId");
+      const passwordParam = searchParams.get("password");
+      if (emailParam) setEmployeeId(emailParam);
+      if (passwordParam) setPassword(passwordParam);
+    }
+  });
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -84,7 +95,7 @@ export function LoginForm() {
 
       {error && (
         <p
-          className="text-sm text-red-400 text-center"
+          className="text-sm text-red-400 text-left"
           role="alert"
           aria-live="polite"
         >
@@ -94,15 +105,17 @@ export function LoginForm() {
         </p>
       )}
 
-      <button
+      <AnimatedButton
         type="submit"
         disabled={loading}
-        className="w-full px-4 py-2.5 rounded-lg bg-[var(--accent-cyan)] text-[#0f0f0f] text-sm font-semibold hover:bg-[#35b87d] active:scale-[0.98] transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full"
+        hoverScale={1.01}
+        tapScale={0.98}
       >
         {loading ? "Signing in..." : "Sign In"}
-      </button>
+      </AnimatedButton>
 
-      <div className="text-center">
+      <div className="text-left">
         <a
           href="/reset-password"
           className="text-xs text-[var(--text-muted)] hover:text-[var(--accent-cyan)] transition-colors"

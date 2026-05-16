@@ -7,6 +7,9 @@
     "supabase:push": "pnpx supabase db push",
     "supabase:reset": "pnpx supabase db reset"
   },
+  "dependencies": {
+    "@repo/types": "workspace:*"
+  },
   "devDependencies": {
     "supabase": "catalog:"
   }

@@ -13,6 +13,8 @@ SUPABASE_DIR="$REPO_ROOT/packages/supabase"
 MIGRATIONS_DIR="$REPO_ROOT/packages/database/migrations"
 PORT="${PORT:-3000}"
 LOGIN_URL="http://localhost:$PORT/login"
+DEFAULT_EMAIL="admin@plantcor.os"
+DEFAULT_PASS="Admin@123#"
 
 # ── Helpers ───────────────────────────────────────────────
 log() { echo "[deploy] $*"; }
@@ -63,6 +65,15 @@ else
   exit 1
 fi
 
+# ── Port Management ───────────────────────────────────────
+log "Freeing up port $PORT..."
+PIDS=$(lsof -ti :"$PORT" 2>/dev/null || true)
+if [ -n "$PIDS" ]; then
+  log "Killing existing processes on port $PORT: $PIDS"
+  kill -9 $PIDS 2>/dev/null || true
+  sleep 2
+fi
+
 # ── Frontend Build ─────────────────────────────────────────
 cd "$PORTAL_DIR"
 log "Building Next.js frontend..."
@@ -83,13 +94,28 @@ else
 fi
 
 # ── Open Browser ───────────────────────────────────────────
-log "Opening browser → $LOGIN_URL"
-if command -v xdg-open > /dev/null 2>&1; then
-  xdg-open "$LOGIN_URL"
+# Use the new query params for auto-fill if possible
+AUTO_LOGIN_URL="$LOGIN_URL?email=$DEFAULT_EMAIL&password=$DEFAULT_PASS"
+log "Opening browser → $AUTO_LOGIN_URL"
+
+# Detect Chrome/ Chromium variants for better experience
+CHROME_CMD=""
+for cmd in google-chrome google-chrome-stable chromium chromium-browser chrome; do
+  if command -v "$cmd" > /dev/null 2>&1; then
+    CHROME_CMD="$cmd"
+    break
+  fi
+done
+
+if [ -n "$CHROME_CMD" ]; then
+  log "Using $CHROME_CMD..."
+  "$CHROME_CMD" --new-window "$AUTO_LOGIN_URL" 2>/dev/null || "$CHROME_CMD" "$AUTO_LOGIN_URL" 2>/dev/null || true
+elif command -v xdg-open > /dev/null 2>&1; then
+  xdg-open "$AUTO_LOGIN_URL"
 elif command -v open > /dev/null 2>&1; then
-  open "$LOGIN_URL"
+  open "$AUTO_LOGIN_URL"
 else
-  log "No automatic browser opener found. Please open $LOGIN_URL manually."
+  log "No automatic browser opener found. Please open $AUTO_LOGIN_URL manually."
 fi
 
 log "Done. Your frontend is running in the background (PID $(cat "$REPO_ROOT/.frontend.pid"))."

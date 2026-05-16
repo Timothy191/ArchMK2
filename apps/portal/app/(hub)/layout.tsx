@@ -3,13 +3,34 @@ import { DEPARTMENTS } from "~/lib/departments";
 import { WeatherWidget } from "@/components/weather/WeatherWidget";
 import { AIAssistant } from "@/components/ai/AIAssistant";
 import { UserNav } from "@/components/nav/UserNav";
-import { Toggle3D } from "@/components/3d/Toggle3DClient";
-import { LayoutDashboard, Satellite as SatelliteIcon } from "lucide-react";
+import { Dock, DockIcon } from "@repo/ui/dock";
+import { 
+  LayoutDashboard, 
+  Satellite as SatelliteIcon,
+  Drill,
+  Factory,
+  ShieldCheck,
+  Wrench,
+  Radar,
+  HardHat,
+  Flame
+} from "lucide-react";
 import { cn } from "@repo/ui/lib/utils";
+
+const deptIcons: Record<string, React.ComponentType<{className?: string}>> = {
+  drilling: Drill,
+  production: Factory,
+  "access-control": ShieldCheck,
+  engineering: Wrench,
+  "control-room": Radar,
+  safety: HardHat,
+  training: Flame,
+  "satellite-monitoring": SatelliteIcon,
+};
 
 export default function HubLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-heading)]">
+    <div className="min-h-screen bg-[var(--bg-primary)]/40 backdrop-blur-[2px] text-[var(--text-heading)]">
       {/* Header */}
       <header className="sticky top-0 z-50 border-b border-[var(--border-default)] bg-[var(--bg-primary)]/80 backdrop-blur">
         <div className="flex items-center justify-between px-6 py-3">
@@ -22,7 +43,6 @@ export default function HubLayout({ children }: { children: React.ReactNode }) {
             </span>
           </div>
           <div className="flex items-center gap-3">
-            <Toggle3D />
             <WeatherWidget variant="header" />
             <div className="h-4 w-[1px] bg-[var(--border-default)] mx-1" />
             <UserNav />
@@ -98,6 +118,32 @@ export default function HubLayout({ children }: { children: React.ReactNode }) {
         </aside>
 
         <main className="flex-1 p-8">{children}</main>
+      </div>
+
+      {/* Floating Dock - Quick Department Access */}
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 hidden md:block">
+        <Dock iconSize={44} iconMagnification={70} iconDistance={120}>
+          <Link href="/">
+            <DockIcon className="bg-[var(--bg-tertiary)] border border-[var(--border-default)] hover:border-emerald-500/50 transition-colors">
+              <LayoutDashboard className="w-5 h-5 text-emerald-400" />
+            </DockIcon>
+          </Link>
+          {DEPARTMENTS.filter(d => d.name !== "satellite-monitoring").slice(0, 5).map((dept) => {
+            const Icon = deptIcons[dept.name];
+            return (
+              <Link key={dept.name} href={`/${dept.name}`}>
+                <DockIcon className={`bg-[var(--bg-tertiary)] border border-[var(--border-default)] hover:border-${dept.color}-500/50 transition-colors`}>
+                  {Icon && <Icon className={`w-5 h-5 text-${dept.color}-400`} />}
+                </DockIcon>
+              </Link>
+            );
+          })}
+          <Link href="/satellite-monitoring">
+            <DockIcon className="bg-[var(--bg-tertiary)] border border-[var(--border-default)] hover:border-indigo-500/50 transition-colors">
+              <SatelliteIcon className="w-5 h-5 text-indigo-400" />
+            </DockIcon>
+          </Link>
+        </Dock>
       </div>
 
       {/* AI Assistant */}

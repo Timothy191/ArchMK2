@@ -70,9 +70,24 @@ const rateLimitState: Record<
   AIProvider,
   { count: number; windowStart: number; tokenCount: number; lastReset: number }
 > = {
-  groq: { count: 0, windowStart: Date.now(), tokenCount: 0, lastReset: Date.now() },
-  openrouter: { count: 0, windowStart: Date.now(), tokenCount: 0, lastReset: Date.now() },
-  together: { count: 0, windowStart: Date.now(), tokenCount: 0, lastReset: Date.now() },
+  groq: {
+    count: 0,
+    windowStart: Date.now(),
+    tokenCount: 0,
+    lastReset: Date.now(),
+  },
+  openrouter: {
+    count: 0,
+    windowStart: Date.now(),
+    tokenCount: 0,
+    lastReset: Date.now(),
+  },
+  together: {
+    count: 0,
+    windowStart: Date.now(),
+    tokenCount: 0,
+    lastReset: Date.now(),
+  },
 };
 
 /**
@@ -91,7 +106,10 @@ function isRateLimited(provider: AIProvider): boolean {
       state.tokenCount = 0;
       state.windowStart = now;
     }
-    return state.count >= config.requestsPerMinute || state.tokenCount >= config.tokensPerMinute;
+    return (
+      state.count >= config.requestsPerMinute ||
+      state.tokenCount >= config.tokensPerMinute
+    );
   } else {
     // Per day window
     if (now - state.lastReset > 86400000) {
@@ -114,11 +132,12 @@ function updateRateLimit(provider: AIProvider, tokens: number) {
  * Get API key from environment
  */
 function getApiKey(provider: AIProvider): string | undefined {
-  const envVar = provider === "groq"
-    ? "GROQ_API_KEY"
-    : provider === "openrouter"
-    ? "OPENROUTER_API_KEY"
-    : "TOGETHER_API_KEY";
+  const envVar =
+    provider === "groq"
+      ? "GROQ_API_KEY"
+      : provider === "openrouter"
+        ? "OPENROUTER_API_KEY"
+        : "TOGETHER_API_KEY";
   return process.env[envVar];
 }
 
@@ -130,21 +149,20 @@ function generateCacheKey(request: AIRequest): string {
   return btoa(content).slice(0, 64);
 }
 
+import { cacheGet, cacheSet } from "@repo/redis/cache";
+
 /**
- * Check cache for existing response
- * Note: Caching disabled for now - can be enabled with Redis/Supabase later
+ * Check cache for existing AI response
  */
-async function checkCache(_key: string): Promise<AIResponse | null> {
-  // TODO: Implement caching with Redis or Supabase when needed
-  return null;
+async function checkCache(key: string): Promise<AIResponse | null> {
+  return cacheGet<AIResponse>(`ai:response:${key}`);
 }
 
 /**
- * Store response in cache
- * Note: Caching disabled for now
+ * Store AI response in cache
  */
-async function storeCache(_key: string, _response: AIResponse) {
-  // TODO: Implement caching when needed
+async function storeCache(key: string, response: AIResponse) {
+  await cacheSet(`ai:response:${key}`, response, 86400); // 24 hours
 }
 
 /**
@@ -175,7 +193,8 @@ async function callProvider(
 
     // OpenRouter specific headers
     if (provider === "openrouter") {
-      headers["HTTP-Referer"] = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+      headers["HTTP-Referer"] =
+        process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
       headers["X-Title"] = "Arch-Systems Portal";
     }
 

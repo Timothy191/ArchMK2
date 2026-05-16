@@ -24,6 +24,12 @@ export function AIAssistant({ context, className }: AIAssistantProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState("");
 
+  // Stable session ID for memory persistence across messages
+  const sessionId = useMemo(
+    () => `chat_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+    [],
+  );
+
   const initialMessages = useMemo<UIMessage[]>(
     () => [
       {
@@ -39,7 +45,7 @@ export function AIAssistant({ context, className }: AIAssistantProps) {
   const { messages, sendMessage, status, stop } = useChat({
     transport: new DefaultChatTransport({
       api: "/api/ai/chat",
-      body: { context },
+      body: { context, sessionId },
     }),
     messages: initialMessages,
   });

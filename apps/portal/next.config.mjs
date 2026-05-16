@@ -2,13 +2,7 @@ import { withSentryConfig } from "@sentry/nextjs";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  transpilePackages: [
-    "@repo/ui",
-    "@repo/supabase",
-    "@repo/hooks",
-    "@repo/types",
-    "@repo/utils",
-  ],
+  transpilePackages: ["@repo/ui", "@repo/supabase", "@repo/utils"],
 };
 
 export default withSentryConfig(nextConfig, {

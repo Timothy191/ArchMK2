@@ -8,19 +8,6 @@ import {
   Calendar,
   Calculator,
   StickyNote,
-  Factory,
-  ArrowUpRight,
-} from "lucide-react";
-import { SpotlightCard } from "@repo/ui/SpotlightCard";
-import { cn } from "@repo/ui/lib/utils";
-import { useNavigationState } from "../../../hooks/useNavigationState";
-
-const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
-  CheckSquare,
-  FileText,
-  Calendar,
-  Calculator,
-  StickyNote,
 };
 
 const COLOR_MAP: Record<string, { bg: string; glow: string }> = {
@@ -59,7 +46,7 @@ export function ToolCard({ tool, index }: ToolCardProps) {
       onMouseLeave={() => setHoveredElement(null)}
     >
       <Link href={`/tools/${tool.name}`} className="block outline-none">
-        <SpotlightCard 
+        <SpotlightCard
           spotlightColor={config.glow}
           className="group flex items-center gap-3 bg-[var(--bg-tertiary)]/40 border-[var(--border-default)] p-3 hover:border-[var(--accent-cyan)]/30 active:scale-[0.98] transition-all duration-200 ease-out"
         >

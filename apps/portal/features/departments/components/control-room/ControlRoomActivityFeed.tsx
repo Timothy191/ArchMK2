@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { createBrowserSupabaseClient } from "@repo/supabase/client";
 import { GlassCard } from "@repo/ui/GlassCard";
+import { AnimatedFeed } from "@repo/ui/AnimatedList";
 
 type ActivityType = "insert" | "update" | "delete";
 
@@ -68,9 +69,7 @@ export function ControlRoomActivityFeed({
   }, [departmentId]);
 
   const filtered =
-    filter === "all"
-      ? activities
-      : activities.filter((a) => a.type === filter);
+    filter === "all" ? activities : activities.filter((a) => a.type === filter);
 
   return (
     <div className="space-y-6">
@@ -93,36 +92,38 @@ export function ControlRoomActivityFeed({
         </div>
       </div>
 
-      <div className="space-y-2 max-h-96 overflow-y-auto pr-1">
-        {filtered.map((activity) => (
-          <GlassCard key={activity.id} className="py-3 px-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <span
-                  className={`w-2 h-2 rounded-full ${
-                    activity.type === "insert"
-                      ? "bg-emerald-400"
-                      : activity.type === "update"
-                        ? "bg-amber-400"
-                        : "bg-red-400"
-                  }`}
-                />
-                <p className="text-[#fafafa] text-sm">{activity.message}</p>
+      <div className="max-h-96 overflow-y-auto pr-1">
+        <AnimatedFeed className="gap-2">
+          {filtered.map((activity) => (
+            <GlassCard key={activity.id} className="py-3 px-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <span
+                    className={`w-2 h-2 rounded-full ${
+                      activity.type === "insert"
+                        ? "bg-emerald-400"
+                        : activity.type === "update"
+                          ? "bg-amber-400"
+                          : "bg-red-400"
+                    }`}
+                  />
+                  <p className="text-[#fafafa] text-sm">{activity.message}</p>
+                </div>
+                <span className="text-[#898989] text-xs">
+                  {new Date(activity.timestamp).toLocaleTimeString()}
+                </span>
               </div>
-              <span className="text-[#898989] text-xs">
-                {new Date(activity.timestamp).toLocaleTimeString()}
-              </span>
-            </div>
-          </GlassCard>
-        ))}
+            </GlassCard>
+          ))}
 
-        {activities.length === 0 && (
-          <GlassCard>
-            <p className="text-[#898989] text-sm text-center py-8">
-              Waiting for activity...
-            </p>
-          </GlassCard>
-        )}
+          {activities.length === 0 && (
+            <GlassCard>
+              <p className="text-[#898989] text-sm text-center py-8">
+                Waiting for activity...
+              </p>
+            </GlassCard>
+          )}
+        </AnimatedFeed>
       </div>
     </div>
   );

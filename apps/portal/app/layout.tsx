@@ -2,7 +2,8 @@ import "@repo/ui/globals.css";
 import { ArchThemeProvider } from "@repo/theme/react";
 import type { Metadata } from "next";
 import { Inter, Outfit } from "next/font/google";
-import { DynamicBackgroundWrapper } from "@/components/3d/DynamicBackgroundWrapper";
+import { GlobalBackground } from "@/components/GlobalBackground";
+// import { DynamicBackgroundWrapper } from "@/components/3d/DynamicBackgroundWrapper";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -47,10 +48,11 @@ export default function RootLayout({
       </head>
       <body className="text-[var(--text-heading)] min-h-screen font-sans antialiased selection:bg-[var(--accent-cyan)]/30 selection:text-[var(--accent-cyan)] relative overflow-x-hidden bg-[var(--bg-void)]">
         <ArchThemeProvider>
-          {/* Animated Premium Background Layer */}
-          <DynamicBackgroundWrapper />
+          <GlobalBackground />
+          {/* Animated Premium Background Layer - Temporarily disabled for React 19 compatibility */}
+          {/* <DynamicBackgroundWrapper /> */}
 
-          {/* Content wrapper with higher z-index */}
+          {/* Content wrapper */}
           <div className="relative z-10">
             {children}
           </div>

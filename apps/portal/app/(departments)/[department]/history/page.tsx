@@ -12,7 +12,9 @@ export default async function HistoryPage({
 }) {
   const { department: deptSlug } = await params;
   const { from: fromParam, to: toParam } = await searchParams;
-  const { deptId } = await getDepartmentContext({ department: deptSlug });
+  const { deptId, supabase } = await getDepartmentContext({
+    department: deptSlug,
+  });
 
   // Default to last 30 days
   const to = toParam || new Date().toISOString().split("T")[0];
@@ -26,7 +28,16 @@ export default async function HistoryPage({
     .eq("department_id", deptId)
     .gte("log_date", from)
     .lte("log_date", to)
-    .order("log_date", { ascending: false });
+    .order("log_date", { ascending: false })
+    .returns<
+      {
+        id: string;
+        log_date: string;
+        shift: string;
+        notes: string | null;
+        created_at: string;
+      }[]
+    >();
 
   return (
     <div className="space-y-6">

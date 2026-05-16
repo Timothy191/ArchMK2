@@ -1,5 +1,6 @@
 import { getDepartmentContext, requireDepartment } from "~/lib/dept-context";
 import { GlassCard } from "@repo/ui/GlassCard";
+import { DozerRollForm } from "~/features/departments/components/control-room/DozerRollForm";
 
 export default async function RollOverPage({
   params,
@@ -12,10 +13,10 @@ export default async function RollOverPage({
     department: deptSlug,
   });
 
-  // Fetch dozers only
+  // Fetch dozers with site info
   const { data: dozers } = await supabase
     .from("machines")
-    .select("id, name, serial_number")
+    .select("id, name, serial_number, site_id, sites(name)")
     .eq("department_id", deptId)
     .eq("active", true)
     .ilike("machine_type", "%dozer%")
@@ -79,23 +80,8 @@ export default async function RollOverPage({
         </GlassCard>
       </div>
 
-      {/* Coming Soon Message */}
-      <GlassCard>
-        <div className="text-center py-8">
-          <p className="text-[var(--text-heading)] font-medium mb-2">
-            Dozer Roll Over Tracking
-          </p>
-          <p className="text-[var(--text-muted)] text-sm max-w-md mx-auto">
-            Track blade passes, push counts, area covered, and material moved.
-            Automatically calculates material moved based on blade capacity and
-            pass counts.
-          </p>
-          <div className="mt-4 flex items-center justify-center gap-2 text-xs text-[var(--text-muted)]">
-            <span className="w-2 h-2 rounded-full bg-[var(--accent-cyan)]"></span>
-            Found {dozers?.length || 0} dozers in database
-          </div>
-        </div>
-      </GlassCard>
+      {/* Add Roll Form */}
+      <DozerRollForm departmentId={deptId} dozers={dozers || []} />
 
       {/* Roll List */}
       {todayRolls && todayRolls.length > 0 && (
@@ -118,6 +104,11 @@ export default async function RollOverPage({
                   <p className="text-[var(--accent-cyan)] font-medium">
                     {roll.blade_passes} passes
                   </p>
+                  {roll.area_covered_sqm && roll.area_covered_sqm > 0 && (
+                    <p className="text-[var(--text-muted)] text-xs">
+                      {Number(roll.area_covered_sqm).toFixed(2)} m²
+                    </p>
+                  )}
                   {roll.material_moved_tonnes && (
                     <p className="text-[var(--text-muted)] text-xs">
                       {roll.material_moved_tonnes.toFixed(1)} tonnes

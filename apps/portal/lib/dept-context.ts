@@ -1,4 +1,5 @@
 import { createServerSupabaseClient } from "@repo/supabase/server";
+import { cacheGet, cacheSet } from "@repo/redis/cache";
 import { DEPARTMENTS } from "./departments";
 import { notFound } from "next/navigation";
 
@@ -6,10 +7,13 @@ import { notFound } from "next/navigation";
  * Resolves department context for a server component page.
  * Validates the department slug, fetches the department UUID from Supabase,
  * and calls notFound() if the department doesn't exist.
+ * Uses Redis to cache department UUID lookups.
  *
  * @returns `{ dept, deptId, supabase, today }`
  */
-export async function getDepartmentContext(params: { department: string }): Promise<{
+export async function getDepartmentContext(params: {
+  department: string;
+}): Promise<{
   dept: (typeof DEPARTMENTS)[number];
   deptId: string;
   supabase: Awaited<ReturnType<typeof createServerSupabaseClient>>;
@@ -20,19 +24,26 @@ export async function getDepartmentContext(params: { department: string }): Prom
 
   const supabase = await createServerSupabaseClient();
 
-  const { data: department } = await supabase
-    .from("departments")
-    .select("id")
-    .eq("name", params.department)
-    .single();
+  const cacheKey = `dept:uuid:${params.department}`;
+  let deptId = await cacheGet<string>(cacheKey);
 
-  if (!department) notFound();
+  if (!deptId) {
+    const { data: department } = await supabase
+      .from("departments")
+      .select("id")
+      .eq("name", params.department)
+      .single();
+
+    if (!department) notFound();
+    deptId = department.id;
+    await cacheSet(cacheKey, deptId, 3600); // 1 hour
+  }
 
   const today = new Date().toISOString().split("T")[0] ?? "";
 
   return {
     dept,
-    deptId: department.id as string,
+    deptId: deptId as string,
     supabase,
     today,
   };
