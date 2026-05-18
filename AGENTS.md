@@ -1,74 +1,45 @@
 # AGENTS.md
 
 ## Prerequisites
+- Node.js `>=20.17.0` (via volta), pnpm `9.12.0`, Docker (for Supabase)
 
-- **Node.js**: `>=20.17.0` (enforced via volta)
-- **pnpm**: `9.12.0` (enforced via packageManager)
-- **Docker**: Required for Supabase local development
+## Quick Start
+```bash
+pnpm install
+cp apps/portal/.env.example apps/portal/.env
+cd packages/database && pnpm supabase:dev  # separate terminal
+pnpm dev
+```
 
 ## Commands
-
 ```bash
-pnpm dev                  # Start portal dev server (Next.js on port 3000)
-pnpm build               # Build all packages via Turborepo
-pnpm lint                # Lint all packages
-pnpm format              # Format with Prettier
-pnpm --filter portal test              # Run Jest unit tests
-pnpm test:e2e            # Run Playwright E2E (requires app running)
-pnpm deploy:local        # Full local deployment (Supabase + build + start)
-
-# Supabase
-cd packages/database && pnpm supabase:dev    # Start local Supabase
-cd packages/database && pnpm supabase:reset   # Reset local DB
+pnpm dev                  # Portal dev server (Next.js on 3000)
+pnpm build                # Build all packages
+pnpm lint                 # Lint all packages
+pnpm --filter portal type-check  # TypeScript check
+pnpm --filter portal test        # Jest unit tests
+pnpm --filter portal test -- --testPathPattern=<file>  # Single test
+pnpm test:e2e             # Playwright E2E (app must be running on :3000)
 ```
 
 ## Architecture
-
-- **Monorepo**: Turborepo + pnpm workspaces (`apps/*`, `packages/*`)
-- **Framework**: Next.js 15 (App Router) + React 19 (portal), React 18 (overview)
-- **Database**: Supabase (PostgreSQL with RLS)
-- **Package imports**: Always use `workspace:*` for internal packages
-
-## Key Packages
-
-| Package | Purpose |
-|---------|---------|
-| `apps/portal` | Main Next.js application |
-| `apps/cms` | Payload CMS v3 |
-| `apps/overview` | Architecture visualization (port 3002) |
-| `@repo/ui` | Shared React components |
-| `@repo/theme` | Design tokens, Tailwind preset (single source of truth) |
-| `@repo/supabase` | Supabase clients (browser/server/middleware) |
+- Monorepo: Turborepo + pnpm workspaces (`apps/*`, `packages/*`)
+- `apps/portal` — Next.js 15 (App Router) + React 19
+- `apps/cms` — Payload CMS v3
 
 ## Critical Conventions
+- **Supabase**: `@repo/supabase` exports `createServerSupabaseClient()`, `createClient()`, middleware helpers
+- **Theme**: `@repo/theme/tailwind/preset.ts` is the single source of truth. **Light-only** (macOS Ventura/Sonoma). No dark mode.
+- **Forbidden**: raw `box-shadow` CSS property in inline styles (use `shadow-diffusion-*` / `shadow-card` / `shadow-window` tokens instead). Raw Tailwind `shadow-sm`, `shadow-md`, `shadow-lg` etc also forbidden — only named custom tokens.
+- **Allowed**: `bg-white/*` opacity classes, `font-bold`, `font-semibold` — all permitted for macOS visual language.
+- **Glass pattern**: prefer `bg-white/70 backdrop-blur-xl border border-black/[0.08]` for elevated surfaces.
+- **Class merging**: use `cn()` from `@repo/ui/lib/utils`
+- **RLS**: Must be enabled on every new table
+- **Path aliases**: `@/` and `~/` map to `apps/portal/`
 
-### Supabase
-
-- **Never** import from `@supabase/supabase-js` directly
-- Server: `createServerSupabaseClient()` from `@repo/supabase/server`
-- Client: `createClient()` from `@repo/supabase/client`
-- RLS must be enabled on every new table
-
-### Design System
-
-- **Theme source of truth**: `@repo/theme/tailwind/preset.ts` — do not add theme values directly in portal
-- **Forbidden patterns**: `bg-white/5`, `border-white/10`, `font-semibold`, `font-bold`, `shadow-*`, `box-shadow`
-- Class merging: use `cn()` from `@repo/ui/lib/utils`
-
-### Testing
-
-- Unit tests: `apps/portal` with Jest — files named `*.test.ts` or `*.test.tsx`
-- Mock `@repo/supabase`, never `@supabase/supabase-js`
-- E2E tests: `e2e/*.spec.ts` with Playwright (baseURL `http://localhost:3000`)
-
-## Database Migrations
-
-- Author migrations in `packages/database/migrations/`
+## Migrations
+- Author in `packages/database/migrations/` (source of truth)
 - `packages/supabase/supabase/migrations/` is a deploy-time copy
-- Run `deploy:local` to sync and apply migrations
 
-## References
-
-- `CLAUDE.md`: Authoritative technical guide and conventions
-- `DESIGN.md`: Design system and component rules
-- `PRODUCT.md`: Product strategy and mission
+## Verification Order (CI)
+`lint` → `type-check` → `test` → `build`

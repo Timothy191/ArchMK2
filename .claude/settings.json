@@ -9,19 +9,17 @@
             "type": "command",
             "command": "node \"/home/timothy/Project/Arch-Mk2/.claude/hooks/scripts/secret-scan.js\""
           }
-        ],
-        "description": "Secret detection on file writes"
+        ]
       },
       {
         "matcher": "Bash",
         "hooks": [
           {
             "type": "command",
-            "if": "Bash(git push*)",
-            "command": "node \"/home/timothy/Project/Arch-Mk2/.claude/hooks/scripts/pre-push-check.js\""
+            "command": "node \"/home/timothy/Project/Arch-Mk2/.claude/hooks/scripts/pre-push-check.js\"",
+            "if": "Bash(git push*)"
           }
-        ],
-        "description": "Pre-push quality gate"
+        ]
       }
     ],
     "PostToolUse": [
@@ -50,8 +48,7 @@
             "type": "command",
             "command": "node \"/home/timothy/Project/Arch-Mk2/.claude/hooks/scripts/learn-capture.js\""
           }
-        ],
-        "description": "Auto-capture [LEARN] blocks from responses"
+        ]
       }
     ],
     "SessionStart": [
@@ -62,8 +59,7 @@
             "type": "command",
             "command": "node \"/home/timothy/Project/Arch-Mk2/.claude/hooks/scripts/session-start.js\""
           }
-        ],
-        "description": "Load LEARNED patterns and previous session context"
+        ]
       }
     ],
     "PreCompact": [
@@ -74,8 +70,7 @@
             "type": "command",
             "command": "node \"/home/timothy/Project/Arch-Mk2/.claude/hooks/scripts/pre-compact.js\""
           }
-        ],
-        "description": "Save context state before compaction"
+        ]
       }
     ],
     "PostCompact": [
@@ -86,8 +81,7 @@
             "type": "command",
             "command": "node \"/home/timothy/Project/Arch-Mk2/.claude/hooks/scripts/post-compact.js\""
           }
-        ],
-        "description": "Re-inject critical context after compaction"
+        ]
       }
     ],
     "FileChanged": [
@@ -98,8 +92,7 @@
             "type": "command",
             "command": "node \"/home/timothy/Project/Arch-Mk2/.claude/hooks/scripts/file-changed.js\""
           }
-        ],
-        "description": "Watch for important config and dependency file changes"
+        ]
       }
     ]
   },
@@ -109,7 +102,9 @@
     "frontend-design@claude-plugins-official": true,
     "code-review@claude-plugins-official": true,
     "code-simplifier@claude-plugins-official": true,
-    "linear@claude-plugins-official": true
+    "linear@claude-plugins-official": true,
+    "remember@claude-plugins-official": true,
+    "claude-code-setup@claude-plugins-official": true
   },
   "theme": "dark"
 }

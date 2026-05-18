@@ -1,0 +1,61 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "entry": [
+    "apps/*/src/app/layout.tsx",
+    "apps/*/src/app/page.tsx",
+    "apps/*/src/app/api/**/route.ts",
+    "apps/*/src/main.ts",
+    "apps/*/src/index.ts",
+    "packages/*/src/index.ts",
+    "packages/*/src/server.ts",
+    "packages/*/src/client.ts",
+    "scripts/**/*.ts"
+  ],
+  "project": [
+    "apps/**/*.{ts,tsx}",
+    "packages/**/*.{ts,tsx}",
+    "scripts/**/*.{ts,js}"
+  ],
+  "ignore": [
+    "**/*.test.{ts,tsx}",
+    "**/*.spec.{ts,tsx}",
+    "**/__tests__/**",
+    "**/__mocks__/**",
+    "**/*.stories.{ts,tsx}",
+    "**/*.config.{ts,js,mjs}",
+    "**/e2e/**",
+    "apps/portal/.next/**",
+    "apps/overview/.next/**",
+    "**/dist/**",
+    "**/coverage/**"
+  ],
+  "ignoreDependencies": [
+    "@types/node",
+    "@types/react",
+    "@types/react-dom",
+    "@types/jest",
+    "typescript",
+    "eslint",
+    "prettier",
+    "husky",
+    "lint-staged",
+    "@repo/eslint-config",
+    "@repo/typescript-config"
+  ],
+  "ignoreBinaries": [
+    "docker",
+    "docker-compose",
+    "supabase"
+  ],
+  "rules": {
+    "files": "warn",
+    "dependencies": "warn",
+    "devDependencies": "warn",
+    "unlisted": "warn",
+    "binaries": "warn",
+    "exports": "warn",
+    "nsExports": "warn",
+    "types": "warn",
+    "nsTypes": "warn"
+  }
+}

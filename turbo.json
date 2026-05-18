@@ -2,39 +2,148 @@
   "$schema": "https://turbo.build/schema.json",
   "ui": "tui",
   "globalEnv": [
-    "NEXT_PUBLIC_SUPABASE_URL",
-    "NEXT_PUBLIC_SUPABASE_ANON_KEY",
-    "SUPABASE_URL",
+    "NODE_ENV",
+    "VERCEL_ENV",
+    "CI",
+    "TURBO_TELEMETRY_DISABLED"
+  ],
+  "globalPassThroughEnv": [
+    "Path",
+    "HOME",
+    "TMPDIR",
+    "TMP",
+    "USERPROFILE",
+    "APPDATA",
+    "LOCALAPPDATA",
+    "SHELL",
+    "PWD",
+    "GITHUB_TOKEN",
+    "GITHUB_SHA",
+    "GITHUB_REF",
+    "GITHUB_HEAD_REF",
     "SUPABASE_SERVICE_KEY",
-    "SUPABASE_ANON_KEY",
-    "PORT",
     "N8N_URL",
     "FLOWISE_URL",
-    "DATABASE_URL",
-    "PAYLOAD_SECRET"
+    "PAYLOAD_SECRET",
+    "PORT",
+    "TURBO_SUMMARIZE"
+  ],
+  "globalDependencies": [
+    "**/package.json",
+    "**/tsconfig.json",
+    ".syncpackrc.js",
+    "knip.json"
   ],
   "tasks": {
+    "codegen": {
+      "dependsOn": [],
+      "inputs": ["src/css/variables.css", "scripts/generate-tokens.mjs"],
+      "outputs": ["src/tokens/generated.ts"]
+    },
+    "lint:tokens": {
+      "dependsOn": [],
+      "inputs": ["src/css/variables.css", "src/tailwind/preset.ts", "scripts/validate-tokens.mjs"],
+      "cache": false
+    },
+    "lint:css": {
+      "dependsOn": [],
+      "inputs": ["src/**/*.css", ".stylelintrc.*"],
+      "cache": true
+    },
     "build": {
-      "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
+      "dependsOn": ["^build", "^codegen"],
+      "env": [
+        "NEXT_PUBLIC_*",
+        "SUPABASE_*",
+        "DATABASE_URL"
+      ],
+      "passThroughEnv": ["SENTRY_AUTH_TOKEN", "ANALYZE"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        ".env.production",
+        ".env.local",
+        "!**/*.test.ts",
+        "!**/*.test.tsx",
+        "!**/*.spec.ts",
+        "!**/*.spec.tsx",
+        "!**/__tests__/**",
+        "!**/*.stories.tsx"
+      ],
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"],
+      "outputLogs": "new-only"
     },
     "db:pull": {
+      "cache": false,
       "outputs": ["packages/supabase/migrations/**"]
     },
     "type-check": {
-      "dependsOn": ["^build"]
+      "dependsOn": ["^transit"],
+      "env": ["NEXT_PUBLIC_*"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "tsconfig.json",
+        "!**/*.test.ts",
+        "!**/*.test.tsx"
+      ]
     },
     "lint": {
-      "dependsOn": ["^lint"]
+      "dependsOn": ["^transit"],
+      "env": ["REDIS_URL"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        ".eslintrc.*",
+        "!pnpm-lock.yaml",
+        "!**/*.test.ts",
+        "!**/*.test.tsx"
+      ]
     },
     "dev": {
       "cache": false,
-      "persistent": true
+      "persistent": true,
+      "env": ["NEXT_PUBLIC_*"]
     },
     "test": {
-      "dependsOn": ["^test"],
-      "outputs": []
+      "dependsOn": ["^topo", "^build"],
+      "env": ["NEXT_PUBLIC_*", "SUPABASE_*"],
+      "passThroughEnv": ["TEST_DB_URL", "MOCK_SERVER_PORT"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "jest.config.*",
+        "vitest.config.*",
+        "playwright.config.*"
+      ],
+      "outputs": ["coverage/**/*"],
+      "outputLogs": "new-only"
+    },
+    "topo": {
+      "dependsOn": ["^topo"]
+    },
+    "transit": {
+      "dependsOn": ["^transit"]
+    },
+    "//#lint-root": {
+      "inputs": [
+        "!pnpm-lock.yaml",
+        "*.ts",
+        "*.tsx",
+        "*.js",
+        "*.json"
+      ]
+    },
+    "//#format-check": {},
+    "//#quality": {
+      "dependsOn": ["//#lint-root", "//#format-check", "lint", "type-check", "test", "lint:tokens", "lint:css"],
+      "cache": false
+    },
+    "//#syncpack": {
+      "inputs": [".syncpackrc.js", "**/package.json"]
+    },
+    "//#knip": {
+      "inputs": ["knip.json", "**/package.json", "**/tsconfig.json"],
+      "cache": false
+    },
+    "//#test": {
+      "dependsOn": ["test"]
     }
   }
 }

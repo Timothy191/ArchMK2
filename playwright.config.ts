@@ -1,6 +1,7 @@
 import { defineConfig } from "@playwright/test";
 export default defineConfig({
   testDir: "./e2e",
+  snapshotDir: "./e2e/visual/__snapshots__",
   projects: [
     {
       name: "chromium",
@@ -10,5 +11,13 @@ export default defineConfig({
       },
     },
   ],
-  use: { baseURL: "http://localhost:3000" }, // For frontend
+  use: {
+    baseURL: "http://localhost:3000",
+    screenshot: "only-on-failure",
+  },
+  expect: {
+    toHaveScreenshot: {
+      maxDiffPixelRatio: 0.02,
+    },
+  },
 });

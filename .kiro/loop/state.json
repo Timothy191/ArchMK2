@@ -1,5 +1,5 @@
 {
-  "session_id": "937457",
+  "session_id": "96123",
   "state": "idle",
   "current_task": null,
   "queue": [
@@ -19,7 +19,7 @@
   "subagents": [],
   "history": [],
   "metrics": {
-    "tool_calls_total": 2,
+    "tool_calls_total": 5,
     "tokens_used": 0,
     "subagents_dispatched": 0,
     "errors": 0,

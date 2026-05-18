@@ -16,10 +16,13 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      issues: write
+      pull-requests: write
 
     env:
       TURBO_TELEMETRY_DISABLED: 1
       NEXT_TELEMETRY_DISABLED: 1
+      TURBO_SUMMARIZE: 1
       # Dummy values required for Next.js builds
       NEXT_PUBLIC_SUPABASE_URL: http://localhost:54321
       NEXT_PUBLIC_SUPABASE_ANON_KEY: dummy-anon-key-for-ci
@@ -47,30 +50,52 @@ jobs:
           node-version: 20.17.0
           cache: pnpm
 
-      - name: Restore Next.js build cache
+      - name: Turborepo Cache
         uses: actions/cache@v4
         with:
           path: |
+            .turbo
             ${{ github.workspace }}/apps/portal/.next/cache
             ${{ github.workspace }}/apps/overview/.next/cache
-          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ hashFiles('apps/**/*.[jt]s', 'apps/**/*.[jt]sx', 'packages/**/*.[jt]s', 'packages/**/*.[jt]sx') }}
+          key: ${{ runner.os }}-turbo-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.yaml') }}-
+            ${{ runner.os }}-turbo-${{ hashFiles('**/pnpm-lock.yaml') }}-
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Lint
-        run: pnpm lint
+      - name: Check dependency versions
+        run: pnpm deps:lint
 
-      - name: Type check (portal)
-        run: pnpm --filter portal type-check
+      - name: Check for dead code
+        run: pnpm knip
 
-      - name: Unit tests (portal)
-        run: pnpm --filter portal test
+      - name: Lint & Type Check
+        run: pnpm turbo run lint type-check
 
-      - name: Build portal
-        run: pnpm --filter portal build
+      - name: Test with Coverage
+        run: pnpm test -- --coverage --passWithNoTests
+        env:
+          CI: true
 
-      - name: Build overview
-        run: pnpm --filter arch-systems-overview build
+      - name: Upload Coverage Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: apps/portal/coverage/
+          retention-days: 14
+
+      - name: Build
+        run: pnpm turbo run build --summarize
+
+      - name: Bundle Size Check
+        run: pnpm bundlesize
+
+      - name: Upload Turborepo Summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: turbo-summary
+          path: .turbo/runs/*.json
+          retention-days: 30
