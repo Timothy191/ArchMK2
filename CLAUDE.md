@@ -2,253 +2,129 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Project Overview
-
-Arch-Systems (Plantcor) is a multi-departmental mining operations portal built as a monorepo. It provides authenticated access to department-specific dashboards for drilling, production, access control, engineering, control room, safety, training, and satellite monitoring — each with their own tabs, data entry forms, and RLS-scoped Supabase queries.
-
-## Quick Start
-
-```bash
-# 1. Install dependencies
-pnpm install
-
-# 2. Copy environment variables
-cp apps/portal/.env.example apps/portal/.env
-# Fill in your Supabase credentials
-
-# 3. Start local Supabase (in a separate terminal)
-cd packages/database && pnpm supabase:dev
-
-# 4. Start the portal dev server
-pnpm dev
-```
-
 ## Commands
 
-```bash
-# Development
-pnpm dev                  # Start Next.js dev server (portal app only)
-pnpm build                # Build all packages via Turborepo
-pnpm lint                 # Lint all packages
-pnpm format               # Format with Prettier
-pnpm fresh-start          # Full reset: clean install, rebuild, and start
+- `pnpm dev` — Start the portal dev server (Next.js on :3000). Requires `apps/portal/.env` and a running Supabase local instance.
+- `pnpm build` — Build all packages and apps via Turborepo.
+- `pnpm lint` — Lint all packages via Turborepo.
+- `pnpm test` — Run Jest unit tests across all packages.
+- `pnpm --filter portal test -- --testPathPattern=<file>` — Run a single test file in the portal app.
+- `pnpm test:e2e` — Run Playwright E2E tests (requires the app to be running on :3000).
+- `pnpm type-check` — Run TypeScript checks across all packages.
+- `pnpm quality` — Run the full quality gate: lint, type-check, test, format-check, syncpack, and knip.
+- `pnpm --filter @repo/database supabase:dev` — Start local Supabase (Docker required).
+- `pnpm --filter @repo/database supabase:gen` — Regenerate TypeScript database types into `packages/types/src/database.types.ts`.
+- `pnpm ui` — Open the shadcn/ui CLI for the `@repo/ui` package.
+- `pnpm knip` — Find unused exports/dependencies.
+- `pnpm deps:check` / `pnpm deps:fix` — Check/fix dependency version mismatches via syncpack.
 
-# Testing
-pnpm --filter portal test              # Run Jest unit tests for portal
-pnpm --filter portal test -- --testPathPattern=<file>   # Run a single test
-pnpm test:e2e                          # Run Playwright E2E tests (requires running app)
+## Monorepo Architecture
 
-# Local deployment (Supabase + build + start)
-pnpm deploy:local                       # Full stack: starts Supabase, builds, serves on $PORT (default 3000)
+- **Package manager**: pnpm 9.12.0 (Volta-managed). Workspaces: `apps/*`, `packages/*`.
+- **Build orchestration**: Turborepo (`turbo.json`). Tasks: `build`, `dev`, `lint`, `test`, `type-check`, `topo`, `transit`, `codegen` (theme tokens).
+- **Apps**:
+  - `apps/portal` — Next.js 15+ (App Router), React 19, Tailwind CSS. Main mining operations portal.
+  - `apps/cms` — Payload CMS v3 (headless).
+  - `apps/overview` — Standalone Next.js app for architectural visualization.
+- **Packages**:
+  - `@repo/theme` — Design tokens, OKLCH color system, Tailwind preset (`src/tailwind/preset.ts`). Single source of truth for visual design.
+  - `@repo/ui` — Shared React components (GlassCard, KPI, DepartmentLayout, etc.) built with Radix UI and shadcn/ui.
+  - `@repo/supabase` — Shared Supabase clients (`createBrowserSupabaseClient`, `createMiddlewareClient`, `createServerSupabaseClient`).
+  - `@repo/database` — SQL migrations in `migrations/`. This is the source of truth; `packages/supabase/supabase/migrations/` is a deploy-time copy.
+  - `@repo/errors` — Domain-specific error classes. Prefer these over generic `Error`.
+  - `@repo/redis` — Shared Redis client utilities.
+  - `@repo/utils` — Common utilities (formatting, dates, shift helpers).
+  - `@repo/hooks` — Shared React hooks.
+  - `@repo/types` — Common TypeScript interfaces (including auto-generated database types).
+  - `@repo/eslint-config`, `@repo/typescript-config` — Shared tooling configs.
 
-# Supabase
-cd packages/database && pnpm supabase:dev    # Start local Supabase
-cd packages/database && pnpm supabase:push   # Push migrations to remote
-cd packages/database && pnpm supabase:reset   # Reset local DB
+## Path Aliases (Portal App)
 
-# UI components
-pnpm ui                   # Add shadcn components to @repo/ui
+The `apps/portal/tsconfig.json` defines:
 
-# Other apps
-pnpm --filter arch-systems-overview dev   # Start the overview dashboard app (port 3002)
-pnpm --filter cms dev     # Start Payload CMS dev server
+- `~/*` and `@/*` → `apps/portal/*`
+- `@/app/*`, `@/features/*`, `@/components/*`, `@/lib/*`, `@/hooks/*` → respective subdirectories
 
-# Type checking
-pnpm --filter portal type-check           # Run tsc --noEmit for portal
+Jest maps workspace packages explicitly (e.g. `@repo/ui/KPI`, `@repo/supabase`, `@repo/errors`).
 
-# Database migrations
-# Add new .sql files in packages/database/migrations/
-# They are synced to packages/supabase/supabase/migrations/ by deploy-local.sh
+## Auth & Authorization
 
-# Turborepo tasks
-pnpm turbo db:pull        # Pull remote DB schema into packages/supabase/migrations/
-```
+- **Middleware**: `apps/portal/middleware.ts` handles session refresh, department slug → UUID resolution (cached in Redis), and role-based route restrictions.
+- **Server Actions**: Import auth via `@repo/supabase/server` (`createServerSupabaseClient`). Always validate the user at the top of every Server Action.
+- **RLS**: Row-Level Security must be enabled on every new Supabase table.
+- **Department routes**: `/(departments)/[department]/` is the dynamic route. There are also static department routes under `/(departments)/` (e.g. `drilling`).
+- **Restricted routes**: Roles like `control_room_operator`, `admin`, and `supervisor` gate access to specific routes. See `RESTRICTED_ROUTES` in `middleware.ts`.
 
-## Requirements
+## Design System Rules
 
-- **Node.js**: `>=20.17.0` (enforced in `engines` and `volta`)
-- **pnpm**: `9.12.0` (enforced via `packageManager` field)
+- **Theme**: Dark-only. No light mode. macOS Sonoma visual language. The Tailwind preset lives in `@repo/theme/tailwind/preset.ts`.
+- **Colors**: OKLCH-based palette exposed as CSS variables (`--arch0`–`--arch15`) and semantic aliases (`bg-primary`, `text-heading`, `accent-cyan`, etc.).
+- **Glass pattern**: Elevated surfaces use `bg-white/70 backdrop-blur-xl border border-black/[0.08]`.
+- **Shadows**: Forbidden raw Tailwind `shadow-sm/md/lg` and raw `box-shadow` CSS. Use named custom tokens only: `shadow-card`, `shadow-window`, `shadow-diffusion-*`.
+- **Class merging**: Always use `cn()` from `@repo/ui/lib/utils` for conditional class names.
+- **Typography**: Inter for UI, JetBrains Mono for tabular data/code.
+- **Animation**: Never animate layout properties (`width`, `height`, `margin`, `padding`, `top`, `left`). Only `opacity`, `transform`, `background-color`, `border-color`, `color`. Use `cubic-bezier(0.16, 1, 0.3, 1)` easing.
 
-## Automation & Hooks
+## Server Actions & Data Fetching
 
-- **Pre-commit**: `husky` + `lint-staged` run `eslint --fix` on staged `*.{js,ts,tsx}` files.
-- **Claude Code hooks** (`.claude/settings.json`):
-  - Secret scan on every `Write`/`Edit`
-  - Pre-push quality gate on `git push`
-  - Auto-format and auto-lint (`eslint --max-warnings 0`) after `Write`/`Edit` for portal files
-  - Session start / stop hooks that load and capture learned patterns
-  - Pre/Post compaction hooks that persist and reinject critical context
-  - File change watcher for `.env`, `package.json`, `tsconfig.json`, `pyproject.toml`
+- **Server Actions**: Co-located near the feature that uses them, often as `actions.ts` in a route or feature directory.
+- **API routes**: Under `app/api/`. Examples: `ai/chat`, `ai/predict`, `export`, `sync`, `tools`, `webhooks`.
+- **State management**: Zustand for client-side global state. Server Actions for mutations. No `console.log` in production code paths (removed by Next.js compiler in production builds).
 
-## Architecture
+## Testing
 
-### Monorepo Structure (Turborepo + pnpm)
+- **Unit**: Jest + ts-jest + jsdom + Testing Library. Config: `apps/portal/jest.config.js`.
+- **Coverage thresholds**: 40% lines, 30% branches, 35% functions, 40% statements (Phase 1 targets).
+- **E2E**: Playwright. Config: `playwright.config.ts` at the repo root.
+- **Running tests**: E2E tests require the dev server running on port 3000. Unit tests do not.
 
-```
-apps/portal/          → Next.js 15 app (App Router, React 19)
-packages/
-  theme/               → @repo/theme — design tokens, CSS variables, Tailwind preset, React theme provider (single source of truth for all styling)
-  ui/                 → @repo/ui — shared components (GlassCard, DepartmentLayout, KPI, PageHeader, ShiftToggle, FormFields, shadcn primitives, re-exports theme Tailwind config)
-  supabase/           → @repo/supabase — Supabase client wrappers (browser, server, middleware)
-  database/           → @repo/database — SQL migrations
-  eslint-config/      → @repo/eslint-config
-  typescript-config/  → @repo/typescript-config
-  hooks/              → @repo/hooks — useLocalStorage, useDebounce
-  types/              → @repo/types — Department, Employee, Machine, Shift, DailyLog interfaces
-  utils/              → @repo/utils — cn, formatDate, getCurrentShift, excel utilities
-  eval/               → Python eval harness (pytest, datasets, metrics)
-apps/overview/        → Standalone static Next.js app for architecture visualization (port 3002)
-apps/cms/             → Payload CMS v3 — headless CMS for content management (Postgres-backed)
-```
+## CI Verification Order
 
-### pnpm Workspace Catalogs
+Lint → Type-check → Test → Build. Run `pnpm quality` locally before pushing to validate the full gate.
 
-Versions for shared dependencies are centralized in `pnpm-workspace.yaml`:
+---
 
-- Use `catalog:` to pull the workspace-wide version (e.g. `framer-motion`, `tailwindcss`, `eslint`, `typescript`, `lucide-react`, `sonner`, `shiki`, `cmdk`, `@tanstack/react-table`, `@atlaskit/pragmatic-drag-and-drop`, `@nivo/sankey`, `@nivo/calendar`, `react-signature-canvas`, `novel`, `qrcode.react`, `react-colorful`).
-- Use `catalog:react19` for React 19 packages (`react`, `react-dom`, and their `@types/*`).
-- When adding a new shared dependency, consider adding it to the catalog instead of pinning a version in a single package.
+## Pro Workflow
 
-### Portal App Router Structure
+### Self-Correction Protocol
 
-- `(auth)/login/` — Login page with Supabase Auth
-- `(hub)/` — Landing page after login; shows department grid + productivity tools
-- `(departments)/[department]/` — Dynamic department routes, each with tabs defined in `lib/departments.ts`
-  - Standard departments get: dashboard, daily-log, machines, history, reports, tools
-  - `control-room` gets: dashboard, hourly-loads, machine-operations, operational-delays, engineering-notes, excavator-activity, roll-over, machines, reports, satellite
-  - `engineering` gets: dashboard, breakdowns, daily-log, machines, history, reports, tools
-  - `satellite-monitoring` gets: overview, sar, hyperspectral, highres
-  - `safety` gets: dashboard, daily-log (with SafetyIncidentForm/SafetyIncidentsList), machines, history, reports, tools
-- `admin/` — Admin panel
-- `api/ai/chat` — AI chat endpoint (multi-provider with failover: Groq → OpenRouter → Together)
+When the user corrects me or I make a mistake:
 
-### Feature Organization
+1. Acknowledge specifically what went wrong
+2. Propose a concise rule: `[LEARN] Category: One-line rule`
+3. Wait for approval before adding to LEARNED section
 
-Department-specific component logic lives in `apps/portal/features/departments/components/<dept>/` (control-room, engineering, machines, satellite). Hub components are in `features/hub/components/`. Shared layout and primitives come from `@repo/ui`.
+### LEARNED
 
-### Tool Integrations
+<!-- Auto-populated through corrections. See .claude/LEARNED.md -->
 
-- **n8n & Flowise**: Embedded via `ToolCard` components in the department tools page. Configured in `apps/portal/lib/tools.ts` (`EXTERNAL_TOOLS` array). The `GET /api/tools/status` endpoint performs 3-second timeout HEAD health checks and returns `{ status: "online" | "offline" | "unknown", responseTime }`. The client polls this every 30s.
-- **Univer SDK**: Embedded spreadsheet component at `features/departments/components/tools/UniverSheet.tsx`. Uses `@univerjs/preset-sheets-core` via `createUniver()` + `useEffect` pattern. CSS is imported once inside the component — do not import it in `layout.tsx` to avoid global CSS ordering issues.
+### Pre-Flight Discipline
 
-### Shared Server Utilities (apps/portal/lib)
+Before coding: state assumptions, present ambiguity, push back if simpler exists.
+Every changed line traces to the request — no drive-by edits.
+Convert imperatives to verifiable goals: "fix bug" → "failing test → make it pass".
 
-- `monitoring-api.ts` — Satellite monitoring data layer: SAR/InSAR deformation readings, Copernicus STAC scene fetcher, deformation classification, map tile URLs. Cached via Next.js `revalidate`.
-- `weather-api.ts` — Open-Meteo weather integration (no API key required). Fetches current + 5-day forecast, provides operational weather alerts for mining conditions.
-- `ai/ai-service.ts` — Multi-provider AI service with failover (Groq → OpenRouter → Together), rate limiting, streaming, and pre-built prompt templates (predictiveMaintenance, shiftHandoff, safetyCompliance, equipmentManual, translate).
-- `getDepartmentContext(params)` — Resolves `{ dept, deptId, supabase, today }` for server component pages. Validates department slug, fetches UUID from Supabase, calls `notFound()` on invalid departments. Use this instead of repeating the lookup pattern.
-- `requireDepartment(slug, allowed)` — Guards tabs to specific departments (e.g. `requireDepartment(slug, "control-room")`). Calls `notFound()` if unauthorized.
+### Review Checkpoints
 
-### Shared UI Components (@repo/ui)
+Pause for review at: plan completion, >5 file edits, git operations, auth/security code.
+Between: proceed with confidence.
 
-- `GlassCard` — Card container with dark theme styling and optional hover animation
-- `DepartmentLayout` — Sidebar + content layout for department pages
-- `KPI` / `KPICard` — Summary metric cards with color variants (`default`, `green`, `amber`, `red`, `blue`, `cyan`, `indigo`, `alert`)
-- `KPIGrid` — Responsive grid layout for KPI cards (2, 3, or 4 columns)
-- `PageHeader` — Title + formatted date header used across department tab pages
-- `ShiftToggle` — Day/night shift selector with `getCurrentShift()` helper
-- `FormFields` — `FormInput`, `FormSelect`, `FormTextarea`, `SubmitButton` with consistent dark theme styling
-- `Input`, `SecondaryButton` — Basic form controls
-- **shadcn/ui primitives** (in `components/ui/`): button, card, badge, dialog, dropdown-menu, input, scroll-area, separator, skeleton, tabs, table
-- **Magic UI** (in `components/ui/`): shine-border, number-ticker, marquee, animated-grid-pattern
-- **Motion Primitives** (in `components/motion-primitives/`): spotlight, glow-effect, border-trail
+### Parallel Work
 
-### Supabase Auth & RLS
+When blocked on long operations, use `claude -w` for instant parallel sessions.
+Subagents with `isolation: worktree` get their own safe working copy.
 
-- Three client contexts — always import from `@repo/supabase`, never directly from `@supabase/supabase-js`:
-  - `@repo/supabase/client` — browser/client components
-  - `@repo/supabase/server` — React Server Components / Server Actions
-  - `@repo/supabase/middleware` — Next.js middleware only
-- Middleware enforces auth + department isolation: unauthenticated users redirect to `/login`, department routes check employee role/department membership
-- All tables use Row Level Security policies scoped by `employees.auth_id = auth.uid()` with role-based checks (admin, supervisor, operator)
-- Helper functions `auth.user_department_id()`, `auth.is_admin()`, `auth.has_department_access()` are security definer functions for RLS policies
-- `employees.accessible_departments` (UUID array) allows cross-department access without changing primary department
+### Quality Gates
 
-### Database Schema
+After edits: lint, typecheck, test. Run `pnpm quality` before declaring done.
 
-Key tables: `departments`, `employees` (linked to `auth.users`), `machines`, `daily_logs`, `machine_hours`, `fuel_logs`, `production_logs`, `operators`, `sites`, `hourly_loads` (12-hour shift grid), `breakdowns`, `machine_operations`, `delay_categories`, `excavator_activity`, `dozer_rolls`, `report_templates`, `generated_reports`, `engineering_notes`, `operational_delays`, `safety_severities`, `safety_incident_categories`, `safety_incidents`. Auth trigger `handle_new_user()` auto-creates an employee row on signup with role defaulting to 'operator'.
+### Learning Log
 
-### Department Route Configuration
+After tasks, note learnings: `[DATE] [TOPIC]: Key insight`
+Append to .claude/learning-log.md
 
-Department metadata (slug, display name, icon, color, description) and tab definitions are centralized in `apps/portal/lib/departments.ts`.
+### Model Hints (as of 2025-08)
 
-**To add a new department:**
-
-1. Add department to `DEPARTMENTS` array in `apps/portal/lib/departments.ts`
-2. Add tab configuration for the new department
-3. Create route folder: `apps/portal/app/(departments)/[department]/`
-4. Write a migration in `packages/database/migrations/` to insert the department row
-5. Push migration: `cd packages/database && pnpm supabase:push`
-6. Verify in Supabase Studio and the portal UI
-
-## Key Conventions
-
-Load the `project-conventions` skill before any implementation task. It contains the authoritative design-system rules, Supabase import constraints, and code-style requirements used by this project.
-
-- **Server actions pattern**: Always start with `"use server"`, authenticate via `supabase.auth.getUser()`, use `createServerSupabaseClient()` from `@repo/supabase/server`, call `revalidatePath()` after mutations. Soft deletes use `deleted_at` timestamp, not row removal.
-- **Client form pattern**: Department data-entry forms use `createBrowserSupabaseClient()` for inserts, `router.refresh()` for revalidation, `useState` for form state with four-state pattern (`idle`/`submitting`/`success`/`error`), and auto-detect current shift via `getCurrentShift()`. Some forms auto-save drafts to localStorage.
-- **Real-time subscriptions**: Components like AlertPanel, ScadaPanel, and ControlRoomActivityFeed use `supabase.channel().on('postgres_changes', ...).subscribe()` for live data updates.
-- **Path aliases**: `@/` maps to `apps/portal/`, `~/` also maps to `apps/portal/` (Jest and TypeScript both configured)
-- **Dark theme**: Root layout sets `className="dark"` on `<html>`; Tailwind config uses CSS variable-based colors (`hsl(var(--...))`)
-- **Tailwind**: Shared config is `@repo/theme/tailwind/preset.ts`; portal and `@repo/ui` both re-export it. All color values use CSS custom properties for runtime theme switching.
-- **Animations**: `framer-motion` / `motion` for UI transitions, `tailwindcss-animate` for CSS animations, Motion Primitives (spotlight, glow-effect, border-trail) for advanced effects
-- **Maps**: `react-map-gl` + `maplibre-gl` for satellite/GIS views
-- **3D**: `@react-three/fiber` + `@react-three/drei` for 3D visualizations
-- **Command palette**: `cmdk` for Cmd+K spotlight search
-- **Toasts**: `sonner` for toast notifications
-- **Data tables**: `@tanstack/react-table` for advanced grids (sort, filter, virtualize)
-- **Drag and drop**: `@atlaskit/pragmatic-drag-and-drop` for sortable lists and kanban
-- **Rich text**: `novel` for Notion-style WYSIWYG editing
-- **Code highlighting**: `shiki` for server-side syntax highlighting (AI chat, engineering notes)
-- **Signatures**: `react-signature-canvas` for digital sign-off on safety/shift forms
-- **QR codes**: `qrcode.react` for equipment ID and access control
-- **Color picker**: `react-colorful` for theme customization
-- **Specialized charts**: `@nivo/sankey`, `@nivo/calendar` for flow and time visualizations beyond Tremor
-- **Zod** for form/schema validation
-- **Video background**: Auth layout renders `public/background.mp4` with fade-in overlay
-- **Testing**: Jest (`jest-environment-jsdom`) for unit tests, Playwright for E2E. Mock pattern: `createMockSupabase` helper mocks `@repo/supabase/client` chainable query builder. Test files are co-located as `<Component>.test.tsx`. E2E tests run on Chromium only.
-- **Eval**: Python DeepEval suite in `packages/eval` — run with `cd packages/eval && poetry run pytest`. Requires `OPENAI_API_KEY` and a running portal for live tests, or `EVAL_USE_CACHE=true` for offline evaluation.
-
-## Environment Variables
-
-Required in `apps/portal/.env` (copy from `.env.example`):
-
-```bash
-cp apps/portal/.env.example apps/portal/.env
-```
-
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `SUPABASE_ANON_KEY` (server-side)
-- `N8N_URL` (optional, default `http://localhost:5678`)
-- `FLOWISE_URL` (optional, default `http://localhost:3000`)
-- `PORT` (optional, default 3000)
-- `DATABASE_URL` (required for CMS app — Postgres connection string)
-- `PAYLOAD_SECRET` (required for CMS app — session encryption)
-- `GROQ_API_KEY`, `OPENROUTER_API_KEY`, `TOGETHER_API_KEY` (AI service providers)
-
-## Local Deployment Flow
-
-**LOCAL DEVELOPMENT ONLY — NEVER run against production.**
-
-`scripts/deploy-local.sh`: syncs migrations from `packages/database/migrations/` (source of truth) → `packages/supabase/supabase/migrations/`, starts Supabase (or resets if already running), disables RLS for local dev, builds Next.js, starts frontend on port 3000, opens browser.
-
-## Notes
-
-- The root `README.md` is the generic Turborepo starter template and is stale for this project. Rely on this file for accurate context.
-- **MCP server**: `.mcp.json` configures `codebase-memory-mcp` (via `/home/timothy/.local/bin/codebase-memory-mcp`) for cross-session codebase memory and context retrieval.
-
-## Gotchas
-
-- **Theme source of truth**: All Tailwind config, CSS variables, and design tokens originate from `@repo/theme`. Portal's `tailwind.config.ts` and `@repo/ui`'s both re-export `@repo/theme/tailwind`. Do not add theme values directly in the portal app.
-- **Department form state machine**: Forms use a four-state pattern (`idle` → `submitting` → `success`/`error`). After successful submission, call `router.refresh()` from client components (not `revalidatePath`). Some forms auto-save drafts to localStorage every 30s.
-- **KPI color variants**: `KPICard` supports 8 color variants: `default`, `green`, `amber`, `red`, `blue`, `cyan`, `indigo`, `alert`. The `alert` variant is used for critical/warning metrics.
-
-- **3D packages**: The portal uses React 19. `@react-three/fiber` v8.x and `@react-three/drei` v9.x currently work with React 19. Upgrading to R3F v9+ / Drei v10+ is now possible but requires testing API changes.
-- **Middleware auth bypass**: Never commit changes that bypass the unauthenticated redirect in `apps/portal/middleware.ts` without explicit security review.
-- **Migration source of truth**: Author migrations in `packages/database/migrations/`; `packages/supabase/supabase/migrations/` is a deploy-time copy.
-- **Univer CSS import**: `@univerjs/preset-sheets-core/lib/index.css` must be imported once in the app (it is imported in `UniverSheet.tsx`). Do not import it in `layout.tsx` to avoid global CSS ordering issues.
-- **React version divergence**: `apps/overview` uses React 18 (direct version), while `apps/portal`, `apps/cms`, and `@repo/ui` use React 19 via `catalog:react19`. Avoid cross-app React component sharing between overview and portal.
-
-- **Skills and agents**: Domain-specific rules live in `.claude/skills/` (load `project-conventions` before coding) and `.claude/agents/` (use `security-reviewer` after auth changes, `design-system-reviewer` after UI changes, `test-writer` when adding tests).
-- **Adding a new embedded tool**: Add an entry to `EXTERNAL_TOOLS` in `apps/portal/lib/tools.ts`. The `ToolCard` component and `/api/tools/status` route will pick it up automatically.
+Opus 4.6 and Sonnet 4.6 auto-calibrate reasoning depth — no need to toggle thinking mode.
+Use subagents with Haiku for fast read-only exploration, Sonnet 4.6 for balanced work.
+Docs: https://docs.anthropic.com/en/docs/about-claude/models/overview
