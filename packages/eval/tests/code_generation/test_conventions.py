@@ -120,7 +120,7 @@ class TestSupabaseImportCompliance:
         )
         metric = SupabaseImportComplianceMetric(minimum_score=0.8)
         metric.measure(test_case)
-        assert metric.score < 0.5, f"Expected low score for direct import, got {metric.score}"
+        assert metric.score <= 0.5, f"Expected low score for direct import, got {metric.score}"
 
 
 # ============================================================

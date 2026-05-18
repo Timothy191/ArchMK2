@@ -18,6 +18,16 @@ class DepartmentPatternComplianceMetric(BaseMetric):
 
     def __init__(self, minimum_score: float = 0.8):
         self.minimum_score = minimum_score
+        self.threshold = minimum_score
+        self.async_mode = False
+        self.evaluation_model = "custom"
+        self.evaluation_cost = 0.0
+        self.verbose_logs = None
+        self.strict_mode = False
+        self.score = None
+        self.reason = None
+        self.success = None
+        self.error = None
 
     def measure(self, test_case: LLMTestCase) -> float:
         code = test_case.actual_output
@@ -101,3 +111,13 @@ class DepartmentPatternComplianceMetric(BaseMetric):
         self.success = self.score >= self.minimum_score
 
         return self.score
+
+    async def a_measure(self, test_case: LLMTestCase, *args, **kwargs) -> float:
+        return self.measure(test_case)
+
+    def is_successful(self) -> bool:
+        return self.success
+
+    @property
+    def __name__(self):
+        return "DepartmentPatternComplianceMetric"

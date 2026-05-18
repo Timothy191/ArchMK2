@@ -38,3 +38,9 @@
     }
   }
 }
+
+@layer base {
+  .hide-cursor, .hide-cursor * {
+    cursor: none !important;
+  }
+}

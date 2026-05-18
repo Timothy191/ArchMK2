@@ -2,10 +2,14 @@
   "name": "@repo/database",
   "version": "1.0.0",
   "private": true,
+  "exports": {
+    "./migrations/*": "./migrations/*"
+  },
   "scripts": {
     "supabase:dev": "pnpx supabase start",
     "supabase:push": "pnpx supabase db push",
-    "supabase:reset": "pnpx supabase db reset"
+    "supabase:reset": "pnpx supabase db reset",
+    "supabase:gen": "pnpx supabase gen types typescript --local > ../types/src/database.types.ts"
   },
   "dependencies": {
     "@repo/types": "workspace:*"

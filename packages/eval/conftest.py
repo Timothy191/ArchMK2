@@ -9,6 +9,17 @@ import pytest
 # Or create a .env file in this directory with:
 #   OPENAI_API_KEY=sk-...
 
+_HAS_REAL_OPENAI_KEY = (
+    os.environ.get("OPENAI_API_KEY", "").startswith("sk-")
+    and not os.environ.get("OPENAI_API_KEY", "").startswith("sk-dummy")
+    and len(os.environ.get("OPENAI_API_KEY", "")) > 20
+)
+
+requires_openai = pytest.mark.skipif(
+    not _HAS_REAL_OPENAI_KEY,
+    reason="OPENAI_API_KEY not set — skipping LLM-judge AI service tests",
+)
+
 
 def pytest_configure(config):
     """Register custom markers."""

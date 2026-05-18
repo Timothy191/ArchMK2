@@ -1,8 +1,9 @@
 """Translation AI service evaluation."""
 
 import pytest
+from conftest import requires_openai
 from deepeval import assert_test
-from deepeval.metrics import FactualConsistencyMetric
+from deepeval.metrics import FaithfulnessMetric
 from deepeval.test_case import LLMTestCase
 
 from datasets.golden_cases import TRANSLATION_INPUTS
@@ -10,6 +11,7 @@ from helpers import call_ai_service
 
 
 @pytest.mark.ai_service
+@requires_openai
 @pytest.mark.asyncio
 class TestTranslation:
     """Evaluate the translation AI prompt."""
@@ -24,5 +26,5 @@ class TestTranslation:
             context=case["context"],
         )
         # Factual consistency checks that the meaning and terminology are preserved
-        consistency = FactualConsistencyMetric(minimum_score=0.85)
+        consistency = FaithfulnessMetric(threshold=0.85)
         assert_test(test_case, [consistency])

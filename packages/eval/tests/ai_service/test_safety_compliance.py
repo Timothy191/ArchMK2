@@ -1,8 +1,9 @@
 """Safety compliance AI service evaluation."""
 
 import pytest
+from conftest import requires_openai
 from deepeval import assert_test
-from deepeval.metrics import FactualConsistencyMetric, UnBiasedMetric
+from deepeval.metrics import FaithfulnessMetric, BiasMetric
 from deepeval.test_case import LLMTestCase
 
 from datasets.golden_cases import SAFETY_COMPLIANCE_INPUTS
@@ -10,6 +11,7 @@ from helpers import call_ai_service
 
 
 @pytest.mark.ai_service
+@requires_openai
 @pytest.mark.asyncio
 class TestSafetyCompliance:
     """Evaluate the safety compliance AI prompt."""
@@ -23,7 +25,7 @@ class TestSafetyCompliance:
             actual_output=actual_output,
             context=case["context"],
         )
-        factual = FactualConsistencyMetric(minimum_score=0.8)
+        factual = FaithfulnessMetric(threshold=0.8)
         assert_test(test_case, [factual])
 
     @pytest.mark.parametrize("case", SAFETY_COMPLIANCE_INPUTS)
@@ -34,5 +36,5 @@ class TestSafetyCompliance:
             input=case["input"],
             actual_output=actual_output,
         )
-        bias = UnBiasedMetric(minimum_score=0.9)
+        bias = BiasMetric(threshold=0.9)
         assert_test(test_case, [bias])

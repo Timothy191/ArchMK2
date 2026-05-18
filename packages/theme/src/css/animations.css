@@ -146,7 +146,7 @@
   }
 }
 
-@keyframes pulse-glow {
+@keyframes pulse-glow-bg {
   0%,
   100% {
     opacity: 0.15;
@@ -170,8 +170,55 @@
   }
 }
 
+/* ── Modern Micro-Interactions ── */
+
+@keyframes soft-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes gentle-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* ── Animation Utility Classes ── */
 
+.animate-float {
+  animation: float-slow 20s infinite ease-in-out;
+}
 .animate-float-slow {
   animation: float-slow 20s infinite ease-in-out;
 }
@@ -205,6 +252,20 @@
   animation: spin 0.8s linear infinite;
 }
 
+/* Modern micro-interaction utilities */
+.animate-soft-bounce {
+  animation: soft-bounce 2s ease-in-out infinite;
+}
+.animate-gentle-pulse {
+  animation: gentle-pulse 2s ease-in-out infinite;
+}
+.animate-slide-in-right {
+  animation: slide-in-right 0.3s ease-out;
+}
+.animate-fade-up {
+  animation: fade-up 0.4s ease-out;
+}
+
 /* Login background animations */
 .animate-ken-burns {
   animation: ken-burns 20s ease-in-out infinite;
@@ -212,6 +273,21 @@
 .animate-gradient-shift {
   animation: gradient-shift 8s ease-in-out infinite;
 }
-.animate-pulse-glow {
-  animation: pulse-glow 6s ease-in-out infinite;
+.animate-pulse-glow-bg {
+  animation: pulse-glow-bg 6s ease-in-out infinite;
+}
+
+/* Subtle float for decorative elements */
+@keyframes subtle-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.animate-subtle-float {
+  animation: subtle-float 6s ease-in-out infinite;
 }

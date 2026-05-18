@@ -382,3 +382,56 @@ export interface HybridSearchResult {
   temporal_score: number;
   combined_score: number;
 }
+
+// Webhook Types
+export type WebhookEventType =
+  | "daily_log.created"
+  | "daily_log.updated"
+  | "breakdown.created"
+  | "breakdown.updated"
+  | "breakdown.completed"
+  | "safety_incident.created"
+  | "safety_incident.updated"
+  | "safety_incident.resolved"
+  | "production_log.created"
+  | "production_log.updated"
+  | "operational_delay.created"
+  | "operational_delay.updated";
+
+export interface WebhookEndpoint {
+  id: string;
+  url: string;
+  description: string | null;
+  event_types: WebhookEventType[];
+  department_id: string | null;
+  active: boolean;
+  secret: string | null;
+  deleted_at: string | null;
+  created_at: string;
+  updated_at: string | null;
+}
+
+export interface WebhookDeliveryLog {
+  id: string;
+  webhook_endpoint_id: string;
+  event_type: WebhookEventType;
+  payload: Record<string, unknown>;
+  response_status: number | null;
+  response_body: string | null;
+  delivered_at: string | null;
+  retry_count: number;
+  success: boolean;
+  error_message: string | null;
+  created_at: string;
+}
+
+export interface WebhookEventPayload {
+  event_type: WebhookEventType;
+  data: Record<string, unknown>;
+  timestamp: string;
+  department_id: string;
+  user_id: string;
+}
+
+export * from "./database.types";
+

@@ -21,7 +21,7 @@ function memorySet<T>(key: string, value: T, ttlSeconds: number): void {
 // Try to import Redis client, fallback to memory cache if unavailable
 async function getRedisClientSafe() {
   try {
-    const { getRedisClient } = await import("./client");
+    const { getRedisClient } = await import("./client.js");
     return await getRedisClient();
   } catch {
     return null;
@@ -30,40 +30,57 @@ async function getRedisClientSafe() {
 
 /**
  * Get a cached value by key.
+ * Checks L1 (In-Memory) first for ultra-low latency, then falls back to L2 (Redis).
  * Returns null if not found or on error.
- * Falls back to in-memory cache in edge environments.
  */
 export async function cacheGet<T>(key: string): Promise<T | null> {
+  // 1. Check L1 Cache (Local Memory) first - speed: < 0.1ms
+  const l1Value = memoryGet<T>(key);
+  if (l1Value !== null) {
+    return l1Value;
+  }
+
+  // 2. Miss in L1, check L2 Cache (Redis)
   try {
     const redis = await getRedisClientSafe();
     if (!redis) {
-      return memoryGet<T>(key);
+      return null;
     }
     const value = await redis.get(key);
-    return value ? (JSON.parse(value) as T) : null;
+    if (value) {
+      const parsed = JSON.parse(value) as T;
+      
+      // Populate L1 cache with a short TTL (15s) to accelerate subsequent near-term reads
+      memorySet(key, parsed, 15);
+      return parsed;
+    }
+    return null;
   } catch {
-    return memoryGet<T>(key);
+    return null;
   }
 }
 
 /**
  * Store a value in cache with a TTL (seconds).
- * Falls back to in-memory cache in edge environments.
+ * Writes to both L1 (Memory) and L2 (Redis) - Write-Through.
  */
 export async function cacheSet<T>(
   key: string,
   value: T,
   ttlSeconds: number,
 ): Promise<void> {
+  // 1. Write to L1 Cache (Local Memory) - cap L1 TTL at 30s to keep memory footprint lean
+  const l1Ttl = Math.min(ttlSeconds, 30);
+  memorySet(key, value, l1Ttl);
+
+  // 2. Write to L2 Cache (Redis)
   try {
     const redis = await getRedisClientSafe();
-    if (!redis) {
-      memorySet(key, value, ttlSeconds);
-      return;
+    if (redis) {
+      await redis.setEx(key, ttlSeconds, JSON.stringify(value));
     }
-    await redis.setEx(key, ttlSeconds, JSON.stringify(value));
-  } catch {
-    memorySet(key, value, ttlSeconds);
+  } catch (err) {
+    console.warn("L2 Redis write failed, relying exclusively on L1 cache:", err);
   }
 }
 

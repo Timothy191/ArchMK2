@@ -14,9 +14,9 @@ export function Input({
   return (
     <input
       className={cn(
-        "w-full rounded-lg border text-[var(--text-heading)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-cyan)]/30",
+        "w-full rounded-lg border text-[var(--text-heading)] placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-blue)]/30 transition-colors",
         variant === "default"
-          ? "border-[var(--border-default)] bg-[var(--card)]"
+          ? "border-[var(--border-default)] bg-[var(--bg-secondary)]"
           : "border-[var(--border-default)] bg-[var(--bg-tertiary)]",
         className,
       )}

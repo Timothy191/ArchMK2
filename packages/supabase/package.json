@@ -7,7 +7,8 @@
     ".": "./src/index.ts",
     "./server": "./src/server.ts",
     "./client": "./src/client.ts",
-    "./middleware": "./src/middleware.ts"
+    "./middleware": "./src/middleware.ts",
+    "./read-replica": "./src/read-replica.ts"
   },
   "scripts": {
     "build": "tsc",
@@ -20,7 +21,8 @@
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.3",
-    "@supabase/supabase-js": "catalog:"
+    "@supabase/supabase-js": "catalog:",
+    "svix": "^1.93.0"
   },
   "devDependencies": {
     "@types/node": "catalog:",

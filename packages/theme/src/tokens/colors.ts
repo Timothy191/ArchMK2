@@ -1,37 +1,37 @@
 /**
  * @module colors
- * Arch System — Color System v3.0
- * Nordic-style numbered palette (arch0-arch15) with semantic aliases.
+ * Arch System — Color System v4.0
+ * macOS Ventura/Sonoma light palette (arch0-arch15) with semantic aliases.
  * Mirrors CSS custom properties in variables.css for JS/TS usage (charts, shaders, dynamic values).
  */
 
 // ═══════════════════════════════════════════════════════════════
-// ARCH COLOR PALETTE — Nordic-Style Numbered System
+// ARCH COLOR PALETTE — macOS Ventura/Sonoma Light
 // ═══════════════════════════════════════════════════════════════
 
-/** Polar Void — Deeps (Backgrounds) */
-export const arch0 = "#050508";
-export const arch1 = "#0a0a0f";
-export const arch2 = "#12121a";
-export const arch3 = "#1a1a24";
+/** Background range — macOS system grays */
+export const arch0 = "#f5f5f7"; // macOS base background
+export const arch1 = "#ffffff"; // elevated surface / card
+export const arch2 = "#e8e8ed"; // sunken / input bg
+export const arch3 = "#d2d2d7"; // pressed / deeply sunken
 
-/** Steel Range — Mids (Borders, dividers) */
-export const arch4 = "#2a2a3a";
-export const arch5 = "#3d3d52";
-export const arch6 = "#52526b";
-export const arch7 = "#6b6b85";
+/** Border range — hairline to emphasis (stored as hex approximations for JS use) */
+export const arch4 = "rgba(0,0,0,0.06)";  // border subtle
+export const arch5 = "rgba(0,0,0,0.12)";  // border default
+export const arch6 = "rgba(0,0,0,0.20)";  // border emphasis
+export const arch7 = "rgba(0,0,0,0.30)";  // border strong
 
-/** Snow Range — Lights (Text, highlights) */
-export const arch8 = "#a0a0b8";
-export const arch9 = "#c4c4d4";
-export const arch10 = "#e0e0ea";
-export const arch11 = "#f0f0f5";
+/** Text range — macOS type hierarchy */
+export const arch8 = "#a1a1a6";   // muted / placeholder
+export const arch9 = "#6e6e73";   // secondary / caption
+export const arch10 = "#3a3a3c";  // body
+export const arch11 = "#1d1d1f";  // heading / primary
 
-/** Aurora Accents — Brand colors */
-export const arch12 = "#00d4aa"; // Cyan primary
-export const arch13 = "#6366f1"; // Indigo accent
-export const arch14 = "#8b5cf6"; // Violet glow
-export const arch15 = "#f43f5e"; // Rose alert
+/** Aurora Accents — macOS system colors */
+export const arch12 = "#ff3b30";  // red — error / danger
+export const arch13 = "#ff9f0a";  // orange — warning
+export const arch14 = "#34c759";  // green — success
+export const arch15 = "#007aff";  // blue — macOS system blue
 
 /** Complete palette array (for iteration) */
 export const ARCH_PALETTE = [
@@ -47,10 +47,9 @@ export const ARCH_PALETTE = [
 
 export const colors = {
   bg: {
-    void: arch0,
-    primary: arch1,
-    secondary: arch2,
-    tertiary: arch3,
+    primary: arch0,
+    secondary: arch1,
+    tertiary: arch2,
   },
   border: {
     subtle: arch4,
@@ -58,73 +57,98 @@ export const colors = {
     emphasis: arch6,
   },
   text: {
-    muted: arch7,
-    secondary: arch8,
-    body: arch9,
+    muted: arch8,
+    secondary: arch9,
+    body: arch10,
     primary: arch10,
     heading: arch11,
   },
   accent: {
-    cyan: arch12,
-    indigo: arch13,
-    violet: arch14,
-    alert: arch15,
+    red: arch12,
+    orange: arch13,
+    green: arch14,
+    blue: arch15,
   },
 } as const;
+
+/** @deprecated light-only — kept for backward compatibility */
+export const colorsDark = colors;
+
+// ═══════════════════════════════════════════════════════════════
+// TIER 3 — DEPRECATED ALIASES
+// @deprecated — Migrate all usages to the canonical accent-* names.
+// Stylelint will emit warnings on var(--accent-cyan/indigo/violet) usage.
+// ═══════════════════════════════════════════════════════════════
+/** @deprecated → use colors.accent.blue */
+export const accentCyan = arch15;
+/** @deprecated → use colors.accent.blue */
+export const accentIndigo = arch15;
+/** @deprecated → use colors.accent.blue */
+export const accentViolet = arch15;
+/** @deprecated → use colors.accent.red */
+export const accentAlert = arch12;
+/** @deprecated → use colors.accent.orange */
+export const accentAmber = arch13;
+/** @deprecated → use colors.accent.green */
+export const accentEmerald = arch14;
 
 // ═══════════════════════════════════════════════════════════════
 // GLASSMORPHISM TOKENS (RGBA for runtime use)
 // ═══════════════════════════════════════════════════════════════
 
 export const glass = {
+  surface: "rgba(255, 255, 255, 0.72)",
+  surfaceHover: "rgba(255, 255, 255, 0.88)",
+  surfaceStrong: "rgba(255, 255, 255, 0.92)",
+  border: "rgba(0, 0, 0, 0.08)",
+  borderTop: "rgba(255, 255, 255, 0.95)",
+  text: "rgba(10, 10, 20, 0.92)",
+  textMuted: "rgba(10, 10, 20, 0.55)",
+  vibrancy: "rgba(246, 246, 250, 0.82)",
+  /** @deprecated use top-level properties */
   light: {
     surface: "rgba(255, 255, 255, 0.72)",
-    surfaceHover: "rgba(255, 255, 255, 0.85)",
+    surfaceHover: "rgba(255, 255, 255, 0.88)",
     border: "rgba(0, 0, 0, 0.08)",
-    borderTop: "rgba(255, 255, 255, 0.9)",
-    text: "rgba(10, 10, 20, 0.9)",
+    borderTop: "rgba(255, 255, 255, 0.95)",
+    text: "rgba(10, 10, 20, 0.92)",
     textMuted: "rgba(10, 10, 20, 0.55)",
   },
-  dark: {
-    surface: "rgba(10, 15, 40, 0.45)",
-    surfaceHover: "rgba(10, 15, 40, 0.60)",
-    border: "rgba(255, 255, 255, 0.08)",
-    borderTop: "rgba(255, 255, 255, 0.18)",
-    text: "rgba(255, 255, 255, 0.92)",
-    textMuted: "rgba(255, 255, 255, 0.52)",
-  },
 } as const;
 
 // ═══════════════════════════════════════════════════════════════
-// HSL VALUES (for shadcn/ui compatibility)
-// ═══════════════════════════════════════════════════════════════
+// HSL VALUES (for shadcn/ui compatibility - macOS Light Mode)
+// ═══════════════════════════════════════════════════════════════ */
 
 export const hsl = {
-  primary: "168 100% 42%",        // #00d4aa cyan
-  primaryForeground: "168 100% 8%",
-  background: "240 10% 2%",
-  foreground: "0 0% 98%",
-  card: "240 10% 4%",
-  cardForeground: "0 0% 98%",
-  popover: "240 10% 4%",
-  popoverForeground: "0 0% 98%",
-  secondary: "240 4% 12%",
-  secondaryForeground: "0 0% 98%",
-  muted: "240 4% 12%",
-  mutedForeground: "240 5% 64%",
-  accent: "240 4% 16%",
-  accentForeground: "0 0% 98%",
-  destructive: "0 84% 60%",
-  destructiveForeground: "0 0% 98%",
-  border: "240 4% 16%",
-  input: "240 4% 16%",
-  ring: "168 100% 42%",
-  chart1: "168 100% 42%",
-  chart2: "239 84% 67%",
-  chart3: "258 90% 66%",
-  chart4: "35 92% 58%",
-  chart5: "340 75% 55%",
+  primary: "211 100% 50%",         // #007aff macOS blue
+  primaryForeground: "0 0% 100%",
+  background: "240 5% 96%",        // #f5f5f7
+  foreground: "240 6% 10%",        // #1d1d1f
+  card: "0 0% 100%",
+  cardForeground: "240 6% 10%",
+  popover: "0 0% 100%",
+  popoverForeground: "240 6% 10%",
+  secondary: "240 5% 91%",
+  secondaryForeground: "240 6% 10%",
+  muted: "240 5% 91%",
+  mutedForeground: "240 3% 44%",
+  accent: "240 5% 91%",
+  accentForeground: "240 6% 10%",
+  destructive: "4 86% 58%",        // #ff3b30
+  destructiveForeground: "0 0% 100%",
+  border: "240 6% 87%",
+  input: "240 5% 91%",
+  ring: "211 100% 50%",
+  chart1: "211 100% 50%",
+  chart2: "142 71% 45%",
+  chart3: "37 100% 50%",
+  chart4: "4 86% 58%",
+  chart5: "270 60% 55%",
 } as const;
+
+/** @deprecated light-only — kept for backward compatibility */
+export const hslDark = hsl;
 
 /** Generate a themer-compatible ColorSet for external tool export */
 export function generateThemerColorSet() {

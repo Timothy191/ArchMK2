@@ -1,6 +1,7 @@
 """Shift handoff AI service evaluation."""
 
 import pytest
+from conftest import requires_openai
 from deepeval import assert_test
 from deepeval.metrics import HallucinationMetric, AnswerRelevancyMetric
 from deepeval.test_case import LLMTestCase
@@ -10,6 +11,7 @@ from helpers import call_ai_service
 
 
 @pytest.mark.ai_service
+@requires_openai
 @pytest.mark.asyncio
 class TestShiftHandoff:
     """Evaluate the shift handoff AI prompt."""
@@ -23,7 +25,7 @@ class TestShiftHandoff:
             actual_output=actual_output,
             context=case["context"],
         )
-        hallucination = HallucinationMetric(minimum_score=0.7)
+        hallucination = HallucinationMetric(threshold=0.7)
         assert_test(test_case, [hallucination])
 
     @pytest.mark.parametrize("case", SHIFT_HANDOFF_INPUTS)
@@ -34,5 +36,5 @@ class TestShiftHandoff:
             input=case["input"],
             actual_output=actual_output,
         )
-        relevancy = AnswerRelevancyMetric(minimum_score=0.7)
+        relevancy = AnswerRelevancyMetric(threshold=0.7)
         assert_test(test_case, [relevancy])

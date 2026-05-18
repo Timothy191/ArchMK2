@@ -4,6 +4,7 @@ import { cn } from "../lib/utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
+import { MacTitleBar } from "./MacTitleBar";
 import {
   BarChart2,
   Clock,
@@ -69,34 +70,47 @@ export function DepartmentLayout({
   const basePath = `/${department.name}`;
 
   return (
-    <div className="flex h-screen">
-      <aside className="w-64 shrink-0 border-r border-[var(--border-default)] bg-[var(--bg-primary)] flex flex-col">
-        <div className="p-4 border-b border-[var(--border-default)] bg-[var(--card)]/50 backdrop-blur-sm">
+    <div className="flex h-screen bg-[var(--bg-primary)]">
+      {/* macOS Sidebar — vibrancy style */}
+      <aside className="w-60 shrink-0 border-r border-black/[0.08] bg-[var(--vibrancy-surface)] backdrop-blur-2xl flex flex-col"
+        // Vibrancy sidebar: subtle border refinement for macOS theme
+        style={{ borderRight: "1px solid rgba(0,0,0,0.07)" }}
+      >
+        {/* MacTitleBar with department name */}
+        <MacTitleBar title={department.displayName} />
+
+        {/* Back to Hub link */}
+        <div className="px-3 pt-3 pb-1">
           <Link
             href="/"
-            className="flex items-center gap-2 text-[var(--text-muted)] text-[10px] uppercase tracking-widest font-bold hover:text-[var(--text-heading)] transition-colors group"
+            className="flex items-center gap-1.5 text-[12px] text-[var(--text-muted)] hover:text-[var(--accent-blue)] transition-colors group px-2 py-1 rounded"
           >
-            <span className="group-hover:-translate-x-1 transition-transform">&larr;</span> Back to Hub
+            <span className="group-hover:-translate-x-0.5 transition-transform text-sm">‹</span>
+            <span>Back to Hub</span>
           </Link>
-          <div className="mt-4 flex items-center gap-3">
-            <div className={cn("p-2 rounded-lg border bg-opacity-10 ",
-              department.color === "amber" && "border-amber-500/20 text-amber-400 bg-amber-500",
-              department.color === "emerald" && "border-emerald-500/20 text-emerald-400 bg-emerald-500",
-              department.color === "blue" && "border-blue-500/20 text-blue-400 bg-blue-500",
-              department.color === "violet" && "border-violet-500/20 text-violet-400 bg-violet-500",
-              department.color === "red" && "border-red-500/20 text-red-400 bg-red-500",
-              department.color === "orange" && "border-orange-500/20 text-orange-400 bg-orange-500",
-              department.color === "cyan" && "border-cyan-500/20 text-cyan-400 bg-cyan-500",
-              department.color === "indigo" && "border-indigo-500/20 text-indigo-400 bg-indigo-500"
-            )}>
-              <BarChart2 className="w-4 h-4" />
-            </div>
-            <h2 className="text-lg font-medium text-[var(--text-heading)] tracking-tight">
-              {department.displayName}
-            </h2>
-          </div>
         </div>
-        <nav className="flex-1 p-3 space-y-1 overflow-y-auto custom-scrollbar">
+
+        {/* Department icon + label */}
+        <div className="px-4 py-2 flex items-center gap-2.5">
+          <div className={cn("p-1.5 rounded-lg",
+            department.color === "amber" && "bg-amber-500/10 text-amber-600",
+            department.color === "emerald" && "bg-emerald-500/10 text-emerald-600",
+            department.color === "blue" && "bg-blue-500/10 text-blue-600",
+            department.color === "violet" && "bg-violet-500/10 text-violet-600",
+            department.color === "red" && "bg-red-500/10 text-red-600",
+            department.color === "orange" && "bg-orange-500/10 text-orange-600",
+            department.color === "cyan" && "bg-cyan-500/10 text-cyan-600",
+            department.color === "indigo" && "bg-indigo-500/10 text-indigo-600",
+          )}>
+            <BarChart2 className="w-3.5 h-3.5" />
+          </div>
+          <span className="text-[12px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider">
+            {department.displayName}
+          </span>
+        </div>
+
+        {/* Navigation items */}
+        <nav className="flex-1 px-2 pb-2 space-y-0.5 overflow-y-auto">
           {tabs.map((tab) => {
             const href =
               tab.name === "dashboard" ? basePath : `${basePath}/${tab.name}`;
@@ -109,37 +123,45 @@ export function DepartmentLayout({
                 key={tab.name}
                 href={href}
                 className={cn(
-                  "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all relative group",
+                  "flex items-center gap-2.5 px-3 py-1.5 rounded-md text-[13px] transition-all relative group",
                   isActive
-                    ? "bg-[var(--bg-tertiary)] text-[var(--text-heading)] border border-[var(--border-default)] font-medium"
-                    : "text-[var(--text-muted)] hover:text-[var(--text-heading)] hover:bg-[var(--card)]",
+                    ? "bg-[var(--accent-blue)]/10 text-[var(--accent-blue)] font-medium"
+                    : "text-[var(--text-secondary)] hover:text-[var(--text-heading)] hover:bg-black/[0.04]",
                 )}
               >
-                {Icon && <Icon className={cn("w-4 h-4 shrink-0 transition-colors", isActive ? "text-[var(--accent-cyan)]" : "group-hover:text-[var(--text-heading)]")} />}
-                {tab.label}
                 {isActive && (
                   <motion.div
-                    layoutId="active-tab"
-                    className="absolute right-2 w-1 h-4 rounded-full bg-[var(--accent-cyan)]"
+                    layoutId="active-sidebar-tab"
+                    className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-full bg-[var(--accent-blue)]"
                   />
                 )}
+                {Icon && (
+                  <Icon className={cn(
+                    "w-3.5 h-3.5 shrink-0 transition-colors",
+                    isActive ? "text-[var(--accent-blue)]" : "text-[var(--text-muted)] group-hover:text-[var(--text-body)]"
+                  )} />
+                )}
+                {tab.label}
               </Link>
             );
           })}
         </nav>
-        <div className="p-4 border-t border-[var(--border-default)] bg-[var(--card)]/30">
-          <div className="flex items-center gap-2 px-2 py-1.5 rounded-md border border-[var(--border-default)] bg-[var(--bg-primary)]">
-            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-[10px] text-[var(--text-muted)] font-medium uppercase tracking-wider">Connection Secure</span>
+
+        {/* Bottom status strip */}
+        <div className="p-3 border-t border-black/[0.06]">
+          <div className="flex items-center gap-2 px-2 py-1.5 rounded-md bg-[var(--accent-green)]/8 border border-[var(--accent-green)]/15">
+            <div className="w-1.5 h-1.5 rounded-full bg-[var(--accent-green)] animate-pulse" />
+            <span className="text-[11px] text-[var(--text-muted)] font-medium tracking-wide">Connection Secure</span>
           </div>
         </div>
       </aside>
 
-      <main className="flex-1 overflow-auto p-6">
+      {/* Main content area */}
+      <main className="flex-1 overflow-auto bg-[var(--bg-primary)] p-6">
         <motion.div
-          initial={{ opacity: 0, y: 8 }}
+          initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.2 }}
+          transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
         >
           {children}
         </motion.div>

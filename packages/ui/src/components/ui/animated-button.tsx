@@ -11,16 +11,16 @@ const animatedButtonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-[var(--accent-cyan)] text-black hover:bg-[var(--accent-cyan)]/90",
+          "bg-[var(--accent-cyan)] text-black hover:bg-[var(--accent-cyan)]/90 active:bg-[var(--accent-cyan)]/80",
         accent:
-          "bg-[var(--accent-indigo)] text-white hover:bg-[var(--accent-indigo)]/90",
+          "bg-[var(--accent-indigo)] text-white hover:bg-[var(--accent-indigo)]/90 active:bg-[var(--accent-indigo)]/80",
         destructive:
-          "bg-[var(--accent-alert)] text-white hover:bg-[var(--accent-alert)]/90",
+          "bg-[var(--accent-alert)] text-white hover:bg-[var(--accent-alert)]/90 active:bg-[var(--accent-alert)]/80",
         outline:
-          "border border-[var(--border-default)] bg-transparent hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-heading)]",
+          "border border-[var(--border-default)] bg-transparent hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-heading)] active:bg-[var(--bg-secondary)]",
         secondary:
-          "bg-[var(--bg-tertiary)] text-[var(--text-body)] hover:bg-[var(--bg-tertiary)]/80",
-        ghost: "hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-heading)]",
+          "bg-[var(--bg-tertiary)] text-[var(--text-body)] hover:bg-[var(--bg-tertiary)]/80 active:bg-[var(--bg-tertiary)]/60",
+        ghost: "hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-heading)] active:bg-[var(--bg-secondary)]",
         link: "text-[var(--accent-cyan)] underline-offset-4 hover:underline",
       },
       size: {
@@ -49,7 +49,7 @@ export const AnimatedButton = React.forwardRef<
   AnimatedButtonProps
 >(
   (
-    { className, variant, size, hoverScale = 1.03, tapScale = 0.97, ...props },
+    { className, variant, size, hoverScale = 1.02, tapScale = 0.97, ...props },
     ref,
   ) => {
     return (
@@ -57,7 +57,7 @@ export const AnimatedButton = React.forwardRef<
         ref={ref}
         whileHover={{ scale: hoverScale }}
         whileTap={{ scale: tapScale }}
-        transition={{ type: "spring", stiffness: 400, damping: 25 }}
+        transition={{ type: "spring", stiffness: 500, damping: 30 }}
         className={cn(animatedButtonVariants({ variant, size, className }))}
         {...props}
       />
