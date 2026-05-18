@@ -54,6 +54,9 @@ yarn-error.log*
 
 # Runtime artifacts
 .frontend.pid
+.portal.pid
+portal.log
+deploy.log
 
 # Supabase local state (synced from packages/database/migrations/ by deploy-local.sh)
 packages/supabase/supabase/
@@ -72,3 +75,22 @@ ltm/snapshots/*
 # Typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Python virtual env
+ltm/.venv/
+
+# IDE tools
+.windsurf/
+.kilo/
+
+# Generated service workers
+apps/portal/public/sw.js
+apps/portal/public/sw.js.map
+apps/portal/public/swe-worker-*.js
+apps/portal/public/swe-worker-*.js.map
+apps/portal/public/workbox-*.js
+apps/portal/public/workbox-*.js.map
+
+# Test artifacts
+test-results/
+.bundlesize.json
