@@ -1,7 +1,7 @@
 ---
 title: Arch-Systems (Plantcor)
 created: 2026-05-14
-updated: 2026-05-15
+updated: 2026-05-17
 type: entity
 tags: [system, application, company]
 sources: [raw/articles/arch-systems-project-overview.md]
@@ -27,7 +27,7 @@ Arch-Systems (Plantcor) is a multi-departmental mining operations portal built a
 - `packages/ui/` → [[turborepo-monorepo|@repo/ui]] — shared components, shadcn primitives
 - `packages/theme/` → [[design-system|@repo/theme]] — design tokens, Tailwind preset
 - `packages/supabase/` → [[supabase-local-dev|@repo/supabase]] — client wrappers (browser, server, middleware)
-- `packages/database/` → [[database-schema|@repo/database]] — SQL migrations (7 migrations)
+- `packages/database/` → [[database-schema|@repo/database]] — SQL migrations (16 migrations)
 - `packages/hooks/` → @repo/hooks — useLocalStorage, useDebounce
 - `packages/types/` → @repo/types — Department, Employee, Machine, Shift, DailyLog interfaces
 - `packages/utils/` → @repo/utils — cn(), formatDate(), getCurrentShift(), excel utilities
@@ -69,3 +69,26 @@ Specialized routes:
 - `@univerjs/preset-sheets-core/lib/index.css` import once only in `UniverSheet.tsx` — never in layout.tsx
 - React version divergence: `apps/overview` uses React 18, `apps/portal` uses React 19 — no cross-app component sharing
 - All Tailwind config originates from `@repo/theme` — never add theme values directly in portal
+
+## Phase 4 Roadmap (Post Phase 3)
+
+All three phases are complete. Next recommended actions in priority order:
+
+| # | Area | Priority | Est. | Page |
+|---|------|----------|------|------|
+| 1 | On-Premises Server Setup & Cockpit | CRITICAL | 1–2 days | [[on-premises-deployment]] |
+| 2 | Comprehensive Testing & QA | HIGH | 1 week | [[testing-qa-strategy]] |
+| 3 | Database Optimization & Scaling | HIGH | 3–4 days | [[database-optimization]] |
+| 4 | Mobile Responsiveness & PWA | MEDIUM | 1 week | [[mobile-pwa]] |
+| 5 | Advanced Analytics & Reporting | MEDIUM | 2 weeks | [[analytics-reporting]] |
+
+### Current Metrics (Phase 3 Complete)
+
+| Metric | Value |
+|--------|-------|
+| Departments | 8/8 operational |
+| Database tables | 30+ with full RLS |
+| Test coverage | 72% (target: 90%) |
+| Mobile responsiveness | 68% avg (target: 85%) |
+| Security posture | 98% |
+| Wiki pages | 59 |

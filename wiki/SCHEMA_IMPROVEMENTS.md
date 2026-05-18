@@ -7,72 +7,80 @@ Analysis of the Arch-Systems database schema reveals a well-structured foundatio
 ---
 
 
-## 🔴 Completed Issues (Migrations 010-014)
+## 🔴 Completed Issues (Migrations 010-016)
 
 ### 1. Foreign Key Indexes ✅
-**Status**: COMPLETED in migration 010_schema_optimization.sql and 014_schema_refinement.sql
+
+**Status**: COMPLETED in migration 010_schema_optimization.sql, 014_schema_refinement.sql, and 016_schema_enhancements.sql
+
 - All FK columns indexed with CONCURRENTLY
 - Composite indexes for dashboard queries
 
 ### 2. `updated_at` Timestamps ✅
+
 **Status**: COMPLETED
+
 **Affected Tables**:
+
 - `daily_logs`, `machine_hours`, `fuel_logs`, `production_logs` - added in 010/014
 - Reference tables (`departments`, `employees`, `machines`, `sites`, `operators`, etc.) - added in 014
 
----
+### 3. Native Enum Types ✅
 
-## 🟠 Future Improvements (Pending Application Update)
+**Status**: COMPLETED in migration 016_schema_enhancements.sql
 
-### 3. Native Enum Types ✅ (Types Created)
-**Status**: Enum types created in 010, column migration pending application update
-**Impact**: Data integrity, type safety, query performance
-**Effort**: Medium
-**Priority**: P1
+- `role_type` enum ('admin', 'supervisor', 'operator')
+- `shift_type` enum ('day', 'night')
+- `incident_type` enum (all incident classifications)
+- `memory_type` enum ('episodic', 'semantic', 'procedural')
+- All relevant columns migrated from CHECK constraints to enum types
 
-**Recommendation**: Replace CHECK constraints with native PostgreSQL enums:
+### 4. Composite Indexes ✅
 
+**Status**: COMPLETED in 010, 014, 016
+
+Dashboard queries now use optimized composite indexes:
 ```sql
--- Create enum types
-CREATE TYPE role_type AS ENUM ('admin', 'supervisor', 'operator');
-CREATE TYPE shift_type AS ENUM ('day', 'night');
-CREATE TYPE incident_type AS ENUM ('near-miss', 'incident', 'lost-time', 'equipment-damage');
-CREATE TYPE memory_type AS ENUM ('episodic', 'semantic', 'procedural');
-
--- Migrate existing columns
-ALTER TABLE employees ALTER COLUMN role TYPE role_type USING role::role_type;
-ALTER TABLE daily_logs ALTER COLUMN shift TYPE shift_type USING shift::shift_type;
--- ... apply to all affected tables
-```
-
-### 4. Add Composite Indexes for Query Patterns
-**Impact**: 2-10x query performance improvement
-**Effort**: Low
-**Priority**: P1
-
-```sql
--- Daily operations dashboard queries
 CREATE INDEX idx_daily_logs_lookup ON daily_logs(department_id, log_date DESC, shift);
 CREATE INDEX idx_machine_ops_lookup ON machine_operations(department_id, shift_date DESC);
 CREATE INDEX idx_hourly_loads_lookup ON hourly_loads(department_id, load_date DESC);
 CREATE INDEX idx_excavator_activity_lookup ON excavator_activity(department_id, activity_date DESC);
 ```
 
-### 5. Standardize Soft Delete Pattern
-**Impact**: Consistent data recovery, audit compliance
-**Effort**: Medium
-**Priority**: P1
+### 5. Soft Delete Pattern ✅
 
-**Recommendation**: Add `deleted_at TIMESTAMPTZ` to tables currently missing it:
-- `operators`
-- `sites`
-- `mine_blocks`
-- `delay_categories`
-- `report_templates`
+**Status**: COMPLETED in migration 010, 014, 016
+
+Standardized across all reference tables:
+- `operators`, `sites`, `mine_blocks`, `delay_categories`, `report_templates`
+- All now have `deleted_at TIMESTAMPTZ` column
+
+### 6. Audit Trail (created_by) ✅
+
+**Status**: COMPLETED in migration 016
+
+Added audit trail columns to operational tables:
+- `daily_logs.created_by` → tracks log creator
+- `hourly_loads.created_by` → tracks load recorder
+- `machine_hours.created_by` → tracks machine record creator
+- `operational_delays.created_by` → tracks delay reporter
+- All FK constraints properly configured
+
+### 7. Generated Columns ✅
+
+**Status**: COMPLETED in migration 016
+
+Added computed columns for complex calculations:
+- `breakdowns.duration_hours` — Calculates duration from date_in/time_in to date_out/time_out
+- STORED generated column for persistence and query optimization
 
 ---
 
-## 🟡 Medium Priority Improvements
+## 🟠 Future Enhancements (Post-Phase 3)
+
+---
+
+## 🟡 Medium Priority Improvements (Post-Phase 3)
 
 ### 6. Normalize `hourly_loads` Table
 **Impact**: Schema flexibility, reduced maintenance
@@ -117,7 +125,7 @@ ALTER TABLE hourly_loads ADD COLUMN created_by UUID REFERENCES employees(id);
 
 ---
 
-## 🟢 Low Priority Improvements
+## 🟢 Low Priority Improvements (Post-Phase 3)
 
 ### 9. Table Partitioning Strategy
 **Impact**: Query performance at scale
@@ -183,21 +191,21 @@ GENERATED ALWAYS AS (
 - [x] Add missing RLS policies
 
 ### Phase 2: High Priority (COMPLETED in 010-014)
-- [x] Migrate columns to enum types (enums created in 010, column migration pending application update)
+- [x] Migrate columns to enum types - Migration 016_schema_enhancements.sql (Native Enums)
 - [x] Add composite indexes (dashboard patterns covered in 014)
 - [x] Standardize soft delete pattern (columns added in 010-014)
 - [x] Add numeric precision constraints (014)
 - [x] Comprehensive documentation (014)
 
-### Phase 3: Future Enhancements (REMAINING)
-1. Consider hourly_loads normalization
-2. Add audit trail columns (created_by)
-3. Migrate columns to native enum types
-4. Column type migration from CHECK to enum types
+### Phase 3: Enhancements (COMPLETED in 016)
+1. [x] Add audit trail columns (created_by)
+2. [x] Migrate columns to native enum types
+3. [x] Column type migration from CHECK to enum types
+4. [x] Add generated columns (breakdown duration)
 
 ### Phase 4: Future Enhancements (Month 2+)
-1. Table partitioning for large tables
-2. Add generated columns
+1. Consider hourly_loads normalization
+2. Table partitioning for large tables
 3. Performance monitoring dashboard
 
 ---

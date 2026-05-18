@@ -24,7 +24,7 @@ packages/
   theme/              → @repo/theme — design tokens, CSS variables, Tailwind preset
   ui/                 → @repo/ui — shared components, shadcn primitives
   supabase/           → @repo/supabase — client wrappers (browser, server, middleware)
-  database/           → @repo/database — SQL migrations (7 migrations, source of truth)
+  database/           → @repo/database — SQL migrations (16 migrations, source of truth)
   hooks/              → @repo/hooks — useLocalStorage, useDebounce
   types/              → @repo/types — Department, Employee, Machine, Shift, DailyLog
   utils/              → @repo/utils — cn(), formatDate(), getCurrentShift(), excel utilities

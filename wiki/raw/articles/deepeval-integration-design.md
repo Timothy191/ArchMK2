@@ -1,7 +1,7 @@
 ---
 source_url: file:///home/timothy/Project/Arch-Mk2/docs/superpowers/specs/2026-05-14-deepeval-integration-design.md
 ingested: 2026-05-14
-sha256: placeholder
+sha256: 2aa823dec037883d4689931de0044c887f47a8478eecbe3f8cce11bc26c5551b
 ---
 
 # DeepEval Integration Design

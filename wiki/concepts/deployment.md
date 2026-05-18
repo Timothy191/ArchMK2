@@ -333,9 +333,53 @@ jobs:
 
 ---
 
+---
+
+## Method D: On-Premises Server (Cockpit)
+
+The primary production target is an **on-premises Linux server** at the mining site, managed via Cockpit web UI (port 9090). The local dev script is already production-identical — deployment is `git pull` + script re-run.
+
+### Quick Deploy to On-Premises Server
+
+```bash
+# On the server (via Cockpit terminal or SSH)
+cd /opt/arch-systems
+git pull origin master
+
+# Restart services (zero-downtime portal restart)
+docker compose up -d --no-deps --build portal
+
+# Full stack restart (if Docker Compose changed)
+./scripts/deploy-local.sh
+```
+
+### Verify All Services Running
+
+```bash
+docker compose ps
+# Expected: portal, supabase, n8n, redis, prometheus, grafana — all "Up"
+```
+
+### Offline / Air-Gapped Update
+
+```bash
+# On dev machine: export images
+docker save arch-portal:latest | gzip > arch-portal.tar.gz
+scp arch-portal.tar.gz user@mining-server:/opt/arch-systems/
+
+# On server: load and restart
+docker load < arch-portal.tar.gz
+docker compose up -d --no-deps portal
+```
+
+See [[on-premises-deployment]] for full provisioning checklist, Cockpit setup, and environment variable reference.
+
+---
+
 ## Related
 
 - [[troubleshooting]] — General development issues
 - [[supabase-local-dev]] — Database setup
 - [[turborepo-monorepo]] — Build system
 - [[monitoring-error-tracking]] — Sentry and observability
+- [[on-premises-deployment]] — Full on-premises server setup & Cockpit guide

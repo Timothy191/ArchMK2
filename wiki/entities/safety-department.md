@@ -1,9 +1,9 @@
 ---
 title: Safety Department
 created: 2026-05-14
-updated: 2026-05-14
+updated: 2026-05-17
 type: entity
-tags: [department, department]
+tags: [department]
 sources: [raw/articles/arch-systems-project-overview.md]
 confidence: high
 ---
@@ -45,7 +45,25 @@ Incidents are recorded via the `safety_incidents` table with the following field
 - Near Miss
 - Other
 
+## Completeness Status (Phase 3)
+
+| Feature | Status |
+|---------|--------|
+| Dashboard | 95% |
+| Forms (incident log) | 90% |
+| Tables (history) | 95% |
+| Charts | 85% |
+| Real-time updates | 80% |
+| AI Assistant | 85% |
+| Mobile responsiveness | 70% |
+| **Overall** | **86%** |
+
+**Mobile:** Safety incident reporting is a critical mobile use case — inspectors file reports on-site from tablets/phones. Touch-optimized photo attachment and location fields are high value. See [[mobile-pwa]].
+
 ## Related
 - [[arch-systems]] — parent system
 - [[rls-policy]] — security policies protecting safety data
 - [[design-system]] — UI conventions used in safety forms
+- [[database-schema]] — safety_incidents, safety_severities table schemas
+- [[mobile-pwa]] — mobile responsiveness roadmap (field incident reporting)
+- [[analytics-reporting]] — safety incident trend analysis and compliance reports

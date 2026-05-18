@@ -1,7 +1,7 @@
 ---
 source_url: internal
 ingested: 2026-05-15
-sha256: codebase-analysis
+sha256: 785d0644936644dfc71a76fba9fa53bd202e1b473e5d747e4db4b93d8b2d783b
 ---
 
 # AI Service Source

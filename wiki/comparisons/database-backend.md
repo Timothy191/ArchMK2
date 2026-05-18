@@ -33,7 +33,7 @@ Selection of backend-as-a-service platform for a mining operations portal requir
 
 The portal uses **Supabase** with:
 
-- **Database**: PostgreSQL 15 with 7 migrations in `packages/database/migrations/`
+- **Database**: PostgreSQL 15 with 16 migrations in `packages/database/migrations/`
 - **Auth**: GoTrue-based with custom `handle_new_user()` trigger
 - **RLS**: Every table has `ENABLE ROW LEVEL SECURITY` with department-scoped policies
 - **Real-time**: `supabase.channel().on('postgres_changes')` for live dashboards

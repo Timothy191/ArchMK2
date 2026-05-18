@@ -363,9 +363,66 @@ pnpm dlx vercel logs
 
 ---
 
+---
+
+## Method D: On-Premises Linux Server via Cockpit
+
+The portal is designed as an **on-premises system**. The recommended production target is a Linux server at the mining site using the same Docker Compose stack as local dev.
+
+### Step 1: Provision Server
+
+```bash
+# Minimum: Ubuntu 22.04 LTS, 8GB RAM, 4 CPU cores
+# Install Docker
+curl -fsSL https://get.docker.com | sh
+
+# Install Cockpit (web-based server management on port 9090)
+sudo apt install cockpit
+sudo systemctl enable --now cockpit.socket
+```
+
+### Step 2: Deploy Stack
+
+```bash
+# Clone repo to server
+git clone <repo-url> /opt/arch-systems
+cd /opt/arch-systems
+
+# Configure environment
+cp apps/portal/.env.example apps/portal/.env
+# Edit .env with production Supabase keys, AI provider keys
+
+# Launch full stack (identical to local dev)
+./scripts/deploy-local.sh
+```
+
+### Step 3: Verify
+
+```bash
+docker compose ps
+# portal:3000, n8n:5678, grafana:9091, prometheus:9090, redis:6379 — all Up
+
+# Access portal
+curl http://localhost:3000  # → HTML response
+```
+
+### Updating Production
+
+```bash
+# Via Cockpit terminal or SSH
+cd /opt/arch-systems
+git pull origin master
+docker compose up -d --no-deps --build portal
+```
+
+See [[on-premises-deployment]] for full provisioning checklist, firewall rules, Cockpit setup, and offline/air-gapped update procedure.
+
+---
+
 ## Related
 
 - [[deployment]] — Full deployment runbook
+- [[on-premises-deployment]] — On-premises server setup & Cockpit guide
 - [[incident-response]] — If deploy causes issues
 - [[troubleshooting]] — Common issues
 - [[turborepo-monorepo]] — Build system

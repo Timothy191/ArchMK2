@@ -163,3 +163,91 @@ This provides a professional, browsable wiki alternative to the raw markdown fil
   - Added migration 008-009-010 references
   - Added schema improvements section
   - Added performance scorecard table
+
+## [2026-05-16] audit | Wiki audit and comprehensive fixes
+
+- Fixed stale migration count (7 → 16) in 5 files:
+  - entities/arch-systems.md, concepts/turborepo-monorepo.md, comparisons/database-backend.md
+  - raw/articles/arch-systems-project-overview.md, raw/codebase/migrations.md
+- Created 7 missing department entity pages:
+  - entities/drilling-department.md, entities/production-department.md
+  - entities/access-control-department.md, entities/engineering-department.md
+  - entities/control-room-department.md, entities/training-department.md
+  - entities/satellite-monitoring-department.md
+- Installed VitePress in docs/ and fixed broken nav links in config.mjs
+- Removed empty raw directories: papers/, transcripts/, assets/
+- Created _archive/ directory for superseded pages
+- Expanded 4 thin concept pages with concrete examples and references:
+  - concepts/rls-policy.md — Added policy template, helper function bodies, role matrix
+  - concepts/design-system.md — Added CSS variable reference, color palette, typography
+  - concepts/supabase-local-dev.md — Added common commands, troubleshooting section
+  - concepts/deepeval-integration.md — Added running tests, custom metric guide, example output
+- Computed real SHA-256 hashes for all 11 raw source files
+- Updated index.md: 42 → 49 total pages, 2 → 9 entities
+
+## [2026-05-17] enhancement | Git tree visualization & project graph documentation
+
+Created comprehensive git history and graph theory documentation in wiki/gittree/:
+
+**Files Created**:
+- gittree/README.md — Complete git graph from project inception through Phase 3, showing all branches, divergence points, and milestones
+- gittree/visual-graphs-reporting.md — Data visualization techniques (bar, line, Gantt, scatter, heatmaps) for project metrics and reporting
+- gittree/conceptual-code-graphs.md — Program analysis representations (ASTs, CFGs, Call Graphs, CPGs) used by static analyzers and security tools
+- gittree/graph-data-structures.md — Graph algorithms (BFS, DFS, Dijkstra, Topological Sort) with TypeScript implementations and real-world applications
+
+**Updates**:
+- Updated index.md with git tree section (total pages: 49 → 52)
+- Added quick reference links to git history and visualization resources
+- Cross-linked all gittree pages with related wiki sections
+
+## [2026-05-17] update | Schema improvements completion & wiki status refresh
+
+**SCHEMA_IMPROVEMENTS.md Updates**:
+- Marked migration 016_schema_enhancements.sql as completed:
+  - [x] Native enum types (role_type, shift_type, incident_type, memory_type)
+  - [x] Composite indexes for dashboard queries
+  - [x] Soft delete pattern standardization (deleted_at)
+  - [x] Audit trail (created_by) columns added
+  - [x] Generated columns (breakdowns.duration_hours)
+- Reorganized completed tasks from "Future Improvements" to "Completed Issues"
+- Marked phases 1-3 complete; future enhancements moved to Post-Phase 3 section
+
+**Wiki Index Updates**:
+- Updated project version from 1.5.1 to Phase 3 (Latest)
+- Added git tree resources to quick reference table
+- Updated total page count: 49 → 52 pages
+- Updated last modified date: 2026-05-16 → 2026-05-17
+
+## [2026-05-17] create | Project comprehensive report → wiki refresh (5 new concept pages)
+
+Based on `project-comprehensive-report.md` §9 — 5 recommended next steps:
+
+**New Pages Created:**
+- `concepts/on-premises-deployment.md` — CRITICAL: Linux server provisioning, Cockpit setup, Docker deploy, offline/air-gapped update
+- `concepts/testing-qa-strategy.md` — HIGH: Unit coverage 72%→90%+, E2E flows, Storybook visual regression, k6 load testing, OWASP ZAP scan
+- `concepts/database-optimization.md` — HIGH: Table partitioning (migrations 017–019), PgBouncer, read replicas, materialized views
+- `concepts/mobile-pwa.md` — MEDIUM: PWA manifest, service worker, offline write queue, touch-optimized forms
+- `concepts/analytics-reporting.md` — MEDIUM: Executive KPI dashboard, PDF/Excel export, n8n scheduled reports, ML predictive maintenance
+
+**Updated Pages (7):**
+- `STATUS.md` — Replaced next-steps with 5 actionable checklists + implementation timeline
+- `index.md` — Page count 54 → 59, new quick-reference rows, new concept links
+- `entities/arch-systems.md` — Added Phase 4 Roadmap section
+- `concepts/deployment.md` — Added Method D: On-Premises Server (Cockpit)
+- `queries/how-to-deploy-production.md` — Added Method D: Cockpit 3-step quickstart
+- `concepts/database-schema.md` — Added Scaling & Optimization Roadmap section
+- `UPDATE_SUMMARY.md` — New entry prepended
+
+## [2026-05-17] update | Incomplete wiki content completion pass
+
+**Enriched department entity pages** (added DB tables, completeness %, mobile status, Phase 4 links):
+- `entities/drilling-department.md` — Added DB tables, 72% completeness, mobile status
+- `entities/production-department.md` — Added DB tables, 77% completeness, mobile status
+- `entities/access-control-department.md` — Added DB tables, 71% completeness, mobile status
+- `entities/training-department.md` — Added DB tables, 72% completeness, mobile status
+- `entities/safety-department.md` — Added 86% completeness, mobile status, fixed duplicate tag
+- `entities/engineering-department.md` — Added 83% completeness, mobile status
+
+**Corrected and expanded concept pages:**
+- `concepts/ai-service.md` — Fixed Together AI (wired as tertiary in Phase 3); added Phase 3 additions: pgvector memory, Redis cache, MCP registry, Kiro orchestrator
+- `concepts/monitoring-error-tracking.md` — Added Prometheus & Grafana section: ports, scrape config, key metrics, dashboards, alert thresholds

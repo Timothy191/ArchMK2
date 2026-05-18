@@ -1,7 +1,7 @@
 ---
 source_url: internal
 ingested: 2026-05-15
-sha256: codebase-analysis
+sha256: 79f7a3aa18ebbc68062ae9b9ba65650e0a5e8e007f4c95f23dd71cd14eb496b1
 ---
 
 # Department Features Source

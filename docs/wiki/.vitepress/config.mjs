@@ -28,15 +28,7 @@ export default defineConfig({
     nav: [
       { text: 'Home', link: '/' },
       { text: 'Quick Reference', link: '/quick-reference' },
-      { text: 'Concepts', link: '/concepts/' },
-      { text: 'Queries', link: '/queries/' },
-      { 
-        text: 'v1.5.1',
-        items: [
-          { text: 'Changelog', link: '/changelog' },
-          { text: 'Contributing', link: '/contributing' },
-        ]
-      },
+      { text: 'v1.5.1', link: '/entities/arch-systems' },
     ],
     
     // Sidebar
