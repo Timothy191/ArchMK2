@@ -180,7 +180,7 @@ export function CloseShiftModal({
             <button
               type="button"
               onClick={onClose}
-              className="w-full py-2.5 bg-[var(--card)] border border-[var(--border-default)] text-[var(--text-heading)] font-medium rounded-lg hover:bg-[var(--bg-tertiary)] transition-colors text-sm"
+              className="w-full py-2.5 bg-[var(--bg-secondary)] border border-[var(--border-default)] text-[var(--text-heading)] font-medium rounded-lg hover:bg-[var(--bg-tertiary)] transition-colors text-sm"
             >
               Close
             </button>
@@ -205,7 +205,7 @@ export function CloseShiftModal({
                 value={employeeCode}
                 onChange={(e) => setEmployeeCode(e.target.value)}
                 placeholder="e.g. EMP001"
-                className="w-full bg-[var(--card)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-cyan)] transition-colors"
+                className="w-full bg-[var(--bg-secondary)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] placeholder:text-[var(--text-muted)] text-sm focus:outline-none focus:border-[var(--accent-blue)] focus:ring-2 focus:ring-[var(--accent-blue)]/20 transition-colors"
               />
             </div>
 
@@ -218,7 +218,7 @@ export function CloseShiftModal({
                 value={pin}
                 onChange={(e) => setPin(e.target.value)}
                 placeholder="Enter supervisor PIN"
-                className="w-full bg-[var(--card)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-cyan)] transition-colors"
+                className="w-full bg-[var(--bg-secondary)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] placeholder:text-[var(--text-muted)] text-sm focus:outline-none focus:border-[var(--accent-blue)] focus:ring-2 focus:ring-[var(--accent-blue)]/20 transition-colors"
               />
             </div>
 
@@ -226,7 +226,7 @@ export function CloseShiftModal({
               type="button"
               onClick={handleVerify}
               disabled={state.type === "verifying" || !employeeCode || !pin}
-              className="w-full flex items-center justify-center gap-2 bg-[var(--accent-cyan)] hover:bg-[var(--accent-cyan)]/90 disabled:bg-[var(--bg-tertiary)] disabled:text-[var(--text-muted)] text-[var(--bg-secondary)] font-medium py-2.5 rounded-lg transition-colors"
+              className="w-full flex items-center justify-center gap-2 bg-[var(--accent-blue)] hover:bg-[var(--accent-blue)]/90 disabled:bg-[var(--bg-tertiary)] disabled:text-[var(--text-muted)] text-white font-medium py-2.5 rounded-lg transition-colors"
             >
               {state.type === "verifying" ? (
                 <>
@@ -260,7 +260,7 @@ export function CloseShiftModal({
             <button
               type="button"
               onClick={handleCloseShift}
-              className="w-full flex items-center justify-center gap-2 bg-[var(--accent-cyan)] hover:bg-[var(--accent-cyan)]/90 text-[var(--bg-secondary)] font-medium py-2.5 rounded-lg transition-colors"
+              className="w-full flex items-center justify-center gap-2 bg-[var(--accent-blue)] hover:bg-[var(--accent-blue)]/90 text-white font-medium py-2.5 rounded-lg transition-colors"
             >
               <Lock className="w-4 h-4" />
               Close Shift & Lock
@@ -269,7 +269,7 @@ export function CloseShiftModal({
             <button
               type="button"
               onClick={onClose}
-              className="w-full py-2 bg-[var(--card)] border border-[var(--border-default)] text-[var(--text-muted)] font-medium rounded-lg hover:text-[var(--text-heading)] transition-colors text-sm"
+              className="w-full py-2 bg-[var(--bg-secondary)] border border-[var(--border-default)] text-[var(--text-muted)] font-medium rounded-lg hover:text-[var(--text-heading)] transition-colors text-sm"
             >
               Cancel
             </button>
@@ -278,7 +278,7 @@ export function CloseShiftModal({
 
         {state.type === "submitting" && (
           <div className="flex flex-col items-center py-8 gap-3">
-            <Loader2 className="w-8 h-8 text-[var(--accent-cyan)] animate-spin" />
+            <Loader2 className="w-8 h-8 text-[var(--accent-blue)] animate-spin" />
             <p className="text-[var(--text-muted)] text-sm">
               Closing shift...
             </p>
@@ -303,7 +303,7 @@ export function CloseShiftModal({
             <button
               type="button"
               onClick={validate}
-              className="w-full py-2.5 bg-[var(--card)] border border-[var(--border-default)] text-[var(--text-heading)] font-medium rounded-lg hover:bg-[var(--bg-tertiary)] transition-colors text-sm"
+              className="w-full py-2.5 bg-[var(--bg-secondary)] border border-[var(--border-default)] text-[var(--text-heading)] font-medium rounded-lg hover:bg-[var(--bg-tertiary)] transition-colors text-sm"
             >
               Try Again
             </button>

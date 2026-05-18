@@ -3,6 +3,7 @@
 import { createServerSupabaseClient } from "@repo/supabase/server";
 import { revalidatePath } from "next/cache";
 import { logAuditEvent } from "@/lib/audit";
+import { AuthError, DatabaseError } from "@repo/errors";
 import type {
   CreateBreakdownInput,
   BookOutInput,
@@ -18,7 +19,9 @@ export async function createBreakdown(
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) throw new Error("Unauthorized");
+  if (!user) {
+    throw new AuthError("Unauthorized", { context: { action: "createBreakdown" } });
+  }
 
   const { error } = await supabase.from("breakdowns").insert({
     department_id: departmentId,
@@ -32,7 +35,13 @@ export async function createBreakdown(
     created_by: user.id,
   });
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    throw new DatabaseError("Failed to create breakdown", {
+      operation: "insert",
+      table: "breakdowns",
+      context: { error: error.message },
+    });
+  }
 
   await logAuditEvent({
     action: "insert",
@@ -54,7 +63,9 @@ export async function bookOutBreakdown(
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) throw new Error("Unauthorized");
+  if (!user) {
+    throw new AuthError("Unauthorized", { context: { action: "bookOutBreakdown" } });
+  }
 
   const { data: before } = await supabase
     .from("breakdowns")
@@ -73,7 +84,13 @@ export async function bookOutBreakdown(
     })
     .eq("id", breakdownId);
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    throw new DatabaseError("Failed to book out breakdown", {
+      operation: "update",
+      table: "breakdowns",
+      context: { error: error.message },
+    });
+  }
 
   await logAuditEvent({
     action: "update",
@@ -101,7 +118,9 @@ export async function directCheckout(
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) throw new Error("Unauthorized");
+  if (!user) {
+    throw new AuthError("Unauthorized", { context: { action: "directCheckout" } });
+  }
 
   const { error } = await supabase.from("breakdowns").insert({
     department_id: departmentId,
@@ -119,7 +138,13 @@ export async function directCheckout(
     completed_by: user.id,
   });
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    throw new DatabaseError("Failed to create breakdown (direct checkout)", {
+      operation: "insert",
+      table: "breakdowns",
+      context: { error: error.message },
+    });
+  }
 
   await logAuditEvent({
     action: "insert",
@@ -142,7 +167,9 @@ export async function softDeleteBreakdown(breakdownId: string) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) throw new Error("Unauthorized");
+  if (!user) {
+    throw new AuthError("Unauthorized", { context: { action: "createBreakdown" } });
+  }
 
   const { data: before } = await supabase
     .from("breakdowns")
@@ -155,7 +182,13 @@ export async function softDeleteBreakdown(breakdownId: string) {
     .update({ deleted_at: new Date().toISOString() })
     .eq("id", breakdownId);
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    throw new DatabaseError("Failed to delete breakdown", {
+      operation: "update",
+      table: "breakdowns",
+      context: { error: error.message },
+    });
+  }
 
   await logAuditEvent({
     action: "delete",

@@ -93,6 +93,16 @@ export const DEPARTMENTS: Department[] = [
     gridSpan: "md:col-span-2 xl:col-span-1",
     stats: { label: "Imagery", value: "Latest" },
   },
+  {
+    name: "admin",
+    displayName: "Admin",
+    icon: "Shield",
+    description: "Personnel management, shift oversight & quotas",
+    color: "violet",
+    status: "active",
+    gridSpan: "md:col-span-1 xl:col-span-1",
+    stats: { label: "Employees", value: "248" },
+  },
 ];
 
 export const PRODUCTIVITY_TOOLS = [
@@ -177,7 +187,18 @@ export const SATELLITE_MONITORING_TABS = [
   { name: "highres", label: "High-Res", icon: "ScanSearch" },
 ] as const;
 
+/**
+ * Drilling specific tabs - focused on rig operations and telemetry
+ */
+export const DRILLING_TABS = [
+  { name: "dashboard", label: "Dashboard", icon: "BarChart2" },
+  { name: "drilling-operations", label: "Drilling Operations", icon: "Drill" },
+  { name: "machine-telemetry", label: "Machine Telemetry", icon: "Activity" },
+  { name: "reports", label: "Reports", icon: "FileText" },
+] as const;
+
 export type DepartmentTab = typeof DEPARTMENT_TABS[number];
+export type DrillingTab = typeof DRILLING_TABS[number];
 export type ControlRoomTab = typeof CONTROL_ROOM_TABS[number];
 
 /**
@@ -193,6 +214,9 @@ export function getDepartmentTabs(departmentName: string) {
   }
   if (departmentName === "engineering") {
     return ENGINEERING_TABS;
+  }
+  if (departmentName === "drilling") {
+    return DRILLING_TABS;
   }
   return DEPARTMENT_TABS;
 }

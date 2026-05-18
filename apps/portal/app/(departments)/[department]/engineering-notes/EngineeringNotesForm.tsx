@@ -132,7 +132,7 @@ export function EngineeringNotesForm({ departmentId, machines }: EngineeringNote
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, issueType: e.target.value }))
               }
-              className="w-full bg-[var(--card)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-cyan)] transition-colors"
+              className="w-full bg-[var(--bg-secondary)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-blue)] transition-colors"
             >
               <option value="">Select type...</option>
               {ISSUE_TYPES.map((type) => (
@@ -156,7 +156,7 @@ export function EngineeringNotesForm({ departmentId, machines }: EngineeringNote
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, severity: e.target.value }))
               }
-              className="w-full bg-[var(--card)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-cyan)] transition-colors"
+              className="w-full bg-[var(--bg-secondary)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-blue)] transition-colors"
             >
               <option value="">Select severity...</option>
               {SEVERITY_LEVELS.map((sev) => (
@@ -180,7 +180,7 @@ export function EngineeringNotesForm({ departmentId, machines }: EngineeringNote
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, machineId: e.target.value }))
               }
-              className="w-full bg-[var(--card)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-cyan)] transition-colors"
+              className="w-full bg-[var(--bg-secondary)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-blue)] transition-colors"
             >
               <option value="">No specific machine</option>
               {machines.map((m) => (
@@ -209,7 +209,7 @@ export function EngineeringNotesForm({ departmentId, machines }: EngineeringNote
                 className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
                   formData.shiftType === shift
                     ? "bg-[var(--accent-cyan)] text-[var(--bg-secondary)]"
-                    : "bg-[var(--card)] border border-[var(--border-default)] text-[var(--text-muted)] hover:text-[var(--text-heading)]"
+                    : "bg-[var(--bg-secondary)] border border-[var(--border-default)] text-[var(--text-muted)] hover:text-[var(--text-heading)]"
                 }`}
               >
                 {shift.charAt(0).toUpperCase() + shift.slice(1)}
@@ -231,7 +231,7 @@ export function EngineeringNotesForm({ departmentId, machines }: EngineeringNote
             placeholder="Describe the engineering issue..."
             rows={3}
             maxLength={500}
-            className="w-full bg-[var(--card)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-cyan)] transition-colors resize-none"
+            className="w-full bg-[var(--bg-secondary)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-blue)] transition-colors resize-none"
           />
           <div className="flex justify-between">
             {errors.description && (
@@ -256,7 +256,7 @@ export function EngineeringNotesForm({ departmentId, machines }: EngineeringNote
             placeholder="What was done to address this issue?"
             rows={2}
             maxLength={300}
-            className="w-full bg-[var(--card)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-cyan)] transition-colors resize-none"
+            className="w-full bg-[var(--bg-secondary)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-blue)] transition-colors resize-none"
           />
         </div>
 
@@ -271,7 +271,7 @@ export function EngineeringNotesForm({ departmentId, machines }: EngineeringNote
                 requiresFollowUp: e.target.checked,
               }))
             }
-            className="w-4 h-4 rounded border-[var(--border-default)] bg-[var(--card)] text-[var(--accent-cyan)] focus:ring-[var(--accent-cyan)]"
+            className="w-4 h-4 rounded border-[var(--border-default)] bg-[var(--bg-secondary)] text-[var(--accent-cyan)] focus:ring-[var(--accent-cyan)]"
           />
           <span className="text-[var(--text-secondary)] text-sm">Requires follow-up</span>
         </label>

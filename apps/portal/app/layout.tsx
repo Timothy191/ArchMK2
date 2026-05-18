@@ -1,9 +1,11 @@
 import "@repo/ui/globals.css";
 import { ArchThemeProvider } from "@repo/theme/react";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Outfit } from "next/font/google";
-import { GlobalBackground } from "@/components/GlobalBackground";
-// import { DynamicBackgroundWrapper } from "@/components/3d/DynamicBackgroundWrapper";
+import { WebGLSilkWaves } from "@/components/WebGLSilkWaves";
+import { CustomCursor } from "@/components/CustomCursor";
+import { AIAssistantSidebar } from "@/features/shared/components/ai/AIAssistantSidebar";
+import { OfflineBanner } from "@/components/OfflineBanner";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -18,6 +20,25 @@ const outfit = Outfit({
 export const metadata: Metadata = {
   title: "Arch-Systems | Plantcor OS",
   description: "Multi-departmental industrial operations portal",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Arch Portal",
+  },
+  formatDetection: {
+    telephone: false,
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  minimumScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  themeColor: "#050508",
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
@@ -29,13 +50,17 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning className={`${inter.variable} ${outfit.variable}`}>
       <head>
         <meta name="theme-color" content="#050508" />
-        {/* Anti-FOUC: set theme before paint */}
+        {/* Set dark mode default for operational safety (mining control room) */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
                 var theme = localStorage.getItem('theme');
-                if (theme === 'dark' || (!theme && matchMedia('(prefers-color-scheme: dark)').matches)) {
+                if (!theme) {
+                  localStorage.setItem('theme', 'dark');
+                  theme = 'dark';
+                }
+                if (theme === 'dark') {
                   document.documentElement.classList.add('dark');
                   document.documentElement.setAttribute('data-theme', 'dark');
                 } else {
@@ -46,11 +71,12 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="text-[var(--text-heading)] min-h-screen font-sans antialiased selection:bg-[var(--accent-cyan)]/30 selection:text-[var(--accent-cyan)] relative overflow-x-hidden bg-[var(--bg-void)]">
+      <body className="text-[var(--text-heading)] min-h-screen font-sans antialiased selection:bg-[var(--accent-blue)]/30 selection:text-[var(--accent-blue)] relative overflow-x-hidden bg-[var(--bg-primary)]">
         <ArchThemeProvider>
-          <GlobalBackground />
-          {/* Animated Premium Background Layer - Temporarily disabled for React 19 compatibility */}
-          {/* <DynamicBackgroundWrapper /> */}
+          <OfflineBanner />
+          <WebGLSilkWaves />
+          <CustomCursor />
+          <AIAssistantSidebar />
 
           {/* Content wrapper */}
           <div className="relative z-10">

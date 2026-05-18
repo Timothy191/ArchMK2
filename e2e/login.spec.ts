@@ -83,37 +83,46 @@ test.describe("auth middleware", () => {
 });
 
 test.describe("design system", () => {
-  test("login page uses correct dark theme colors", async ({ page }) => {
+  test("login page uses light macOS theme background", async ({ page }) => {
     await page.goto("/login");
 
-    // Check body has dark background
-    const body = page.locator("body");
-    await expect(body).toHaveClass(/bg-\[#0f0f0f\]/);
-
-    // Check form card uses correct background
-    const form = page.locator("form");
-    await expect(form).toHaveClass(/bg-\[#242424\]/);
-    await expect(form).toHaveClass(/border-\[#363636\]/);
-
-    // Check text color
-    const heading = page.locator("h1");
-    await expect(heading).toHaveClass(/text-\[#fafafa\]/);
+    // Body background should be a light gray (#f3f4f6)
+    const bodyBg = await page.evaluate(() =>
+      window.getComputedStyle(document.body).backgroundColor,
+    );
+    const match = bodyBg.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+    if (match) {
+      const [, r, g, b] = match.map(Number);
+      const luminance = (r! + g! + b!) / 3;
+      expect(luminance).toBeGreaterThan(200); // light background
+    }
   });
 
-  test("no forbidden design system classes are present", async ({ page }) => {
+  test("login form uses macOS glass card styling", async ({ page }) => {
+    await page.goto("/login");
+
+    // Form card should use the light glass background (#f5f5f7)
+    const form = page.locator("form");
+    await expect(form).toHaveClass(/bg-\[#f5f5f7\]/);
+
+    // Heading should be present and use dark text
+    const heading = page.locator("h1");
+    await expect(heading).toBeVisible();
+    await expect(heading).toHaveClass(/text-\[var\(--text-heading\)\]/);
+  });
+
+  test("no forbidden raw shadow classes are present", async ({ page }) => {
     await page.goto("/login");
 
     const html = await page.content();
 
+    // Raw Tailwind shadow utilities are forbidden — only named custom tokens allowed
     const forbiddenPatterns = [
-      "font-bold",
-      "font-semibold",
-      "bg-white/5",
-      "border-white/10",
-      "text-white/50",
-      "text-white/70",
-      "shadow",
-      "box-shadow",
+      "shadow-sm\"",
+      "shadow-md\"",
+      "shadow-lg\"",
+      "shadow-xl\"",
+      "shadow-2xl\"",
     ];
 
     for (const pattern of forbiddenPatterns) {

@@ -1,4 +1,15 @@
+/**
+ * @jest-environment node
+ */
+
 import { POST } from "./route";
+import { resetRateLimits } from "./limiter";
+
+jest.mock("@repo/supabase/server", () => ({
+  createServerSupabaseClient: jest.fn().mockResolvedValue({
+    auth: { getUser: jest.fn().mockResolvedValue({ data: { user: { id: "user-1" } }, error: null }) },
+  }),
+}));
 
 jest.mock("ai", () => ({
   streamText: jest.fn(),
@@ -24,11 +35,20 @@ jest.mock("@/lib/ai/tools", () => ({
   aiTools: { machineStatus: {} },
 }));
 
+jest.mock("@/lib/ai/memory", () => ({
+  storeMemory: jest.fn().mockResolvedValue(undefined),
+  retrieveRelevantMemories: jest.fn().mockResolvedValue([]),
+  formatMemoriesForContext: jest.fn().mockReturnValue(""),
+}));
+
 const { streamText } = jest.requireMock("ai");
+const { createServerSupabaseClient } = jest.requireMock("@repo/supabase/server");
+const { storeMemory, retrieveRelevantMemories } = jest.requireMock("@/lib/ai/memory");
 
 describe("POST /api/ai/chat", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    resetRateLimits();
     streamText.mockReturnValue({
       toUIMessageStreamResponse: jest
         .fn()
@@ -169,5 +189,68 @@ describe("POST /api/ai/chat", () => {
     expect(res.status).toBe(500);
     const json = await res.json();
     expect(json.error).toBe("Failed to generate response");
+  });
+
+  it("returns 401 when user is not authenticated", async () => {
+    createServerSupabaseClient.mockResolvedValueOnce({
+      auth: {
+        getUser: jest.fn().mockResolvedValue({
+          data: { user: null },
+          error: new Error("Not authenticated"),
+        }),
+      },
+    });
+
+    const req = createRequest({
+      messages: [{ id: "1", role: "user", content: "Hello" }],
+    });
+
+    const res = await POST(req);
+    expect(res.status).toBe(401);
+    const json = await res.json();
+    expect(json.error).toBe("Unauthorized");
+  });
+
+  it("stores and retrieves memories for user message", async () => {
+    const req = createRequest({
+      messages: [{ id: "msg-1", role: "user", content: "Tell me about mining" }],
+      sessionId: "session-abc",
+    });
+
+    const res = await POST(req);
+    expect(res.status).toBe(200);
+    expect(storeMemory).toHaveBeenCalledWith(
+      expect.objectContaining({
+        sessionId: "session-abc",
+        content: expect.stringContaining("Tell me about mining"),
+        memoryType: "episodic",
+      }),
+    );
+    expect(retrieveRelevantMemories).toHaveBeenCalledTimes(2);
+  });
+
+  it("generates a session ID when none provided", async () => {
+    const req = createRequest({
+      messages: [{ id: "msg-1", role: "user", content: "Hello" }],
+    });
+
+    const res = await POST(req);
+    expect(res.status).toBe(200);
+    // sessionId is generated internally and passed to storeMemory
+    expect(storeMemory).toHaveBeenCalledWith(
+      expect.objectContaining({ sessionId: expect.stringMatching(/^sess_/) }),
+    );
+  });
+
+  it("continues when memory retrieval fails", async () => {
+    retrieveRelevantMemories.mockRejectedValue(new Error("Memory service down"));
+
+    const req = createRequest({
+      messages: [{ id: "msg-1", role: "user", content: "Hello" }],
+    });
+
+    const res = await POST(req);
+    // Should still succeed despite memory failure
+    expect(res.status).toBe(200);
   });
 });

@@ -4,6 +4,8 @@
  * https://open-meteo.com/
  */
 
+import { APIError } from "@repo/errors";
+
 export interface WeatherData {
   temperature: number;
   feelsLike: number;
@@ -71,7 +73,10 @@ export async function fetchWeather(
   const response = await fetch(url, { next: { revalidate: 300 } }); // Cache 5 minutes
 
   if (!response.ok) {
-    throw new Error(`Weather API error: ${response.status}`);
+    throw new APIError(`Weather API error: ${response.status}`, {
+      statusCode: response.status,
+      context: { endpoint: "open-meteo", statusText: response.statusText },
+    });
   }
 
   const data = await response.json();

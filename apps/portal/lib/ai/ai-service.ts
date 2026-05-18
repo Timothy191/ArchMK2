@@ -1,11 +1,14 @@
 /**
- * Multi-Provider AI Service for Arch-Systems Portal
- * Supports Groq (primary), OpenRouter (secondary), Together AI (backup)
- * All providers have free tiers with no credit card required
+ * Groq Multi-Key AI Service for Arch-Systems Portal
+ * Uses 3 Groq API keys for rotation to increase free tier capacity
+ * Each key: 30 req/min, 1440 req/day
+ * Total with 3 keys: 90 req/min, 4320 req/day
+ *
+ * Integrated with SerpApi for web search augmentation
  */
 
-// Provider types
-export type AIProvider = "groq" | "openrouter" | "together";
+import { APIError, RateLimitError } from "@repo/errors";
+import { logError } from "@/lib/errors/error-logger";
 
 interface ProviderConfig {
   name: string;
@@ -17,39 +20,20 @@ interface ProviderConfig {
   requestsPerDay: number;
 }
 
-const PROVIDERS: Record<AIProvider, ProviderConfig> = {
-  groq: {
-    name: "Groq",
-    baseUrl: "https://api.groq.com/openai/v1",
-    model: "llama-3.1-8b-instant",
-    maxTokens: 4096,
-    requestsPerMinute: 30,
-    tokensPerMinute: 6000,
-    requestsPerDay: 1440, // 30 * 48 (30 per min = 1440 per day)
-  },
-  openrouter: {
-    name: "OpenRouter",
-    baseUrl: "https://openrouter.ai/api/v1",
-    model: "google/gemma-2-9b-it:free",
-    maxTokens: 4096,
-    requestsPerMinute: 0, // N/A
-    tokensPerMinute: 0,
-    requestsPerDay: 60,
-  },
-  together: {
-    name: "Together AI",
-    baseUrl: "https://api.together.xyz/v1",
-    model: "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",
-    maxTokens: 4096,
-    requestsPerMinute: 0,
-    tokensPerMinute: 60,
-    requestsPerDay: 60,
-  },
+const GROQ_CONFIG: ProviderConfig = {
+  name: "Groq",
+  baseUrl: "https://api.groq.com/openai/v1",
+  model: "llama-3.1-8b-instant",
+  maxTokens: 4096,
+  requestsPerMinute: 30,
+  tokensPerMinute: 6000,
+  requestsPerDay: 1440,
 };
 
 export interface AIResponse {
   content: string;
-  provider: AIProvider;
+  provider: string;
+  keyIndex: number;
   usage?: {
     promptTokens: number;
     completionTokens: number;
@@ -65,79 +49,131 @@ export interface AIRequest {
   maxTokens?: number;
 }
 
-// Rate limiting state (in-memory, per-instance)
-const rateLimitState: Record<
-  AIProvider,
-  { count: number; windowStart: number; tokenCount: number; lastReset: number }
-> = {
-  groq: {
-    count: 0,
-    windowStart: Date.now(),
-    tokenCount: 0,
-    lastReset: Date.now(),
-  },
-  openrouter: {
-    count: 0,
-    windowStart: Date.now(),
-    tokenCount: 0,
-    lastReset: Date.now(),
-  },
-  together: {
-    count: 0,
-    windowStart: Date.now(),
-    tokenCount: 0,
-    lastReset: Date.now(),
-  },
-};
+// Rate limiting state (in-memory, per-key)
+const rateLimitState: Array<{
+  count: number;
+  windowStart: number;
+  tokenCount: number;
+  lastReset: number;
+}> = [
+  { count: 0, windowStart: Date.now(), tokenCount: 0, lastReset: Date.now() },
+  { count: 0, windowStart: Date.now(), tokenCount: 0, lastReset: Date.now() },
+  { count: 0, windowStart: Date.now(), tokenCount: 0, lastReset: Date.now() },
+];
 
 /**
- * Check if provider is rate limited
+ * Safe helper to import and connect to the Redis client
  */
-function isRateLimited(provider: AIProvider): boolean {
-  const state = rateLimitState[provider];
-  const config = PROVIDERS[provider];
-  const now = Date.now();
-
-  // Reset counters if window expired
-  if (provider === "groq") {
-    // Per minute window
-    if (now - state.windowStart > 60000) {
-      state.count = 0;
-      state.tokenCount = 0;
-      state.windowStart = now;
-    }
-    return (
-      state.count >= config.requestsPerMinute ||
-      state.tokenCount >= config.tokensPerMinute
-    );
-  } else {
-    // Per day window
-    if (now - state.lastReset > 86400000) {
-      state.count = 0;
-      state.lastReset = now;
-    }
-    return state.count >= config.requestsPerDay;
+async function getRedisSafe() {
+  try {
+    const { getRedisClient } = await import("@repo/redis/client");
+    return await getRedisClient();
+  } catch (error) {
+    logError(error instanceof Error ? error : new Error(String(error)), { context: "redis_connection" }).catch(() => {});
+    return null;
   }
 }
 
 /**
- * Update rate limit counters
+ * Check if key is rate limited (distributed via Redis with in-memory fallback)
  */
-function updateRateLimit(provider: AIProvider, tokens: number) {
-  rateLimitState[provider].count++;
-  rateLimitState[provider].tokenCount += tokens;
+async function isRateLimited(keyIndex: number): Promise<boolean> {
+  const config = GROQ_CONFIG;
+  const redis = await getRedisSafe();
+
+  if (redis) {
+    try {
+      const rpmKey = `ai:ratelimit:groq:key:${keyIndex}:rpm`;
+      const tpmKey = `ai:ratelimit:groq:key:${keyIndex}:tpm`;
+      const rpdKey = `ai:ratelimit:groq:key:${keyIndex}:rpd`;
+
+      const [rpmStr, tpmStr, rpdStr] = await Promise.all([
+        redis.get(rpmKey),
+        redis.get(tpmKey),
+        redis.get(rpdKey),
+      ]);
+
+      const rpmVal = rpmStr ? parseInt(rpmStr, 10) : 0;
+      const tpmVal = tpmStr ? parseInt(tpmStr, 10) : 0;
+      const rpdVal = rpdStr ? parseInt(rpdStr, 10) : 0;
+
+      return (
+        rpmVal >= config.requestsPerMinute ||
+        tpmVal >= config.tokensPerMinute ||
+        rpdVal >= config.requestsPerDay
+      );
+    } catch (err) {
+      logError(err instanceof Error ? err : new Error(String(err)), { context: "redis_rate_limit_check" }).catch(() => {});
+    }
+  }
+
+  // Memory fallback
+  const state = rateLimitState[keyIndex];
+  if (!state) return true;
+  const now = Date.now();
+
+  if (now - state.windowStart > 60000) {
+    state.count = 0;
+    state.tokenCount = 0;
+    state.windowStart = now;
+  }
+
+  if (now - state.lastReset > 86400000) {
+    state.count = 0;
+    state.lastReset = now;
+  }
+
+  return (
+    state.count >= config.requestsPerMinute ||
+    state.tokenCount >= config.tokensPerMinute ||
+    state.count >= config.requestsPerDay
+  );
 }
 
 /**
- * Get API key from environment
+ * Update rate limit counters for specific key (distributed via Redis with in-memory fallback)
  */
-function getApiKey(provider: AIProvider): string | undefined {
-  const envVar =
-    provider === "groq"
-      ? "GROQ_API_KEY"
-      : provider === "openrouter"
-        ? "OPENROUTER_API_KEY"
-        : "TOGETHER_API_KEY";
+async function updateRateLimit(keyIndex: number, tokens: number): Promise<void> {
+  // Update local memory fallback
+  const state = rateLimitState[keyIndex];
+  if (state) {
+    state.count++;
+    state.tokenCount += tokens;
+  }
+
+  // Update global Redis counters
+  const redis = await getRedisSafe();
+  if (redis) {
+    try {
+      const rpmKey = `ai:ratelimit:groq:key:${keyIndex}:rpm`;
+      const tpmKey = `ai:ratelimit:groq:key:${keyIndex}:tpm`;
+      const rpdKey = `ai:ratelimit:groq:key:${keyIndex}:rpd`;
+
+      const rpmCount = await redis.incr(rpmKey);
+      if (rpmCount === 1) {
+        await redis.expire(rpmKey, 60);
+      }
+
+      const tpmCount = await redis.incrBy(tpmKey, tokens);
+      if (tpmCount === tokens) {
+        await redis.expire(tpmKey, 60);
+      }
+
+      const rpdCount = await redis.incr(rpdKey);
+      if (rpdCount === 1) {
+        await redis.expire(rpdKey, 86400);
+      }
+    } catch (err) {
+      logError(err instanceof Error ? err : new Error(String(err)), { context: "redis_rate_limit_update" }).catch(() => {});
+    }
+  }
+}
+
+/**
+ * Get API key by index from environment
+ */
+function getApiKey(keyIndex: number): string | undefined {
+  const envVar = `GROQ_API_KEY_${keyIndex + 1}`;
   return process.env[envVar];
 }
 
@@ -150,6 +186,23 @@ function generateCacheKey(request: AIRequest): string {
 }
 
 import { cacheGet, cacheSet } from "@repo/redis/cache";
+import {
+  searchGoogle,
+  searchGoogleAI,
+  searchGoogleMaps,
+  searchGoogleNews,
+  searchYouTube,
+  searchGoogleShopping,
+  formatSearchResults,
+  formatAIResponse,
+  type SerpApiSearchOptions,
+  type SerpApiAIOptions,
+  type SerpApiResponse,
+  type GoogleMapsOptions,
+  type GoogleNewsOptions,
+  type YouTubeSearchOptions,
+  type GoogleShoppingOptions,
+} from "./serpapi";
 
 /**
  * Check cache for existing AI response
@@ -166,22 +219,22 @@ async function storeCache(key: string, response: AIResponse) {
 }
 
 /**
- * Make API call to specific provider
+ * Make API call to specific Groq key
  */
 async function callProvider(
-  provider: AIProvider,
+  keyIndex: number,
   request: AIRequest,
 ): Promise<AIResponse | null> {
-  const config = PROVIDERS[provider];
-  const apiKey = getApiKey(provider);
+  const config = GROQ_CONFIG;
+  const apiKey = getApiKey(keyIndex);
 
   if (!apiKey) {
-    console.warn(`No API key for ${config.name}`);
+    logError(new Error(`No API key for Groq key ${keyIndex + 1}`), { context: "groq_missing_key", keyIndex }).catch(() => {});
     return null;
   }
 
-  if (isRateLimited(provider)) {
-    console.warn(`${config.name} rate limited`);
+  if (await isRateLimited(keyIndex)) {
+    logError(new Error(`Groq key ${keyIndex + 1} rate limited`), { context: "groq_rate_limited", keyIndex }).catch(() => {});
     return null;
   }
 
@@ -190,13 +243,6 @@ async function callProvider(
       "Content-Type": "application/json",
       Authorization: `Bearer ${apiKey}`,
     };
-
-    // OpenRouter specific headers
-    if (provider === "openrouter") {
-      headers["HTTP-Referer"] =
-        process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-      headers["X-Title"] = "Arch-Systems Portal";
-    }
 
     const response = await fetch(`${config.baseUrl}/chat/completions`, {
       method: "POST",
@@ -210,8 +256,8 @@ async function callProvider(
     });
 
     if (!response.ok) {
-      const error = await response.text();
-      console.error(`${config.name} API error:`, error);
+      const errorText = await response.text();
+      logError(new Error(`Groq key ${keyIndex + 1} API error: ${errorText}`), { context: "groq_api_error", keyIndex }).catch(() => {});
       return null;
     }
 
@@ -223,11 +269,12 @@ async function callProvider(
     }
 
     const usage = data.usage;
-    updateRateLimit(provider, usage?.total_tokens || 0);
+    await updateRateLimit(keyIndex, usage?.total_tokens || 0);
 
     return {
       content,
-      provider,
+      provider: "groq",
+      keyIndex,
       usage: usage
         ? {
             promptTokens: usage.prompt_tokens,
@@ -237,13 +284,13 @@ async function callProvider(
         : undefined,
     };
   } catch (error) {
-    console.error(`${config.name} request failed:`, error);
+    logError(error instanceof Error ? error : new Error(String(error)), { context: "groq_request_failed", keyIndex }).catch(() => {});
     return null;
   }
 }
 
 /**
- * Main AI request function with failover
+ * Main AI request function with key rotation
  */
 export async function generateAIResponse(
   request: AIRequest,
@@ -259,11 +306,9 @@ export async function generateAIResponse(
     }
   }
 
-  // Try providers in order of preference
-  const providers: AIProvider[] = ["groq", "openrouter", "together"];
-
-  for (const provider of providers) {
-    const response = await callProvider(provider, request);
+  // Try keys in order (rotation for rate limit distribution)
+  for (let keyIndex = 0; keyIndex < 3; keyIndex++) {
+    const response = await callProvider(keyIndex, request);
     if (response) {
       // Store in cache
       if (useCache) {
@@ -273,84 +318,95 @@ export async function generateAIResponse(
     }
   }
 
-  // All providers failed
-  throw new Error("All AI providers unavailable. Please try again later.");
+  // All keys failed
+  throw new RateLimitError("All Groq API keys unavailable or rate limited. Please try again later.", {
+    context: { reason: "all_keys_rate_limited", provider: "groq" },
+  });
 }
 
 /**
- * Stream AI response for chat interface
+ * Stream AI response for chat interface with key rotation
  */
 export async function* streamAIResponse(
   request: AIRequest,
 ): AsyncGenerator<string, void, unknown> {
-  const provider: AIProvider = "groq"; // Streaming only with Groq for now
-  const config = PROVIDERS[provider];
-  const apiKey = getApiKey(provider);
+  const config = GROQ_CONFIG;
 
-  if (!apiKey || isRateLimited(provider)) {
-    yield "AI service temporarily unavailable. Please try again later.";
-    return;
-  }
+  // Try keys in order for streaming
+  for (let keyIndex = 0; keyIndex < 3; keyIndex++) {
+    const apiKey = getApiKey(keyIndex);
 
-  try {
-    const response = await fetch(`${config.baseUrl}/chat/completions`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: config.model,
-        messages: request.messages,
-        temperature: request.temperature ?? 0.7,
-        max_tokens: request.maxTokens ?? config.maxTokens,
-        stream: true,
-      }),
-    });
-
-    if (!response.ok) {
-      yield "Unable to connect to AI service.";
-      return;
+    if (!apiKey || (await isRateLimited(keyIndex))) {
+      continue; // Try next key
     }
 
-    const reader = response.body?.getReader();
-    if (!reader) {
-      yield "Unable to read AI response.";
-      return;
-    }
+    try {
+      const response = await fetch(`${config.baseUrl}/chat/completions`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: config.model,
+          messages: request.messages,
+          temperature: request.temperature ?? 0.7,
+          max_tokens: request.maxTokens ?? config.maxTokens,
+          stream: true,
+        }),
+      });
 
-    const decoder = new TextDecoder();
-    let buffer = "";
+      if (!response.ok) {
+        continue; // Try next key
+      }
 
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
+      const reader = response.body?.getReader();
+      if (!reader) {
+        continue; // Try next key
+      }
 
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split("\n");
-      buffer = lines.pop() || "";
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let hasContent = false;
 
-      for (const line of lines) {
-        if (line.startsWith("data: ")) {
-          const data = line.slice(6);
-          if (data === "[DONE]") return;
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
 
-          try {
-            const parsed = JSON.parse(data);
-            const content = parsed.choices?.[0]?.delta?.content;
-            if (content) {
-              yield content;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            const data = line.slice(6);
+            if (data === "[DONE]") return;
+
+            try {
+              const parsed = JSON.parse(data);
+              const content = parsed.choices?.[0]?.delta?.content;
+              if (content) {
+                hasContent = true;
+                yield content;
+              }
+            } catch {
+              // Ignore parse errors for incomplete chunks
             }
-          } catch {
-            // Ignore parse errors for incomplete chunks
           }
         }
       }
+
+      // If we got content, return successfully
+      if (hasContent) return;
+
+    } catch (error) {
+      logError(error instanceof Error ? error : new Error(String(error)), { context: "groq_streaming_error", keyIndex }).catch(() => {});
+      continue; // Try next key
     }
-  } catch (error) {
-    console.error("Streaming error:", error);
-    yield "Error while generating response.";
   }
+
+  // All keys failed
+  yield "AI service temporarily unavailable. Please try again later.";
 }
 
 /**
@@ -415,3 +471,229 @@ Output format: {"violations": ["..."], "concerns": ["..."], "score": N}`,
 ${text}`,
   }),
 };
+
+/**
+ * Generate AI response with web search context
+ * Searches Google first, then uses results to augment the LLM response
+ */
+export async function generateAIResponseWithSearch(
+  query: string,
+  searchOptions: SerpApiSearchOptions = {},
+  aiOptions: Omit<AIRequest, "messages"> = {},
+): Promise<AIResponse> {
+  try {
+    // Perform web search
+    const searchResults = await searchGoogle(query, searchOptions);
+    const formattedResults = formatSearchResults(searchResults);
+
+    // Augment prompt with search results
+    const augmentedRequest: AIRequest = {
+      messages: [
+        {
+          role: "system",
+          content:
+            "You are an AI assistant with access to web search results. Use the provided search results to answer the user's question accurately. If the search results don't contain relevant information, use your general knowledge.",
+        },
+        {
+          role: "user",
+          content: `Search Results:\n${formattedResults}\n\nUser Question: ${query}`,
+        },
+      ],
+      ...aiOptions,
+    };
+
+    return generateAIResponse(augmentedRequest, true);
+  } catch (error) {
+    logError(error instanceof Error ? error : new Error(String(error)), { context: "search_augmentation_failed" }).catch(() => {});
+    // Fallback to LLM-only response
+    const fallbackRequest: AIRequest = {
+      messages: [
+        {
+          role: "user",
+          content: query,
+        },
+      ],
+      ...aiOptions,
+    };
+    return generateAIResponse(fallbackRequest, true);
+  }
+}
+
+/**
+ * Use Google AI Mode directly (multi-turn capable)
+ * Returns the AI Mode response with optional follow-up token
+ */
+export async function generateAIResponseWithGoogleAI(
+  query: string,
+  options: SerpApiAIOptions = {},
+): Promise<{ response: string; token?: string }> {
+  try {
+    const results = await searchGoogleAI(query, options);
+    const responseText = formatAIResponse(results);
+
+    return {
+      response: responseText,
+      token: results.subsequent_request_token,
+    };
+  } catch (error) {
+    logError(error instanceof Error ? error : new Error(String(error)), { context: "google_ai_mode_failed" }).catch(() => {});
+    throw new APIError("Google AI Mode unavailable", {
+      statusCode: 503,
+      context: { provider: "google_ai", reason: "service_unavailable" },
+      cause: error instanceof Error ? error : undefined,
+    });
+  }
+}
+
+/**
+ * Multi-turn conversation using Google AI Mode
+ * Use the token from previous response to continue the conversation
+ */
+export async function continueGoogleAIConversation(
+  query: string,
+  previousToken: string,
+  options: Omit<SerpApiAIOptions, "subsequentRequestToken"> = {},
+): Promise<{ response: string; token?: string }> {
+  return generateAIResponseWithGoogleAI(query, {
+    ...options,
+    subsequentRequestToken: previousToken,
+  });
+}
+
+/**
+ * Phase 1: Search Google Maps for locations, routing
+ */
+export async function searchMaps(
+  query: string,
+  options: GoogleMapsOptions = {},
+): Promise<SerpApiResponse> {
+  return searchGoogleMaps(query, options);
+}
+
+/**
+ * Phase 1: Search Google News for industry alerts, safety updates
+ */
+export async function searchNews(
+  query: string,
+  options: GoogleNewsOptions = {},
+): Promise<SerpApiResponse> {
+  return searchGoogleNews(query, options);
+}
+
+/**
+ * Phase 1: Search YouTube for training videos, tutorials
+ */
+export async function searchVideos(
+  query: string,
+  options: YouTubeSearchOptions = {},
+): Promise<SerpApiResponse> {
+  return searchYouTube(query, options);
+}
+
+/**
+ * Phase 1: Search Google Shopping for equipment procurement
+ */
+export async function searchShopping(
+  query: string,
+  options: GoogleShoppingOptions = {},
+): Promise<SerpApiResponse> {
+  return searchGoogleShopping(query, options);
+}
+
+/**
+ * Department-specific AI with context augmentation
+ * Combines multiple SerpApi sources based on department needs
+ */
+export async function generateDepartmentAIResponse(
+  department: string,
+  query: string,
+): Promise<{ response: string; sources: string[] }> {
+  const sources: string[] = [];
+  let context = "";
+
+  try {
+    // Department-specific search strategies
+    switch (department) {
+      case "engineering":
+      case "drilling":
+        // Search patents and shopping for equipment
+        const [patentResults, shoppingResults] = await Promise.all([
+          searchGoogle(query, { num: 3 }),
+          searchGoogleShopping(query, { num: 3 }),
+        ]);
+        sources.push("patents", "shopping");
+        context += formatSearchResults(patentResults);
+        break;
+
+      case "safety":
+        // Search news and videos
+        const [newsResults, videoResults] = await Promise.all([
+          searchGoogleNews(query, { num: 3 }),
+          searchYouTube(query, { num: 3 }),
+        ]);
+        sources.push("news", "videos");
+        context += formatSearchResults(newsResults);
+        break;
+
+      case "training":
+        // Search videos and scholar
+        const [trainingVideos, scholarResults] = await Promise.all([
+          searchYouTube(query, { num: 5 }),
+          searchGoogle(query, { num: 3 }),
+        ]);
+        sources.push("videos", "scholar");
+        context += formatSearchResults(trainingVideos);
+        break;
+
+      case "access-control":
+      case "control-room":
+        // Search maps and local services
+        const [mapsResults, localResults] = await Promise.all([
+          searchGoogleMaps(query, { num: 3 }),
+          searchGoogle(query, { num: 3 }),
+        ]);
+        sources.push("maps", "local");
+        context += formatSearchResults(mapsResults);
+        break;
+
+      default:
+        // General search
+        const generalResults = await searchGoogle(query, { num: 5 });
+        sources.push("search");
+        context += formatSearchResults(generalResults);
+    }
+
+    // Augment with context if available
+    if (context) {
+      const augmentedRequest: AIRequest = {
+        messages: [
+          {
+            role: "system",
+            content: `You are an AI assistant for the ${department} department. Use the provided search results to answer accurately.`,
+          },
+          {
+            role: "user",
+            content: `Search Results:\n${context}\n\nUser Question: ${query}`,
+          },
+        ],
+      };
+      const response = await generateAIResponse(augmentedRequest, true);
+      return { response: response.content, sources };
+    }
+
+    // Fallback without context
+    const fallbackRequest: AIRequest = {
+      messages: [{ role: "user", content: query }],
+    };
+    const response = await generateAIResponse(fallbackRequest, true);
+    return { response: response.content, sources };
+  } catch (error) {
+    logError(error instanceof Error ? error : new Error(String(error)), { context: "department_ai_failed" }).catch(() => {});
+    // Ultimate fallback
+    const fallbackRequest: AIRequest = {
+      messages: [{ role: "user", content: query }],
+    };
+    const response = await generateAIResponse(fallbackRequest, true);
+    return { response: response.content, sources };
+  }
+}

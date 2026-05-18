@@ -199,7 +199,7 @@ export function ExcavatorDumperTable({
                         onChange={(e) =>
                           handleDumperChange(index, e.target.value)
                         }
-                        className="w-full bg-[var(--card)] border border-[var(--border-default)] rounded-lg px-2 py-1.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-cyan)] transition-colors"
+                        className="w-full bg-[var(--bg-secondary)] border border-[var(--border-default)] rounded-lg px-2 py-1.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-blue)] transition-colors"
                       >
                         <option value="">
                           {siteDumpers.length === 0
@@ -220,7 +220,7 @@ export function ExcavatorDumperTable({
                         onChange={(e) =>
                           handleMaterialChange(index, e.target.value)
                         }
-                        className="w-full bg-[var(--card)] border border-[var(--border-default)] rounded-lg px-2 py-1.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-cyan)] transition-colors"
+                        className="w-full bg-[var(--bg-secondary)] border border-[var(--border-default)] rounded-lg px-2 py-1.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-blue)] transition-colors"
                       >
                         {MATERIAL_TYPES.map((mt) => (
                           <option key={mt} value={mt}>

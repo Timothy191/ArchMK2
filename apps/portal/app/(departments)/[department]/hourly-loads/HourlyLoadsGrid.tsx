@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { exportToExcel, parseExcel } from "@repo/utils";
 import { SecondaryButton } from "@repo/ui/SecondaryButton";
 import { Download, Upload } from "lucide-react";
+import { logError } from "@/lib/errors/error-logger";
 
 interface Machine {
   id: string;
@@ -143,7 +144,7 @@ export function HourlyLoadsGrid({
       setEditValue("");
       router.refresh();
     } catch (err) {
-      console.error("Failed to save:", err);
+      logError(err instanceof Error ? err : new Error(String(err)), { context: "hourly_loads_save" }).catch(() => {});
       alert("Failed to save. Please try again.");
     }
   };
@@ -201,14 +202,14 @@ export function HourlyLoadsGrid({
             .from("hourly_loads")
             .upsert(updateData, { onConflict: "department_id,machine_id,load_date,shift_type" });
           
-          if (error) console.error(`Error importing for ${machineName}:`, error);
+          if (error) logError(new Error(error.message), { context: "hourly_loads_import", machineName }).catch(() => {});
         }
       }
 
       router.refresh();
       alert("Import completed successfully!");
     } catch (err) {
-      console.error("Import failed:", err);
+      logError(err instanceof Error ? err : new Error(String(err)), { context: "hourly_loads_import_failed" }).catch(() => {});
       alert("Failed to parse Excel file. Please ensure it follows the exported template.");
     } finally {
       setSaving(false);
@@ -248,7 +249,7 @@ export function HourlyLoadsGrid({
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 selectedShift === "day"
                   ? "bg-amber-500 text-[var(--bg-secondary)]"
-                  : "bg-[var(--card)] border border-[var(--border-default)] text-[var(--text-muted)] hover:text-[var(--text-heading)]"
+                  : "bg-[var(--bg-secondary)] border border-[var(--border-default)] text-[var(--text-muted)] hover:text-[var(--text-heading)]"
               }`}
             >
               Day (06:00 - 17:59)
@@ -259,7 +260,7 @@ export function HourlyLoadsGrid({
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 selectedShift === "night"
                   ? "bg-blue-500 text-white"
-                  : "bg-[var(--card)] border border-[var(--border-default)] text-[var(--text-muted)] hover:text-[var(--text-heading)]"
+                  : "bg-[var(--bg-secondary)] border border-[var(--border-default)] text-[var(--text-muted)] hover:text-[var(--text-heading)]"
               }`}
             >
               Night (18:00 - 05:59)
@@ -274,6 +275,7 @@ export function HourlyLoadsGrid({
             accept=".xlsx, .xls"
             className="hidden"
             onChange={handleImport}
+            aria-label="Import Excel file with hourly load data"
           />
           <SecondaryButton
             size="sm"
@@ -350,7 +352,8 @@ export function HourlyLoadsGrid({
                           onBlur={handleSave}
                           disabled={saving}
                           autoFocus
-                          className="w-12 h-8 bg-[var(--card)] border border-[var(--accent-cyan)] rounded text-center text-[var(--text-heading)] text-sm focus:outline-none"
+                          aria-label={`Hourly load percentage for hour ${hour}`}
+                          className="w-12 h-8 bg-[var(--bg-secondary)] border border-[var(--accent-cyan)] rounded text-center text-[var(--text-heading)] text-sm focus:outline-none"
                         />
                       ) : (
                         <button
@@ -358,7 +361,7 @@ export function HourlyLoadsGrid({
                           className={`w-12 h-8 rounded text-sm font-medium transition-colors ${
                             hasValue
                               ? "bg-[var(--accent-cyan)]/20 text-[var(--accent-cyan)] border border-[var(--accent-cyan)]/50 hover:bg-[var(--accent-cyan)]/30"
-                              : "bg-[var(--card)] text-[var(--text-muted)] border border-[var(--border-default)] hover:bg-[var(--bg-tertiary)]"
+                              : "bg-[var(--bg-secondary)] text-[var(--text-muted)] border border-[var(--border-default)] hover:bg-[var(--bg-tertiary)]"
                           }`}
                         >
                           {hasValue ? value : "-"}

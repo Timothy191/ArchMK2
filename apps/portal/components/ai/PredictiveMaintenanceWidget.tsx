@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { GlassCard } from "@repo/ui/GlassCard";
 import { cn } from "@repo/ui/lib/utils";
+import { APIError } from "@repo/errors";
 import type { RiskAssessment } from "@/lib/ai/schemas";
 
 interface Machine {
@@ -55,7 +56,10 @@ Recent Issues: ${machine.recentIssues.join(", ") || "None"}
           const err = await res
             .json()
             .catch(() => ({ error: "Analysis failed" }));
-          throw new Error(err.error || "Analysis failed");
+          throw new APIError(err.error || "Analysis failed", {
+            statusCode: res.status,
+            context: { endpoint: "predictive-maintenance", statusText: res.statusText },
+          });
         }
 
         const assessment: RiskAssessment = await res.json();

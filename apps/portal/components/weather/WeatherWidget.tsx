@@ -44,7 +44,7 @@ export function WeatherWidget({
   if (loading) {
     return (
       <div className="animate-pulse">
-        <div className="h-20 bg-[#242424] rounded-xl" />
+        <div className="h-20 bg-arch-surface-tertiary rounded-xl" />
       </div>
     );
   }
@@ -52,7 +52,7 @@ export function WeatherWidget({
   if (error || !weather) {
     return (
       <GlassCard className="p-3">
-        <p className="text-[#898989] text-sm">Weather unavailable</p>
+        <p className="text-arch-text-tertiary text-sm">Weather unavailable</p>
       </GlassCard>
     );
   }
@@ -62,10 +62,10 @@ export function WeatherWidget({
   // Header variant - minimal
   if (variant === "header") {
     return (
-      <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#171717] border border-[#363636]">
+      <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-arch-surface-secondary/70 backdrop-blur-md border border-arch-border-subtle">
         <span className="text-lg">{weather.icon}</span>
-        <span className="text-sm text-[#fafafa]">{weather.temperature}°C</span>
-        <span className="text-xs text-[#898989] hidden sm:inline">{weather.description}</span>
+        <span className="text-sm text-arch-text-primary">{weather.temperature}°C</span>
+        <span className="text-xs text-arch-text-tertiary hidden sm:inline">{weather.description}</span>
         {alert.level !== "none" && (
           <span className={`w-2 h-2 rounded-full ${
             alert.level === "critical" ? "bg-red-500 animate-pulse" :
@@ -84,11 +84,11 @@ export function WeatherWidget({
           <div className="flex items-center gap-3">
             <span className="text-3xl">{weather.icon}</span>
             <div>
-              <p className="text-2xl font-semibold text-[#fafafa]">{weather.temperature}°C</p>
-              <p className="text-sm text-[#898989]">{weather.description}</p>
+              <p className="text-2xl font-semibold text-arch-text-primary">{weather.temperature}°C</p>
+              <p className="text-sm text-arch-text-tertiary">{weather.description}</p>
             </div>
           </div>
-          <div className="text-right text-sm text-[#898989]">
+          <div className="text-right text-sm text-arch-text-tertiary">
             <p>💧 {weather.humidity}%</p>
             <p>💨 {weather.windSpeed} km/h</p>
           </div>
@@ -111,10 +111,10 @@ export function WeatherWidget({
     <GlassCard className="p-5">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h3 className="text-lg font-medium text-[#fafafa]">Weather Conditions</h3>
-          <p className="text-sm text-[#898989]">{weather.location.name}</p>
+          <h3 className="text-lg font-medium text-arch-text-primary">Weather Conditions</h3>
+          <p className="text-sm text-arch-text-tertiary">{weather.location.name}</p>
         </div>
-        <span className="text-xs text-[#898989]">
+        <span className="text-xs text-arch-text-tertiary">
           Updated {new Date(weather.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
         </span>
       </div>
@@ -123,14 +123,14 @@ export function WeatherWidget({
       <div className="flex items-center gap-4 mb-6">
         <span className="text-5xl">{weather.icon}</span>
         <div>
-          <p className="text-3xl font-semibold text-[#fafafa]">{weather.temperature}°C</p>
-          <p className="text-[#898989]">Feels like {weather.feelsLike}°C</p>
-          <p className="text-sm text-[#b4b4b4]">{weather.description}</p>
+          <p className="text-3xl font-semibold text-arch-text-primary">{weather.temperature}°C</p>
+          <p className="text-arch-text-tertiary">Feels like {weather.feelsLike}°C</p>
+          <p className="text-sm text-arch-text-secondary">{weather.description}</p>
         </div>
         <div className="ml-auto text-right text-sm space-y-1">
-          <p className="text-[#898989]">💧 Humidity: {weather.humidity}%</p>
-          <p className="text-[#898989]">💨 Wind: {weather.windSpeed} km/h</p>
-          <p className="text-[#898989]">🧭 Direction: {weather.windDirection}°</p>
+          <p className="text-arch-text-tertiary">💧 Humidity: {weather.humidity}%</p>
+          <p className="text-arch-text-tertiary">💨 Wind: {weather.windSpeed} km/h</p>
+          <p className="text-arch-text-tertiary">🧭 Direction: {weather.windDirection}°</p>
         </div>
       </div>
 
@@ -153,16 +153,16 @@ export function WeatherWidget({
 
       {/* 5-day forecast */}
       <div>
-        <p className="text-sm font-medium text-[#b4b4b4] mb-3">5-Day Forecast</p>
+        <p className="text-sm font-medium text-arch-text-secondary mb-3">5-Day Forecast</p>
         <div className="grid grid-cols-5 gap-2">
           {weather.daily?.map((day, i) => (
-            <div key={i} className="text-center p-2 rounded-lg bg-[#171717]/50">
-              <p className="text-xs text-[#898989] mb-1">
+            <div key={i} className="text-center p-2 rounded-lg bg-arch-surface-primary/50">
+              <p className="text-xs text-arch-text-tertiary mb-1">
                 {new Date(day.date).toLocaleDateString([], { weekday: 'short' })}
               </p>
               <p className="text-lg mb-1">{day.icon}</p>
-              <p className="text-xs text-[#fafafa]">{day.maxTemp}°</p>
-              <p className="text-xs text-[#898989]">{day.minTemp}°</p>
+              <p className="text-xs text-arch-text-primary">{day.maxTemp}°</p>
+              <p className="text-xs text-arch-text-tertiary">{day.minTemp}°</p>
             </div>
           ))}
         </div>

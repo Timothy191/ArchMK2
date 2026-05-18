@@ -1,6 +1,7 @@
 import { createServerSupabaseClient } from "@repo/supabase/server";
 import { GlassCard } from "@repo/ui/GlassCard";
 import { PageHeader } from "@repo/ui/PageHeader";
+import { SafetyCharts } from "./SafetyCharts";
 
 // Safety-specific dashboard stats
 export async function SafetyDashboard({ deptId }: { deptId: string }) {
@@ -104,6 +105,41 @@ export async function SafetyDashboard({ deptId }: { deptId: string }) {
           </p>
         </GlassCard>
       </div>
+
+      {/* Safety Visualizations */}
+      <SafetyCharts 
+        trendData={(() => {
+          const trend: Record<string, { date: string; incidents: number; severity: number }> = {};
+          // Initialize last 30 days
+          for (let i = 29; i >= 0; i--) {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            const dateStr: string = d.toISOString().split("T")[0]!;
+            trend[dateStr] = { date: dateStr.slice(5), incidents: 0, severity: 0 };
+          }
+          
+          monthlyIncidents?.forEach((inc) => {
+            const dateStr = inc.incident_date;
+            if (dateStr && trend[dateStr]) {
+              const entry = trend[dateStr];
+              if (entry) {
+                entry.incidents += 1;
+                entry.severity += 1; 
+              }
+            }
+          });
+          
+          return Object.values(trend);
+        })()}
+        distributionData={(() => {
+          const dist: Record<string, number> = {};
+          monthlyIncidents?.forEach(inc => {
+            const type = inc.incident_type.replace("-", " ").toUpperCase();
+            dist[type] = (dist[type] || 0) + 1;
+          });
+          return Object.entries(dist).map(([name, value]) => ({ name, value }));
+        })()}
+      />
 
       {/* Quick Actions */}
       <div className="flex flex-wrap gap-3">

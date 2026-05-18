@@ -4,6 +4,7 @@ import { createServerSupabaseClient } from "@repo/supabase/server";
 import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
 import { logAuditEvent } from "./audit";
+import { AuthError, NotFoundError, ForbiddenError, DatabaseError } from "@repo/errors";
 
 type SupabaseClient = Awaited<ReturnType<typeof createServerSupabaseClient>>;
 
@@ -68,7 +69,9 @@ export async function setPin(employeeCode: string, pin: string) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) throw new Error("Not authenticated");
+  if (!user) {
+    throw new AuthError("Not authenticated", { context: { action: "setPin" } });
+  }
 
   const { data: employee, error } = await supabase
     .from("employees")
@@ -76,10 +79,14 @@ export async function setPin(employeeCode: string, pin: string) {
     .eq("auth_id", user.id)
     .single();
 
-  if (error || !employee) throw new Error("Employee not found");
+  if (error || !employee) {
+    throw new NotFoundError("Employee not found", { resource: "employee" });
+  }
 
   if (employee.role !== "supervisor" && employee.role !== "admin") {
-    throw new Error("Only supervisors and admins can set PINs");
+    throw new ForbiddenError("Only supervisors and admins can set PINs", {
+      context: { requiredRoles: ["supervisor", "admin"], actualRole: employee.role },
+    });
   }
 
   const salt = await bcrypt.genSalt(10);
@@ -90,7 +97,13 @@ export async function setPin(employeeCode: string, pin: string) {
     .update({ pin_hash: hash, employee_code: employeeCode })
     .eq("id", employee.id);
 
-  if (updateError) throw new Error("Failed to set PIN");
+  if (updateError) {
+    throw new DatabaseError("Failed to set PIN", {
+      operation: "update",
+      table: "employees",
+      context: { error: updateError.message },
+    });
+  }
 
   return { success: true };
 }
@@ -138,7 +151,9 @@ export async function closeShift(
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) throw new Error("Not authenticated");
+  if (!user) {
+    throw new AuthError("Not authenticated", { context: { action: "closeShift" } });
+  }
 
   const { data: closedBy } = await supabase
     .from("employees")
@@ -146,7 +161,9 @@ export async function closeShift(
     .eq("auth_id", user.id)
     .single();
 
-  if (!closedBy) throw new Error("Operator not found");
+  if (!closedBy) {
+    throw new NotFoundError("Operator not found", { resource: "employee" });
+  }
 
   const { data: approver } = await supabase
     .from("employees")

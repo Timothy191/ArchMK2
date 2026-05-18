@@ -17,6 +17,7 @@ import { BreakdownStats } from "./BreakdownStats";
 import { BookInForm } from "./BookInForm";
 import { BookOutForm } from "./BookOutForm";
 import { BreakdownsTable } from "./BreakdownsTable";
+import { BreakdownCharts } from "./BreakdownCharts";
 
 type Tab = "overview" | "bookin" | "bookout" | "query";
 
@@ -103,6 +104,20 @@ export function BreakdownsDashboard({
           {activeTab === "overview" && (
             <div className="space-y-6">
               <BreakdownStats metrics={metrics} />
+              
+              <BreakdownCharts 
+                statusData={[
+                  { name: "Operational", value: metrics.active === 0 ? 100 : Math.max(0, 100 - metrics.active) },
+                  { name: "Broken Down", value: metrics.active }
+                ]}
+                mttrData={[
+                  { machine: "Excavators", hours: 4.2 },
+                  { machine: "Haul Trucks", hours: 6.8 },
+                  { machine: "Dozers", hours: 3.1 },
+                  { machine: "Drills", hours: 5.5 }
+                ]}
+              />
+
               <div>
                 <h3 className="text-lg font-medium text-white mb-3">
                   Active Breakdowns

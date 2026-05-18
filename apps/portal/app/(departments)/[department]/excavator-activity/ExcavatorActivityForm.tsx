@@ -327,7 +327,7 @@ export function ExcavatorActivityForm({
                       excavatorId: e.target.value,
                     }))
                   }
-                  className="w-full bg-[var(--card)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-cyan)] transition-colors"
+                  className="w-full bg-[var(--bg-secondary)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-blue)] transition-colors"
                 >
                   <option value="">Select excavator...</option>
                   {excavators.map((ex) => (
@@ -355,7 +355,7 @@ export function ExcavatorActivityForm({
                       operatorId: e.target.value,
                     }))
                   }
-                  className="w-full bg-[var(--card)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-cyan)] transition-colors"
+                  className="w-full bg-[var(--bg-secondary)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-blue)] transition-colors"
                 >
                   <option value="">Select operator...</option>
                   {operators.map((op) => (
@@ -383,7 +383,7 @@ export function ExcavatorActivityForm({
                       blockMinedId: "",
                     }))
                   }
-                  className="w-full bg-[var(--card)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-cyan)] transition-colors"
+                  className="w-full bg-[var(--bg-secondary)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-blue)] transition-colors"
                 >
                   <option value="">Select site...</option>
                   {sites.map((s) => (
@@ -416,7 +416,7 @@ export function ExcavatorActivityForm({
                       className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
                         formData.shiftType === shift
                           ? "bg-[var(--accent-cyan)] text-[var(--bg-secondary)]"
-                          : "bg-[var(--card)] border border-[var(--border-default)] text-[var(--text-muted)] hover:text-[var(--text-heading)]"
+                          : "bg-[var(--bg-secondary)] border border-[var(--border-default)] text-[var(--text-muted)] hover:text-[var(--text-heading)]"
                       }`}
                     >
                       {shift.charAt(0).toUpperCase() + shift.slice(1)}
@@ -438,7 +438,7 @@ export function ExcavatorActivityForm({
                       blockMinedId: e.target.value,
                     }))
                   }
-                  className="w-full bg-[var(--card)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-cyan)] transition-colors"
+                  className="w-full bg-[var(--bg-secondary)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-blue)] transition-colors"
                 >
                   <option value="">Select block...</option>
                   {siteMineBlocks.map((mb) => (
@@ -513,7 +513,7 @@ export function ExcavatorActivityForm({
                 }
                 rows={3}
                 placeholder="Optional notes about this excavator activity..."
-                className="w-full bg-[var(--card)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-cyan)] transition-colors resize-none"
+                className="w-full bg-[var(--bg-secondary)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-blue)] transition-colors resize-none"
               />
             </div>
 

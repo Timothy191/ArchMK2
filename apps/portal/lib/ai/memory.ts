@@ -1,5 +1,7 @@
 import { createServerSupabaseClient } from "@repo/supabase/server";
 import { generateEmbedding, batchGenerateEmbeddings } from "./embeddings";
+import { DatabaseError } from "@repo/errors";
+import { logError } from "@/lib/errors/error-logger";
 
 /**
  * Memory Service - Episodic, Semantic, and Procedural Memory for AI Chat
@@ -69,8 +71,12 @@ export async function storeMemory(
     .single();
 
   if (error) {
-    console.error("Failed to store memory:", error);
-    throw new Error(`Memory storage failed: ${error.message}`);
+    logError(new Error(error.message), { context: "memory_store", table: "memory_embeddings" }).catch(() => {});
+    throw new DatabaseError("Memory storage failed", {
+      operation: "insert",
+      table: "memories",
+      context: { error: error.message },
+    });
   }
 
   return mapRowToEntry(data);
@@ -106,8 +112,12 @@ export async function storeMemories(
     .select();
 
   if (error) {
-    console.error("Failed to batch store memories:", error);
-    throw new Error(`Batch memory storage failed: ${error.message}`);
+    logError(new Error(error.message), { context: "memory_batch_store", table: "memory_embeddings" }).catch(() => {});
+    throw new DatabaseError("Batch memory storage failed", {
+      operation: "insert",
+      table: "memories",
+      context: { error: error.message },
+    });
   }
 
   return (data ?? []).map(mapRowToEntry);
@@ -140,7 +150,7 @@ export async function retrieveRelevantMemories(
   });
 
   if (error) {
-    console.error("Hybrid memory search failed:", error);
+    logError(new Error(error.message), { context: "memory_hybrid_search" }).catch(() => {});
     // Fallback to simple semantic search
     return retrieveSemanticMemories(options);
   }
@@ -177,7 +187,7 @@ export async function retrieveSemanticMemories(
   });
 
   if (error) {
-    console.error("Semantic memory search failed:", error);
+    logError(new Error(error.message), { context: "memory_semantic_search" }).catch(() => {});
     return [];
   }
 
@@ -211,7 +221,7 @@ export async function getConversationHistory(
   });
 
   if (error) {
-    console.error("Conversation history retrieval failed:", error);
+    logError(new Error(error.message), { context: "memory_conversation_history", sessionId }).catch(() => {});
     // Fallback to direct query
     const { data: fallbackData } = await supabase
       .from("memory_embeddings")
@@ -359,7 +369,7 @@ export async function pruneEpisodicMemories(
     .lt("created_at", cutoff);
 
   if (error) {
-    console.error("Pruning failed:", error);
+    logError(new Error(error.message), { context: "memory_prune", userId }).catch(() => {});
     return 0;
   }
 

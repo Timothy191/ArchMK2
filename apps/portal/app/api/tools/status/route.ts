@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { EXTERNAL_TOOLS } from "~/lib/tools";
+import { cacheWrap } from "@repo/redis";
 
 export const dynamic = "force-dynamic";
 
@@ -44,7 +45,13 @@ async function checkToolHealth(
 }
 
 export async function GET() {
-  const statuses = await Promise.all(EXTERNAL_TOOLS.map(checkToolHealth));
+  const statuses = await cacheWrap(
+    "tools:status",
+    async () => {
+      return await Promise.all(EXTERNAL_TOOLS.map(checkToolHealth));
+    },
+    60, // Cache for 60 seconds
+  );
 
   return NextResponse.json({ tools: statuses });
 }

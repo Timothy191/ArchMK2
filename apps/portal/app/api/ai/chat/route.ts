@@ -1,4 +1,4 @@
-import { streamText, convertToModelMessages, stepCountIs, UIMessage } from "ai";
+import { streamText, convertToModelMessages, stepCountIs } from "ai";
 import { z } from "zod";
 import { models } from "@/lib/ai/providers";
 import { systemPrompts } from "@/lib/ai/prompts";
@@ -9,6 +9,8 @@ import {
   retrieveRelevantMemories,
   formatMemoriesForContext,
 } from "@/lib/ai/memory";
+import { logError } from "@/lib/errors/error-logger";
+import { checkRateLimit } from "./limiter";
 
 const ChatRequestSchema = z.object({
   messages: z
@@ -25,21 +27,7 @@ const ChatRequestSchema = z.object({
   sessionId: z.string().min(1).max(256).optional(),
 });
 
-const rateLimits = new Map<string, { count: number; windowStart: number }>();
-const WINDOW_MS = 60_000;
-const MAX_REQUESTS = 30;
 
-function checkRateLimit(ip: string): boolean {
-  const now = Date.now();
-  const entry = rateLimits.get(ip);
-  if (!entry || now - entry.windowStart > WINDOW_MS) {
-    rateLimits.set(ip, { count: 1, windowStart: now });
-    return true;
-  }
-  if (entry.count >= MAX_REQUESTS) return false;
-  entry.count++;
-  return true;
-}
 
 function generateSessionId(): string {
   return `sess_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
@@ -115,7 +103,7 @@ export async function POST(req: Request) {
           limit: 10,
           useHybridSearch: true,
         }).catch((err) => {
-          console.warn("Session memory retrieval failed:", err);
+          logError(err instanceof Error ? err : new Error(String(err)), { context: "chat_session_memory_retrieval" }).catch(() => {});
           return [];
         }),
         retrieveRelevantMemories({
@@ -125,7 +113,7 @@ export async function POST(req: Request) {
           limit: 5,
           useHybridSearch: true,
         }).catch((err) => {
-          console.warn("Semantic memory retrieval failed:", err);
+          logError(err instanceof Error ? err : new Error(String(err)), { context: "chat_semantic_memory_retrieval" }).catch(() => {});
           return [];
         }),
       ]);
@@ -136,7 +124,7 @@ export async function POST(req: Request) {
 
       memoryContext = formatMemoriesForContext(combinedMemories);
     } catch (err) {
-      console.warn("Memory system error (non-fatal):", err);
+      logError(err instanceof Error ? err : new Error(String(err)), { context: "chat_memory_system" }).catch(() => {});
       // Continue without memory if retrieval fails
     }
   }
@@ -169,12 +157,12 @@ export async function POST(req: Request) {
         }
       })
       .catch((err: unknown) => {
-        console.warn("Failed to store assistant memory:", err);
+        logError(err instanceof Error ? err : new Error(String(err)), { context: "chat_store_assistant_memory_primary" }).catch(() => {});
       });
 
     return result.toUIMessageStreamResponse();
   } catch (error) {
-    console.warn("Primary provider failed, trying secondary:", error);
+    logError(error instanceof Error ? error : new Error(String(error)), { context: "chat_primary_provider_failed" }).catch(() => {});
 
     try {
       const result = streamText({
@@ -199,12 +187,12 @@ export async function POST(req: Request) {
           }
         })
         .catch((err: unknown) => {
-          console.warn("Failed to store assistant memory:", err);
+          logError(err instanceof Error ? err : new Error(String(err)), { context: "chat_store_assistant_memory_secondary" }).catch(() => {});
         });
 
       return result.toUIMessageStreamResponse();
     } catch (secondaryError) {
-      console.error("Chat streaming error:", secondaryError);
+      logError(secondaryError instanceof Error ? secondaryError : new Error(String(secondaryError)), { context: "chat_streaming_error" }).catch(() => {});
       return new Response(
         JSON.stringify({ error: "Failed to generate response" }),
         { status: 500, headers: { "Content-Type": "application/json" } },

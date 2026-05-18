@@ -155,7 +155,7 @@ export function OperationalDelaysForm({ departmentId, machines, categories }: Op
               key={template.label}
               type="button"
               onClick={() => handleTemplateClick(template)}
-              className="px-3 py-1.5 bg-[var(--card)] hover:bg-[var(--bg-tertiary)] border border-[var(--border-default)] rounded-lg text-[var(--text-secondary)] text-sm transition-colors"
+              className="px-3 py-1.5 bg-[var(--bg-secondary)] hover:bg-[var(--bg-tertiary)] border border-[var(--border-default)] rounded-lg text-[var(--text-secondary)] text-sm transition-colors"
             >
               {template.label}
             </button>
@@ -173,7 +173,7 @@ export function OperationalDelaysForm({ departmentId, machines, categories }: Op
               onChange={(e) =>
                 setFormData(prev => ({ ...prev, delayType: e.target.value }))
               }
-              className="w-full bg-[var(--card)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-cyan)] transition-colors"
+              className="w-full bg-[var(--bg-secondary)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-blue)] transition-colors"
             >
               <option value="">Select type...</option>
               {DELAY_TYPES.map((type) => (
@@ -203,7 +203,7 @@ export function OperationalDelaysForm({ departmentId, machines, categories }: Op
                   className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
                     formData.shiftType === shift
                       ? "bg-[var(--accent-cyan)] text-[var(--bg-secondary)]"
-                      : "bg-[var(--card)] border border-[var(--border-default)] text-[var(--text-muted)] hover:text-[var(--text-heading)]"
+                      : "bg-[var(--bg-secondary)] border border-[var(--border-default)] text-[var(--text-muted)] hover:text-[var(--text-heading)]"
                   }`}
                 >
                   {shift.charAt(0).toUpperCase() + shift.slice(1)}
@@ -224,7 +224,7 @@ export function OperationalDelaysForm({ departmentId, machines, categories }: Op
               onChange={(e) =>
                 setFormData(prev => ({ ...prev, categoryId: e.target.value }))
               }
-              className="w-full bg-[var(--card)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-cyan)] transition-colors"
+              className="w-full bg-[var(--bg-secondary)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-blue)] transition-colors"
             >
               <option value="">Select category...</option>
               {categories.map((cat) => (
@@ -244,7 +244,7 @@ export function OperationalDelaysForm({ departmentId, machines, categories }: Op
               onChange={(e) =>
                 setFormData(prev => ({ ...prev, affectedMachineId: e.target.value }))
               }
-              className="w-full bg-[var(--card)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-cyan)] transition-colors"
+              className="w-full bg-[var(--bg-secondary)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-blue)] transition-colors"
             >
               <option value="">No specific machine</option>
               {machines.map((m) => (
@@ -271,7 +271,7 @@ export function OperationalDelaysForm({ departmentId, machines, categories }: Op
                 setFormData((prev) => ({ ...prev, delayMinutes: e.target.value }))
               }
               placeholder="Minutes"
-              className="w-32 bg-[var(--card)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-cyan)]"
+              className="w-32 bg-[var(--bg-secondary)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-blue)]"
             />
             <span className="text-[var(--text-muted)] text-sm">minutes</span>
           </div>
@@ -293,7 +293,7 @@ export function OperationalDelaysForm({ departmentId, machines, categories }: Op
             placeholder="Describe the delay..."
             rows={3}
             maxLength={300}
-            className="w-full bg-[var(--card)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-cyan)] transition-colors resize-none"
+            className="w-full bg-[var(--bg-secondary)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-blue)] transition-colors resize-none"
           />
           <div className="flex justify-between">
             {errors.description && (
@@ -318,7 +318,7 @@ export function OperationalDelaysForm({ departmentId, machines, categories }: Op
             placeholder="Impact on production/plan..."
             rows={2}
             maxLength={200}
-            className="w-full bg-[var(--card)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-cyan)] transition-colors resize-none"
+            className="w-full bg-[var(--bg-secondary)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-blue)] transition-colors resize-none"
           />
         </div>
 
@@ -335,7 +335,7 @@ export function OperationalDelaysForm({ departmentId, machines, categories }: Op
             placeholder="How was the delay resolved?"
             rows={2}
             maxLength={200}
-            className="w-full bg-[var(--card)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-cyan)] transition-colors resize-none"
+            className="w-full bg-[var(--bg-secondary)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-blue)] transition-colors resize-none"
           />
         </div>
 

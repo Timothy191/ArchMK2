@@ -110,6 +110,17 @@ export function SafetyIncidentForm({
 
       if (error) throw error;
 
+      // Trigger n8n workflow for safety alert
+      import("@repo/utils").then(({ triggerWorkflow }) => {
+        triggerWorkflow("safety-incident", {
+          department_id: departmentId,
+          severity_id: formData.severityId,
+          reported_by: employee?.id,
+          incident_date: today,
+          description: formData.description,
+        });
+      });
+
       setFormData({
         incidentType: "",
         categoryId: "",
@@ -148,6 +159,7 @@ export function SafetyIncidentForm({
             </label>
             <select
               id="incident-type"
+              aria-label="Incident Type"
               value={formData.incidentType}
               onChange={(e) =>
                 setFormData((prev) => ({
@@ -175,6 +187,7 @@ export function SafetyIncidentForm({
               Severity <span className="text-red-400">*</span>
             </label>
             <select
+              aria-label="Severity Level"
               value={formData.severityId}
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, severityId: e.target.value }))
@@ -197,6 +210,7 @@ export function SafetyIncidentForm({
           <div className="space-y-2">
             <label className="text-[#b4b4b4] text-sm block">Category</label>
             <select
+              aria-label="Incident Category"
               value={formData.categoryId}
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, categoryId: e.target.value }))
@@ -246,8 +260,7 @@ export function SafetyIncidentForm({
             </label>
             <input
               type="number"
-              min={0}
-              max={100}
+              aria-label="Number of Injured Parties"
               value={formData.injuredParties}
               onChange={(e) =>
                 setFormData((prev) => ({
@@ -269,6 +282,7 @@ export function SafetyIncidentForm({
             Description <span className="text-red-400">*</span>
           </label>
           <textarea
+            aria-label="Description"
             value={formData.description}
             onChange={(e) =>
               setFormData((prev) => ({ ...prev, description: e.target.value }))
@@ -293,6 +307,7 @@ export function SafetyIncidentForm({
           <label className="text-[#b4b4b4] text-sm block">Location</label>
           <input
             type="text"
+            aria-label="Location"
             value={formData.location}
             onChange={(e) =>
               setFormData((prev) => ({ ...prev, location: e.target.value }))

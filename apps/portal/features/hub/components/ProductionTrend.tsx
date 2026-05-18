@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, Title, AreaChart, Text } from "@tremor/react";
+import { Title, AreaChart, Text } from "@tremor/react";
 
 const chartdata = [
   { date: "08:00", Drilling: 2890, Production: 2338, Engineering: 1200 },
@@ -13,20 +13,20 @@ const chartdata = [
 
 export function ProductionTrend() {
   return (
-    <Card className="bg-[#171717] border-[#363636] mt-8">
+    <div className="mt-8">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <Title className="text-[#fafafa]">Site Production Trend</Title>
-          <Text className="text-[#898989]">Real-time output across core departments</Text>
+          <Title className="text-arch-text-primary">Site Production Trend</Title>
+          <Text className="text-arch-text-tertiary">Real-time output across core departments</Text>
         </div>
         <div className="flex gap-4">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-amber-500" />
-            <span className="text-xs text-[#898989]">Drilling</span>
+            <span className="text-xs text-arch-text-tertiary">Drilling</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-emerald-500" />
-            <span className="text-xs text-[#898989]">Production</span>
+            <span className="text-xs text-arch-text-tertiary">Production</span>
           </div>
         </div>
       </div>
@@ -41,6 +41,6 @@ export function ProductionTrend() {
         showGridLines={false}
         curveType="monotone"
       />
-    </Card>
+    </div>
   );
 }

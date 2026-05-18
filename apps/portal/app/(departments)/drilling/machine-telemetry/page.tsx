@@ -1,0 +1,469 @@
+import { createServerSupabaseClient } from "@repo/supabase/server";
+import { redirect } from "next/navigation";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@repo/ui/components/ui/table";
+import { GlassCard } from "@repo/ui/GlassCard";
+import { Button } from "@repo/ui/components/ui/button";
+import { 
+  Activity, 
+  Archive, 
+  Calendar, 
+  TrendingUp, 
+  AlertTriangle,
+  Gauge,
+  Thermometer,
+  Droplets
+} from "lucide-react";
+import Link from "next/link";
+
+export const dynamic = "force-dynamic";
+
+interface TelemetryRecord {
+  period: string;
+  machine_id: string;
+  machine_name: string;
+  avg_engine_rpm: number | null;
+  avg_engine_temp: number | null;
+  avg_hydraulic_pressure: number | null;
+  max_bit_depth: number | null;
+  max_hole_depth: number | null;
+  avg_penetration_rate: number | null;
+  total_alerts: number;
+  record_count: number;
+}
+
+interface ArchivedMonth {
+  id: string;
+  year_month: string;
+  machine_name: string;
+  archived_at: string;
+  record_count: number;
+}
+
+async function getTelemetryData(): Promise<{
+  currentMonth: string;
+  telemetry: TelemetryRecord[];
+  archives: ArchivedMonth[];
+  drills: { id: string; name: string }[];
+}> {
+  const supabase = await createServerSupabaseClient();
+  
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    redirect("/login");
+  }
+
+  // Get drilling department ID
+  const { data: dept } = await supabase
+    .from("departments")
+    .select("id")
+    .eq("name", "drilling")
+    .single();
+
+  if (!dept) {
+    return { currentMonth: "", telemetry: [], archives: [], drills: [] };
+  }
+
+  const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
+
+  // Get all drill rigs
+  const { data: drills } = await supabase
+    .from("machines")
+    .select("id, name")
+    .eq("department_id", dept.id)
+    .eq("machine_type", "Drill Rig")
+    .eq("active", true)
+    .order("name");
+
+  // Get current month telemetry summary using the database function
+  const { data: telemetry } = await supabase
+    .rpc("get_telemetry_summary", {
+      p_department_id: dept.id,
+      p_machine_id: null,
+      p_granularity: "day"
+    });
+
+  // Get archived months
+  const { data: archives } = await supabase
+    .from("machine_telemetry_archive")
+    .select(`
+      id,
+      year_month,
+      archived_at,
+      record_count,
+      machines!inner(name)
+    `)
+    .eq("department_id", dept.id)
+    .order("archived_at", { ascending: false })
+    .limit(12);
+
+  const transformedArchives: ArchivedMonth[] = (archives || []).map((a: any) => ({
+    id: a.id,
+    year_month: a.year_month,
+    machine_name: a.machines?.name || "Unknown",
+    archived_at: a.archived_at,
+    record_count: a.record_count,
+  }));
+
+  return {
+    currentMonth,
+    telemetry: (telemetry || []) as TelemetryRecord[],
+    archives: transformedArchives,
+    drills: drills || []
+  };
+}
+
+function formatNumber(num: number | null | undefined, decimals: number = 1): string {
+  if (num === null || num === undefined) return "—";
+  return num.toFixed(decimals);
+}
+
+function formatDate(dateStr: string): string {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString("en-US", { 
+    month: "short", 
+    day: "numeric",
+    year: "numeric"
+  });
+}
+
+function formatMonth(yearMonth: string): string {
+  const [year, month] = yearMonth.split("-");
+  if (!year || !month) return yearMonth;
+  const date = new Date(parseInt(year), parseInt(month) - 1, 1);
+  return date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+}
+
+export default async function MachineTelemetryPage() {
+  const { currentMonth, telemetry, archives, drills } = await getTelemetryData();
+
+  // Calculate monthly totals
+  const totalRecords = telemetry.reduce((sum, t) => sum + (t.record_count || 0), 0);
+  const totalAlerts = telemetry.reduce((sum, t) => sum + (t.total_alerts || 0), 0);
+  const avgPenetration = telemetry.length > 0
+    ? telemetry.reduce((sum, t) => sum + (t.avg_penetration_rate || 0), 0) / telemetry.length
+    : 0;
+  const maxBitDepth = Math.max(...telemetry.map(t => t.max_bit_depth || 0), 0);
+
+  // Group telemetry by machine
+  const telemetryByMachine = drills.map(drill => {
+    const machineData = telemetry.filter(t => t.machine_id === drill.id);
+    return {
+      drill,
+      data: machineData
+    };
+  });
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-semibold text-[var(--text-heading)]">
+            Machine Telemetry
+          </h2>
+          <div className="flex items-center gap-2 mt-1">
+            <Calendar className="w-4 h-4 text-[var(--text-muted)]" />
+            <p className="text-sm text-[var(--text-muted)]">
+              Current Period: <span className="font-medium text-[var(--accent-blue)]">{formatMonth(currentMonth)}</span>
+            </p>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <Link href="/drilling/machine-telemetry/live">
+            <Button variant="outline" className="border-[var(--border-subtle)]">
+              <Activity className="w-4 h-4 mr-2" />
+              Live View
+            </Button>
+          </Link>
+          <Button className="bg-[var(--accent-blue)] hover:bg-[#0071e3]">
+            <Gauge className="w-4 h-4 mr-2" />
+            Export Data
+          </Button>
+        </div>
+      </div>
+
+      {/* KPI Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <GlassCard>
+          <p className="text-[var(--text-muted)] text-xs font-medium uppercase tracking-wider">
+            Active Drills
+          </p>
+          <p className="text-2xl font-bold text-[var(--text-heading)] mt-1">
+            {drills.length}
+          </p>
+        </GlassCard>
+        <GlassCard>
+          <p className="text-[var(--text-muted)] text-xs font-medium uppercase tracking-wider">
+            Data Points
+          </p>
+          <p className="text-2xl font-bold text-[var(--accent-blue)] mt-1">
+            {totalRecords.toLocaleString()}
+          </p>
+        </GlassCard>
+        <GlassCard>
+          <p className="text-[var(--text-muted)] text-xs font-medium uppercase tracking-wider">
+            Avg Penetration
+          </p>
+          <p className="text-2xl font-bold text-emerald-500 mt-1">
+            {formatNumber(avgPenetration, 2)} m/h
+          </p>
+        </GlassCard>
+        <GlassCard>
+          <p className="text-[var(--text-muted)] text-xs font-medium uppercase tracking-wider text-red-400">
+            Alerts
+          </p>
+          <p className="text-2xl font-bold text-red-400 mt-1">
+            {totalAlerts}
+          </p>
+        </GlassCard>
+      </div>
+
+      {/* Current Month Telemetry Table */}
+      <GlassCard className="overflow-hidden p-0">
+        <div className="p-4 border-b border-[var(--border-subtle)] flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-semibold text-[var(--text-heading)]">
+              {formatMonth(currentMonth)} Telemetry
+            </h3>
+            <p className="text-sm text-[var(--text-muted)] mt-1">
+              Daily aggregated telemetry data for active month
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <TrendingUp className="w-5 h-5 text-emerald-500" />
+            <span className="text-sm text-[var(--text-body)]">
+              Max Depth: <span className="font-medium">{formatNumber(maxBitDepth, 1)}m</span>
+            </span>
+          </div>
+        </div>
+        
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow className="border-b border-[var(--border-subtle)] hover:bg-transparent">
+                <TableHead className="text-[var(--text-muted)] font-medium text-xs uppercase tracking-wider">
+                  Date
+                </TableHead>
+                <TableHead className="text-[var(--text-muted)] font-medium text-xs uppercase tracking-wider">
+                  Drill Rig
+                </TableHead>
+                <TableHead className="text-[var(--text-muted)] font-medium text-xs uppercase tracking-wider text-right">
+                  <Thermometer className="w-3 h-3 inline mr-1" />
+                  Engine RPM
+                </TableHead>
+                <TableHead className="text-[var(--text-muted)] font-medium text-xs uppercase tracking-wider text-right">
+                  <Thermometer className="w-3 h-3 inline mr-1" />
+                  Temp (°C)
+                </TableHead>
+                <TableHead className="text-[var(--text-muted)] font-medium text-xs uppercase tracking-wider text-right">
+                  <Droplets className="w-3 h-3 inline mr-1" />
+                  Pressure
+                </TableHead>
+                <TableHead className="text-[var(--text-muted)] font-medium text-xs uppercase tracking-wider text-right">
+                  Bit Depth
+                </TableHead>
+                <TableHead className="text-[var(--text-muted)] font-medium text-xs uppercase tracking-wider text-right">
+                  Hole Depth
+                </TableHead>
+                <TableHead className="text-[var(--text-muted)] font-medium text-xs uppercase tracking-wider text-right">
+                  Pen. Rate
+                </TableHead>
+                <TableHead className="text-[var(--text-muted)] font-medium text-xs uppercase tracking-wider text-center">
+                  <AlertTriangle className="w-3 h-3 inline mr-1" />
+                  Alerts
+                </TableHead>
+                <TableHead className="text-[var(--text-muted)] font-medium text-xs uppercase tracking-wider text-right">
+                  Records
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {telemetry.length === 0 ? (
+                <TableRow>
+                  <TableCell 
+                    colSpan={10} 
+                    className="text-center py-12 text-[var(--text-muted)]"
+                  >
+                    <Activity className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                    <p>No telemetry data for {formatMonth(currentMonth)}</p>
+                    <p className="text-sm mt-1">
+                      Data will appear once machines start reporting telemetry
+                    </p>
+                  </TableCell>
+                </TableRow>
+              ) : (
+                telemetry.map((record) => (
+                  <TableRow 
+                    key={`${record.machine_id}-${record.period}`}
+                    className="border-b border-[var(--border-subtle)] hover:bg-[var(--bg-tertiary)]/50"
+                  >
+                    <TableCell className="font-medium text-[var(--text-heading)]">
+                      {formatDate(record.period)}
+                    </TableCell>
+                    <TableCell className="text-[var(--text-body)]">
+                      {record.machine_name}
+                    </TableCell>
+                    <TableCell className="text-right text-[var(--text-body)]">
+                      {formatNumber(record.avg_engine_rpm, 0)}
+                    </TableCell>
+                    <TableCell className="text-right text-[var(--text-body)]">
+                      {formatNumber(record.avg_engine_temp, 1)}
+                    </TableCell>
+                    <TableCell className="text-right text-[var(--text-body)]">
+                      {formatNumber(record.avg_hydraulic_pressure, 0)}
+                    </TableCell>
+                    <TableCell className="text-right font-medium text-emerald-500">
+                      {formatNumber(record.max_bit_depth, 1)}m
+                    </TableCell>
+                    <TableCell className="text-right text-[var(--text-body)]">
+                      {formatNumber(record.max_hole_depth, 1)}m
+                    </TableCell>
+                    <TableCell className="text-right text-[var(--text-body)]">
+                      {formatNumber(record.avg_penetration_rate, 2)}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {record.total_alerts > 0 ? (
+                        <span className="inline-flex px-2 py-1 rounded-full text-xs font-medium bg-red-500/10 text-red-500">
+                          {record.total_alerts}
+                        </span>
+                      ) : (
+                        <span className="inline-flex px-2 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-500">
+                          0
+                        </span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right text-[var(--text-muted)] text-sm">
+                      {record.record_count}
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </GlassCard>
+
+      {/* Archived Months */}
+      <GlassCard className="overflow-hidden p-0">
+        <div className="p-4 border-b border-[var(--border-subtle)]">
+          <div className="flex items-center gap-2">
+            <Archive className="w-5 h-5 text-[var(--text-muted)]" />
+            <h3 className="text-lg font-semibold text-[var(--text-heading)]">
+              Archived Months
+            </h3>
+          </div>
+          <p className="text-sm text-[var(--text-muted)] mt-1">
+            Previous months telemetry data is automatically archived and preserved for safe keeping
+          </p>
+        </div>
+        
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow className="border-b border-[var(--border-subtle)] hover:bg-transparent">
+                <TableHead className="text-[var(--text-muted)] font-medium text-xs uppercase tracking-wider">
+                  Month
+                </TableHead>
+                <TableHead className="text-[var(--text-muted)] font-medium text-xs uppercase tracking-wider">
+                  Drill Rig
+                </TableHead>
+                <TableHead className="text-[var(--text-muted)] font-medium text-xs uppercase tracking-wider text-right">
+                  Records
+                </TableHead>
+                <TableHead className="text-[var(--text-muted)] font-medium text-xs uppercase tracking-wider text-right">
+                  Archived On
+                </TableHead>
+                <TableHead className="text-[var(--text-muted)] font-medium text-xs uppercase tracking-wider text-center">
+                  Actions
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {archives.length === 0 ? (
+                <TableRow>
+                  <TableCell 
+                    colSpan={5} 
+                    className="text-center py-8 text-[var(--text-muted)]"
+                  >
+                    <Archive className="w-8 h-8 mx-auto mb-2 opacity-30" />
+                    <p>No archived telemetry data yet</p>
+                    <p className="text-sm mt-1">
+                      Data is archived automatically when each month ends
+                    </p>
+                  </TableCell>
+                </TableRow>
+              ) : (
+                archives.map((archive) => (
+                  <TableRow 
+                    key={archive.id}
+                    className="border-b border-[var(--border-subtle)] hover:bg-[var(--bg-tertiary)]/50"
+                  >
+                    <TableCell className="font-medium text-[var(--text-heading)]">
+                      {formatMonth(archive.year_month)}
+                    </TableCell>
+                    <TableCell className="text-[var(--text-body)]">
+                      {archive.machine_name}
+                    </TableCell>
+                    <TableCell className="text-right text-[var(--text-body)]">
+                      {archive.record_count.toLocaleString()}
+                    </TableCell>
+                    <TableCell className="text-right text-[var(--text-muted)] text-sm">
+                      {formatDate(archive.archived_at)}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        className="text-[var(--accent-blue)] hover:text-[#0071e3]"
+                      >
+                        View Summary
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </GlassCard>
+
+      {/* Archive Info */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <GlassCard className="p-4">
+          <h4 className="font-medium text-[var(--text-heading)] mb-2 flex items-center gap-2">
+            <Activity className="w-4 h-4 text-emerald-500" />
+            How Archival Works
+          </h4>
+          <ul className="text-sm text-[var(--text-body)] space-y-1 list-disc list-inside">
+            <li>Telemetry data is captured continuously during operation</li>
+            <li>At month end, data is automatically summarized and archived</li>
+            <li>Active table holds only current month for fast queries</li>
+            <li>Archived data includes daily averages and maximums</li>
+            <li>Historical data is preserved indefinitely for analysis</li>
+          </ul>
+        </GlassCard>
+        
+        <GlassCard className="p-4">
+          <h4 className="font-medium text-[var(--text-heading)] mb-2 flex items-center gap-2">
+            <Gauge className="w-4 h-4 text-[var(--accent-blue)]" />
+            Telemetry Metrics
+          </h4>
+          <ul className="text-sm text-[var(--text-body)] space-y-1 list-disc list-inside">
+            <li><strong>Engine:</strong> RPM, temperature, operating hours</li>
+            <li><strong>Hydraulics:</strong> Pressure, temperature, flow rate</li>
+            <li><strong>Drilling:</strong> Bit depth, penetration rate, WOB</li>
+            <li><strong>Environment:</strong> Ambient temp, vibration levels</li>
+            <li><strong>Alerts:</strong> Warning codes and fault conditions</li>
+          </ul>
+        </GlassCard>
+      </div>
+    </div>
+  );
+}

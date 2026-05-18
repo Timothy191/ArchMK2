@@ -12,7 +12,7 @@ import {
 
 const MonitoringMap = dynamic(
   () => import("@/components/monitoring/MonitoringMap").then((m) => m.MonitoringMap),
-  { ssr: false, loading: () => <div className="h-[340px] bg-[var(--card)] border border-[var(--border-default)] rounded-xl animate-pulse" /> }
+  { ssr: false, loading: () => <div className="h-[340px] bg-[var(--bg-secondary)] border border-[var(--border-default)] rounded-xl animate-pulse" /> }
 );
 
 const readings = generateDeformationReadings(DEFAULT_MINE_CENTER.lat, DEFAULT_MINE_CENTER.lon);

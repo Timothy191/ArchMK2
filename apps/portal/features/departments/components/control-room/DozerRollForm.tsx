@@ -142,7 +142,7 @@ export function DozerRollForm({ departmentId, dozers }: DozerRollFormProps) {
                 <select
                   value={machineId}
                   onChange={(e) => setMachineId(e.target.value)}
-                  className="w-full bg-[var(--card)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-cyan)] transition-colors"
+                  className="w-full bg-[var(--bg-secondary)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-blue)] focus:ring-2 focus:ring-[var(--accent-blue)]/20 transition-colors"
                 >
                   <option value="">Select dozer...</option>
                   {dozers.map((d) => (
@@ -158,7 +158,7 @@ export function DozerRollForm({ departmentId, dozers }: DozerRollFormProps) {
                 <label className="block text-sm text-[var(--text-secondary)]">
                   Site
                 </label>
-                <div className="w-full bg-[var(--card)]/60 border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm">
+                <div className="w-full bg-[var(--bg-tertiary)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm">
                   {siteName}
                 </div>
               </div>
@@ -186,7 +186,7 @@ export function DozerRollForm({ departmentId, dozers }: DozerRollFormProps) {
                     value={lengthM}
                     onChange={(e) => setLengthM(e.target.value)}
                     placeholder="Length (m)"
-                    className="w-full bg-[var(--card)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-cyan)] transition-colors"
+                    className="w-full bg-[var(--bg-secondary)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] placeholder:text-[var(--text-muted)] text-sm focus:outline-none focus:border-[var(--accent-blue)] focus:ring-2 focus:ring-[var(--accent-blue)]/20 transition-colors"
                   />
                 </div>
                 <X className="w-5 h-5 text-[var(--text-muted)] shrink-0" />
@@ -198,12 +198,12 @@ export function DozerRollForm({ departmentId, dozers }: DozerRollFormProps) {
                     value={widthM}
                     onChange={(e) => setWidthM(e.target.value)}
                     placeholder="Width (m)"
-                    className="w-full bg-[var(--card)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-cyan)] transition-colors"
+                    className="w-full bg-[var(--bg-secondary)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] placeholder:text-[var(--text-muted)] text-sm focus:outline-none focus:border-[var(--accent-blue)] focus:ring-2 focus:ring-[var(--accent-blue)]/20 transition-colors"
                   />
                 </div>
                 <Equal className="w-5 h-5 text-[var(--text-muted)] shrink-0" />
                 <div className="flex-1">
-                  <div className="w-full bg-[var(--card)]/60 border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--accent-cyan)] text-sm font-medium text-center">
+                  <div className="w-full bg-[var(--bg-tertiary)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--accent-blue)] text-sm font-medium text-center">
                     {area > 0 ? `${area.toFixed(2)} m²` : "—"}
                   </div>
                 </div>

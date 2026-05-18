@@ -2,24 +2,45 @@
 
 import { useEffect } from "react";
 import { SecondaryButton } from "@repo/ui/SecondaryButton";
+import { isAppError, isNotFoundError } from "@repo/errors";
 
-export default function HubError({
-  error,
-  reset,
-}: {
+interface HubErrorProps {
   error: Error & { digest?: string };
   reset: () => void;
-}) {
+}
+
+function getErrorTitle(error: Error): string {
+  if (isNotFoundError(error)) return "Hub not found";
+  if (isAppError(error)) return error.name.replace(/([A-Z])/g, " $1").trim();
+  return "Hub Error";
+}
+
+function getErrorMessage(error: Error): string {
+  if (isAppError(error)) return error.message;
+  return error.message || "Failed to load hub data.";
+}
+
+export default function HubError({ error, reset }: HubErrorProps) {
   useEffect(() => {
-    console.error(error);
+    if (isAppError(error)) {
+      console.error("[HubError]", { code: error.code, message: error.message, context: error.context });
+    } else {
+      console.error("[HubError]", error);
+    }
   }, [error]);
+
+  const title = getErrorTitle(error);
+  const message = getErrorMessage(error);
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-medium text-[var(--text-heading)]">Error</h2>
-      <p className="text-[var(--text-muted)] text-sm">
-        {error.message || "Failed to load hub data."}
-      </p>
+      <h2 className="text-2xl font-medium text-[var(--text-heading)]">{title}</h2>
+      <p className="text-[var(--text-muted)] text-sm">{message}</p>
+      {isAppError(error) && (
+        <div className="text-xs text-[var(--text-muted)] font-mono">
+          {error.code}
+        </div>
+      )}
       <SecondaryButton size="sm" onClick={reset}>
         Try again
       </SecondaryButton>

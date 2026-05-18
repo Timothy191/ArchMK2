@@ -21,6 +21,12 @@ jest.mock("@repo/ui/Input", () => ({
   ),
 }));
 
+jest.mock("@repo/ui/AnimatedButton", () => ({
+  AnimatedButton: (props: React.ButtonHTMLAttributes<HTMLButtonElement>) => (
+    <button {...props} />
+  ),
+}));
+
 const { createBrowserSupabaseClient } = jest.requireMock(
   "@repo/supabase/client",
 );
@@ -41,8 +47,8 @@ describe("LoginForm", () => {
   it("renders employee ID and password inputs", () => {
     render(<LoginForm />);
 
-    expect(screen.getByLabelText("Employee ID")).toBeInTheDocument();
-    expect(screen.getByLabelText("Password")).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("e.g., admin@plantcor.os")).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Enter your password")).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /sign in/i }),
     ).toBeInTheDocument();
@@ -58,15 +64,13 @@ describe("LoginForm", () => {
 
     render(<LoginForm />);
 
-    fireEvent.change(screen.getByLabelText("Employee ID"), {
+    fireEvent.change(screen.getByPlaceholderText("e.g., admin@plantcor.os"), {
       target: { value: "PC-12345" },
     });
-    fireEvent.change(screen.getByLabelText("Password"), {
-      target: {
-        value: String.fromCharCode(116, 101, 115, 116, 112, 97, 115, 115),
-      },
+    fireEvent.change(screen.getByPlaceholderText("Enter your password"), {
+      target: { value: "testpass" },
     });
-    fireEvent.click(screen.getByRole("button", { name: /sign in/i }));
+    fireEvent.submit(screen.getByTestId("login-form"));
 
     await waitFor(() => {
       expect(mockSignIn).toHaveBeenCalledWith(
@@ -90,15 +94,13 @@ describe("LoginForm", () => {
 
     render(<LoginForm />);
 
-    fireEvent.change(screen.getByLabelText("Employee ID"), {
+    fireEvent.change(screen.getByPlaceholderText("e.g., admin@plantcor.os"), {
       target: { value: "PC-12345" },
     });
-    fireEvent.change(screen.getByLabelText("Password"), {
-      target: {
-        value: String.fromCharCode(119, 114, 111, 110, 103, 112, 97, 115, 115),
-      },
+    fireEvent.change(screen.getByPlaceholderText("Enter your password"), {
+      target: { value: "wrongpass" },
     });
-    fireEvent.click(screen.getByRole("button", { name: /sign in/i }));
+    fireEvent.submit(screen.getByTestId("login-form"));
 
     await waitFor(() => {
       expect(
@@ -121,22 +123,20 @@ describe("LoginForm", () => {
 
     render(<LoginForm />);
 
-    fireEvent.change(screen.getByLabelText("Employee ID"), {
+    fireEvent.change(screen.getByPlaceholderText("e.g., admin@plantcor.os"), {
       target: { value: "PC-12345" },
     });
-    fireEvent.change(screen.getByLabelText("Password"), {
-      target: {
-        value: String.fromCharCode(116, 101, 115, 116, 112, 97, 115, 115),
-      },
+    fireEvent.change(screen.getByPlaceholderText("Enter your password"), {
+      target: { value: "testpass" },
     });
-    fireEvent.click(screen.getByRole("button", { name: /sign in/i }));
+    fireEvent.submit(screen.getByTestId("login-form"));
 
     await waitFor(() => {
       expect(screen.getByText("Network error")).toBeInTheDocument();
     });
   });
 
-  it("shows loading state while submitting", async () => {
+  it("disables button while submitting", async () => {
     let resolveSignIn: (value: { error: null }) => void;
     const signInPromise = new Promise<{ error: null }>((resolve) => {
       resolveSignIn = resolve;
@@ -151,26 +151,24 @@ describe("LoginForm", () => {
 
     render(<LoginForm />);
 
-    fireEvent.change(screen.getByLabelText("Employee ID"), {
+    fireEvent.change(screen.getByPlaceholderText("e.g., admin@plantcor.os"), {
       target: { value: "PC-12345" },
     });
-    fireEvent.change(screen.getByLabelText("Password"), {
-      target: {
-        value: String.fromCharCode(116, 101, 115, 116, 112, 97, 115, 115),
-      },
+    fireEvent.change(screen.getByPlaceholderText("Enter your password"), {
+      target: { value: "testpass" },
     });
-    fireEvent.click(screen.getByRole("button", { name: /sign in/i }));
+    fireEvent.submit(screen.getByTestId("login-form"));
 
+    // Button should be disabled while loading
     await waitFor(() => {
-      expect(screen.getByRole("button")).toHaveTextContent("Signing in...");
+      expect(screen.getByRole("button")).toBeDisabled();
     });
-
-    expect(screen.getByRole("button")).toBeDisabled();
 
     resolveSignIn!({ error: null });
 
+    // After resolution, button should be enabled
     await waitFor(() => {
-      expect(screen.getByRole("button")).toHaveTextContent("Sign In");
+      expect(screen.getByRole("button")).not.toBeDisabled();
     });
   });
 
@@ -189,15 +187,13 @@ describe("LoginForm", () => {
 
     render(<LoginForm />);
 
-    fireEvent.change(screen.getByLabelText("Employee ID"), {
+    fireEvent.change(screen.getByPlaceholderText("e.g., admin@plantcor.os"), {
       target: { value: "PC-12345" },
     });
-    fireEvent.change(screen.getByLabelText("Password"), {
-      target: {
-        value: String.fromCharCode(116, 101, 115, 116, 112, 97, 115, 115),
-      },
+    fireEvent.change(screen.getByPlaceholderText("Enter your password"), {
+      target: { value: "testpass" },
     });
-    fireEvent.click(screen.getByRole("button", { name: /sign in/i }));
+    fireEvent.submit(screen.getByTestId("login-form"));
 
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith("/dashboard");

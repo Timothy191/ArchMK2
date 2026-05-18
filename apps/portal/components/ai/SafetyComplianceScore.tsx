@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { GlassCard } from "@repo/ui/GlassCard";
 import { cn } from "@repo/ui/lib/utils";
+import { APIError } from "@repo/errors";
 import type { ComplianceResult } from "@/lib/ai/schemas";
 
 interface SafetyData {
@@ -60,7 +61,10 @@ Safety Checks: ${data.safetyChecksCompleted}/${data.totalChecks} completed
         const err = await res
           .json()
           .catch(() => ({ error: "Analysis failed" }));
-        throw new Error(err.error || "Analysis failed");
+        throw new APIError(err.error || "Analysis failed", {
+          statusCode: res.status,
+          context: { endpoint: "safety-compliance", statusText: res.statusText },
+        });
       }
 
       const compliance: ComplianceResult = await res.json();

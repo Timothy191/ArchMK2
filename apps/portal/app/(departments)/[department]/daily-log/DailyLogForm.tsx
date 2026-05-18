@@ -1,8 +1,21 @@
 "use client";
 
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { createBrowserSupabaseClient } from "@repo/supabase/client";
 import { SecondaryButton } from "@repo/ui/SecondaryButton";
+import { cn } from "@repo/ui/lib/utils";
+import { ShiftToggle } from "@repo/ui/ShiftToggle";
+import { toast } from "sonner";
+
+const dailyLogSchema = z.object({
+  shift: z.enum(["day", "night"]),
+  notes: z.string().optional().or(z.literal("")),
+});
+
+type DailyLogFormValues = z.infer<typeof dailyLogSchema>;
 
 interface Machine {
   id: string;
@@ -17,14 +30,25 @@ interface DailyLogFormProps {
 }
 
 export function DailyLogForm({ departmentId, machines }: DailyLogFormProps) {
-  const [shift, setShift] = useState<"day" | "night">("day");
-  const [notes, setNotes] = useState("");
-  const [status, setStatus] = useState<
-    "idle" | "submitting" | "success" | "error"
-  >("idle");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+    watch,
+    setValue,
+  } = useForm<DailyLogFormValues>({
+    resolver: zodResolver(dailyLogSchema),
+    defaultValues: {
+      shift: "day" as const,
+      notes: "",
+    },
+  });
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const shiftValue = watch("shift");
+
+  async function onSubmit(data: DailyLogFormValues) {
     setStatus("submitting");
 
     const supabase = createBrowserSupabaseClient();
@@ -33,21 +57,28 @@ export function DailyLogForm({ departmentId, machines }: DailyLogFormProps) {
     const { error } = await supabase.from("daily_logs").insert({
       department_id: departmentId,
       log_date: today,
-      shift,
-      notes: notes || null,
+      shift: data.shift,
+      notes: data.notes === "" ? null : data.notes,
     });
 
     if (error) {
       console.error(error);
+      toast.error("Failed to save daily log", {
+        description: error.message,
+      });
       setStatus("error");
     } else {
+      toast.success("Daily log saved successfully");
       setStatus("success");
-      setNotes("");
+      reset({
+        shift: "day",
+        notes: "",
+      });
     }
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {/* Shift selector */}
       <div className="space-y-2">
         <label
@@ -56,24 +87,13 @@ export function DailyLogForm({ departmentId, machines }: DailyLogFormProps) {
         >
           Shift
         </label>
-        <div className="flex gap-3" role="group" aria-label="Shift selection">
-          {(["day", "night"] as const).map((s) => (
-            <button
-              key={s}
-              id={`shift-${s}`}
-              type="button"
-              onClick={() => setShift(s)}
-              aria-pressed={shift === s}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                shift === s
-                  ? "bg-[var(--bg-tertiary)] text-[var(--text-heading)] border border-[var(--accent-cyan)]"
-                  : "bg-[var(--card)] text-[var(--text-muted)] border border-[var(--border-default)] hover:text-[var(--text-heading)]"
-              }`}
-            >
-              {s === "day" ? "Day Shift" : "Night Shift"}
-            </button>
-          ))}
-        </div>
+        <ShiftToggle 
+          value={shiftValue}
+          onChange={(value) => {
+            // Update the form value when shift changes
+            setValue("shift", value);
+          }}
+        />
       </div>
 
       {/* Machines list (read-only reference) */}
@@ -86,7 +106,7 @@ export function DailyLogForm({ departmentId, machines }: DailyLogFormProps) {
             {machines.map((m) => (
               <span
                 key={m.id}
-                className="px-3 py-1 rounded-full text-xs bg-[var(--card)] text-[var(--text-secondary)] border border-[var(--border-default)]"
+                className="px-3 py-1 rounded-full text-xs bg-[var(--bg-secondary)] text-[var(--text-secondary)] border border-[var(--border-default)]"
               >
                 {m.name}
               </span>
@@ -105,19 +125,32 @@ export function DailyLogForm({ departmentId, machines }: DailyLogFormProps) {
         </label>
         <textarea
           id="daily-log-notes"
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
+          {...register("notes")}
+          value={(register("notes") as any).value || ""}
           rows={4}
-          className="w-full px-4 py-3 rounded-lg bg-[var(--card)] border border-[var(--border-default)] text-[var(--text-heading)] placeholder-[#898989] focus:outline-none focus:ring-2 focus:ring-[var(--accent-cyan)]/30 resize-none"
+          className={cn(
+            "w-full px-4 py-3 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-default)] text-[var(--text-heading)] placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-blue)]/30 focus:border-[var(--accent-blue)] transition-colors resize-none",
+            errors.notes && "border-red-400"
+          )}
           placeholder="Enter any observations or issues..."
           aria-label="Daily log notes"
+          aria-invalid={errors.notes ? "true" : "false"}
+          aria-describedby={errors.notes ? "daily-log-notes-error" : undefined}
         />
+        {errors.notes && (
+          <p id="daily-log-notes-error" className="text-red-400 text-xs mt-1">
+            {errors.notes.message}
+          </p>
+        )}
       </div>
 
       {/* Actions */}
       <div className="flex items-center gap-4">
-        <SecondaryButton type="submit" disabled={status === "submitting"}>
-          {status === "submitting" ? "Saving..." : "Save Daily Log"}
+        <SecondaryButton 
+          type="submit" 
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? "Saving..." : "Save Daily Log"}
         </SecondaryButton>
 
         {status === "success" && (

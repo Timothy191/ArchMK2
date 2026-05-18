@@ -73,7 +73,7 @@ export default async function MachinesPage({
                 className={`px-2.5 py-1 rounded-full text-xs font-medium ${
                   machine.active
                     ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                    : "bg-[var(--card)] text-[var(--text-muted)] border border-[var(--border-default)]"
+                    : "bg-[var(--bg-secondary)] text-[var(--text-muted)] border border-[var(--border-default)]"
                 }`}
               >
                 {machine.active ? "Active" : "Inactive"}

@@ -1,0 +1,38 @@
+"use client";
+
+import { Tabs, TabsList, TabsTrigger } from "@repo/ui/components/ui/tabs";
+import { Users, Building2, Webhook, FileText, Settings } from "lucide-react";
+
+const TABS = [
+  { value: "users", label: "Users", icon: Users },
+  { value: "departments", label: "Departments", icon: Building2 },
+  { value: "webhooks", label: "Webhooks", icon: Webhook },
+  { value: "audit-logs", label: "Audit Logs", icon: FileText },
+  { value: "settings", label: "Settings", icon: Settings },
+];
+
+interface AdminTabsProps {
+  defaultValue: string;
+  onValueChange: (value: string) => void;
+  children: React.ReactNode;
+}
+
+export function AdminTabs({ defaultValue, onValueChange, children }: AdminTabsProps) {
+  return (
+    <Tabs defaultValue={defaultValue} onValueChange={onValueChange} className="w-full">
+      <TabsList className="w-full justify-start bg-[var(--bg-secondary)] border border-[var(--border-default)]">
+        {TABS.map((tab) => (
+          <TabsTrigger
+            key={tab.value}
+            value={tab.value}
+            className="data-[state=active]:bg-[var(--bg-primary)] data-[state=active]:text-[var(--text-heading)]"
+          >
+            <tab.icon className="w-4 h-4 mr-2" />
+            {tab.label}
+          </TabsTrigger>
+        ))}
+      </TabsList>
+      {children}
+    </Tabs>
+  );
+}

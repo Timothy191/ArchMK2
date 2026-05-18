@@ -75,8 +75,8 @@ interface DepartmentCardProps {
 export function DepartmentCard({ department, index }: DepartmentCardProps) {
   const Icon = ICON_MAP[department.icon] || Factory;
   const config = COLOR_MAP[department.color] || {
-    bg: "border-[#363636] text-[#fafafa]",
-    glow: "rgba(255,255,255,0.05)",
+    bg: "border-[var(--border-default)] text-[var(--text-heading)]",
+    glow: "rgba(0,0,0,0.04)",
   };
   const hasGlow =
     department.status === "alert" || department.status === "maintenance";
@@ -86,7 +86,7 @@ export function DepartmentCard({ department, index }: DepartmentCardProps) {
       <div className="flex items-center justify-between mb-6">
         <div
           className={cn(
-            "p-2.5 rounded-xl border backdrop-blur-md transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(62,207,142,0.1)]",
+            "p-2.5 rounded-xl border backdrop-blur-md transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(0,122,255,0.10)]",
             config.bg,
           )}
         >
@@ -122,17 +122,17 @@ export function DepartmentCard({ department, index }: DepartmentCardProps) {
       </div>
 
       <div className="flex-1">
-        <h3 className="text-[#fafafa] font-semibold text-xl tracking-tight group-hover:text-[var(--accent-cyan)] transition-colors duration-300">
+        <h3 className="text-arch-text-primary font-semibold text-xl tracking-tight group-hover:text-arch-accent-blue transition-colors duration-300">
           {department.displayName}
         </h3>
-        <p className="text-[var(--text-muted)] text-sm mt-2 line-clamp-2 leading-relaxed">
+        <p className="text-arch-text-tertiary text-sm mt-2 line-clamp-2 leading-relaxed">
           {department.description}
         </p>
       </div>
 
       {department.stats && (
-        <div className="mt-8 pt-4 border-t border-[var(--border-default)] flex items-center justify-between group/stat">
-          <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-[0.15em] transition-colors group-hover:text-[#fafafa]">
+        <div className="mt-8 pt-4 border-t border-arch-border-primary flex items-center justify-between group/stat">
+          <span className="text-[10px] font-bold text-arch-text-tertiary uppercase tracking-[0.15em] transition-colors group-hover:text-arch-text-primary">
             {department.stats.label}
           </span>
           <span
@@ -171,7 +171,7 @@ export function DepartmentCard({ department, index }: DepartmentCardProps) {
           <SpotlightCard
             spotlightColor={config.glow}
             className={cn(
-              "h-full bg-[var(--bg-tertiary)]/40 border-[var(--border-default)] hover:border-[var(--accent-cyan)]/30 transition-all duration-300",
+              "h-full bg-arch-surface-tertiary/40 border-arch-border-primary hover:border-arch-accent-blue/30 transition-all duration-300",
             )}
           >
             <div className="p-5 flex flex-col h-full">{cardContent}</div>

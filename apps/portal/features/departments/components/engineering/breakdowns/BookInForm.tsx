@@ -43,6 +43,18 @@ export function BookInForm({ departmentId, activeBreakdowns }: BookInFormProps) 
       try {
         await createBreakdown(departmentId, formData);
         setMessage({ type: "success", text: "Machine registered successfully!" });
+        
+        // Trigger n8n workflow for breakdown alert
+        import("@repo/utils").then(({ triggerWorkflow }) => {
+          triggerWorkflow("machine-breakdown", {
+            department_id: departmentId,
+            fleet_id: formData.fleet_id,
+            machine_type: formData.machine_type,
+            reason: formData.reason,
+            status: "active",
+          });
+        });
+
         setFormData({
           fleet_id: "",
           date_in: new Date().toISOString().split("T")[0] ?? "",
@@ -95,6 +107,7 @@ export function BookInForm({ departmentId, activeBreakdowns }: BookInFormProps) 
               <input
                 type="date"
                 required
+                aria-label="Date In"
                 value={formData.date_in}
                 onChange={(e) => setFormData({ ...formData, date_in: e.target.value })}
                 className="w-full px-3 py-2 rounded-lg bg-[#171717] border border-[#363636] text-[#fafafa] text-sm focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/20 transition-colors"
@@ -105,6 +118,7 @@ export function BookInForm({ departmentId, activeBreakdowns }: BookInFormProps) 
               <input
                 type="time"
                 required
+                aria-label="Time In"
                 value={formData.time_in}
                 onChange={(e) => setFormData({ ...formData, time_in: e.target.value })}
                 className="w-full px-3 py-2 rounded-lg bg-[#171717] border border-[#363636] text-[#fafafa] text-sm focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/20 transition-colors"
@@ -116,6 +130,7 @@ export function BookInForm({ departmentId, activeBreakdowns }: BookInFormProps) 
             <label className="block text-sm text-[#898989] mb-1.5">Machine Type</label>
             <select
               required
+              aria-label="Machine Type"
               value={formData.machine_type}
               onChange={(e) => setFormData({ ...formData, machine_type: e.target.value })}
               className="w-full px-3 py-2 rounded-lg bg-[#171717] border border-[#363636] text-[#fafafa] text-sm focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/20 transition-colors"

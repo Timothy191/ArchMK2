@@ -1,4 +1,6 @@
 import OpenAI from "openai";
+import { APIError } from "@repo/errors";
+import { logError } from "@/lib/errors/error-logger";
 
 /**
  * Embedding service for the AI memory system.
@@ -21,7 +23,10 @@ class OpenAIProvider implements EmbeddingProvider {
   constructor() {
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
-      throw new Error("OPENAI_API_KEY is not set");
+      throw new APIError("OPENAI_API_KEY is not set", {
+        statusCode: 500,
+        context: { reason: "missing_api_key", provider: "openai" },
+      });
     }
     this.client = new OpenAI({ apiKey });
   }
@@ -33,7 +38,12 @@ class OpenAIProvider implements EmbeddingProvider {
       dimensions: EMBEDDING_DIMENSIONS,
     });
     const first = response.data[0];
-    if (!first) throw new Error("OpenAI returned empty embedding data");
+    if (!first) {
+      throw new APIError("OpenAI returned empty embedding data", {
+        statusCode: 502,
+        context: { provider: "openai", reason: "empty_response" },
+      });
+    }
     return first.embedding;
   }
 
@@ -56,7 +66,10 @@ class TogetherProvider implements EmbeddingProvider {
   constructor() {
     const apiKey = process.env.TOGETHER_API_KEY;
     if (!apiKey) {
-      throw new Error("TOGETHER_API_KEY is not set");
+      throw new APIError("TOGETHER_API_KEY is not set", {
+        statusCode: 500,
+        context: { reason: "missing_api_key", provider: "together" },
+      });
     }
     this.apiKey = apiKey;
   }
@@ -75,7 +88,11 @@ class TogetherProvider implements EmbeddingProvider {
     });
 
     if (!response.ok) {
-      throw new Error(`Together embedding failed: ${await response.text()}`);
+      const errorText = await response.text();
+      throw new APIError(`Together embedding failed: ${errorText}`, {
+        statusCode: response.status,
+        context: { provider: "together", endpoint: "embeddings", statusText: response.statusText },
+      });
     }
 
     const data = await response.json();
@@ -96,7 +113,11 @@ class TogetherProvider implements EmbeddingProvider {
     });
 
     if (!response.ok) {
-      throw new Error(`Together embedding failed: ${await response.text()}`);
+      const errorText = await response.text();
+      throw new APIError(`Together embedding failed: ${errorText}`, {
+        statusCode: response.status,
+        context: { provider: "together", endpoint: "embeddings", statusText: response.statusText },
+      });
     }
 
     const data = await response.json();
@@ -116,8 +137,12 @@ function getPrimaryProvider(): EmbeddingProvider {
     }
   }
   if (!primaryProvider) {
-    throw new Error(
+    throw new APIError(
       "No embedding provider available. Set OPENAI_API_KEY or TOGETHER_API_KEY.",
+      {
+        statusCode: 503,
+        context: { reason: "no_provider_available" },
+      }
     );
   }
   return primaryProvider;
@@ -142,7 +167,7 @@ export async function generateEmbedding(text: string): Promise<number[]> {
   try {
     return await getPrimaryProvider().generate(text);
   } catch (err) {
-    console.warn("Primary embedding provider failed:", err);
+    logError(err instanceof Error ? err : new Error(String(err)), { context: "embedding_primary_failed" }).catch(() => {});
     const fallback = getFallbackProvider();
     if (fallback) {
       return await fallback.generate(text);
@@ -163,16 +188,13 @@ export async function batchGenerateEmbeddings(
   try {
     return await getPrimaryProvider().batchGenerate(texts);
   } catch (err) {
-    console.warn("Primary batch embedding failed:", err);
+    logError(err instanceof Error ? err : new Error(String(err)), { context: "embedding_batch_primary_failed" }).catch(() => {});
     const fallback = getFallbackProvider();
     if (fallback) {
       try {
         return await fallback.batchGenerate(texts);
       } catch (fallbackErr) {
-        console.warn(
-          "Fallback batch embedding failed, falling back to individual calls:",
-          fallbackErr,
-        );
+        logError(fallbackErr instanceof Error ? fallbackErr : new Error(String(fallbackErr)), { context: "embedding_batch_fallback_failed" }).catch(() => {});
       }
     }
     // Fallback: generate individually

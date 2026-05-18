@@ -1,37 +1,36 @@
+"use client";
+
+import { useState } from "react";
 import { redirect } from "next/navigation";
-import { createServerSupabaseClient } from "@repo/supabase/server";
-import { GlassCard } from "@repo/ui/GlassCard";
+import { createBrowserSupabaseClient } from "@repo/supabase/client";
+import { AdminTabs } from "~/features/admin/components/AdminTabs";
+import { UsersTab } from "~/features/admin/tabs/UsersTab";
+import { DepartmentsTab } from "~/features/admin/tabs/DepartmentsTab";
+import { WebhooksTab } from "~/features/admin/tabs/WebhooksTab";
+import { AuditLogsTab } from "~/features/admin/tabs/AuditLogsTab";
+import { SettingsTab } from "~/features/admin/tabs/SettingsTab";
 
-export default async function AdminPage() {
-  const supabase = await createServerSupabaseClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+export default function AdminPage() {
+  const [activeTab, setActiveTab] = useState("users");
+  const supabase = createBrowserSupabaseClient();
 
-  if (!user) {
-    redirect("/login");
-  }
-
-  const { data: employee } = await supabase
-    .from("employees")
-    .select("role")
-    .eq("auth_id", user.id)
-    .single();
-
-  if (employee?.role !== "admin") {
-    redirect("/");
-  }
-
-  const { data: employees } = await supabase
-    .from("employees")
-    .select("id, full_name, role, department_id, created_at")
-    .order("created_at", { ascending: false });
-
-  const { data: departments } = await supabase
-    .from("departments")
-    .select("id, name, display_name");
-
-  const deptMap = new Map(departments?.map((d) => [d.id, d.display_name]) ?? []);
+  // Check auth and role
+  supabase.auth.getUser().then(({ data: { user } }: { data: { user: any } }) => {
+    if (!user) {
+      redirect("/login");
+    }
+    
+    supabase
+      .from("employees")
+      .select("role")
+      .eq("auth_id", user.id)
+      .single()
+      .then(({ data: employee }: { data: any }) => {
+        if (employee?.role !== "admin") {
+          redirect("/");
+        }
+      });
+  });
 
   return (
     <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-heading)]">
@@ -41,67 +40,14 @@ export default async function AdminPage() {
         </div>
       </header>
 
-      <main className="p-6 max-w-5xl mx-auto space-y-6">
-        <h1 className="text-2xl font-medium text-[var(--text-heading)]">Employees</h1>
-
-        <GlassCard className="overflow-hidden p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <thead>
-                <tr className="border-b border-[var(--border-default)]">
-                  <th className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
-                    Name
-                  </th>
-                  <th className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
-                    Role
-                  </th>
-                  <th className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
-                    Department
-                  </th>
-                  <th className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
-                    Created
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[var(--border-default)]">
-                {employees?.map((emp) => (
-                  <tr key={emp.id} className="hover:bg-[var(--bg-tertiary)] transition-colors">
-                    <td className="px-6 py-4 text-[var(--text-heading)] text-sm">{emp.full_name}</td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${
-                          emp.role === "admin"
-                            ? "bg-violet-500/10 text-violet-400"
-                            : emp.role === "supervisor"
-                              ? "bg-amber-500/10 text-amber-400"
-                              : "bg-[var(--card)] text-[var(--text-muted)] border border-[var(--border-default)]"
-                        }`}
-                      >
-                        {emp.role}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-[var(--text-muted)] text-sm">
-                      {deptMap.get(emp.department_id) || "Unassigned"}
-                    </td>
-                    <td className="px-6 py-4 text-[var(--text-muted)] text-sm">
-                      {new Date(emp.created_at).toLocaleDateString()}
-                    </td>
-                  </tr>
-                ))}
-                {(!employees || employees.length === 0) && (
-                  <tr>
-                    <td
-                      colSpan={4}
-                      className="px-6 py-12 text-center text-[var(--text-muted)] text-sm"
-                    >
-                      No employees found.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </GlassCard>
+      <main className="p-6 max-w-7xl mx-auto">
+        <AdminTabs defaultValue="users" onValueChange={setActiveTab}>
+          {activeTab === "users" && <UsersTab />}
+          {activeTab === "departments" && <DepartmentsTab />}
+          {activeTab === "webhooks" && <WebhooksTab />}
+          {activeTab === "audit-logs" && <AuditLogsTab />}
+          {activeTab === "settings" && <SettingsTab />}
+        </AdminTabs>
       </main>
     </div>
   );

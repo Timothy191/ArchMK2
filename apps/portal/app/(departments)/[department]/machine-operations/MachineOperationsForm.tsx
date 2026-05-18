@@ -235,7 +235,7 @@ export function MachineOperationsForm({
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, machineId: e.target.value }))
               }
-              className="w-full bg-[var(--card)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-cyan)] transition-colors"
+              className="w-full bg-[var(--bg-secondary)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-blue)] transition-colors"
             >
               <option value="">Select machine...</option>
               {machines.map((m) => (
@@ -259,7 +259,7 @@ export function MachineOperationsForm({
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, operatorId: e.target.value }))
               }
-              className="w-full bg-[var(--card)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-cyan)] transition-colors"
+              className="w-full bg-[var(--bg-secondary)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-blue)] transition-colors"
             >
               <option value="">Select operator...</option>
               {operators.map((op) => (
@@ -283,7 +283,7 @@ export function MachineOperationsForm({
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, siteId: e.target.value }))
               }
-              className="w-full bg-[var(--card)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-cyan)] transition-colors"
+              className="w-full bg-[var(--bg-secondary)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-blue)] transition-colors"
             >
               <option value="">Select site...</option>
               {sites.map((s) => (
@@ -316,7 +316,7 @@ export function MachineOperationsForm({
                   className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
                     formData.shiftType === shift
                       ? "bg-[var(--accent-cyan)] text-[var(--bg-secondary)]"
-                      : "bg-[var(--card)] border border-[var(--border-default)] text-[var(--text-muted)] hover:text-[var(--text-heading)]"
+                      : "bg-[var(--bg-secondary)] border border-[var(--border-default)] text-[var(--text-muted)] hover:text-[var(--text-heading)]"
                   }`}
                 >
                   {shift.charAt(0).toUpperCase() + shift.slice(1)}
@@ -336,7 +336,7 @@ export function MachineOperationsForm({
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, startTime: e.target.value }))
               }
-              className="w-full bg-[var(--card)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-cyan)] transition-colors"
+              className="w-full bg-[var(--bg-secondary)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-blue)] transition-colors"
             />
             {errors.startTime && (
               <p className="text-red-400 text-xs">{errors.startTime}</p>
@@ -352,7 +352,7 @@ export function MachineOperationsForm({
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, endTime: e.target.value }))
               }
-              className="w-full bg-[var(--card)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-cyan)] transition-colors"
+              className="w-full bg-[var(--bg-secondary)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-blue)] transition-colors"
             />
             {errors.endTime && (
               <p className="text-red-400 text-xs">{errors.endTime}</p>

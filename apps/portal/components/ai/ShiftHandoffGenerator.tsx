@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { GlassCard } from "@repo/ui/GlassCard";
 import { cn } from "@repo/ui/lib/utils";
+import { APIError } from "@repo/errors";
 
 interface ShiftData {
   shiftDate: string;
@@ -66,7 +67,10 @@ ${shiftData.incidents.join("\n") || "None"}
         const err = await res
           .json()
           .catch(() => ({ error: "Generation failed" }));
-        throw new Error(err.error || "Generation failed");
+        throw new APIError(err.error || "Generation failed", {
+          statusCode: res.status,
+          context: { endpoint: "shift-handoff", statusText: res.statusText },
+        });
       }
 
       const data = await res.json();

@@ -1,12 +1,34 @@
+import dynamic from "next/dynamic";
 import { GlassCard } from "@repo/ui/GlassCard";
 import { getDepartmentContext } from "~/lib/dept-context";
-import { ScadaPanel } from "@/features/departments/components/control-room/ScadaPanel";
-import { AlertPanel } from "@/features/departments/components/control-room/AlertPanel";
-import { ControlRoomActivityFeed } from "@/features/departments/components/control-room/ControlRoomActivityFeed";
-import { WeatherWidget } from "@/components/weather/WeatherWidget";
-import { ShiftCoverageWidget } from "@/features/departments/components/control-room/ShiftCoverageWidget";
-import { SatelliteMonitoringDashboard } from "@/features/departments/components/satellite/SatelliteMonitoringDashboard";
-import { SafetyDashboard } from "@/features/departments/components/safety/SafetyDashboard";
+
+const ScadaPanel = dynamic(() => import("@/features/departments/components/control-room/ScadaPanel").then(mod => mod.ScadaPanel), {
+  loading: () => <div className="h-[400px] animate-pulse bg-white/5 rounded-2xl" />,
+});
+
+const AlertPanel = dynamic(() => import("@/features/departments/components/control-room/AlertPanel").then(mod => mod.AlertPanel), {
+  loading: () => <div className="h-[400px] animate-pulse bg-white/5 rounded-2xl" />,
+});
+
+const ControlRoomActivityFeed = dynamic(() => import("@/features/departments/components/control-room/ControlRoomActivityFeed").then(mod => mod.ControlRoomActivityFeed), {
+  loading: () => <div className="h-[400px] animate-pulse bg-white/5 rounded-2xl" />,
+});
+
+const WeatherWidget = dynamic(() => import("@/components/weather/WeatherWidget").then(mod => mod.WeatherWidget), {
+  loading: () => <div className="h-32 animate-pulse bg-white/5 rounded-2xl" />,
+});
+
+const ShiftCoverageWidget = dynamic(() => import("@/features/departments/components/control-room/ShiftCoverageWidget").then(mod => mod.ShiftCoverageWidget), {
+  loading: () => <div className="h-64 animate-pulse bg-white/5 rounded-2xl" />,
+});
+
+const SatelliteMonitoringDashboard = dynamic(() => import("@/features/departments/components/satellite/SatelliteMonitoringDashboard").then(mod => mod.SatelliteMonitoringDashboard), {
+  loading: () => <div className="fixed inset-0 flex items-center justify-center bg-black"><div className="w-8 h-8 border-2 border-cyan-500/20 border-t-cyan-500 rounded-full animate-spin" /></div>,
+});
+
+const SafetyDashboard = dynamic(() => import("@/features/departments/components/safety/SafetyDashboard").then(mod => mod.SafetyDashboard), {
+  loading: () => <div className="fixed inset-0 flex items-center justify-center bg-black"><div className="w-8 h-8 border-2 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin" /></div>,
+});
 
 export default async function DepartmentDashboard({
   params,
@@ -155,13 +177,13 @@ export default async function DepartmentDashboard({
             </a>
             <a
               href={`/${deptSlug}/operational-delays`}
-              className="px-4 py-2 bg-[var(--card)] border border-[var(--border-default)] text-[var(--text-heading)] font-medium rounded-lg hover:bg-[var(--bg-tertiary)] transition-colors text-sm"
+              className="px-4 py-2 bg-[var(--bg-secondary)] border border-[var(--border-default)] text-[var(--text-heading)] font-medium rounded-lg hover:bg-[var(--bg-tertiary)] transition-colors text-sm"
             >
               + Add Note
             </a>
             <a
               href={`/${deptSlug}/hourly-loads`}
-              className="px-4 py-2 bg-[var(--card)] border border-[var(--border-default)] text-[var(--text-heading)] font-medium rounded-lg hover:bg-[var(--bg-tertiary)] transition-colors text-sm"
+              className="px-4 py-2 bg-[var(--bg-secondary)] border border-[var(--border-default)] text-[var(--text-heading)] font-medium rounded-lg hover:bg-[var(--bg-tertiary)] transition-colors text-sm"
             >
               Update Loads
             </a>

@@ -76,7 +76,7 @@ export default async function HourlyLoadsPage({
           <span>Active hour with loads</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="w-3 h-3 rounded bg-[var(--card)] border border-[var(--border-default)]"></span>
+          <span className="w-3 h-3 rounded bg-[var(--bg-secondary)] border border-[var(--border-default)]"></span>
           <span>No loads recorded</span>
         </div>
         <p className="ml-auto">

@@ -1,6 +1,7 @@
 import { generateText } from "ai";
 import { withFailover } from "@/lib/ai/providers";
 import { systemPrompts } from "@/lib/ai/prompts";
+import { logError } from "@/lib/errors/error-logger";
 
 export async function POST(req: Request) {
   const { shiftData }: { shiftData: string } = await req.json();
@@ -25,7 +26,7 @@ export async function POST(req: Request) {
 
     return Response.json({ content: result.text });
   } catch (error) {
-    console.error("Shift handoff error:", error);
+    logError(error instanceof Error ? error : new Error(String(error)), { context: "shift_handoff" }).catch(() => {});
     return new Response(
       JSON.stringify({ error: "Failed to generate shift handoff report" }),
       { status: 500, headers: { "Content-Type": "application/json" } },
