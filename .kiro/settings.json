@@ -11,10 +11,18 @@
           },
           {
             "type": "command",
+            "command": "GUARD_TYPE=input node \"/home/timothy/Project/Arch-Mk2/.kiro/guardrails/index.js\""
+          },
+          {
+            "type": "command",
+            "command": "HOOK_TYPE=preToolUse node \"/home/timothy/Project/Arch-Mk2/.kiro/observability/index.js\" trace"
+          },
+          {
+            "type": "command",
             "command": "node \"/home/timothy/Project/Arch-Mk2/.claude/hooks/scripts/tool-call-budget.js\""
           }
         ],
-        "description": "Seven-layer safety gate + tool call budget tracking"
+        "description": "Safety gate + guardrails + OTEL trace + budget tracking"
       },
       {
         "matcher": "tool == \"Edit\" || tool == \"Write\"",
@@ -40,10 +48,14 @@
           },
           {
             "type": "command",
+            "command": "GUARD_TYPE=tool-use node \"/home/timothy/Project/Arch-Mk2/.kiro/guardrails/index.js\""
+          },
+          {
+            "type": "command",
             "command": "node \"/home/timothy/Project/Arch-Mk2/.claude/hooks/scripts/git-blast-radius.js\""
           }
         ],
-        "description": "Pre-push quality gate + dangerous git detection"
+        "description": "Pre-push quality gate + tool-use guardrails + dangerous git detection"
       }
     ],
     "PostToolUse": [

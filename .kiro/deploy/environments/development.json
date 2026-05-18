@@ -1,0 +1,40 @@
+{
+  "label": "Development",
+  "description": "Local development with hot-reload and debug logging",
+  "observability": {
+    "tracing": "jsonl",
+    "metrics_export": "jsonl",
+    "langfuse_enabled": false,
+    "otel_enabled": false,
+    "prometheus_enabled": false
+  },
+  "guardrails": {
+    "mode": "permissive",
+    "fail_closed": false
+  },
+  "executor": {
+    "concurrency": 3,
+    "timeout_ms": 60000
+  },
+  "compression": {
+    "target_tokens": 12000,
+    "enabled": false
+  },
+  "queue": {
+    "backend": "memory",
+    "redis_url": null
+  },
+  "safety": {
+    "mode": "default",
+    "debug": true
+  },
+  "logging": {
+    "level": "debug",
+    "console": true
+  },
+  "shadow_mode": false,
+  "n8n": {
+    "url": "http://localhost:5678",
+    "webhook_base": "http://localhost:5678/webhook"
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "label": "Production",
+  "description": "Production with full observability, fail-closed guardrails, and Redis-backed queue",
+  "observability": {
+    "tracing": "langfuse+otel+jsonl",
+    "metrics_export": "prometheus",
+    "langfuse_enabled": true,
+    "otel_enabled": true,
+    "prometheus_enabled": true
+  },
+  "guardrails": {
+    "mode": "strict",
+    "fail_closed": true
+  },
+  "executor": {
+    "concurrency": 8,
+    "timeout_ms": 300000
+  },
+  "compression": {
+    "target_tokens": 6000,
+    "enabled": true
+  },
+  "queue": {
+    "backend": "redis",
+    "redis_url": "redis://plantcor-redis:6379",
+    "poll_interval_ms": 500,
+    "max_queue_size": 1000
+  },
+  "safety": {
+    "mode": "strict",
+    "debug": false
+  },
+  "logging": {
+    "level": "warn",
+    "console": false
+  },
+  "shadow_mode": false,
+  "n8n": {
+    "url": "http://n8n:5678",
+    "webhook_base": "http://n8n:5678/webhook"
+  }
+}

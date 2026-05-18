@@ -1,0 +1,50 @@
+{
+  "mode": "default",
+  "fail_closed": true,
+  "audit_log": "ltm/store/guardrails.jsonl",
+  "rules": {
+    "input": {
+      "enabled": true,
+      "max_prompt_length": 10000,
+      "block_patterns": [
+        "ignore all previous instructions",
+        "ignore all instructions",
+        "you are now",
+        "act as a DND",
+        "system prompt",
+        "do not follow",
+        "override your",
+        "forget your"
+      ],
+      "block_secrets_in_prompt": true
+    },
+    "tool-use": {
+      "enabled": true,
+      "dangerous_patterns": [
+        "rm -rf /",
+        "rm -rf /*",
+        "sudo rm",
+        "mkfs",
+        "dd if=",
+        "chmod 777",
+        "> /dev/",
+        "git push --force"
+      ],
+      "max_tool_calls_per_step": 5,
+      "require_approval_for": ["Bash(rm *)", "Bash(sudo *)", "Bash(docker *rm*)"]
+    },
+    "output": {
+      "enabled": true,
+      "max_output_length": 50000,
+      "block_hallucination_markers": true,
+      "block_unsafe_code_generation": true
+    },
+    "budget": {
+      "enabled": true,
+      "max_tokens_per_session": 100000,
+      "max_tool_calls_per_session": 500,
+      "max_subagents_per_session": 20,
+      "cooldown_after_block_seconds": 60
+    }
+  }
+}

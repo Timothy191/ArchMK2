@@ -1,0 +1,40 @@
+{
+  "label": "Staging",
+  "description": "Pre-production validation with shadow mode",
+  "observability": {
+    "tracing": "langfuse+jsonl",
+    "metrics_export": "prometheus",
+    "langfuse_enabled": true,
+    "otel_enabled": true,
+    "prometheus_enabled": true
+  },
+  "guardrails": {
+    "mode": "default",
+    "fail_closed": true
+  },
+  "executor": {
+    "concurrency": 5,
+    "timeout_ms": 120000
+  },
+  "compression": {
+    "target_tokens": 8000,
+    "enabled": true
+  },
+  "queue": {
+    "backend": "redis",
+    "redis_url": "redis://plantcor-redis:6379"
+  },
+  "safety": {
+    "mode": "default",
+    "debug": false
+  },
+  "logging": {
+    "level": "info",
+    "console": false
+  },
+  "shadow_mode": true,
+  "n8n": {
+    "url": "http://n8n:5678",
+    "webhook_base": "http://n8n:5678/webhook"
+  }
+}
