@@ -1,0 +1,76 @@
+version: "3.8"
+
+# ============================================================
+# Read Replica — Streaming replication from the Supabase primary
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.replica.yml up -d
+#
+# This adds a hot-standby PostgreSQL replica that streams WAL
+# from the primary Supabase db container.
+#
+# Prerequisites (postgresql.conf on primary):
+#   wal_level = replica
+#   max_wal_senders = 5
+#   wal_keep_size = 256
+#
+# Prerequisites (pg_hba.conf on primary):
+#   host  replication  replicator  0.0.0.0/0  md5
+#
+# After starting, the replica is available on port 54322.
+# Set SUPABASE_READ_REPLICA_URL=http://localhost:54322 in your .env
+# ============================================================
+
+services:
+  postgres-replica:
+    image: supabase/postgres:15.1.0.147
+    container_name: supabase-postgres-replica
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      # Primary connection for streaming replication
+      POSTGRES_PRIMARY_URL: postgresql://replicator:${REPLICATOR_PASSWORD:-replicator}@db:5432/postgres
+    command: >
+      postgres
+        -c hot_standby=on
+        -c max_connections=200
+        -c shared_buffers=256MB
+        -c effective_cache_size=768MB
+        -c work_mem=16MB
+    ports:
+      - "54322:5432"
+    volumes:
+      - postgres_replica_data:/var/lib/postgresql/data
+    depends_on:
+      - db
+    networks:
+      - supabase_network_default
+
+  # PostgREST pointed at the replica for API read-path
+  # (optional: only needed if you want /rest/v1 queries to hit the replica)
+  postgrest-replica:
+    image: postgrest/postgrest:v12.2.0
+    container_name: supabase-postgrest-replica
+    restart: unless-stopped
+    environment:
+      PGRST_DB_URI: postgresql://authenticator:${POSTGRES_PASSWORD:-postgres}@postgres-replica:5432/postgres
+      PGRST_DB_SCHEMA: public,storage,graphql_public
+      PGRST_DB_ANON_ROLE: anon
+      PGRST_JWT_SECRET: ${JWT_SECRET:-super-secret-jwt-token-with-at-least-32-characters-long}
+      PGRST_DB_USE_LEGACY_GUCS: "false"
+      PGRST_APP_SETTINGS_JWT_SECRET: ${JWT_SECRET:-super-secret-jwt-token-with-at-least-32-characters-long}
+      PGRST_APP_SETTINGS_JWT_EXP: ${JWT_EXPIRY:-3600}
+    ports:
+      - "3001:3000"
+    depends_on:
+      - postgres-replica
+    networks:
+      - supabase_network_default
+
+volumes:
+  postgres_replica_data:
+
+networks:
+  supabase_network_default:
+    external: true
+    name: supabase_network_default

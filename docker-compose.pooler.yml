@@ -1,0 +1,72 @@
+version: "3.8"
+
+# ============================================================
+# PgBouncer Connection Pooler
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.pooler.yml up -d
+#
+# PgBouncer sits between the app and PostgreSQL, multiplexing
+# connections to prevent exhaustion under concurrent load.
+#
+# Once running:
+#   - Update SUPABASE_DB_URL in .env to use port 5433
+#   - Primary PostgreSQL remains accessible directly on port 5432
+#   - PgBouncer admin console: psql -h localhost -p 5433 -U pgbouncer pgbouncer
+#
+# Pool mode: transaction (compatible with Supabase auth helpers)
+# ============================================================
+
+services:
+  pgbouncer:
+    image: pgbouncer/pgbouncer:1.21.0
+    container_name: supabase-pgbouncer
+    restart: unless-stopped
+    environment:
+      # Target database
+      DATABASES_HOST: db
+      DATABASES_PORT: "5432"
+      DATABASES_DBNAME: postgres
+      DATABASES_USER: postgres
+      DATABASES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+
+      # Pool configuration
+      PGBOUNCER_POOL_MODE: transaction
+      PGBOUNCER_MAX_CLIENT_CONN: "200"
+      PGBOUNCER_DEFAULT_POOL_SIZE: "25"
+      PGBOUNCER_MIN_POOL_SIZE: "5"
+      PGBOUNCER_RESERVE_POOL_SIZE: "5"
+      PGBOUNCER_RESERVE_POOL_TIMEOUT: "3"
+
+      # Server-side connection management
+      PGBOUNCER_SERVER_IDLE_TIMEOUT: "600"
+      PGBOUNCER_CLIENT_IDLE_TIMEOUT: "0"
+      PGBOUNCER_MAX_DB_CONNECTIONS: "50"
+
+      # Admin access (for monitoring pool stats)
+      PGBOUNCER_ADMIN_USERS: postgres
+      PGBOUNCER_STATS_USERS: postgres
+
+      # Auth
+      PGBOUNCER_AUTH_TYPE: md5
+
+      # Logging
+      PGBOUNCER_LOG_CONNECTIONS: "0"
+      PGBOUNCER_LOG_DISCONNECTIONS: "0"
+      PGBOUNCER_LOG_POOLER_ERRORS: "1"
+    ports:
+      - "5433:5432"
+    depends_on:
+      - db
+    networks:
+      - supabase_network_default
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h localhost -p 5432 -U postgres || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  supabase_network_default:
+    external: true
+    name: supabase_network_default

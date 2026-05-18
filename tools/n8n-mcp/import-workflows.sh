@@ -2,8 +2,8 @@
 set -euo pipefail
 
 N8N_URL="${N8N_URL:-http://localhost:5678}"
-N8N_EMAIL="${N8N_EMAIL:-admin@plantcor.com}"
-N8N_PASSWORD="${N8N_PASSWORD:-Plantcor1!}"
+N8N_EMAIL="${N8N_EMAIL:-timothyoniel558@gmail.com}"
+N8N_PASSWORD="${N8N_PASSWORD:-Yugioh@123#}"
 WORKFLOW_DIR="$(dirname "$0")/workflows"
 COOKIE_JAR=$(mktemp)
 

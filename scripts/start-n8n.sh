@@ -5,8 +5,8 @@
 set -euo pipefail
 
 N8N_PORT="${N8N_PORT:-5678}"
-N8N_EMAIL="${N8N_EMAIL:-admin@plantcor.com}"
-N8N_PASSWORD="${N8N_PASSWORD:-Plantcor1!}"
+N8N_EMAIL="${N8N_EMAIL:-timothyoniel558@gmail.com}"
+N8N_PASSWORD="${N8N_PASSWORD:-Yugioh@123#}"
 N8N_ENCRYPTION_KEY="${N8N_ENCRYPTION_KEY:-mPrxykirb9y+23+njG2uC3DkumzpYvKn}"
 LOG_FILE="${LOG_FILE:-/tmp/n8n-server.log}"
 
