@@ -35,6 +35,9 @@ apps/*/.next/
 .kiro/settings.local.json
 .kiro/worktrees/
 !.kiro/worktrees/.gitkeep
+.kiro/deploy/
+.kiro/guardrails/
+.kiro/skills/
 
 # IDE
 .vscode/
@@ -94,3 +97,6 @@ apps/portal/public/workbox-*.js.map
 # Test artifacts
 test-results/
 .bundlesize.json
+
+# Scratch / temporary workflow exports
+scratch/
