@@ -36,7 +36,7 @@
       "prettier --write"
     ],
     "*.{json,md,css,mjs,yaml,yml}": "prettier --write",
-    "*": "secretlint --secretlintrc-path .secretlintrc.json"
+    "*": "secretlint --secretlintrc .secretlintrc.json"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.0.1",
