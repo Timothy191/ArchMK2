@@ -1,0 +1,59 @@
+{
+  "name": "Arch Mesh — Data Sync Pipeline",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "mesh/data-sync",
+        "options": {}
+      },
+      "name": "Data Sync Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [100, 300],
+      "webhookId": "mesh-data-sync"
+    },
+    {
+      "parameters": {
+        "jsCode": "const payload = $json.body || $json;\nconst validSyncs = [\n  'employees-to-active-directory',\n  'machines-to-telemetry-hub',\n  'incidents-to-compliance-db',\n  'shift-logs-to-warehouse'\n];\nif (!payload.syncType || !validSyncs.includes(payload.syncType)) {\n  return { error: 'Invalid sync type', validSyncs };\n}\nreturn { syncType: payload.syncType, direction: payload.direction || 'outbound', startedAt: new Date().toISOString() };"
+      },
+      "name": "Validate Sync",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [350, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const { syncType } = $json;\nconst mappings = {\n  'employees-to-active-directory': { source: 'supabase', target: 'ldap', table: 'employees' },\n  'machines-to-telemetry-hub': { source: 'supabase', target: 'mqtt', table: 'machines' },\n  'incidents-to-compliance-db': { source: 'supabase', target: 'postgres', table: 'safety_incidents' },\n  'shift-logs-to-warehouse': { source: 'supabase', target: 'clickhouse', table: 'shift_logs' }\n};\nreturn { ...$json, mapping: mappings[syncType], status: 'syncing' };"
+      },
+      "name": "Resolve Mapping",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [600, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const { syncType, mapping, startedAt } = $json;\nreturn {\n  status: 'completed',\n  syncType,\n  mapping,\n  durationMs: Date.now() - new Date(startedAt).getTime(),\n  completedAt: new Date().toISOString()\n};"
+      },
+      "name": "Sync Complete",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [850, 300]
+    }
+  ],
+  "connections": {
+    "Data Sync Webhook": {
+      "main": [[{ "node": "Validate Sync", "type": "main", "index": 0 }]]
+    },
+    "Validate Sync": {
+      "main": [[{ "node": "Resolve Mapping", "type": "main", "index": 0 }]]
+    },
+    "Resolve Mapping": {
+      "main": [[{ "node": "Sync Complete", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": true,
+  "settings": {},
+  "tags": ["automation-mesh", "data-sync", "etl"],
+  "id": "mesh-data-sync"
+}

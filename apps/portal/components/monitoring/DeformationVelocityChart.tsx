@@ -43,7 +43,6 @@ export function DeformationVelocityChart({
   const values = history.map((p) => p.velocityMmPerMonth);
   const rawMin = Math.min(...values);
   const rawMax = Math.max(...values);
-  const dataRange = rawMax - rawMin || 1;
 
   const t = ALERT_THRESHOLDS[area];
   const domainMin = Math.min(rawMin, -t.critical - 5);
@@ -68,7 +67,7 @@ export function DeformationVelocityChart({
 
   return (
     <div>
-      <p className="text-[10px] text-[#898989] uppercase tracking-wide mb-1">{label}</p>
+      <p className="text-[10px] text-[var(--text-secondary)] uppercase tracking-wide mb-1">{label}</p>
       <svg viewBox={`0 0 ${W} ${H}`} width="100%" height={H} aria-label={label}>
         {/* threshold bands */}
         <rect
@@ -107,9 +106,9 @@ export function DeformationVelocityChart({
         {/* zero line */}
         <line
           x1={PAD.left} y1={zeroY} x2={PAD.left + innerW} y2={zeroY}
-          stroke="#363636" strokeWidth={1}
+          stroke="var(--border-emphasis)" strokeWidth={1}
         />
-        <text x={PAD.left - 3} y={zeroY + 3} textAnchor="end" fontSize={7} fill="#898989">0</text>
+        <text x={PAD.left - 3} y={zeroY + 3} textAnchor="end" fontSize={7} fill="var(--text-secondary)">0</text>
 
         {/* velocity polyline */}
         <polyline
@@ -128,8 +127,8 @@ export function DeformationVelocityChart({
           const color = getColor(p.velocityMmPerMonth, area);
           return (
             <g key={p.month}>
-              <circle cx={cx} cy={cy} r={3.5} fill={color} stroke="#171717" strokeWidth={1} />
-              <text x={cx} y={H - 3} textAnchor="middle" fontSize={7} fill="#898989">
+              <circle cx={cx} cy={cy} r={3.5} fill={color} stroke="var(--text-heading)" strokeWidth={1} />
+              <text x={cx} y={H - 3} textAnchor="middle" fontSize={7} fill="var(--text-secondary)">
                 {p.month}
               </text>
             </g>

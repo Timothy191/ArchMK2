@@ -18,7 +18,10 @@ import {
   AlertTriangle,
   Gauge,
   Thermometer,
-  Droplets
+  Droplets,
+  ArrowDown,
+  Layers,
+  Database
 } from "lucide-react";
 import Link from "next/link";
 
@@ -46,7 +49,7 @@ interface ArchivedMonth {
   record_count: number;
 }
 
-async function getTelemetryData(): Promise<{
+async function getTelemetryData(selectedMachineId?: string): Promise<{
   currentMonth: string;
   telemetry: TelemetryRecord[];
   archives: ArchivedMonth[];
@@ -85,7 +88,7 @@ async function getTelemetryData(): Promise<{
   const { data: telemetry } = await supabase
     .rpc("get_telemetry_summary", {
       p_department_id: dept.id,
-      p_machine_id: null,
+      p_machine_id: selectedMachineId || null,
       p_granularity: "day"
     });
 
@@ -140,8 +143,16 @@ function formatMonth(yearMonth: string): string {
   return date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
 }
 
-export default async function MachineTelemetryPage() {
-  const { currentMonth, telemetry, archives, drills } = await getTelemetryData();
+interface MachineTelemetryPageProps {
+  searchParams: Promise<{ machineId?: string }>;
+}
+
+export default async function MachineTelemetryPage({
+  searchParams,
+}: MachineTelemetryPageProps) {
+  const { machineId } = await searchParams;
+  const selectedMachineId = machineId === "all" ? undefined : machineId;
+  const { currentMonth, telemetry, archives, drills } = await getTelemetryData(selectedMachineId);
 
   // Calculate monthly totals
   const totalRecords = telemetry.reduce((sum, t) => sum + (t.record_count || 0), 0);
@@ -150,15 +161,6 @@ export default async function MachineTelemetryPage() {
     ? telemetry.reduce((sum, t) => sum + (t.avg_penetration_rate || 0), 0) / telemetry.length
     : 0;
   const maxBitDepth = Math.max(...telemetry.map(t => t.max_bit_depth || 0), 0);
-
-  // Group telemetry by machine
-  const telemetryByMachine = drills.map(drill => {
-    const machineData = telemetry.filter(t => t.machine_id === drill.id);
-    return {
-      drill,
-      data: machineData
-    };
-  });
 
   return (
     <div className="space-y-6">
@@ -227,7 +229,7 @@ export default async function MachineTelemetryPage() {
 
       {/* Current Month Telemetry Table */}
       <GlassCard className="overflow-hidden p-0">
-        <div className="p-4 border-b border-[var(--border-subtle)] flex items-center justify-between">
+        <div className="p-4 border-b border-[var(--border-subtle)] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h3 className="text-lg font-semibold text-[var(--text-heading)]">
               {formatMonth(currentMonth)} Telemetry
@@ -236,11 +238,40 @@ export default async function MachineTelemetryPage() {
               Daily aggregated telemetry data for active month
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-emerald-500" />
-            <span className="text-sm text-[var(--text-body)]">
-              Max Depth: <span className="font-medium">{formatNumber(maxBitDepth, 1)}m</span>
-            </span>
+          
+          <div className="flex flex-wrap items-center gap-4">
+            {/* Filter Dropdown */}
+            <form method="GET" className="flex items-center gap-2">
+              <label htmlFor="machineId" className="text-xs text-[var(--text-muted)] uppercase tracking-wider font-semibold">
+                Filter Rig:
+              </label>
+              <select
+                id="machineId"
+                name="machineId"
+                defaultValue={machineId || "all"}
+                className="bg-[var(--bg-secondary)] border border-[var(--border-subtle)] text-[var(--text-heading)] text-sm rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-[var(--accent-blue)]"
+              >
+                <option value="all">All Drill Rigs</option>
+                {drills.map((drill) => (
+                  <option key={drill.id} value={drill.id}>
+                    {drill.name}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="submit"
+                className="px-2.5 py-1.5 bg-[var(--bg-tertiary)] hover:bg-[var(--border-subtle)] text-xs text-[var(--text-heading)] font-semibold rounded-lg border border-[var(--border-subtle)] transition-colors"
+              >
+                Apply
+              </button>
+            </form>
+
+            <div className="flex items-center gap-2 border-l border-[var(--border-subtle)] pl-4">
+              <TrendingUp className="w-5 h-5 text-emerald-500" />
+              <span className="text-sm text-[var(--text-body)]">
+                Max Depth: <span className="font-semibold text-emerald-400">{formatNumber(maxBitDepth, 1)}m</span>
+              </span>
+            </div>
           </div>
         </div>
         
@@ -248,38 +279,44 @@ export default async function MachineTelemetryPage() {
           <Table>
             <TableHeader>
               <TableRow className="border-b border-[var(--border-subtle)] hover:bg-transparent">
-                <TableHead className="text-[var(--text-muted)] font-medium text-xs uppercase tracking-wider">
+                <TableHead className="text-[var(--text-muted)] font-semibold text-xs uppercase tracking-wider">
+                  <Calendar className="w-3 h-3 inline mr-1 text-[var(--text-muted)]" />
                   Date
                 </TableHead>
-                <TableHead className="text-[var(--text-muted)] font-medium text-xs uppercase tracking-wider">
+                <TableHead className="text-[var(--text-muted)] font-semibold text-xs uppercase tracking-wider">
+                  <Activity className="w-3 h-3 inline mr-1 text-[var(--text-muted)]" />
                   Drill Rig
                 </TableHead>
-                <TableHead className="text-[var(--text-muted)] font-medium text-xs uppercase tracking-wider text-right">
-                  <Thermometer className="w-3 h-3 inline mr-1" />
+                <TableHead className="text-[var(--text-muted)] font-semibold text-xs uppercase tracking-wider text-right">
+                  <Gauge className="w-3 h-3 inline mr-1 text-[var(--text-muted)]" />
                   Engine RPM
                 </TableHead>
-                <TableHead className="text-[var(--text-muted)] font-medium text-xs uppercase tracking-wider text-right">
-                  <Thermometer className="w-3 h-3 inline mr-1" />
+                <TableHead className="text-[var(--text-muted)] font-semibold text-xs uppercase tracking-wider text-right">
+                  <Thermometer className="w-3 h-3 inline mr-1 text-[var(--text-muted)]" />
                   Temp (°C)
                 </TableHead>
-                <TableHead className="text-[var(--text-muted)] font-medium text-xs uppercase tracking-wider text-right">
-                  <Droplets className="w-3 h-3 inline mr-1" />
+                <TableHead className="text-[var(--text-muted)] font-semibold text-xs uppercase tracking-wider text-right">
+                  <Droplets className="w-3 h-3 inline mr-1 text-[var(--text-muted)]" />
                   Pressure
                 </TableHead>
-                <TableHead className="text-[var(--text-muted)] font-medium text-xs uppercase tracking-wider text-right">
+                <TableHead className="text-[var(--text-muted)] font-semibold text-xs uppercase tracking-wider text-right">
+                  <ArrowDown className="w-3 h-3 inline mr-1 text-[var(--text-muted)]" />
                   Bit Depth
                 </TableHead>
-                <TableHead className="text-[var(--text-muted)] font-medium text-xs uppercase tracking-wider text-right">
+                <TableHead className="text-[var(--text-muted)] font-semibold text-xs uppercase tracking-wider text-right">
+                  <Layers className="w-3 h-3 inline mr-1 text-[var(--text-muted)]" />
                   Hole Depth
                 </TableHead>
-                <TableHead className="text-[var(--text-muted)] font-medium text-xs uppercase tracking-wider text-right">
+                <TableHead className="text-[var(--text-muted)] font-semibold text-xs uppercase tracking-wider text-right">
+                  <TrendingUp className="w-3 h-3 inline mr-1 text-[var(--text-muted)]" />
                   Pen. Rate
                 </TableHead>
-                <TableHead className="text-[var(--text-muted)] font-medium text-xs uppercase tracking-wider text-center">
-                  <AlertTriangle className="w-3 h-3 inline mr-1" />
+                <TableHead className="text-[var(--text-muted)] font-semibold text-xs uppercase tracking-wider text-center">
+                  <AlertTriangle className="w-3 h-3 inline mr-1 text-[var(--text-muted)]" />
                   Alerts
                 </TableHead>
-                <TableHead className="text-[var(--text-muted)] font-medium text-xs uppercase tracking-wider text-right">
+                <TableHead className="text-[var(--text-muted)] font-semibold text-xs uppercase tracking-wider text-right">
+                  <Database className="w-3 h-3 inline mr-1 text-[var(--text-muted)]" />
                   Records
                 </TableHead>
               </TableRow>
@@ -299,51 +336,57 @@ export default async function MachineTelemetryPage() {
                   </TableCell>
                 </TableRow>
               ) : (
-                telemetry.map((record) => (
-                  <TableRow 
-                    key={`${record.machine_id}-${record.period}`}
-                    className="border-b border-[var(--border-subtle)] hover:bg-[var(--bg-tertiary)]/50"
-                  >
-                    <TableCell className="font-medium text-[var(--text-heading)]">
-                      {formatDate(record.period)}
-                    </TableCell>
-                    <TableCell className="text-[var(--text-body)]">
-                      {record.machine_name}
-                    </TableCell>
-                    <TableCell className="text-right text-[var(--text-body)]">
-                      {formatNumber(record.avg_engine_rpm, 0)}
-                    </TableCell>
-                    <TableCell className="text-right text-[var(--text-body)]">
-                      {formatNumber(record.avg_engine_temp, 1)}
-                    </TableCell>
-                    <TableCell className="text-right text-[var(--text-body)]">
-                      {formatNumber(record.avg_hydraulic_pressure, 0)}
-                    </TableCell>
-                    <TableCell className="text-right font-medium text-emerald-500">
-                      {formatNumber(record.max_bit_depth, 1)}m
-                    </TableCell>
-                    <TableCell className="text-right text-[var(--text-body)]">
-                      {formatNumber(record.max_hole_depth, 1)}m
-                    </TableCell>
-                    <TableCell className="text-right text-[var(--text-body)]">
-                      {formatNumber(record.avg_penetration_rate, 2)}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {record.total_alerts > 0 ? (
-                        <span className="inline-flex px-2 py-1 rounded-full text-xs font-medium bg-red-500/10 text-red-500">
-                          {record.total_alerts}
-                        </span>
-                      ) : (
-                        <span className="inline-flex px-2 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-500">
-                          0
-                        </span>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-right text-[var(--text-muted)] text-sm">
-                      {record.record_count}
-                    </TableCell>
-                  </TableRow>
-                ))
+                telemetry.map((record) => {
+                  const isHighRPM = record.avg_engine_rpm && record.avg_engine_rpm > 2100;
+                  const isOverheating = record.avg_engine_temp && record.avg_engine_temp > 95;
+                  const isWarm = record.avg_engine_temp && record.avg_engine_temp > 85 && record.avg_engine_temp <= 95;
+
+                  return (
+                    <TableRow 
+                      key={`${record.machine_id}-${record.period}`}
+                      className="border-b border-[var(--border-subtle)] hover:bg-[var(--bg-tertiary)]/50"
+                    >
+                      <TableCell className="font-semibold text-[var(--text-heading)]">
+                        {formatDate(record.period)}
+                      </TableCell>
+                      <TableCell className="text-[var(--text-body)]">
+                        {record.machine_name}
+                      </TableCell>
+                      <TableCell className={`text-right font-medium ${isHighRPM ? 'text-amber-400' : 'text-[var(--text-body)]'}`}>
+                        {formatNumber(record.avg_engine_rpm, 0)} rpm
+                      </TableCell>
+                      <TableCell className={`text-right font-semibold ${isOverheating ? 'text-red-400' : isWarm ? 'text-amber-400' : 'text-[var(--text-body)]'}`}>
+                        {formatNumber(record.avg_engine_temp, 1)}°C
+                      </TableCell>
+                      <TableCell className="text-right text-[var(--text-body)] font-medium">
+                        {formatNumber(record.avg_hydraulic_pressure, 0)} bar
+                      </TableCell>
+                      <TableCell className="text-right font-semibold text-emerald-400">
+                        {formatNumber(record.max_bit_depth, 1)}m
+                      </TableCell>
+                      <TableCell className="text-right font-semibold text-cyan-400">
+                        {formatNumber(record.max_hole_depth, 1)}m
+                      </TableCell>
+                      <TableCell className="text-right text-[var(--text-body)] font-medium">
+                        {formatNumber(record.avg_penetration_rate, 2)} m/h
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {record.total_alerts > 0 ? (
+                          <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-semibold bg-red-500/10 text-red-500">
+                            {record.total_alerts}
+                          </span>
+                        ) : (
+                          <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-500">
+                            0
+                          </span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right text-[var(--text-muted)] text-sm">
+                        {record.record_count}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
               )}
             </TableBody>
           </Table>
@@ -368,19 +411,23 @@ export default async function MachineTelemetryPage() {
           <Table>
             <TableHeader>
               <TableRow className="border-b border-[var(--border-subtle)] hover:bg-transparent">
-                <TableHead className="text-[var(--text-muted)] font-medium text-xs uppercase tracking-wider">
+                <TableHead className="text-[var(--text-muted)] font-semibold text-xs uppercase tracking-wider">
+                  <Calendar className="w-3 h-3 inline mr-1 text-[var(--text-muted)]" />
                   Month
                 </TableHead>
-                <TableHead className="text-[var(--text-muted)] font-medium text-xs uppercase tracking-wider">
+                <TableHead className="text-[var(--text-muted)] font-semibold text-xs uppercase tracking-wider">
+                  <Activity className="w-3 h-3 inline mr-1 text-[var(--text-muted)]" />
                   Drill Rig
                 </TableHead>
-                <TableHead className="text-[var(--text-muted)] font-medium text-xs uppercase tracking-wider text-right">
+                <TableHead className="text-[var(--text-muted)] font-semibold text-xs uppercase tracking-wider text-right">
+                  <Database className="w-3 h-3 inline mr-1 text-[var(--text-muted)]" />
                   Records
                 </TableHead>
-                <TableHead className="text-[var(--text-muted)] font-medium text-xs uppercase tracking-wider text-right">
+                <TableHead className="text-[var(--text-muted)] font-semibold text-xs uppercase tracking-wider text-right">
+                  <Archive className="w-3 h-3 inline mr-1 text-[var(--text-muted)]" />
                   Archived On
                 </TableHead>
-                <TableHead className="text-[var(--text-muted)] font-medium text-xs uppercase tracking-wider text-center">
+                <TableHead className="text-[var(--text-muted)] font-semibold text-xs uppercase tracking-wider text-center">
                   Actions
                 </TableHead>
               </TableRow>
@@ -405,13 +452,13 @@ export default async function MachineTelemetryPage() {
                     key={archive.id}
                     className="border-b border-[var(--border-subtle)] hover:bg-[var(--bg-tertiary)]/50"
                   >
-                    <TableCell className="font-medium text-[var(--text-heading)]">
+                    <TableCell className="font-semibold text-[var(--text-heading)]">
                       {formatMonth(archive.year_month)}
                     </TableCell>
                     <TableCell className="text-[var(--text-body)]">
                       {archive.machine_name}
                     </TableCell>
-                    <TableCell className="text-right text-[var(--text-body)]">
+                    <TableCell className="text-right text-[var(--text-body)] font-medium">
                       {archive.record_count.toLocaleString()}
                     </TableCell>
                     <TableCell className="text-right text-[var(--text-muted)] text-sm">
@@ -437,7 +484,7 @@ export default async function MachineTelemetryPage() {
       {/* Archive Info */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <GlassCard className="p-4">
-          <h4 className="font-medium text-[var(--text-heading)] mb-2 flex items-center gap-2">
+          <h4 className="font-semibold text-[var(--text-heading)] mb-2 flex items-center gap-2">
             <Activity className="w-4 h-4 text-emerald-500" />
             How Archival Works
           </h4>
@@ -451,7 +498,7 @@ export default async function MachineTelemetryPage() {
         </GlassCard>
         
         <GlassCard className="p-4">
-          <h4 className="font-medium text-[var(--text-heading)] mb-2 flex items-center gap-2">
+          <h4 className="font-semibold text-[var(--text-heading)] mb-2 flex items-center gap-2">
             <Gauge className="w-4 h-4 text-[var(--accent-blue)]" />
             Telemetry Metrics
           </h4>

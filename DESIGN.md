@@ -4,32 +4,32 @@
 
 **Strategy**: Restrained — tinted neutrals + one functional accent ≤10%.
 
-**Theme**: Dark (forced by scene: control room at 2 AM, night-adapted eyes).
+**Theme**: Light (macOS Sonoma visual language). Clean, bright interfaces for precision monitoring.
 
 ### Base Palette (OKLCH)
 
-| Token            | OKLCH                  | Usage                                                                                                                                                                       |
-| ---------------- | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `bg-base`        | `oklch(15% 0.008 250)` | Main application background. Very dark, slightly cool.                                                                                                                      |
-| `bg-elevated`    | `oklch(21% 0.01 250)`  | Cards, panels, sidebar, elevated surfaces.                                                                                                                                  |
-| `bg-sunken`      | `oklch(11% 0.006 250)` | Input backgrounds, nested containers, code blocks.                                                                                                                          |
-| `bg-hover`       | `oklch(26% 0.012 250)` | Hover state for interactive rows/cards.                                                                                                                                     |
-| `border-subtle`  | `oklch(30% 0.015 250)` | Dividers, table borders, inactive tab borders.                                                                                                                              |
-| `border-focus`   | `oklch(55% 0.03 250)`  | Focus rings, active tab borders.                                                                                                                                            |
-| `text-primary`   | `oklch(92% 0.01 250)`  | Headings, primary labels, body text.                                                                                                                                        |
-| `text-secondary` | `oklch(68% 0.012 250)` | Captions, timestamps, placeholders, inactive tabs.                                                                                                                          |
-| `text-tertiary`  | `oklch(50% 0.01 250)`  | Disabled text, metadata.                                                                                                                                                    |
-| `accent`         | `oklch(65% 0.14 45)`   | Functional accent — amber/orange. Warnings, active states, primary action emphasis. Chosen because it cuts through dark backgrounds without the "default blue" SaaS reflex. |
-| `accent-hover`   | `oklch(58% 0.15 45)`   | Accent hover state.                                                                                                                                                         |
-| `accent-subtle`  | `oklch(25% 0.06 45)`   | Accent backgrounds, tags, subtle highlights.                                                                                                                                |
-| `success`        | `oklch(65% 0.12 145)`  | Green — operational, online, success states.                                                                                                                                |
-| `danger`         | `oklch(55% 0.16 25)`   | Red — critical alerts, errors, offline.                                                                                                                                     |
-| `warning`        | `oklch(70% 0.13 80)`   | Yellow — caution, attention needed.                                                                                                                                         |
-| `info`           | `oklch(65% 0.1 230)`   | Blue — informational, neutral highlights.                                                                                                                                   |
+| Token            | OKLCH                  | Usage                                                                               |
+| ---------------- | ---------------------- | ----------------------------------------------------------------------------------- |
+| `bg-base`        | `oklch(14% 0.003 250)` | Main application background. Near-black.                                           |
+| `bg-elevated`    | `oklch(18% 0.004 250)` | Cards, panels, sidebar, elevated surfaces. Slightly lighter than base.              |
+| `bg-sunken`      | `oklch(11% 0.002 250)` | Input backgrounds, nested containers, code blocks.                                  |
+| `bg-hover`       | `oklch(22% 0.005 250)` | Hover state for interactive rows/cards.                                             |
+| `border-subtle`  | `oklch(25% 0.006 250)` | Dividers, table borders, inactive tab borders.                                      |
+| `border-focus`   | `oklch(40% 0.01 250)`  | Focus rings, active tab borders.                                                    |
+| `text-primary`   | `oklch(92% 0.005 250)` | Headings, primary labels, body text. Near-white.                                   |
+| `text-secondary` | `oklch(65% 0.01 250)`  | Captions, timestamps, placeholders, inactive tabs.                                  |
+| `text-tertiary`  | `oklch(70% 0.008 250)` | Disabled text, metadata.                                                            |
+| `accent`         | `oklch(65% 0.14 45)`   | Functional accent — amber/orange. Warnings, active states, primary action emphasis. |
+| `accent-hover`   | `oklch(58% 0.15 45)`   | Accent hover state.                                                                 |
+| `accent-subtle`  | `oklch(90% 0.03 45)`   | Accent backgrounds, tags, subtle highlights.                                        |
+| `success`        | `oklch(65% 0.12 145)`  | Green — operational, online, success states.                                        |
+| `danger`         | `oklch(55% 0.16 25)`   | Red — critical alerts, errors, offline.                                             |
+| `warning`        | `oklch(70% 0.13 80)`   | Yellow — caution, attention needed.                                                 |
+| `info`           | `oklch(65% 0.1 230)`   | Blue — informational, neutral highlights.                                           |
 
 ### Usage Rules
 
-- Never use pure `#000` or `#fff`. Even `text-primary` is slightly tinted and reduced in chroma.
+- Never use pure `#000` or `#fff`. Even `bg-elevated` is slightly nuanced.
 - Accent color stays under 10% of surface area on any given screen. Most of the UI lives in the neutral range.
 - Status colors (success/danger/warning/info) are semantic, not decorative. They appear as small indicators: dots, borders, badges, not large fills.
 - KPI color variants map to the semantic palette: `green` → success, `red` → danger, `amber` → warning, `blue` → info, `cyan`/`indigo` → info tints, `alert` → danger emphasis.
@@ -59,11 +59,12 @@
 
 ## Elevation
 
-No drop shadows for elevation. In dark mode, shadows are invisible; elevation is communicated through:
+Elevation is communicated through:
 
 1. **Background step**: `bg-base` → `bg-elevated` → `bg-sunken`
 2. **Border presence**: elevated surfaces get `border-subtle`
-3. **Optional glow**: Motion Primitive `glow-effect` or `spotlight` for focused/featured elements only
+3. **Glass + backdrop-blur**: Floating panels and overlays use `glass-surface` with `backdrop-blur-xl`
+4. **Optional glow**: Motion Primitive `glow-effect` or `spotlight` for focused/featured elements only
 
 ### Z-Index Layers
 
@@ -185,6 +186,6 @@ No drop shadows for elevation. In dark mode, shadows are invisible; elevation is
 | Tablet  | 640–1024px | 2-column KPI grid, sidebar collapsible                     |
 | Desktop | > 1024px   | Full layout, 3–4 column KPI grid, fixed sidebar            |
 
-## Dark-Mode-Only Notes
+## Theme Note
 
-Since this is a dark-only product, we do not define a light-mode palette. All color tokens assume dark surfaces. If a light mode is ever needed, regenerate this document.
+This is a light-mode-only product. All color tokens assume light surfaces. No dark mode palette is defined.

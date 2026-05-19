@@ -20,12 +20,15 @@ export async function createBreakdown(
   } = await supabase.auth.getUser();
 
   if (!user) {
-    throw new AuthError("Unauthorized", { context: { action: "createBreakdown" } });
+    throw new AuthError("Unauthorized", {
+      context: { action: "createBreakdown" },
+    });
   }
 
   const { error } = await supabase.from("breakdowns").insert({
     department_id: departmentId,
     fleet_id: input.fleet_id.toUpperCase(),
+    machine_name: input.machine_name || input.fleet_id.toUpperCase(),
     machine_type: input.machine_type,
     date_in: input.date_in,
     time_in: input.time_in,
@@ -64,7 +67,9 @@ export async function bookOutBreakdown(
   } = await supabase.auth.getUser();
 
   if (!user) {
-    throw new AuthError("Unauthorized", { context: { action: "bookOutBreakdown" } });
+    throw new AuthError("Unauthorized", {
+      context: { action: "bookOutBreakdown" },
+    });
   }
 
   const { data: before } = await supabase
@@ -119,7 +124,9 @@ export async function directCheckout(
   } = await supabase.auth.getUser();
 
   if (!user) {
-    throw new AuthError("Unauthorized", { context: { action: "directCheckout" } });
+    throw new AuthError("Unauthorized", {
+      context: { action: "directCheckout" },
+    });
   }
 
   const { error } = await supabase.from("breakdowns").insert({
@@ -168,7 +175,9 @@ export async function softDeleteBreakdown(breakdownId: string) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    throw new AuthError("Unauthorized", { context: { action: "createBreakdown" } });
+    throw new AuthError("Unauthorized", {
+      context: { action: "createBreakdown" },
+    });
   }
 
   const { data: before } = await supabase

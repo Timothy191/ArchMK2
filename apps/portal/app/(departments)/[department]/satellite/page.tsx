@@ -26,7 +26,7 @@ export default function ControlRoomSatellitePage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-medium text-white">Satellite Monitoring</h2>
+          <h2 className="text-xl font-medium text-[var(--text-heading)]">Satellite Monitoring</h2>
           <p className="text-[var(--text-muted)] text-sm mt-0.5">
             Sentinel-1 InSAR deformation · Real-time site overview
           </p>

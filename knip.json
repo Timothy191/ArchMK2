@@ -1,52 +1,64 @@
 {
   "$schema": "https://unpkg.com/knip@5/schema.json",
   "entry": [
-    "apps/*/src/app/layout.tsx",
-    "apps/*/src/app/page.tsx",
-    "apps/*/src/app/api/**/route.ts",
-    "apps/*/src/main.ts",
+    "apps/*/app/layout.tsx",
+    "apps/*/app/**/page.tsx",
+    "apps/*/app/api/**/route.ts",
     "apps/*/src/index.ts",
     "packages/*/src/index.ts",
     "packages/*/src/server.ts",
     "packages/*/src/client.ts",
-    "scripts/**/*.ts"
+    "apps/cms/payload.config.ts"
   ],
   "project": [
-    "apps/**/*.{ts,tsx}",
-    "packages/**/*.{ts,tsx}",
+    "apps/*/app/**/*.{ts,tsx}",
+    "apps/*/src/**/*.{ts,tsx}",
+    "apps/*/components/**/*.{ts,tsx}",
+    "apps/*/features/**/*.{ts,tsx}",
+    "apps/*/hooks/**/*.{ts,tsx}",
+    "apps/*/lib/**/*.{ts,tsx}",
+    "apps/*/plugins/**/*.{ts,tsx}",
+    "packages/*/src/**/*.{ts,tsx}",
     "scripts/**/*.{ts,js}"
   ],
-  "ignore": [
-    "**/*.test.{ts,tsx}",
-    "**/*.spec.{ts,tsx}",
-    "**/__tests__/**",
-    "**/__mocks__/**",
-    "**/*.stories.{ts,tsx}",
-    "**/*.config.{ts,js,mjs}",
-    "**/e2e/**",
-    "apps/portal/.next/**",
-    "apps/overview/.next/**",
-    "**/dist/**",
-    "**/coverage/**"
-  ],
-  "ignoreDependencies": [
-    "@types/node",
-    "@types/react",
-    "@types/react-dom",
-    "@types/jest",
-    "typescript",
-    "eslint",
-    "prettier",
-    "husky",
-    "lint-staged",
-    "@repo/eslint-config",
-    "@repo/typescript-config"
-  ],
-  "ignoreBinaries": [
-    "docker",
-    "docker-compose",
-    "supabase"
-  ],
+  "workspaces": {
+    "apps/portal": {
+      "entry": [
+        "app/layout.tsx",
+        "app/(hub)/page.tsx",
+        "app/**/page.tsx",
+        "app/api/**/route.ts",
+        "middleware.ts",
+        "instrumentation.ts"
+      ]
+    },
+    "apps/cms": {
+      "entry": [
+        "app/(payload)/layout.tsx",
+        "payload.config.ts",
+        "next.config.mjs"
+      ]
+    },
+    "apps/overview": {
+      "entry": [
+        "app/layout.tsx",
+        "app/page.tsx"
+      ]
+    },
+    "packages/theme": {
+      "entry": [
+        "src/tokens/*.ts",
+        "src/react/*.tsx",
+        "src/css/*.css",
+        "src/tailwind/preset.ts"
+      ]
+    },
+    "packages/ui": {
+      "entry": [
+        "src/index.ts"
+      ]
+    }
+  },
   "rules": {
     "files": "warn",
     "dependencies": "warn",

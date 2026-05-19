@@ -5,10 +5,10 @@ interface NavigationState {
   activeSection: 'function' | 'content';
   hoveredElement: string | null;
   activeDepartment: string | null;
-  setScrollY: (y: number) => void;
-  setActiveSection: (section: 'function' | 'content') => void;
-  setHoveredElement: (element: string | null) => void;
-  setActiveDepartment: (dept: string | null) => void;
+  setScrollY: (_y: number) => void;
+  setActiveSection: (_section: 'function' | 'content') => void;
+  setHoveredElement: (_element: string | null) => void;
+  setActiveDepartment: (_dept: string | null) => void;
 }
 
 export const useNavigationState = create<NavigationState>((set) => ({

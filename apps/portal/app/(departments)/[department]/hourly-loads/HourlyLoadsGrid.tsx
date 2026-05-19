@@ -45,8 +45,34 @@ interface HourlyLoadsGridProps {
 // Night shift: 18:00-05:59
 const HOURS_12 = Array.from({ length: 12 }, (_, i) => i + 1);
 
-const DAY_HOUR_LABELS = ["06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17"];
-const NIGHT_HOUR_LABELS = ["18", "19", "20", "21", "22", "23", "00", "01", "02", "03", "04", "05"];
+const DAY_HOUR_LABELS = [
+  "06",
+  "07",
+  "08",
+  "09",
+  "10",
+  "11",
+  "12",
+  "13",
+  "14",
+  "15",
+  "16",
+  "17",
+];
+const NIGHT_HOUR_LABELS = [
+  "18",
+  "19",
+  "20",
+  "21",
+  "22",
+  "23",
+  "00",
+  "01",
+  "02",
+  "03",
+  "04",
+  "05",
+];
 
 export function HourlyLoadsGrid({
   departmentId,
@@ -64,7 +90,7 @@ export function HourlyLoadsGrid({
   });
 
   const [selectedShift, setSelectedShift] = useState<"day" | "night">(
-    new Date().getHours() >= 6 && new Date().getHours() < 18 ? "day" : "night"
+    new Date().getHours() >= 6 && new Date().getHours() < 18 ? "day" : "night",
   );
   const [editingCell, setEditingCell] = useState<{
     machineId: string;
@@ -74,16 +100,18 @@ export function HourlyLoadsGrid({
   const [saving, setSaving] = useState(false);
 
   // Get hour labels based on shift
-  const hourLabels = selectedShift === "day" ? DAY_HOUR_LABELS : NIGHT_HOUR_LABELS;
+  const hourLabels =
+    selectedShift === "day" ? DAY_HOUR_LABELS : NIGHT_HOUR_LABELS;
 
   const getHourValue = useCallback(
     (machineId: string, hourIndex: number): number => {
       const load = loadsByMachine.get(machineId);
       if (!load || load.shift_type !== selectedShift) return 0;
-      const hourField = `hour_${hourIndex.toString().padStart(2, "0")}` as keyof HourlyLoad;
+      const hourField =
+        `hour_${hourIndex.toString().padStart(2, "0")}` as keyof HourlyLoad;
       return (load[hourField] as number) || 0;
     },
-    [loadsByMachine]
+    [loadsByMachine],
   );
 
   const getMachineTotal = useCallback(
@@ -92,7 +120,7 @@ export function HourlyLoadsGrid({
       if (!load || load.shift_type !== selectedShift) return 0;
       return load?.total_loads || 0;
     },
-    [loadsByMachine, selectedShift]
+    [loadsByMachine, selectedShift],
   );
 
   const handleCellClick = (machineId: string, hour: number) => {
@@ -115,7 +143,7 @@ export function HourlyLoadsGrid({
       const { machineId, hour } = editingCell;
       // Find existing load for this machine, date, and shift
       const existingLoad = hourlyLoads.find(
-        l => l.machine_id === machineId && l.shift_type === selectedShift
+        (l) => l.machine_id === machineId && l.shift_type === selectedShift,
       );
       const hourField = `hour_${hour.toString().padStart(2, "0")}`;
 
@@ -144,7 +172,9 @@ export function HourlyLoadsGrid({
       setEditValue("");
       router.refresh();
     } catch (err) {
-      logError(err instanceof Error ? err : new Error(String(err)), { context: "hourly_loads_save" }).catch(() => {});
+      logError(err instanceof Error ? err : new Error(String(err)), {
+        context: "hourly_loads_save",
+      });
       alert("Failed to save. Please try again.");
     }
   };
@@ -163,7 +193,7 @@ export function HourlyLoadsGrid({
     exportToExcel(
       exportData,
       `hourly-loads-${selectedShift}-${today}`,
-      "Hourly Loads"
+      "Hourly Loads",
     );
   };
 
@@ -174,11 +204,11 @@ export function HourlyLoadsGrid({
     setSaving(true);
     try {
       const data = await parseExcel(file);
-      
+
       // Process each row
       for (const row of data) {
         const machineName = row.Machine;
-        const machine = machines.find(m => m.name === machineName);
+        const machine = machines.find((m) => m.name === machineName);
         if (!machine) continue;
 
         const updateData: any = {
@@ -192,7 +222,8 @@ export function HourlyLoadsGrid({
         HOURS_12.forEach((hour, index) => {
           const label = `${hourLabels[index]}:00`;
           if (row[label] !== undefined) {
-            updateData[`hour_${hour.toString().padStart(2, "0")}`] = parseInt(row[label], 10) || 0;
+            updateData[`hour_${hour.toString().padStart(2, "0")}`] =
+              parseInt(row[label], 10) || 0;
             hasData = true;
           }
         });
@@ -200,17 +231,27 @@ export function HourlyLoadsGrid({
         if (hasData) {
           const { error } = await supabase
             .from("hourly_loads")
-            .upsert(updateData, { onConflict: "department_id,machine_id,load_date,shift_type" });
-          
-          if (error) logError(new Error(error.message), { context: "hourly_loads_import", machineName }).catch(() => {});
+            .upsert(updateData, {
+              onConflict: "department_id,machine_id,load_date,shift_type",
+            });
+
+          if (error)
+            logError(new Error(error.message), {
+              context: "hourly_loads_import",
+              machineName,
+            });
         }
       }
 
       router.refresh();
       alert("Import completed successfully!");
     } catch (err) {
-      logError(err instanceof Error ? err : new Error(String(err)), { context: "hourly_loads_import_failed" }).catch(() => {});
-      alert("Failed to parse Excel file. Please ensure it follows the exported template.");
+      logError(err instanceof Error ? err : new Error(String(err)), {
+        context: "hourly_loads_import_failed",
+      });
+      alert(
+        "Failed to parse Excel file. Please ensure it follows the exported template.",
+      );
     } finally {
       setSaving(false);
       if (e.target) e.target.value = "";
@@ -259,7 +300,7 @@ export function HourlyLoadsGrid({
               onClick={() => setSelectedShift("night")}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 selectedShift === "night"
-                  ? "bg-blue-500 text-white"
+                  ? "bg-[var(--accent-blue)] text-[var(--bg-secondary)]"
                   : "bg-[var(--bg-secondary)] border border-[var(--border-default)] text-[var(--text-muted)] hover:text-[var(--text-heading)]"
               }`}
             >
@@ -326,7 +367,9 @@ export function HourlyLoadsGrid({
                     <p className="text-[var(--text-heading)] text-sm font-medium">
                       {machine.name}
                     </p>
-                    <p className="text-[var(--text-muted)] text-xs">{machine.machine_type}</p>
+                    <p className="text-[var(--text-muted)] text-xs">
+                      {machine.machine_type}
+                    </p>
                   </div>
                 </td>
                 {HOURS_12.map((hour) => {

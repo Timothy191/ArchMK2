@@ -1,8 +1,8 @@
 import { ArchPlugin, PluginHooks, PluginWidget } from "./types";
-import { ValidationError, NotFoundError, APIError } from "@repo/errors";
+import { NotFoundError, APIError } from "@repo/errors";
 import { logError } from "@/lib/errors/error-logger";
 import { interpret, type ActorRefFrom } from "xstate";
-import { orchestratorMachine, type PluginActor, type HealthReport } from "./machines";
+import { orchestratorMachine, type HealthReport } from "./machines";
 
 /**
  * PluginOrchestrator - XState-powered plugin lifecycle management
@@ -25,6 +25,7 @@ class PluginOrchestrator {
     // Subscribe to state changes for debugging
     this.actor.subscribe((snapshot) => {
       if (process.env.NODE_ENV === "development") {
+        // eslint-disable-next-line no-console
         console.log(`[PluginOrchestrator] State: ${snapshot.value}`, {
           plugins: snapshot.context.healthReport.activeCount,
           failed: snapshot.context.healthReport.failedCount,
@@ -41,7 +42,7 @@ class PluginOrchestrator {
       this.loadAllPlugins().catch((err) => {
         logError(err instanceof Error ? err : new Error(String(err)), { 
           context: "plugin_autoload_critical" 
-        }).catch(() => {});
+        });
       });
     }
   }
@@ -115,7 +116,7 @@ class PluginOrchestrator {
       logError(err instanceof Error ? err : new Error(String(err)), { 
         context: "plugin_engine_crash", 
         pluginId 
-      }).catch(() => {});
+      });
       
       throw new APIError(`Plugin computational error: ${err.message || err}`, {
         statusCode: 500,
@@ -158,7 +159,7 @@ class PluginOrchestrator {
             context: "plugin_hook_crash", 
             pluginId: plugin.metadata.id, 
             hookName 
-          }).catch(() => {});
+          });
         }
       });
 
@@ -209,7 +210,7 @@ class PluginOrchestrator {
   /**
    * XState Integration: Subscribe to orchestrator state changes
    */
-  public subscribe(callback: (healthReport: HealthReport) => void): () => void {
+  public subscribe(callback: (_healthReport: HealthReport) => void): () => void {
     const sub = this.actor.subscribe((snapshot) => {
       callback(snapshot.context.healthReport);
     });

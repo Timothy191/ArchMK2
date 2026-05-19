@@ -12,20 +12,9 @@ catalog:
   "@types/eslint": ^8
   "@supabase/supabase-js": ^2.105.4
   "supabase": ^2.98.2
-  cmdk: ^1.1.1
   sonner: ^2.0.1
   animejs: ^4.4.1
   framer-motion: ^12.4.0
-  motion: ^12.4.0
-  shiki: ^4.0.2
-  react-colorful: ^5.7.0
-  qrcode.react: ^4.2.0
-  "@tanstack/react-table": ^8.21.3
-  "@atlaskit/pragmatic-drag-and-drop": ^1.8.1
-  "@nivo/sankey": ^0.99.0
-  "@nivo/calendar": ^0.99.0
-  react-signature-canvas: 1.1.0-alpha.2
-  novel: ^1.0.2
 
 catalogs:
   react19:

@@ -9,7 +9,6 @@ import {
   CheckCircle,
   XCircle,
   AlertTriangle,
-  Loader2,
 } from "lucide-react";
 import { CloseShiftModal } from "./CloseShiftModal";
 

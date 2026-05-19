@@ -5,7 +5,7 @@ import { cacheWrap } from "@repo/redis";
 import { DatabaseError } from "@repo/errors";
 import { logError } from "@/lib/errors/error-logger";
 
-export interface MonolithizedDashboardPayload {
+interface MonolithizedDashboardPayload {
   department_id: string;
   daily_logs: Array<{
     id: string;
@@ -61,7 +61,7 @@ export async function getMonolithizedDashboard(departmentId: string): Promise<Mo
       );
 
       if (error) {
-        logError(new Error(error.message), { context: "dashboard_rpc" }).catch(() => {});
+        logError(new Error(error.message), { context: "dashboard_rpc" });
         throw new DatabaseError("Failed to query dashboard data", {
           operation: "query",
           context: { error: error.message },

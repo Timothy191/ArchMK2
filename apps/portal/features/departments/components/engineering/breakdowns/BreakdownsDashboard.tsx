@@ -2,17 +2,8 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  LayoutDashboard,
-  LogIn,
-  LogOut,
-  Search,
-  Zap,
-  AlertTriangle,
-  CheckCircle,
-  Clock,
-} from "lucide-react";
-import type { Breakdown, BreakdownMetrics } from "./types";
+import { LayoutDashboard, LogIn, LogOut, Search, Zap } from "lucide-react";
+import type { Breakdown, BreakdownMetrics, Machine } from "./types";
 import { BreakdownStats } from "./BreakdownStats";
 import { BookInForm } from "./BookInForm";
 import { BookOutForm } from "./BookOutForm";
@@ -25,12 +16,14 @@ interface BreakdownsDashboardProps {
   departmentId: string;
   breakdowns: Breakdown[];
   metrics: BreakdownMetrics;
+  machines: Machine[];
 }
 
 export function BreakdownsDashboard({
   departmentId,
   breakdowns,
   metrics,
+  machines,
 }: BreakdownsDashboardProps) {
   const [activeTab, setActiveTab] = useState<Tab>("overview");
 
@@ -48,10 +41,10 @@ export function BreakdownsDashboard({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-semibold text-white">
+          <h2 className="text-2xl font-semibold text-[var(--text-heading)]">
             Breakdown Management
           </h2>
-          <p className="text-[#898989] text-sm mt-0.5">
+          <p className="text-[var(--text-secondary)] text-sm mt-0.5">
             Track machine breakdowns, book-in/out and monitor fleet health.
           </p>
         </div>
@@ -66,7 +59,7 @@ export function BreakdownsDashboard({
       </div>
 
       {/* Tab Navigation */}
-      <div className="flex gap-1 p-1 rounded-xl bg-[#171717] border border-[#363636]">
+      <div className="flex gap-1 p-1 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-emphasis)]">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -76,8 +69,8 @@ export function BreakdownsDashboard({
               onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                 isActive
-                  ? "bg-[#242424] text-[#fafafa] shadow-sm"
-                  : "text-[#898989] hover:text-[#fafafa] hover:bg-[#242424]/50"
+                  ? "bg-[var(--bg-tertiary)] text-[var(--text-heading)] shadow-card"
+                  : "text-[var(--text-secondary)] hover:text-[var(--text-heading)] hover:bg-[var(--bg-tertiary)]/50"
               }`}
             >
               <Icon className="w-4 h-4" />
@@ -104,22 +97,28 @@ export function BreakdownsDashboard({
           {activeTab === "overview" && (
             <div className="space-y-6">
               <BreakdownStats metrics={metrics} />
-              
-              <BreakdownCharts 
+
+              <BreakdownCharts
                 statusData={[
-                  { name: "Operational", value: metrics.active === 0 ? 100 : Math.max(0, 100 - metrics.active) },
-                  { name: "Broken Down", value: metrics.active }
+                  {
+                    name: "Operational",
+                    value:
+                      metrics.active === 0
+                        ? 100
+                        : Math.max(0, 100 - metrics.active),
+                  },
+                  { name: "Broken Down", value: metrics.active },
                 ]}
                 mttrData={[
                   { machine: "Excavators", hours: 4.2 },
                   { machine: "Haul Trucks", hours: 6.8 },
                   { machine: "Dozers", hours: 3.1 },
-                  { machine: "Drills", hours: 5.5 }
+                  { machine: "Drills", hours: 5.5 },
                 ]}
               />
 
               <div>
-                <h3 className="text-lg font-medium text-white mb-3">
+                <h3 className="text-lg font-medium text-[var(--text-heading)] mb-3">
                   Active Breakdowns
                 </h3>
                 <BreakdownsTable
@@ -134,6 +133,7 @@ export function BreakdownsDashboard({
             <BookInForm
               departmentId={departmentId}
               activeBreakdowns={activeBreakdowns}
+              machines={machines}
             />
           )}
 

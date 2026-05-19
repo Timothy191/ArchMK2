@@ -123,7 +123,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (err: any) {
-    logError(err instanceof Error ? err : new Error(String(err)), { context: "sync_playback" }).catch(() => {});
+    logError(err instanceof Error ? err : new Error(String(err)), { context: "sync_playback" });
     return NextResponse.json({ error: err.message || "Internal Server Error" }, { status: 500 });
   }
 }

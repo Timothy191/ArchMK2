@@ -28,7 +28,7 @@ export async function POST(req: Request) {
 
     return Response.json(result.object);
   } catch (error) {
-    logError(error instanceof Error ? error : new Error(String(error)), { context: "predictive_maintenance" }).catch(() => {});
+    logError(error instanceof Error ? error : new Error(String(error)), { context: "predictive_maintenance" });
     return new Response(
       JSON.stringify({ error: "Failed to analyze machine data" }),
       { status: 500, headers: { "Content-Type": "application/json" } },

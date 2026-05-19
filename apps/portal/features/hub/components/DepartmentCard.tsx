@@ -11,9 +11,6 @@ import {
   HardHat,
   GraduationCap,
   Satellite,
-  Activity,
-  AlertCircle,
-  Settings,
 } from "lucide-react";
 import { SpotlightCard } from "@repo/ui/SpotlightCard";
 import { GlowBorderCard } from "@repo/ui/GlowBorderCard";
@@ -97,7 +94,7 @@ export function DepartmentCard({ department, index }: DepartmentCardProps) {
             <Badge
               variant="outline"
               className={cn(
-                "text-[10px] font-bold uppercase tracking-[0.1em] px-2.5 py-0.5 rounded-full border-none shadow-sm backdrop-blur-md",
+                "text-[10px] font-bold uppercase tracking-[0.1em] px-2.5 py-0.5 rounded-full border-none backdrop-blur-md",
                 department.status === "active" &&
                   "text-emerald-400 bg-emerald-500/10",
                 department.status === "maintenance" &&

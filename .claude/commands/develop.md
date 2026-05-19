@@ -1,36 +1,37 @@
 ---
-description: Build a feature using Research > Plan > Implement phases
+description: Build a feature using Research > Plan > Implement > Review phases
 argument-hint: <feature description>
 ---
 
 # /develop - Multi-Phase Feature Development
 
-Build features through structured phases with validation gates.
+Build features through structured phases with validation gates. Each phase must pass before the next begins.
 
 ## Feature: $ARGUMENTS
 
-### Phase 1: Research
+### Phase 1: Research (GO/NO-GO)
 
-Explore the codebase to understand the scope:
+Explore the codebase to assess feasibility:
 
 1. Find all relevant files and existing patterns
 2. Check dependencies and constraints
-3. Score confidence across 5 dimensions (0-100)
+3. Identify existing patterns to follow
+4. Score confidence across 5 dimensions (0-100)
 
 **Scoring:**
 - Scope clarity (0-20): Know exactly what files change?
-- Pattern familiarity (0-20): Similar patterns exist?
+- Pattern familiarity (0-20): Similar patterns exist in codebase?
 - Dependency awareness (0-20): Know what depends on changed code?
 - Edge cases (0-20): Can identify the edge cases?
-- Test strategy (0-20): Know how to verify?
+- Test strategy (0-20): Know how to verify changes?
 
 **Decision:**
-- Score >= 70 → Present research findings and move to Phase 2
-- Score < 70 → Identify gaps, gather more context, re-score
+- Score >= 70 → Present findings and move to Phase 2
+- Score < 70 → Gather more context, re-score. If < 70 after 2 rounds, ask user.
 
-### Phase 2: Plan
+### Phase 2: Plan (Approval Required)
 
-Present a plan for approval:
+Present a plan for approval. **Wait for explicit "proceed" or "approved" before continuing.**
 
 ```text
 PLAN: [Feature Name]
@@ -38,7 +39,7 @@ PLAN: [Feature Name]
 Goal: [one sentence]
 
 Files to modify:
-1. path/file.ts - [what changes]
+1. path/file.ts - [what changes, why]
 
 New files:
 1. path/new.ts - [purpose]
@@ -51,9 +52,9 @@ Risks:
 
 Test strategy:
 - [how to verify]
-```
 
-**Wait for "proceed" or "approved" before continuing.**
+Estimated scope: [S/M/L]
+```
 
 ### Phase 3: Implement
 
@@ -75,9 +76,9 @@ Self-review with verification — every finding must be confirmed by reading the
 5. Present verified summary for final approval
 6. Commit with conventional message
 
-### Learning Capture
+### Rules
 
-After completing, ask:
-- What corrections were made during implementation?
-- Any patterns worth adding to LEARNED?
-- Format: `[LEARN] Category: Rule`
+- Never skip phases. Research before planning, plan before implementing.
+- Never proceed without approval between phases.
+- If implementation reveals the plan was wrong, go back to Phase 2.
+- Capture learnings at the end: `[LEARN] Category: One-line rule`

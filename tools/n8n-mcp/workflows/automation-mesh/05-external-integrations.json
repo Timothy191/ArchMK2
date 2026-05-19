@@ -1,0 +1,59 @@
+{
+  "name": "Arch Mesh — External Integrations Pipeline",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "mesh/external-integrations",
+        "options": {}
+      },
+      "name": "External Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [100, 300],
+      "webhookId": "mesh-external-integrations"
+    },
+    {
+      "parameters": {
+        "jsCode": "const payload = $json.body || $json;\nconst integrations = [\n  'slack-notification',\n  'email-alert',\n  'sms-gateway',\n  'erp-webhook',\n  'weather-api',\n  'satellite-feed'\n];\nif (!payload.integration || !integrations.includes(payload.integration)) {\n  return { error: 'Unknown integration', available: integrations };\n}\nreturn { integration: payload.integration, payload: payload.data || {}, requestedAt: new Date().toISOString() };"
+      },
+      "name": "Route Integration",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [350, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const { integration, payload } = $json;\nconst endpoints = {\n  'slack-notification': { url: process.env.SLACK_WEBHOOK_URL, method: 'POST' },\n  'email-alert': { url: process.env.EMAIL_API_URL, method: 'POST' },\n  'sms-gateway': { url: process.env.SMS_API_URL, method: 'POST' },\n  'erp-webhook': { url: process.env.ERP_WEBHOOK_URL, method: 'POST' },\n  'weather-api': { url: process.env.WEATHER_API_URL, method: 'GET' },\n  'satellite-feed': { url: process.env.SATELLITE_API_URL, method: 'GET' }\n};\nreturn { ...$json, endpoint: endpoints[integration], status: 'forwarding' };"
+      },
+      "name": "Resolve Endpoint",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [600, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const { integration, endpoint, requestedAt } = $json;\nreturn {\n  status: 'delivered',\n  integration,\n  endpoint: endpoint ? endpoint.url : null,\n  requestedAt,\n  deliveredAt: new Date().toISOString()\n};"
+      },
+      "name": "Delivered",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [850, 300]
+    }
+  ],
+  "connections": {
+    "External Webhook": {
+      "main": [[{ "node": "Route Integration", "type": "main", "index": 0 }]]
+    },
+    "Route Integration": {
+      "main": [[{ "node": "Resolve Endpoint", "type": "main", "index": 0 }]]
+    },
+    "Resolve Endpoint": {
+      "main": [[{ "node": "Delivered", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": true,
+  "settings": {},
+  "tags": ["automation-mesh", "external-integrations", "api"],
+  "id": "mesh-external-integrations"
+}

@@ -3,10 +3,10 @@
 import { useEffect, useState } from "react";
 import { createBrowserSupabaseClient } from "@repo/supabase/client";
 import { GlassCard } from "@repo/ui/GlassCard";
-import { Building2, Edit2, Trash2, Plus } from "lucide-react";
+import { Edit2, Trash2, Plus } from "lucide-react";
 import { Button } from "@repo/ui/components/ui/button";
 import { Badge } from "@repo/ui/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@repo/ui/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@repo/ui/components/ui/dialog";
 import { Input } from "@repo/ui/components/ui/input";
 import { logError } from "@/lib/errors/error-logger";
 
@@ -59,10 +59,10 @@ export function DepartmentsTab() {
         .from("departments")
         .update(formData)
         .eq("id", editingDept.id);
-      if (error) logError(new Error(error.message), { context: "departments_tab_update" }).catch(() => {});
+      if (error) logError(new Error(error.message), { context: "departments_tab_update" });
     } else {
       const { error } = await supabase.from("departments").insert(formData);
-      if (error) logError(new Error(error.message), { context: "departments_tab_create" }).catch(() => {});
+      if (error) logError(new Error(error.message), { context: "departments_tab_create" });
     }
     setShowEditDialog(false);
     setEditingDept(null);
@@ -72,7 +72,7 @@ export function DepartmentsTab() {
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this department?")) return;
     const { error } = await supabase.from("departments").delete().eq("id", id);
-    if (error) logError(new Error(error.message), { context: "departments_tab_delete" }).catch(() => {});
+    if (error) logError(new Error(error.message), { context: "departments_tab_delete" });
     loadDepartments();
   };
 
@@ -195,7 +195,7 @@ function DepartmentForm({
   onCancel,
 }: {
   department: Department | null;
-  onSubmit: (data: any) => void;
+  onSubmit: (_data: any) => void;
   onCancel: () => void;
 }) {
   const [name, setName] = useState(department?.name || "");

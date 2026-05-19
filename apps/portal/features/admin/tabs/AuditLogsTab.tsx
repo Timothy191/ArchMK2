@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { createBrowserSupabaseClient } from "@repo/supabase/client";
 import { GlassCard } from "@repo/ui/GlassCard";
-import { Search, Filter, Download } from "lucide-react";
+import { Search, Download } from "lucide-react";
 import { Button } from "@repo/ui/components/ui/button";
 import { Input } from "@repo/ui/components/ui/input";
 import { Badge } from "@repo/ui/components/ui/badge";

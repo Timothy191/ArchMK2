@@ -49,12 +49,17 @@ async function resolveDeptUuid(
 }
 
 export async function middleware(request: NextRequest) {
+  const pathname = request.nextUrl.pathname;
+
+  // Exempt hardware API endpoints from authentication entirely (short-circuit)
+  if (pathname.startsWith("/api/c66")) {
+    return NextResponse.next();
+  }
+
   const { supabase, response } = await createMiddlewareClient(request);
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
-  const pathname = request.nextUrl.pathname;
 
   // Skip public files (images, fonts, etc. in /public folder)
   const PUBLIC_FILE_EXTENSIONS =
@@ -63,9 +68,11 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
-  // Allow login page through
-  if (pathname.startsWith("/login")) {
-    if (user) return NextResponse.redirect(new URL("/", request.url));
+  // Allow public landing and login pages through
+  if (pathname === "/" || pathname.startsWith("/login")) {
+    if (user && pathname.startsWith("/login")) {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
     return response;
   }
 

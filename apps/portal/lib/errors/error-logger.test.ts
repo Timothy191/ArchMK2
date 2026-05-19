@@ -1,7 +1,12 @@
 /**
  * @jest-environment node
  */
-import { logError, withErrorLogging, withServerActionLogging } from "./error-logger";
+/* eslint-disable no-console */
+import {
+  logError,
+  withErrorLogging,
+  withServerActionLogging,
+} from "./error-logger";
 
 describe("logError", () => {
   beforeEach(() => jest.spyOn(console, "error").mockImplementation(() => {}));
@@ -15,7 +20,9 @@ describe("logError", () => {
 
   it("logs with optional context (url, method)", async () => {
     const err = new Error("route error");
-    await expect(logError(err, { url: "/api/test", method: "POST" })).resolves.toBeUndefined();
+    await expect(
+      logError(err, { url: "/api/test", method: "POST" }),
+    ).resolves.toBeUndefined();
   });
 
   it("logs AppError with statusCode determining severity", async () => {
@@ -67,9 +74,13 @@ describe("withErrorLogging", () => {
   it("passes userId and sessionId to context", async () => {
     const req = new Request("http://localhost/api/test", { method: "GET" });
     await expect(
-      withErrorLogging(req, async () => {
-        throw new Error("context error");
-      }, { userId: "u-1", sessionId: "s-1" }),
+      withErrorLogging(
+        req,
+        async () => {
+          throw new Error("context error");
+        },
+        { userId: "u-1", sessionId: "s-1" },
+      ),
     ).rejects.toThrow("context error");
   });
 });

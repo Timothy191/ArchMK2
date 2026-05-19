@@ -13,6 +13,3 @@ export const complianceResultSchema = z.object({
   score: z.number().min(1).max(10),
   summary: z.string(),
 });
-
-export type RiskAssessment = z.infer<typeof riskAssessmentSchema>;
-export type ComplianceResult = z.infer<typeof complianceResultSchema>;

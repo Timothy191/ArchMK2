@@ -9,7 +9,7 @@ export type SpectralComposite = "truecolor" | "falsecolor" | "ndvi" | "geology";
 interface HyperspectralLayerProps {
   scenes: STACItem[];
   activeComposite: SpectralComposite;
-  onCompositeChange: (composite: SpectralComposite) => void;
+  onCompositeChange: (_composite: SpectralComposite) => void;
 }
 
 const COMPOSITES: {
@@ -158,7 +158,7 @@ export function HyperspectralLayer({
             <p className="text-sm font-semibold text-violet-400">
               Sentinel-2 Multispectral — 13 Bands
             </p>
-            <p className="text-xs text-[#898989] mt-1 leading-relaxed">
+            <p className="text-xs text-[var(--text-secondary)] mt-1 leading-relaxed">
               Sentinel-2 MSI captures 13 spectral bands from 443 nm (coastal) to
               2190 nm (SWIR2) at 10–60 m resolution, 5-day global revisit. Band
               combinations reveal mineral composition, vegetation health, and
@@ -171,7 +171,7 @@ export function HyperspectralLayer({
 
       {/* Composite Selector */}
       <div>
-        <p className="text-xs font-medium text-[#b4b4b4] uppercase tracking-wider mb-2">
+        <p className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider mb-2">
           Band Composite
         </p>
         <div className="grid grid-cols-2 gap-2">
@@ -185,7 +185,7 @@ export function HyperspectralLayer({
                 className={`text-left p-3 rounded-xl border transition-colors ${
                   isActive
                     ? getActiveClass(comp.id, color)
-                    : "bg-[#171717] border-[#363636] hover:bg-[#242424]"
+                    : "bg-[var(--bg-primary)] border-[var(--border-emphasis)] hover:bg-[var(--bg-tertiary)]"
                 }`}
               >
                 <div className="flex items-center justify-between mb-0.5">
@@ -193,19 +193,19 @@ export function HyperspectralLayer({
                     className={`text-sm font-medium ${
                       isActive
                         ? getActiveLabelClass(comp.id, color)
-                        : "text-[#fafafa]"
+                        : "text-[var(--text-heading)]"
                     }`}
                   >
                     {comp.label}
                   </p>
-                  <span className="text-[9px] text-[#898989] font-mono">
+                  <span className="text-[9px] text-[var(--text-secondary)] font-mono">
                     {comp.resolution}
                   </span>
                 </div>
-                <p className="text-[10px] text-[#898989] font-mono">
+                <p className="text-[10px] text-[var(--text-secondary)] font-mono">
                   {comp.bands}
                 </p>
-                <p className="text-[10px] text-[#b4b4b4] mt-1 leading-snug">
+                <p className="text-[10px] text-[var(--text-muted)] mt-1 leading-snug">
                   {comp.use}
                 </p>
               </button>
@@ -219,7 +219,7 @@ export function HyperspectralLayer({
         <p className="text-xs font-semibold text-red-400 uppercase tracking-wider mb-1">
           AMD Risk — Spectral Indicators
         </p>
-        <p className="text-[10px] text-[#898989] mb-3">
+        <p className="text-[10px] text-[var(--text-secondary)] mb-3">
           Acid Mine Drainage precursors detectable in Sentinel-2 SWIR bands. Use
           SWIR Geology composite to identify high-risk zones.
         </p>
@@ -232,7 +232,7 @@ export function HyperspectralLayer({
               />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <p className="text-xs font-medium text-[#fafafa]">
+                  <p className="text-xs font-medium text-[var(--text-heading)]">
                     {sig.mineral}
                   </p>
                   <span
@@ -241,10 +241,10 @@ export function HyperspectralLayer({
                     {sig.risk}
                   </span>
                 </div>
-                <p className="text-[10px] text-[#898989] mt-0.5">
+                <p className="text-[10px] text-[var(--text-secondary)] mt-0.5">
                   {sig.concern}
                 </p>
-                <p className="text-[9px] text-[#898989] font-mono mt-0.5">
+                <p className="text-[9px] text-[var(--text-secondary)] font-mono mt-0.5">
                   {sig.bands}
                 </p>
               </div>
@@ -255,15 +255,15 @@ export function HyperspectralLayer({
 
       {/* Scene List */}
       <div>
-        <p className="text-xs font-medium text-[#b4b4b4] uppercase tracking-wider mb-2">
+        <p className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider mb-2">
           Available Sentinel-2 Scenes
         </p>
         {scenes.length === 0 ? (
-          <div className="p-4 rounded-xl bg-[#171717] border border-[#363636] text-center">
-            <p className="text-[#898989] text-sm">
+          <div className="p-4 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-emphasis)] text-center">
+            <p className="text-[var(--text-secondary)] text-sm">
               No cloud-free scenes in range
             </p>
-            <p className="text-[#898989] text-xs mt-1">
+            <p className="text-[var(--text-secondary)] text-xs mt-1">
               Copernicus STAC query returned 0 results — expand time window or
               cloud cover threshold
             </p>
@@ -279,7 +279,7 @@ export function HyperspectralLayer({
               return (
                 <div
                   key={scene.id}
-                  className="rounded-xl border bg-[#171717] border-[#363636] overflow-hidden"
+                  className="rounded-xl border bg-[var(--bg-primary)] border-[var(--border-emphasis)] overflow-hidden"
                 >
                   <button
                     onClick={() =>
@@ -288,7 +288,7 @@ export function HyperspectralLayer({
                     className="w-full text-left p-3 hover:bg-[#1e1e1e] transition-colors"
                   >
                     <div className="flex items-center justify-between">
-                      <p className="text-xs text-[#fafafa] font-medium font-mono truncate max-w-[150px]">
+                      <p className="text-xs text-[var(--text-heading)] font-medium font-mono truncate max-w-[150px]">
                         {scene.id.slice(0, 20)}…
                       </p>
                       <div className="flex items-center gap-1.5 shrink-0">
@@ -310,7 +310,7 @@ export function HyperspectralLayer({
                         </span>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3 mt-1 text-[10px] text-[#898989]">
+                    <div className="flex items-center gap-3 mt-1 text-[10px] text-[var(--text-secondary)]">
                       <span>{formatSceneDate(scene.properties.datetime)}</span>
                       <span
                         className={
@@ -323,7 +323,7 @@ export function HyperspectralLayer({
                   </button>
 
                   {isExpanded && (
-                    <div className="px-3 pb-3 pt-0 border-t border-[#242424]">
+                    <div className="px-3 pb-3 pt-0 border-t border-[var(--border-default)]">
                       {quicklook && (
                         <img
                           src={quicklook}
@@ -337,20 +337,20 @@ export function HyperspectralLayer({
                       <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[10px]">
                         {scene.properties["s2:mgrs_tile"] && (
                           <>
-                            <span className="text-[#898989]">MGRS Tile</span>
-                            <span className="text-[#fafafa] font-mono">
+                            <span className="text-[var(--text-secondary)]">MGRS Tile</span>
+                            <span className="text-[var(--text-heading)] font-mono">
                               {scene.properties["s2:mgrs_tile"]}
                             </span>
                           </>
                         )}
-                        <span className="text-[#898989]">Platform</span>
-                        <span className="text-[#fafafa]">
+                        <span className="text-[var(--text-secondary)]">Platform</span>
+                        <span className="text-[var(--text-heading)]">
                           {scene.properties.platform ?? "Sentinel-2"}
                         </span>
                         {cloud !== undefined && (
                           <>
-                            <span className="text-[#898989]">Cloud cover</span>
-                            <span className="text-[#fafafa]">
+                            <span className="text-[var(--text-secondary)]">Cloud cover</span>
+                            <span className="text-[var(--text-heading)]">
                               {cloud.toFixed(1)}%
                             </span>
                           </>

@@ -11,7 +11,6 @@
  * No API key required for any of the above.
  */
 
-export type SensorType = "SAR" | "OPTICAL" | "HYPERSPECTRAL";
 export type DeformationLevel = "stable" | "minor" | "moderate" | "critical";
 
 export interface BoundingBox {
@@ -42,7 +41,7 @@ export interface STACItem {
   bbox: [number, number, number, number];
 }
 
-export interface STACCollection {
+interface STACCollection {
   type: "FeatureCollection";
   features: STACItem[];
   context?: {
@@ -226,10 +225,8 @@ export function classifyDeformation(shiftMm: number): DeformationLevel {
  */
 function generateHistory(baseVelocity: number, noiseScale: number = 1.5): VelocityPoint[] {
   const months = ["Nov", "Dec", "Jan", "Feb", "Mar", "Apr"];
-  let cumulative = baseVelocity * -3; // start partway through
   return months.map((month) => {
     const noise = (Math.random() - 0.5) * noiseScale;
-    cumulative += baseVelocity + noise;
     return { month, velocityMmPerMonth: Math.round((baseVelocity + noise) * 10) / 10 };
   });
 }

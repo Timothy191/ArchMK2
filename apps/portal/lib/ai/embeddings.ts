@@ -12,8 +12,8 @@ const EMBEDDING_DIMENSIONS = 1536;
 
 interface EmbeddingProvider {
   name: string;
-  generate(text: string): Promise<number[]>;
-  batchGenerate(texts: string[]): Promise<number[][]>;
+  generate(_text: string): Promise<number[]>;
+  batchGenerate(_texts: string[]): Promise<number[][]>;
 }
 
 class OpenAIProvider implements EmbeddingProvider {
@@ -167,7 +167,7 @@ export async function generateEmbedding(text: string): Promise<number[]> {
   try {
     return await getPrimaryProvider().generate(text);
   } catch (err) {
-    logError(err instanceof Error ? err : new Error(String(err)), { context: "embedding_primary_failed" }).catch(() => {});
+    logError(err instanceof Error ? err : new Error(String(err)), { context: "embedding_primary_failed" });
     const fallback = getFallbackProvider();
     if (fallback) {
       return await fallback.generate(text);
@@ -188,13 +188,13 @@ export async function batchGenerateEmbeddings(
   try {
     return await getPrimaryProvider().batchGenerate(texts);
   } catch (err) {
-    logError(err instanceof Error ? err : new Error(String(err)), { context: "embedding_batch_primary_failed" }).catch(() => {});
+    logError(err instanceof Error ? err : new Error(String(err)), { context: "embedding_batch_primary_failed" });
     const fallback = getFallbackProvider();
     if (fallback) {
       try {
         return await fallback.batchGenerate(texts);
       } catch (fallbackErr) {
-        logError(fallbackErr instanceof Error ? fallbackErr : new Error(String(fallbackErr)), { context: "embedding_batch_fallback_failed" }).catch(() => {});
+        logError(fallbackErr instanceof Error ? fallbackErr : new Error(String(fallbackErr)), { context: "embedding_batch_fallback_failed" });
       }
     }
     // Fallback: generate individually

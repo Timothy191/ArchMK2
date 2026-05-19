@@ -1,8 +1,8 @@
 import { DepartmentLayout } from "@repo/ui/DepartmentLayout";
 import { DEPARTMENTS, getDepartmentTabs } from "~/lib/departments";
 import { notFound } from "next/navigation";
-import { AIAssistant } from "@/components/ai/AIAssistant";
 import { ActiveDepartmentSetter } from "@/components/nav/ActiveDepartmentSetter";
+import { AIAssistantWrapper } from "@/components/ai/AIAssistantWrapper";
 
 export default async function DepartmentRootLayout({
   children,
@@ -22,7 +22,7 @@ export default async function DepartmentRootLayout({
       <ActiveDepartmentSetter department={department} />
       <DepartmentLayout department={dept} tabs={tabs}>
         {children}
-        <AIAssistant context={`${dept.displayName} Department`} />
+        <AIAssistantWrapper context={`${dept.displayName} Department`} />
       </DepartmentLayout>
     </>
   );

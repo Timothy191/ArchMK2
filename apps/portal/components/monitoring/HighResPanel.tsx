@@ -114,7 +114,7 @@ export function HighResPanel({ scenes }: HighResPanelProps) {
             <p className="text-sm font-semibold text-emerald-400">
               High-Resolution Commercial Imagery
             </p>
-            <p className="text-xs text-[#898989] mt-1 leading-relaxed">
+            <p className="text-xs text-[var(--text-secondary)] mt-1 leading-relaxed">
               CubeSat constellations (Planet Labs, Maxar, Airbus) image the site
               daily at 0.3–3 m. DEM differencing between acquisition dates
               calculates excavation volumes and stockpile tonnage without ground
@@ -125,57 +125,57 @@ export function HighResPanel({ scenes }: HighResPanelProps) {
       </div>
 
       {/* Stockpile Volume Estimator */}
-      <div className="p-4 rounded-xl bg-[#171717] border border-[#363636]">
-        <p className="text-xs font-semibold text-[#b4b4b4] uppercase tracking-wider mb-1">
+      <div className="p-4 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-emphasis)]">
+        <p className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-1">
           Stockpile Volume Estimator
         </p>
-        <p className="text-[10px] text-[#898989] mb-3">
+        <p className="text-[10px] text-[var(--text-secondary)] mb-3">
           Conical approximation from DEM-derived base + peak elevation and
           mapped area. For certified survey use LiDAR or photogrammetric point
           cloud.
         </p>
         <div className="grid grid-cols-2 gap-2 mb-3">
           <div>
-            <label className="text-[10px] text-[#898989] block mb-1">
+            <label className="text-[10px] text-[var(--text-secondary)] block mb-1">
               Base elevation (m)
             </label>
             <input
               type="number"
               value={baseElev}
               onChange={(e) => setBaseElev(e.target.value)}
-              className="w-full bg-[#0f0f0f] border border-[#363636] rounded-lg px-2 py-1.5 text-xs text-[#fafafa] focus:outline-none focus:border-[#3ecf8e]"
+              className="w-full bg-[var(--bg-primary)] border border-[var(--border-emphasis)] rounded-lg px-2 py-1.5 text-xs text-[var(--text-heading)] focus:outline-none focus:border-[#3ecf8e]"
             />
           </div>
           <div>
-            <label className="text-[10px] text-[#898989] block mb-1">
+            <label className="text-[10px] text-[var(--text-secondary)] block mb-1">
               Peak elevation (m)
             </label>
             <input
               type="number"
               value={peakElev}
               onChange={(e) => setPeakElev(e.target.value)}
-              className="w-full bg-[#0f0f0f] border border-[#363636] rounded-lg px-2 py-1.5 text-xs text-[#fafafa] focus:outline-none focus:border-[#3ecf8e]"
+              className="w-full bg-[var(--bg-primary)] border border-[var(--border-emphasis)] rounded-lg px-2 py-1.5 text-xs text-[var(--text-heading)] focus:outline-none focus:border-[#3ecf8e]"
             />
           </div>
           <div>
-            <label className="text-[10px] text-[#898989] block mb-1">
+            <label className="text-[10px] text-[var(--text-secondary)] block mb-1">
               Footprint area (ha)
             </label>
             <input
               type="number"
               value={areaHa}
               onChange={(e) => setAreaHa(e.target.value)}
-              className="w-full bg-[#0f0f0f] border border-[#363636] rounded-lg px-2 py-1.5 text-xs text-[#fafafa] focus:outline-none focus:border-[#3ecf8e]"
+              className="w-full bg-[var(--bg-primary)] border border-[var(--border-emphasis)] rounded-lg px-2 py-1.5 text-xs text-[var(--text-heading)] focus:outline-none focus:border-[#3ecf8e]"
             />
           </div>
           <div>
-            <label className="text-[10px] text-[#898989] block mb-1">
+            <label className="text-[10px] text-[var(--text-secondary)] block mb-1">
               Material type
             </label>
             <select
               value={material}
               onChange={(e) => setMaterial(e.target.value)}
-              className="w-full bg-[#0f0f0f] border border-[#363636] rounded-lg px-2 py-1.5 text-xs text-[#fafafa] focus:outline-none focus:border-[#3ecf8e]"
+              className="w-full bg-[var(--bg-primary)] border border-[var(--border-emphasis)] rounded-lg px-2 py-1.5 text-xs text-[var(--text-heading)] focus:outline-none focus:border-[#3ecf8e]"
             >
               {Object.keys(BULK_DENSITIES).map((m) => (
                 <option key={m} value={m}>
@@ -187,15 +187,15 @@ export function HighResPanel({ scenes }: HighResPanelProps) {
         </div>
         {stockpileResult ? (
           <div className="grid grid-cols-2 gap-2">
-            <div className="p-2.5 bg-[#0f0f0f] rounded-lg">
-              <p className="text-[10px] text-[#898989]">Volume (m³)</p>
+            <div className="p-2.5 bg-[var(--bg-primary)] rounded-lg">
+              <p className="text-[10px] text-[var(--text-secondary)]">Volume (m³)</p>
               <p className="text-lg font-bold text-[#3ecf8e]">
                 {stockpileResult.volumeM3.toLocaleString()}
               </p>
             </div>
-            <div className="p-2.5 bg-[#0f0f0f] rounded-lg">
-              <p className="text-[10px] text-[#898989]">Tonnage (t)</p>
-              <p className="text-lg font-bold text-[#fafafa]">
+            <div className="p-2.5 bg-[var(--bg-primary)] rounded-lg">
+              <p className="text-[10px] text-[var(--text-secondary)]">Tonnage (t)</p>
+              <p className="text-lg font-bold text-[var(--text-heading)]">
                 {stockpileResult.tonnage.toLocaleString()}
               </p>
             </div>
@@ -208,35 +208,35 @@ export function HighResPanel({ scenes }: HighResPanelProps) {
       </div>
 
       {/* Change Detection Date Selector */}
-      <div className="p-4 rounded-xl bg-[#171717] border border-[#363636]">
-        <p className="text-xs font-semibold text-[#b4b4b4] uppercase tracking-wider mb-1">
+      <div className="p-4 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-emphasis)]">
+        <p className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-1">
           Change Detection Period
         </p>
-        <p className="text-[10px] text-[#898989] mb-3">
+        <p className="text-[10px] text-[var(--text-secondary)] mb-3">
           Select two dates to compare imagery and detect stockpile movement, new
           infrastructure, or tailings pond level changes.
         </p>
         <div className="grid grid-cols-2 gap-2 mb-3">
           <div>
-            <label className="text-[10px] text-[#898989] block mb-1">
+            <label className="text-[10px] text-[var(--text-secondary)] block mb-1">
               From date
             </label>
             <input
               type="date"
               value={cdFrom}
               onChange={(e) => setCdFrom(e.target.value)}
-              className="w-full bg-[#0f0f0f] border border-[#363636] rounded-lg px-2 py-1.5 text-xs text-[#fafafa] focus:outline-none focus:border-[#3ecf8e]"
+              className="w-full bg-[var(--bg-primary)] border border-[var(--border-emphasis)] rounded-lg px-2 py-1.5 text-xs text-[var(--text-heading)] focus:outline-none focus:border-[#3ecf8e]"
             />
           </div>
           <div>
-            <label className="text-[10px] text-[#898989] block mb-1">
+            <label className="text-[10px] text-[var(--text-secondary)] block mb-1">
               To date
             </label>
             <input
               type="date"
               value={cdTo}
               onChange={(e) => setCdTo(e.target.value)}
-              className="w-full bg-[#0f0f0f] border border-[#363636] rounded-lg px-2 py-1.5 text-xs text-[#fafafa] focus:outline-none focus:border-[#3ecf8e]"
+              className="w-full bg-[var(--bg-primary)] border border-[var(--border-emphasis)] rounded-lg px-2 py-1.5 text-xs text-[var(--text-heading)] focus:outline-none focus:border-[#3ecf8e]"
             />
           </div>
         </div>
@@ -250,7 +250,7 @@ export function HighResPanel({ scenes }: HighResPanelProps) {
               )}{" "}
               days
             </p>
-            <p className="text-[10px] text-[#898989] mt-0.5">
+            <p className="text-[10px] text-[var(--text-secondary)] mt-0.5">
               Order Planet/Maxar archive imagery for this window to run DEM
               differencing.
             </p>
@@ -264,19 +264,19 @@ export function HighResPanel({ scenes }: HighResPanelProps) {
 
       {/* Use Cases */}
       <div>
-        <p className="text-xs font-medium text-[#b4b4b4] uppercase tracking-wider mb-2">
+        <p className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider mb-2">
           Mining Applications
         </p>
         <div className="grid grid-cols-1 gap-2">
           {USE_CASES.map((uc) => (
             <div
               key={uc.title}
-              className="flex items-start gap-3 p-3 rounded-xl bg-[#171717] border border-[#363636]"
+              className="flex items-start gap-3 p-3 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-emphasis)]"
             >
               <span className="text-xl shrink-0">{uc.icon}</span>
               <div>
-                <p className="text-sm font-medium text-[#fafafa]">{uc.title}</p>
-                <p className="text-xs text-[#898989] mt-0.5 leading-relaxed">
+                <p className="text-sm font-medium text-[var(--text-heading)]">{uc.title}</p>
+                <p className="text-xs text-[var(--text-secondary)] mt-0.5 leading-relaxed">
                   {uc.description}
                 </p>
               </div>
@@ -287,23 +287,23 @@ export function HighResPanel({ scenes }: HighResPanelProps) {
 
       {/* Provider Comparison */}
       <div>
-        <p className="text-xs font-medium text-[#b4b4b4] uppercase tracking-wider mb-2">
+        <p className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider mb-2">
           Imagery Providers
         </p>
-        <div className="rounded-xl border border-[#363636] overflow-hidden">
+        <div className="rounded-xl border border-[var(--border-emphasis)] overflow-hidden">
           <table className="w-full text-xs">
             <thead>
-              <tr className="bg-[#242424]">
-                <th className="text-left p-2.5 text-[#898989] font-medium">
+              <tr className="bg-[var(--bg-tertiary)]">
+                <th className="text-left p-2.5 text-[var(--text-secondary)] font-medium">
                   Provider
                 </th>
-                <th className="text-left p-2.5 text-[#898989] font-medium">
+                <th className="text-left p-2.5 text-[var(--text-secondary)] font-medium">
                   GSD
                 </th>
-                <th className="text-left p-2.5 text-[#898989] font-medium">
+                <th className="text-left p-2.5 text-[var(--text-secondary)] font-medium">
                   Revisit
                 </th>
-                <th className="text-left p-2.5 text-[#898989] font-medium">
+                <th className="text-left p-2.5 text-[var(--text-secondary)] font-medium">
                   Cost
                 </th>
               </tr>
@@ -312,9 +312,9 @@ export function HighResPanel({ scenes }: HighResPanelProps) {
               {PROVIDERS.map((p, i) => (
                 <tr
                   key={p.name}
-                  className={`border-t border-[#363636] ${i % 2 === 0 ? "bg-[#171717]" : "bg-[#1a1a1a]"}`}
+                  className={`border-t border-[var(--border-emphasis)] ${i % 2 === 0 ? "bg-[var(--bg-primary)]" : "bg-[#1a1a1a]"}`}
                 >
-                  <td className="p-2.5 text-[#fafafa]">
+                  <td className="p-2.5 text-[var(--text-heading)]">
                     <span className="text-[11px]">{p.name}</span>
                     {p.key && (
                       <span className="ml-1 text-[9px] px-1 py-0.5 rounded bg-amber-500/20 text-amber-400">
@@ -322,16 +322,16 @@ export function HighResPanel({ scenes }: HighResPanelProps) {
                       </span>
                     )}
                   </td>
-                  <td className="p-2.5 text-[#b4b4b4] text-[11px]">
+                  <td className="p-2.5 text-[var(--text-muted)] text-[11px]">
                     {p.resolution}
                   </td>
-                  <td className="p-2.5 text-[#b4b4b4] text-[11px]">
+                  <td className="p-2.5 text-[var(--text-muted)] text-[11px]">
                     {p.revisit}
                   </td>
                   <td className="p-2.5 text-[11px]">
                     <span
                       className={
-                        p.cost === "Free" ? "text-[#3ecf8e]" : "text-[#898989]"
+                        p.cost === "Free" ? "text-[#3ecf8e]" : "text-[var(--text-secondary)]"
                       }
                     >
                       {p.cost}
@@ -346,13 +346,13 @@ export function HighResPanel({ scenes }: HighResPanelProps) {
 
       {/* Latest scenes */}
       <div>
-        <p className="text-xs font-medium text-[#b4b4b4] uppercase tracking-wider mb-2">
+        <p className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider mb-2">
           Latest Copernicus Scenes
         </p>
         {scenes.length === 0 ? (
-          <div className="p-4 rounded-xl bg-[#171717] border border-[#363636] text-center">
-            <p className="text-[#898989] text-sm">No recent scenes available</p>
-            <p className="text-[#898989] text-xs mt-1">
+          <div className="p-4 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-emphasis)] text-center">
+            <p className="text-[var(--text-secondary)] text-sm">No recent scenes available</p>
+            <p className="text-[var(--text-secondary)] text-xs mt-1">
               Add Planet/Maxar API keys in Settings for daily sub-metre imagery
             </p>
           </div>
@@ -372,7 +372,7 @@ export function HighResPanel({ scenes }: HighResPanelProps) {
                   className={`w-full text-left rounded-xl border transition-colors overflow-hidden ${
                     selectedScene === scene.id
                       ? "bg-emerald-500/10 border-emerald-500/30"
-                      : "bg-[#171717] border-[#363636] hover:bg-[#242424]"
+                      : "bg-[var(--bg-primary)] border-[var(--border-emphasis)] hover:bg-[var(--bg-tertiary)]"
                   }`}
                 >
                   {quicklook && selectedScene === scene.id && (
@@ -387,7 +387,7 @@ export function HighResPanel({ scenes }: HighResPanelProps) {
                   )}
                   <div className="p-3">
                     <div className="flex items-center justify-between gap-2">
-                      <p className="text-xs text-[#fafafa] font-medium font-mono truncate">
+                      <p className="text-xs text-[var(--text-heading)] font-medium font-mono truncate">
                         {scene.id.slice(0, 22)}…
                       </p>
                       <div className="flex items-center gap-1.5 shrink-0">
@@ -407,7 +407,7 @@ export function HighResPanel({ scenes }: HighResPanelProps) {
                         </span>
                       </div>
                     </div>
-                    <p className="text-[10px] text-[#898989] mt-1">
+                    <p className="text-[10px] text-[var(--text-secondary)] mt-1">
                       {formatSceneDate(scene.properties.datetime)}
                     </p>
                   </div>

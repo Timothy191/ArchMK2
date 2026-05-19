@@ -70,6 +70,9 @@ jobs:
       - name: Check for dead code
         run: pnpm knip
 
+      - name: Markdown Lint
+        run: pnpm md:lint
+
       - name: Lint & Type Check
         run: pnpm turbo run lint type-check
 

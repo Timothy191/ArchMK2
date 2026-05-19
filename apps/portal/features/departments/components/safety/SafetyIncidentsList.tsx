@@ -26,28 +26,15 @@ const statusColors: Record<string, string> = {
   open: "text-amber-400",
   "under-investigation": "text-blue-400",
   resolved: "text-emerald-400",
-  closed: "text-[#898989]",
+  closed: "text-[var(--text-secondary)]",
 };
 
-const typeColors: Record<string, string> = {
-  "near-miss": "text-[#3b82f6]",
-  incident: "text-[#f59e0b]",
-  "lost-time": "text-[#ef4444]",
-  "equipment-damage": "text-[#8b5cf6]",
-};
-
-const typeLabels: Record<string, string> = {
-  "near-miss": "Near Miss",
-  incident: "Incident",
-  "lost-time": "Lost Time",
-  "equipment-damage": "Equipment Damage",
-};
 
 export function SafetyIncidentsList({ incidents }: SafetyIncidentsListProps) {
   if (incidents.length === 0) {
     return (
       <GlassCard className="py-8">
-        <p className="text-[#898989] text-sm text-center">
+        <p className="text-[var(--text-secondary)] text-sm text-center">
           No incidents recorded today
         </p>
       </GlassCard>
@@ -57,7 +44,7 @@ export function SafetyIncidentsList({ incidents }: SafetyIncidentsListProps) {
   return (
     <div className="space-y-3">
       {incidents.map((incident) => (
-        <GlassCard key={incident.id} className="hover:border-[#363636] transition-colors">
+        <GlassCard key={incident.id} className="hover:border-[var(--border-emphasis)] transition-colors">
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-3 flex-wrap">
@@ -66,7 +53,7 @@ export function SafetyIncidentsList({ incidents }: SafetyIncidentsListProps) {
                     "text-xs font-medium px-2 py-0.5 rounded-full",
                     incident.severity_color
                       ? "text-white"
-                      : "text-[#898989]",
+                      : "text-[var(--text-secondary)]",
                   )}
                   style={
                     incident.severity_color
@@ -78,24 +65,24 @@ export function SafetyIncidentsList({ incidents }: SafetyIncidentsListProps) {
                   {incident.incident_type}
                 </span>
                 {incident.category_name && (
-                  <span className="text-[#898989] text-xs">
+                  <span className="text-[var(--text-secondary)] text-xs">
                     {incident.category_name}
                   </span>
                 )}
                 <span
                   className={cn(
                     "text-xs font-medium capitalize",
-                    statusColors[incident.status] || "text-[#898989]",
+                    statusColors[incident.status] || "text-[var(--text-secondary)]",
                   )}
                 >
                   {incident.status.replace("-", " ")}
                 </span>
               </div>
 
-              <p className="text-[#fafafa] text-sm mt-2">{incident.description}</p>
+              <p className="text-[var(--text-heading)] text-sm mt-2">{incident.description}</p>
 
               {incident.location && (
-                <p className="text-[#898989] text-xs mt-1">
+                <p className="text-[var(--text-secondary)] text-xs mt-1">
                   📍 {incident.location}
                 </p>
               )}
@@ -108,13 +95,13 @@ export function SafetyIncidentsList({ incidents }: SafetyIncidentsListProps) {
             </div>
 
             <div className="text-right shrink-0">
-              <p className="text-[#898989] text-xs">
+              <p className="text-[var(--text-secondary)] text-xs">
                 {new Date(incident.created_at).toLocaleDateString("en-ZA", {
                   hour: "2-digit",
                   minute: "2-digit",
                 })}
               </p>
-              <p className="text-[#898989] text-xs mt-1">{incident.shift_type} shift</p>
+              <p className="text-[var(--text-secondary)] text-xs mt-1">{incident.shift_type} shift</p>
             </div>
           </div>
         </GlassCard>

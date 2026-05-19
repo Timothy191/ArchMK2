@@ -144,7 +144,7 @@ export function SafetyIncidentForm({
   return (
     <GlassCard>
       <form onSubmit={handleSubmit} className="space-y-5">
-        <h3 className="text-lg font-medium text-[#fafafa]">
+        <h3 className="text-lg font-medium text-[var(--text-heading)]">
           Log Safety Incident
         </h3>
 
@@ -153,7 +153,7 @@ export function SafetyIncidentForm({
           <div className="space-y-2">
             <label
               htmlFor="incident-type"
-              className="text-[#b4b4b4] text-sm block"
+              className="text-[var(--text-muted)] text-sm block"
             >
               Type <span className="text-red-400">*</span>
             </label>
@@ -167,7 +167,7 @@ export function SafetyIncidentForm({
                   incidentType: e.target.value,
                 }))
               }
-              className="w-full bg-[#171717] border border-[#363636] rounded-lg px-3 py-2.5 text-[#fafafa] text-sm focus:outline-none focus:border-[#3ecf8e] transition-colors"
+              className="w-full bg-[var(--bg-primary)] border border-[var(--border-emphasis)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[#3ecf8e] transition-colors"
             >
               <option value="">Select type...</option>
               {INCIDENT_TYPES.map((t) => (
@@ -183,7 +183,7 @@ export function SafetyIncidentForm({
 
           {/* Severity */}
           <div className="space-y-2">
-            <label className="text-[#b4b4b4] text-sm block">
+            <label className="text-[var(--text-muted)] text-sm block">
               Severity <span className="text-red-400">*</span>
             </label>
             <select
@@ -192,7 +192,7 @@ export function SafetyIncidentForm({
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, severityId: e.target.value }))
               }
-              className="w-full bg-[#171717] border border-[#363636] rounded-lg px-3 py-2.5 text-[#fafafa] text-sm focus:outline-none focus:border-[#3ecf8e] transition-colors"
+              className="w-full bg-[var(--bg-primary)] border border-[var(--border-emphasis)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[#3ecf8e] transition-colors"
             >
               <option value="">Select severity...</option>
               {severities.map((s) => (
@@ -208,14 +208,14 @@ export function SafetyIncidentForm({
 
           {/* Category */}
           <div className="space-y-2">
-            <label className="text-[#b4b4b4] text-sm block">Category</label>
+            <label className="text-[var(--text-muted)] text-sm block">Category</label>
             <select
               aria-label="Incident Category"
               value={formData.categoryId}
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, categoryId: e.target.value }))
               }
-              className="w-full bg-[#171717] border border-[#363636] rounded-lg px-3 py-2.5 text-[#fafafa] text-sm focus:outline-none focus:border-[#3ecf8e] transition-colors"
+              className="w-full bg-[var(--bg-primary)] border border-[var(--border-emphasis)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[#3ecf8e] transition-colors"
             >
               <option value="">Select category...</option>
               {categories.map((c) => (
@@ -230,7 +230,7 @@ export function SafetyIncidentForm({
         {/* Shift & Injured Parties */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <label className="text-[#b4b4b4] text-sm block">Shift</label>
+            <label className="text-[var(--text-muted)] text-sm block">Shift</label>
             <div className="flex gap-2">
               {["day", "night"].map((shift) => (
                 <button
@@ -244,8 +244,8 @@ export function SafetyIncidentForm({
                   }
                   className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
                     formData.shiftType === shift
-                      ? "bg-[#3ecf8e] text-[#171717]"
-                      : "bg-[#171717] border border-[#363636] text-[#898989] hover:text-[#fafafa]"
+                      ? "bg-[#3ecf8e] text-[var(--text-heading)]"
+                      : "bg-[var(--bg-primary)] border border-[var(--border-emphasis)] text-[var(--text-secondary)] hover:text-[var(--text-heading)]"
                   }`}
                 >
                   {shift.charAt(0).toUpperCase() + shift.slice(1)}
@@ -255,7 +255,7 @@ export function SafetyIncidentForm({
           </div>
 
           <div className="space-y-2">
-            <label className="text-[#b4b4b4] text-sm block">
+            <label className="text-[var(--text-muted)] text-sm block">
               Injured Parties
             </label>
             <input
@@ -268,7 +268,7 @@ export function SafetyIncidentForm({
                   injuredParties: parseInt(e.target.value) || 0,
                 }))
               }
-              className="w-full bg-[#171717] border border-[#363636] rounded-lg px-3 py-2.5 text-[#fafafa] text-sm focus:outline-none focus:border-[#3ecf8e]"
+              className="w-full bg-[var(--bg-primary)] border border-[var(--border-emphasis)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[#3ecf8e]"
             />
             {errors.injuredParties && (
               <p className="text-red-400 text-xs">{errors.injuredParties}</p>
@@ -278,7 +278,7 @@ export function SafetyIncidentForm({
 
         {/* Description */}
         <div className="space-y-2">
-          <label className="text-[#b4b4b4] text-sm block">
+          <label className="text-[var(--text-muted)] text-sm block">
             Description <span className="text-red-400">*</span>
           </label>
           <textarea
@@ -290,13 +290,13 @@ export function SafetyIncidentForm({
             placeholder="Describe the incident..."
             rows={4}
             maxLength={500}
-            className="w-full bg-[#171717] border border-[#363636] rounded-lg px-3 py-2.5 text-[#fafafa] text-sm focus:outline-none focus:border-[#3ecf8e] transition-colors resize-none"
+            className="w-full bg-[var(--bg-primary)] border border-[var(--border-emphasis)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[#3ecf8e] transition-colors resize-none"
           />
           <div className="flex justify-between">
             {errors.description && (
               <p className="text-red-400 text-xs">{errors.description}</p>
             )}
-            <p className="text-[#898989] text-xs ml-auto">
+            <p className="text-[var(--text-secondary)] text-xs ml-auto">
               {formData.description.length}/500
             </p>
           </div>
@@ -304,7 +304,7 @@ export function SafetyIncidentForm({
 
         {/* Location */}
         <div className="space-y-2">
-          <label className="text-[#b4b4b4] text-sm block">Location</label>
+          <label className="text-[var(--text-muted)] text-sm block">Location</label>
           <input
             type="text"
             aria-label="Location"
@@ -313,14 +313,14 @@ export function SafetyIncidentForm({
               setFormData((prev) => ({ ...prev, location: e.target.value }))
             }
             placeholder="e.g., Main Pit, South Stockpile"
-            className="w-full bg-[#171717] border border-[#363636] rounded-lg px-3 py-2.5 text-[#fafafa] text-sm focus:outline-none focus:border-[#3ecf8e]"
+            className="w-full bg-[var(--bg-primary)] border border-[var(--border-emphasis)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[#3ecf8e]"
           />
         </div>
 
         {/* Root Cause & Corrective Action */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <label className="text-[#b4b4b4] text-sm block">Root Cause</label>
+            <label className="text-[var(--text-muted)] text-sm block">Root Cause</label>
             <input
               type="text"
               value={formData.rootCause}
@@ -328,11 +328,11 @@ export function SafetyIncidentForm({
                 setFormData((prev) => ({ ...prev, rootCause: e.target.value }))
               }
               placeholder="Root cause of incident"
-              className="w-full bg-[#171717] border border-[#363636] rounded-lg px-3 py-2.5 text-[#fafafa] text-sm focus:outline-none focus:border-[#3ecf8e]"
+              className="w-full bg-[var(--bg-primary)] border border-[var(--border-emphasis)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[#3ecf8e]"
             />
           </div>
           <div className="space-y-2">
-            <label className="text-[#b4b4b4] text-sm block">
+            <label className="text-[var(--text-muted)] text-sm block">
               Corrective Action
             </label>
             <input
@@ -345,14 +345,14 @@ export function SafetyIncidentForm({
                 }))
               }
               placeholder="Action taken to prevent recurrence"
-              className="w-full bg-[#171717] border border-[#363636] rounded-lg px-3 py-2.5 text-[#fafafa] text-sm focus:outline-none focus:border-[#3ecf8e]"
+              className="w-full bg-[var(--bg-primary)] border border-[var(--border-emphasis)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[#3ecf8e]"
             />
           </div>
         </div>
 
         {/* Status */}
         <div className="space-y-2">
-          <label className="text-[#b4b4b4] text-sm block">Status</label>
+          <label className="text-[var(--text-muted)] text-sm block">Status</label>
           <div className="flex flex-wrap gap-2">
             {STATUSES.map((s) => (
               <button
@@ -363,8 +363,8 @@ export function SafetyIncidentForm({
                 }
                 className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                   formData.status === s.value
-                    ? "bg-[#3ecf8e] text-[#171717]"
-                    : "bg-[#171717] border border-[#363636] text-[#898989] hover:text-[#fafafa]"
+                    ? "bg-[#3ecf8e] text-[var(--text-heading)]"
+                    : "bg-[var(--bg-primary)] border border-[var(--border-emphasis)] text-[var(--text-secondary)] hover:text-[var(--text-heading)]"
                 }`}
               >
                 {s.label}
@@ -378,7 +378,7 @@ export function SafetyIncidentForm({
           <button
             type="submit"
             disabled={isSubmitting}
-            className="bg-[#3ecf8e] hover:bg-[#35b37d] disabled:bg-[#2e2e2e] disabled:text-[#898989] text-[#171717] font-medium py-2.5 px-6 rounded-lg transition-colors"
+            className="bg-[#3ecf8e] hover:bg-[#35b37d] disabled:bg-[var(--bg-tertiary)] disabled:text-[var(--text-secondary)] text-[var(--text-heading)] font-medium py-2.5 px-6 rounded-lg transition-colors"
           >
             {isSubmitting ? "Saving..." : "Log Incident"}
           </button>

@@ -11,16 +11,6 @@
           }
         ]
       },
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"/home/timothy/Project/Arch-Mk2/.claude/hooks/scripts/pre-push-check.js\"",
-            "if": "Bash(git push*)"
-          }
-        ]
-      }
     ],
     "PostToolUse": [
       {
@@ -102,7 +92,7 @@
     "frontend-design@claude-plugins-official": true,
     "code-review@claude-plugins-official": true,
     "code-simplifier@claude-plugins-official": true,
-    "linear@claude-plugins-official": true,
+    "linear@claude-plugins-official": false,
     "remember@claude-plugins-official": true,
     "claude-code-setup@claude-plugins-official": true
   },

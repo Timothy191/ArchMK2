@@ -4,6 +4,8 @@ import {
   CONTROL_ROOM_TABS,
   ENGINEERING_TABS,
   SATELLITE_MONITORING_TABS,
+  DRILLING_TABS,
+  ACCESS_CONTROL_TABS,
   PRODUCTIVITY_TOOLS,
   getDepartmentTabs,
 } from "./departments";
@@ -74,18 +76,19 @@ describe("getDepartmentTabs", () => {
     expect(getDepartmentTabs("engineering")).toBe(ENGINEERING_TABS);
   });
 
+  it("returns ACCESS_CONTROL_TABS for access-control", () => {
+    expect(getDepartmentTabs("access-control")).toBe(ACCESS_CONTROL_TABS);
+  });
+
   it("returns standard DEPARTMENT_TABS for all other departments", () => {
-    const standardDepts = [
-      "drilling",
-      "production",
-      "access-control",
-      "safety",
-      "training",
-      "admin",
-    ];
+    const standardDepts = ["production", "safety", "training", "admin"];
     for (const slug of standardDepts) {
       expect(getDepartmentTabs(slug)).toBe(DEPARTMENT_TABS);
     }
+  });
+
+  it("returns DRILLING_TABS for drilling", () => {
+    expect(getDepartmentTabs("drilling")).toBe(DRILLING_TABS);
   });
 
   it("returns standard DEPARTMENT_TABS for unknown slugs", () => {

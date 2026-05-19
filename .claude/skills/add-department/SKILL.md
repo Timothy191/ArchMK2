@@ -101,11 +101,11 @@ export default async function <Name>DashboardPage({
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-medium text-[#fafafa]">{dept.displayName} Dashboard</h2>
+      <h2 className="text-2xl font-medium text-[var(--text-heading)]">{dept.displayName} Dashboard</h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <GlassCard>
-          <p className="text-[#898989] text-sm">Status</p>
-          <p className="text-2xl font-medium text-emerald-400 mt-1">Operational</p>
+          <p className="text-[var(--text-muted)] text-sm">Status</p>
+          <p className="text-2xl font-medium text-[var(--accent-green)] mt-1">Operational</p>
         </GlassCard>
       </div>
     </div>
@@ -141,7 +141,7 @@ export default async function <Name><Tab>Page({
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-medium text-[#fafafa]"><TabLabel></h2>
+      <h2 className="text-2xl font-medium text-[var(--text-heading)]"><TabLabel></h2>
       {/* Add content here */}
     </div>
   );
@@ -170,8 +170,11 @@ If the department needs new tables, use the `create-migration` skill to generate
 
 ## Design System Reminders
 
-- Never use `font-bold` or `font-semibold` — use `font-medium` for emphasis
-- Never use `shadow-*` — use `border border-[#363636]` for depth
-- Never use `bg-white/5`, `border-white/10`, `text-white/50` — use design token colors
-- Always use `cn()` from `@repo/ui/lib/utils` for class merging
-- Import Supabase clients from `@repo/supabase/*`, never `@supabase/supabase-js`
+- **Theme**: Light-only macOS Sonoma. Never use dark hex colors (`#171717`, `#363636`, `#fafafa`).
+- **Text**: `text-[var(--text-heading)]` for headings, `text-[var(--text-primary)]` for body, `text-[var(--text-secondary)]` for labels, `text-[var(--text-muted)]` for metadata.
+- **Backgrounds**: `bg-white/70 backdrop-blur-xl` for glass surfaces. Cards use the `GlassCard` component.
+- **Shadows**: Use `shadow-card` / `shadow-diffusion-*` tokens. Never use Tailwind `shadow-*` or raw `box-shadow`.
+- **Never use `font-bold` or `font-semibold`** — use `font-medium` for emphasis.
+- **Accent**: `var(--accent-blue)` (`#007aff`). Never use green accent colors.
+- Always use `cn()` from `@repo/ui/lib/utils` for class merging.
+- Import Supabase clients from `@repo/supabase/*`, never `@supabase/supabase-js`.

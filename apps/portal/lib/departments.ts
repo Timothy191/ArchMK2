@@ -158,6 +158,7 @@ export const DEPARTMENT_TABS = [
  */
 export const CONTROL_ROOM_TABS = [
   { name: "dashboard", label: "Dashboard", icon: "BarChart2" },
+  { name: "daily-log", label: "Daily Log", icon: "ClipboardList" },
   { name: "hourly-loads", label: "Hourly Loads", icon: "Clock" },
   { name: "machine-operations", label: "Machine Ops", icon: "Cpu" },
   { name: "operational-delays", label: "Delays", icon: "AlertTriangle" },
@@ -173,6 +174,7 @@ export const CONTROL_ROOM_TABS = [
 export const ENGINEERING_TABS = [
   { name: "dashboard", label: "Dashboard", icon: "BarChart2" },
   { name: "breakdowns", label: "Breakdowns", icon: "AlertTriangle" },
+  { name: "tire-management", label: "Tire Management", icon: "CircleDot" },
   { name: "daily-log", label: "Daily Log", icon: "ClipboardList" },
   { name: "machines", label: "Machines", icon: "Cpu" },
   { name: "history", label: "History", icon: "History" },
@@ -197,9 +199,16 @@ export const DRILLING_TABS = [
   { name: "reports", label: "Reports", icon: "FileText" },
 ] as const;
 
-export type DepartmentTab = typeof DEPARTMENT_TABS[number];
-export type DrillingTab = typeof DRILLING_TABS[number];
-export type ControlRoomTab = typeof CONTROL_ROOM_TABS[number];
+/**
+ * Access Control specific tabs - focused on security, badging, and site personnel
+ */
+export const ACCESS_CONTROL_TABS = [
+  { name: "dashboard", label: "Dashboard", icon: "BarChart2" },
+  { name: "access-logs", label: "Access Logs", icon: "ShieldCheck" },
+  { name: "visitors", label: "Visitors", icon: "Users" },
+  { name: "badges", label: "Badges", icon: "CreditCard" },
+  { name: "reports", label: "Reports", icon: "FileText" },
+] as const;
 
 /**
  * Get tabs for a specific department
@@ -208,6 +217,9 @@ export type ControlRoomTab = typeof CONTROL_ROOM_TABS[number];
 export function getDepartmentTabs(departmentName: string) {
   if (departmentName === "control-room") {
     return CONTROL_ROOM_TABS;
+  }
+  if (departmentName === "access-control") {
+    return ACCESS_CONTROL_TABS;
   }
   if (departmentName === "satellite-monitoring") {
     return SATELLITE_MONITORING_TABS;

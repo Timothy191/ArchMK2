@@ -25,15 +25,6 @@ export type PluginEvent =
   | { type: "plugin.validated" }
   | { type: "plugin.invalid"; error: string };
 
-export type PluginState =
-  | { value: "idle"; context: PluginContext }
-  | { value: "loading"; context: PluginContext }
-  | { value: "validating"; context: PluginContext }
-  | { value: "active"; context: PluginContext }
-  | { value: "failed"; context: PluginContext }
-  | { value: "retrying"; context: PluginContext }
-  | { value: "disabled"; context: PluginContext };
-
 // =============================================================================
 // Orchestrator Machine Types
 // =============================================================================
@@ -66,25 +57,6 @@ export type OrchestratorEvent =
   | { type: "plugin.stateChanged"; name: string; state: string }
   | { type: "system.error"; error: string };
 
-export type OrchestratorState =
-  | { value: "idle"; context: OrchestratorContext }
-  | { value: "initializing"; context: OrchestratorContext }
-  | { value: "loadingPlugins"; context: OrchestratorContext }
-  | { value: "active"; context: OrchestratorContext }
-  | { value: "error"; context: OrchestratorContext };
-
-// =============================================================================
-// Type Guards
-// =============================================================================
-
-export function isPluginLoadedEvent(event: PluginEvent): event is { type: "plugin.loaded"; plugin: ArchPlugin } {
-  return event.type === "plugin.loaded";
-}
-
-export function isPluginFailedEvent(event: PluginEvent): event is { type: "plugin.failed"; error: string } {
-  return event.type === "plugin.failed";
-}
-
 export function isRetryableError(error: string): boolean {
   const retryablePatterns = [
     "network",
@@ -97,9 +69,4 @@ export function isRetryableError(error: string): boolean {
   return retryablePatterns.some((pattern) => error.toLowerCase().includes(pattern));
 }
 
-// =============================================================================
-// Actor Types
-// =============================================================================
-
 export type PluginActor = ActorRefFrom<any>;
-export type OrchestratorActor = ActorRefFrom<any>;

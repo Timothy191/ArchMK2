@@ -155,7 +155,7 @@ Add to `.github/workflows/ci.yml`:
 pnpm --filter portal test
 
 # Unit tests (single file)
-pnpm --filter portal test -- --testPathPattern=ai-service
+pnpm --filter portal test -- --testPathPatterns=ai-service
 
 # Unit tests with coverage
 pnpm --filter portal test -- --coverage

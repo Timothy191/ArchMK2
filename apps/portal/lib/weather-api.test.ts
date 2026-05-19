@@ -1,6 +1,7 @@
 import {
   getWeatherDescription,
   getWeatherAlert,
+  getWindDirection,
   fetchWeather,
   searchLocation,
   type WeatherData,
@@ -21,15 +22,33 @@ const BASE_WEATHER: WeatherData = {
 
 describe("getWeatherDescription", () => {
   it("returns correct description for known WMO codes", () => {
-    expect(getWeatherDescription(0)).toEqual({ description: "Clear sky", icon: "☀️" });
-    expect(getWeatherDescription(3)).toEqual({ description: "Overcast", icon: "☁️" });
-    expect(getWeatherDescription(63)).toEqual({ description: "Moderate rain", icon: "🌧️" });
-    expect(getWeatherDescription(95)).toEqual({ description: "Thunderstorm", icon: "⛈️" });
+    expect(getWeatherDescription(0)).toEqual({
+      description: "Clear sky",
+      icon: "☀️",
+    });
+    expect(getWeatherDescription(3)).toEqual({
+      description: "Overcast",
+      icon: "☁️",
+    });
+    expect(getWeatherDescription(63)).toEqual({
+      description: "Moderate rain",
+      icon: "🌧️",
+    });
+    expect(getWeatherDescription(95)).toEqual({
+      description: "Thunderstorm",
+      icon: "⛈️",
+    });
   });
 
   it("returns Unknown/❓ for unrecognised codes", () => {
-    expect(getWeatherDescription(999)).toEqual({ description: "Unknown", icon: "❓" });
-    expect(getWeatherDescription(-1)).toEqual({ description: "Unknown", icon: "❓" });
+    expect(getWeatherDescription(999)).toEqual({
+      description: "Unknown",
+      icon: "❓",
+    });
+    expect(getWeatherDescription(-1)).toEqual({
+      description: "Unknown",
+      icon: "❓",
+    });
   });
 
   it("handles all snow codes", () => {
@@ -46,21 +65,37 @@ describe("getWeatherDescription", () => {
 
 describe("getWeatherAlert", () => {
   it("returns none for clear conditions with calm winds", () => {
-    const result = getWeatherAlert({ ...BASE_WEATHER, weatherCode: 0, windSpeed: 10 });
+    const result = getWeatherAlert({
+      ...BASE_WEATHER,
+      weatherCode: 0,
+      windSpeed: 10,
+    });
     expect(result.level).toBe("none");
     expect(result.message).toBe("");
   });
 
   it("returns critical for thunderstorm (code ≥ 95)", () => {
-    expect(getWeatherAlert({ ...BASE_WEATHER, weatherCode: 95 }).level).toBe("critical");
-    expect(getWeatherAlert({ ...BASE_WEATHER, weatherCode: 99 }).level).toBe("critical");
-    expect(getWeatherAlert({ ...BASE_WEATHER, weatherCode: 96 }).level).toBe("critical");
+    expect(getWeatherAlert({ ...BASE_WEATHER, weatherCode: 95 }).level).toBe(
+      "critical",
+    );
+    expect(getWeatherAlert({ ...BASE_WEATHER, weatherCode: 99 }).level).toBe(
+      "critical",
+    );
+    expect(getWeatherAlert({ ...BASE_WEATHER, weatherCode: 96 }).level).toBe(
+      "critical",
+    );
   });
 
   it("returns warning for snow conditions (codes 71–75)", () => {
-    expect(getWeatherAlert({ ...BASE_WEATHER, weatherCode: 71 }).level).toBe("warning");
-    expect(getWeatherAlert({ ...BASE_WEATHER, weatherCode: 73 }).level).toBe("warning");
-    expect(getWeatherAlert({ ...BASE_WEATHER, weatherCode: 75 }).level).toBe("warning");
+    expect(getWeatherAlert({ ...BASE_WEATHER, weatherCode: 71 }).level).toBe(
+      "warning",
+    );
+    expect(getWeatherAlert({ ...BASE_WEATHER, weatherCode: 73 }).level).toBe(
+      "warning",
+    );
+    expect(getWeatherAlert({ ...BASE_WEATHER, weatherCode: 75 }).level).toBe(
+      "warning",
+    );
   });
 
   it("returns warning for heavy rain (code 65)", () => {
@@ -70,32 +105,85 @@ describe("getWeatherAlert", () => {
   });
 
   it("returns warning for high wind speed > 50 km/h regardless of code", () => {
-    const result = getWeatherAlert({ ...BASE_WEATHER, weatherCode: 0, windSpeed: 55 });
+    const result = getWeatherAlert({
+      ...BASE_WEATHER,
+      weatherCode: 0,
+      windSpeed: 55,
+    });
     expect(result.level).toBe("warning");
   });
 
   it("returns advisory for fog (codes 45–48)", () => {
-    expect(getWeatherAlert({ ...BASE_WEATHER, weatherCode: 45 }).level).toBe("advisory");
-    expect(getWeatherAlert({ ...BASE_WEATHER, weatherCode: 48 }).level).toBe("advisory");
-    expect(getWeatherAlert({ ...BASE_WEATHER, weatherCode: 45 }).message).toContain("Fog");
+    expect(getWeatherAlert({ ...BASE_WEATHER, weatherCode: 45 }).level).toBe(
+      "advisory",
+    );
+    expect(getWeatherAlert({ ...BASE_WEATHER, weatherCode: 48 }).level).toBe(
+      "advisory",
+    );
+    expect(
+      getWeatherAlert({ ...BASE_WEATHER, weatherCode: 45 }).message,
+    ).toContain("Fog");
   });
 
   it("returns advisory for moderate winds (> 30 km/h)", () => {
-    const result = getWeatherAlert({ ...BASE_WEATHER, weatherCode: 0, windSpeed: 35 });
+    const result = getWeatherAlert({
+      ...BASE_WEATHER,
+      weatherCode: 0,
+      windSpeed: 35,
+    });
     expect(result.level).toBe("advisory");
     expect(result.message).toContain("winds");
   });
 
   it("advisory threshold is strictly > 30, not at 30", () => {
-    const at30 = getWeatherAlert({ ...BASE_WEATHER, weatherCode: 0, windSpeed: 30 });
-    const at31 = getWeatherAlert({ ...BASE_WEATHER, weatherCode: 0, windSpeed: 31 });
+    const at30 = getWeatherAlert({
+      ...BASE_WEATHER,
+      weatherCode: 0,
+      windSpeed: 30,
+    });
+    const at31 = getWeatherAlert({
+      ...BASE_WEATHER,
+      weatherCode: 0,
+      windSpeed: 31,
+    });
     expect(at30.level).toBe("none");
     expect(at31.level).toBe("advisory");
   });
 
   it("critical takes priority over other conditions", () => {
-    const result = getWeatherAlert({ ...BASE_WEATHER, weatherCode: 95, windSpeed: 60 });
+    const result = getWeatherAlert({
+      ...BASE_WEATHER,
+      weatherCode: 95,
+      windSpeed: 60,
+    });
     expect(result.level).toBe("critical");
+  });
+});
+
+describe("getWindDirection", () => {
+  it("returns N for 0°", () => {
+    expect(getWindDirection(0)).toBe("N");
+  });
+  it("returns E for 90°", () => {
+    expect(getWindDirection(90)).toBe("E");
+  });
+  it("returns S for 180°", () => {
+    expect(getWindDirection(180)).toBe("S");
+  });
+  it("returns W for 270°", () => {
+    expect(getWindDirection(270)).toBe("W");
+  });
+  it("returns NE for 45°", () => {
+    expect(getWindDirection(45)).toBe("NE");
+  });
+  it("returns NW for 315°", () => {
+    expect(getWindDirection(315)).toBe("NW");
+  });
+  it("wraps degrees > 360", () => {
+    expect(getWindDirection(450)).toBe("E");
+  });
+  it("handles negative degrees", () => {
+    expect(getWindDirection(-90)).toBe("W");
   });
 });
 
@@ -105,8 +193,12 @@ describe("fetchWeather", () => {
   });
 
   it("throws on non-ok response", async () => {
-    global.fetch = jest.fn().mockResolvedValue({ ok: false, status: 503 } as Response);
-    await expect(fetchWeather(-26.2, 28.0)).rejects.toThrow("Weather API error: 503");
+    global.fetch = jest
+      .fn()
+      .mockResolvedValue({ ok: false, status: 503 } as Response);
+    await expect(fetchWeather(-26.2, 28.0)).rejects.toThrow(
+      "Weather API error: 503",
+    );
   });
 
   it("returns parsed WeatherData on success", async () => {
@@ -123,7 +215,13 @@ describe("fetchWeather", () => {
           time: "2026-05-17T08:00",
         },
         daily: {
-          time: ["2026-05-17", "2026-05-18", "2026-05-19", "2026-05-20", "2026-05-21"],
+          time: [
+            "2026-05-17",
+            "2026-05-18",
+            "2026-05-19",
+            "2026-05-20",
+            "2026-05-21",
+          ],
           weather_code: [1, 2, 3, 63, 0],
           temperature_2m_max: [26, 24, 22, 18, 25],
           temperature_2m_min: [14, 12, 11, 10, 13],
@@ -142,8 +240,8 @@ describe("fetchWeather", () => {
     expect(result.description).toBe("Mainly clear");
     expect(result.location.name).toBe("Test Site");
     expect(result.daily).toHaveLength(5);
-    expect(result.daily![0].date).toBe("2026-05-17");
-    expect(result.daily![3].description).toBe("Moderate rain");
+    expect(result.daily![0]!.date).toBe("2026-05-17");
+    expect(result.daily![3]!.description).toBe("Moderate rain");
   });
 
   it("rounds temperature values", async () => {
@@ -173,8 +271,8 @@ describe("fetchWeather", () => {
     expect(result.temperature).toBe(22);
     expect(result.feelsLike).toBe(21);
     expect(result.windSpeed).toBe(13);
-    expect(result.daily![0].maxTemp).toBe(26);
-    expect(result.daily![0].minTemp).toBe(13);
+    expect(result.daily![0]!.maxTemp).toBe(26);
+    expect(result.daily![0]!.minTemp).toBe(13);
   });
 });
 
@@ -184,7 +282,9 @@ describe("searchLocation", () => {
   });
 
   it("returns empty array on non-ok response", async () => {
-    global.fetch = jest.fn().mockResolvedValue({ ok: false, status: 500 } as Response);
+    global.fetch = jest
+      .fn()
+      .mockResolvedValue({ ok: false, status: 500 } as Response);
     const result = await searchLocation("Johannesburg");
     expect(result).toEqual([]);
   });
@@ -203,16 +303,34 @@ describe("searchLocation", () => {
       ok: true,
       json: jest.fn().mockResolvedValue({
         results: [
-          { latitude: -26.2, longitude: 28.0, name: "Johannesburg", country: "South Africa" },
-          { latitude: -29.8, longitude: 31.0, name: "Durban", country: "South Africa" },
+          {
+            latitude: -26.2,
+            longitude: 28.0,
+            name: "Johannesburg",
+            country: "South Africa",
+          },
+          {
+            latitude: -29.8,
+            longitude: 31.0,
+            name: "Durban",
+            country: "South Africa",
+          },
         ],
       }),
     } as unknown as Response);
 
     const result = await searchLocation("South Africa");
     expect(result).toHaveLength(2);
-    expect(result[0]).toEqual({ lat: -26.2, lon: 28.0, name: "Johannesburg, South Africa" });
-    expect(result[1]).toEqual({ lat: -29.8, lon: 31.0, name: "Durban, South Africa" });
+    expect(result[0]).toEqual({
+      lat: -26.2,
+      lon: 28.0,
+      name: "Johannesburg, South Africa",
+    });
+    expect(result[1]).toEqual({
+      lat: -29.8,
+      lon: 31.0,
+      name: "Durban, South Africa",
+    });
   });
 
   it("URL-encodes the location name", async () => {

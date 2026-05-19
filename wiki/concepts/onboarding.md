@@ -141,7 +141,7 @@ git checkout -b feature/your-first-task
 # 3. Test locally
 pnpm lint
 pnpm --filter portal type-check
-pnpm --filter portal test -- --testPathPattern=YourComponent
+pnpm --filter portal test -- --testPathPatterns=YourComponent
 
 # 4. Commit (conventional commits)
 git commit -m "feat: add new KPI variant for alert states"

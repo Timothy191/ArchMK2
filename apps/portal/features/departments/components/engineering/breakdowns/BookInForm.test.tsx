@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { BookInForm } from "./BookInForm";
-import type { Breakdown } from "./types";
+import type { Breakdown, Machine } from "./types";
 
 jest.mock("./actions", () => ({
   createBreakdown: jest.fn(),
@@ -12,10 +12,28 @@ jest.mock("@repo/utils", () => ({
 
 const { createBreakdown } = jest.requireMock("./actions");
 
+const MOCK_MACHINES: Machine[] = [
+  {
+    id: "m-1",
+    name: "CAT 320D",
+    machine_type: "Excavator",
+    serial_number: "FL-001",
+    active: true,
+  },
+  {
+    id: "m-2",
+    name: "Volvo A40G",
+    machine_type: "Haul Truck",
+    serial_number: "FL-002",
+    active: true,
+  },
+];
+
 const ACTIVE_BREAKDOWN: Breakdown = {
   id: "bd-1",
   department_id: "dept-eng",
   fleet_id: "FL-001",
+  machine_name: "CAT 320D",
   machine_type: "Excavator",
   date_in: "2026-05-17",
   time_in: "08:00",
@@ -38,19 +56,34 @@ describe("BookInForm", () => {
     createBreakdown.mockResolvedValue(undefined);
   });
 
-  it("renders form fields and register button", () => {
-    render(<BookInForm departmentId="dept-eng" activeBreakdowns={[]} />);
+  it("renders form fields and book in button", () => {
+    render(
+      <BookInForm
+        departmentId="dept-eng"
+        activeBreakdowns={[]}
+        machines={MOCK_MACHINES}
+      />,
+    );
 
-    expect(screen.getByPlaceholderText(/FL-123/)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Machine Type/i)).toBeInTheDocument();
-    expect(screen.getByPlaceholderText(/Describe the issue/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Select Machine/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Date In/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Time In/i)).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: /Register Breakdown/i }),
+      screen.getByPlaceholderText(/Describe the issue/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /Book In Machine/i }),
     ).toBeInTheDocument();
   });
 
   it("shows 'No active breakdowns' when activeBreakdowns is empty", () => {
-    render(<BookInForm departmentId="dept-eng" activeBreakdowns={[]} />);
+    render(
+      <BookInForm
+        departmentId="dept-eng"
+        activeBreakdowns={[]}
+        machines={MOCK_MACHINES}
+      />,
+    );
     expect(screen.getByText(/No active breakdowns/i)).toBeInTheDocument();
   });
 
@@ -59,12 +92,13 @@ describe("BookInForm", () => {
       <BookInForm
         departmentId="dept-eng"
         activeBreakdowns={[ACTIVE_BREAKDOWN]}
+        machines={MOCK_MACHINES}
       />,
     );
 
     expect(screen.getByText("FL-001")).toBeInTheDocument();
+    expect(screen.getByText("CAT 320D")).toBeInTheDocument();
     expect(screen.getAllByText("Excavator").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText("Hydraulic failure")).toBeInTheDocument();
   });
 
   it("shows count of active breakdowns", () => {
@@ -72,77 +106,80 @@ describe("BookInForm", () => {
       <BookInForm
         departmentId="dept-eng"
         activeBreakdowns={[ACTIVE_BREAKDOWN]}
+        machines={MOCK_MACHINES}
       />,
     );
     expect(screen.getByText("1 machines")).toBeInTheDocument();
   });
 
-  it("shows error when fleet ID is empty on submit", async () => {
-    render(<BookInForm departmentId="dept-eng" activeBreakdowns={[]} />);
+  it("shows error when machine is not selected on submit", async () => {
+    render(
+      <BookInForm
+        departmentId="dept-eng"
+        activeBreakdowns={[]}
+        machines={MOCK_MACHINES}
+      />,
+    );
 
-    fireEvent.submit(screen.getByRole("button", { name: /Register Breakdown/i }).closest("form")!);
-
-    await waitFor(() => {
-      expect(screen.getByText("Fleet ID is required")).toBeInTheDocument();
-    });
-    expect(createBreakdown).not.toHaveBeenCalled();
-  });
-
-  it("shows error when machine type is not selected", async () => {
-    render(<BookInForm departmentId="dept-eng" activeBreakdowns={[]} />);
-
-    fireEvent.change(screen.getByPlaceholderText(/FL-123/), {
-      target: { value: "FL-200" },
-    });
-    fireEvent.submit(screen.getByRole("button", { name: /Register Breakdown/i }).closest("form")!);
+    fireEvent.submit(
+      screen.getByRole("button", { name: /Book In Machine/i }).closest("form")!,
+    );
 
     await waitFor(() => {
-      expect(screen.getByText("Machine type is required")).toBeInTheDocument();
+      expect(screen.getByText("Please select a machine")).toBeInTheDocument();
     });
     expect(createBreakdown).not.toHaveBeenCalled();
   });
 
   it("shows error when reason is too short", async () => {
-    render(<BookInForm departmentId="dept-eng" activeBreakdowns={[]} />);
+    render(
+      <BookInForm
+        departmentId="dept-eng"
+        activeBreakdowns={[]}
+        machines={MOCK_MACHINES}
+      />,
+    );
 
-    fireEvent.change(screen.getByPlaceholderText(/FL-123/), {
-      target: { value: "FL-200" },
-    });
-    fireEvent.change(screen.getByLabelText(/Machine Type/i), {
-      target: { value: "Excavator" },
+    fireEvent.change(screen.getByLabelText(/Select Machine/i), {
+      target: { value: "m-1" },
     });
     fireEvent.change(screen.getByPlaceholderText(/Describe the issue/i), {
       target: { value: "hi" },
     });
-    fireEvent.click(screen.getByRole("button", { name: /Register Breakdown/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Book In Machine/i }));
 
     await waitFor(() => {
       expect(
         screen.getByText("Reason must be at least 5 characters"),
       ).toBeInTheDocument();
     });
+    expect(createBreakdown).not.toHaveBeenCalled();
   });
 
   it("submits successfully and shows success message", async () => {
-    render(<BookInForm departmentId="dept-eng" activeBreakdowns={[]} />);
+    render(
+      <BookInForm
+        departmentId="dept-eng"
+        activeBreakdowns={[]}
+        machines={MOCK_MACHINES}
+      />,
+    );
 
-    fireEvent.change(screen.getByPlaceholderText(/FL-123/), {
-      target: { value: "FL-200" },
-    });
-    fireEvent.change(screen.getByLabelText(/Machine Type/i), {
-      target: { value: "Excavator" },
+    fireEvent.change(screen.getByLabelText(/Select Machine/i), {
+      target: { value: "m-1" },
     });
     fireEvent.change(screen.getByPlaceholderText(/Describe the issue/i), {
       target: { value: "Hydraulic pump failure" },
     });
 
-    fireEvent.click(screen.getByRole("button", { name: /Register Breakdown/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Book In Machine/i }));
 
     await waitFor(() => {
       expect(createBreakdown).toHaveBeenCalledWith(
         "dept-eng",
         expect.objectContaining({
-          fleet_id: "FL-200",
+          fleet_id: "FL-001",
+          machine_name: "CAT 320D",
           machine_type: "Excavator",
           reason: "Hydraulic pump failure",
         }),
@@ -151,7 +188,7 @@ describe("BookInForm", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText("Machine registered successfully!"),
+        screen.getByText("Machine booked in successfully!"),
       ).toBeInTheDocument();
     });
   });
@@ -159,22 +196,25 @@ describe("BookInForm", () => {
   it("shows error message when createBreakdown throws", async () => {
     createBreakdown.mockRejectedValueOnce(new Error("DB error"));
 
-    render(<BookInForm departmentId="dept-eng" activeBreakdowns={[]} />);
+    render(
+      <BookInForm
+        departmentId="dept-eng"
+        activeBreakdowns={[]}
+        machines={MOCK_MACHINES}
+      />,
+    );
 
-    fireEvent.change(screen.getByPlaceholderText(/FL-123/), {
-      target: { value: "FL-200" },
-    });
-    fireEvent.change(screen.getByLabelText(/Machine Type/i), {
-      target: { value: "Excavator" },
+    fireEvent.change(screen.getByLabelText(/Select Machine/i), {
+      target: { value: "m-1" },
     });
     fireEvent.change(screen.getByPlaceholderText(/Describe the issue/i), {
       target: { value: "Hydraulic pump failure" },
     });
-    fireEvent.click(screen.getByRole("button", { name: /Register Breakdown/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Book In Machine/i }));
 
     await waitFor(() => {
       expect(
-        screen.getByText("Failed to register breakdown."),
+        screen.getByText("Failed to book in machine."),
       ).toBeInTheDocument();
     });
   });

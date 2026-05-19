@@ -13,7 +13,7 @@ const TABS = [
 
 interface AdminTabsProps {
   defaultValue: string;
-  onValueChange: (value: string) => void;
+  onValueChange: (_value: string) => void;
   children: React.ReactNode;
 }
 

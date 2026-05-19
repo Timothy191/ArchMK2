@@ -97,7 +97,7 @@ export function AlertPanel({ departmentId }: AlertPanelProps) {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-medium text-[#fafafa]">Alerts</h2>
+        <h2 className="text-xl font-medium text-[var(--text-heading)]">Alerts</h2>
         {unacknowledged.length > 0 && (
           <span className="px-2.5 py-1 rounded-full bg-red-500/10 text-red-400 border border-red-500/20 text-xs font-medium">
             {unacknowledged.length} unacknowledged
@@ -107,7 +107,7 @@ export function AlertPanel({ departmentId }: AlertPanelProps) {
 
       {alerts.length === 0 && (
         <GlassCard>
-          <p className="text-[#898989] text-sm text-center py-8">
+          <p className="text-[var(--text-secondary)] text-sm text-center py-8">
             All systems operational. No active alerts.
           </p>
         </GlassCard>
@@ -129,8 +129,8 @@ export function AlertPanel({ departmentId }: AlertPanelProps) {
                   }`}
                 />
                 <div>
-                  <p className="text-[#fafafa] text-sm">{alert.message}</p>
-                  <p className="text-[#898989] text-xs">
+                  <p className="text-[var(--text-heading)] text-sm">{alert.message}</p>
+                  <p className="text-[var(--text-secondary)] text-xs">
                     {new Date(alert.timestamp).toLocaleTimeString()}
                   </p>
                 </div>
@@ -139,14 +139,14 @@ export function AlertPanel({ departmentId }: AlertPanelProps) {
                 {!alert.acknowledged && (
                   <button
                     onClick={() => acknowledge(alert.id)}
-                    className="px-3 py-1 rounded-lg bg-[#171717] text-[#b4b4b4] text-xs hover:bg-[#242424] transition-colors"
+                    className="px-3 py-1 rounded-lg bg-[var(--bg-primary)] text-[var(--text-muted)] text-xs hover:bg-[var(--bg-tertiary)] transition-colors"
                   >
                     Acknowledge
                   </button>
                 )}
                 <button
                   onClick={() => dismiss(alert.id)}
-                  className="px-3 py-1 rounded-lg bg-[#171717] text-[#898989] text-xs hover:bg-[#242424] transition-colors"
+                  className="px-3 py-1 rounded-lg bg-[var(--bg-primary)] text-[var(--text-secondary)] text-xs hover:bg-[var(--bg-tertiary)] transition-colors"
                 >
                   Dismiss
                 </button>

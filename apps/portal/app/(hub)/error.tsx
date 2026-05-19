@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { SecondaryButton } from "@repo/ui/SecondaryButton";
 import { isAppError, isNotFoundError } from "@repo/errors";
+import { logError } from "@/lib/errors/error-logger";
 
 interface HubErrorProps {
   error: Error & { digest?: string };
@@ -23,9 +24,9 @@ function getErrorMessage(error: Error): string {
 export default function HubError({ error, reset }: HubErrorProps) {
   useEffect(() => {
     if (isAppError(error)) {
-      console.error("[HubError]", { code: error.code, message: error.message, context: error.context });
+      logError(error);
     } else {
-      console.error("[HubError]", error);
+      logError(error instanceof Error ? error : new Error(String(error)));
     }
   }, [error]);
 
@@ -34,7 +35,9 @@ export default function HubError({ error, reset }: HubErrorProps) {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-medium text-[var(--text-heading)]">{title}</h2>
+      <h2 className="text-2xl font-medium text-[var(--text-heading)]">
+        {title}
+      </h2>
       <p className="text-[var(--text-muted)] text-sm">{message}</p>
       {isAppError(error) && (
         <div className="text-xs text-[var(--text-muted)] font-mono">

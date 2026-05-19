@@ -50,17 +50,17 @@ export function BreakdownStats({ metrics }: BreakdownStatsProps) {
         return (
           <div
             key={stat.label}
-            className="rounded-xl border bg-[#242424] border-[#363636] p-4 hover:bg-[#2e2e2e] transition-colors"
+            className="rounded-xl border bg-[var(--bg-tertiary)] border-[var(--border-emphasis)] p-4 hover:bg-[var(--bg-tertiary)] transition-colors"
           >
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-[#898989] text-xs uppercase tracking-wide font-medium">
+                <p className="text-[var(--text-secondary)] text-xs uppercase tracking-wide font-medium">
                   {stat.label}
                 </p>
-                <p className="text-2xl font-bold text-[#fafafa] mt-1">
+                <p className="text-2xl font-bold text-[var(--text-heading)] mt-1">
                   {stat.value}
                 </p>
-                <p className="text-[#898989] text-xs mt-1">{stat.sub}</p>
+                <p className="text-[var(--text-secondary)] text-xs mt-1">{stat.sub}</p>
               </div>
               <div
                 className={`p-2 rounded-lg border ${stat.bg}`}

@@ -13,16 +13,13 @@
     "@payloadcms/db-postgres": "^3.84.1",
     "@payloadcms/next": "^3.84.1",
     "@payloadcms/richtext-lexical": "^3.84.1",
-    "cross-env": "^7.0.3",
-    "dotenv": "^16.4.5",
     "next": "^15.5.18",
     "payload": "^3.84.1",
     "react": "catalog:react19",
     "react-dom": "catalog:react19",
-    "sharp": "0.34.5"
+    "sharp": "^0.33.5"
   },
   "devDependencies": {
-    "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
     "@types/node": "catalog:",
     "@types/react": "catalog:react19",

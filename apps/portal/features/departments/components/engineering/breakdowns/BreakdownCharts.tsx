@@ -17,8 +17,8 @@ export function BreakdownCharts({ statusData, mttrData }: BreakdownChartsProps) 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* MTTR by Machine Type */}
-      <Card className="lg:col-span-2 bg-[#0d0d0d] border-[#242424] shadow-none">
-        <Title className="text-[#fafafa] text-sm font-medium mb-4">Mean Time To Repair (MTTR) by Category</Title>
+      <Card className="lg:col-span-2 bg-[var(--bg-primary)] border-[var(--border-default)] shadow-none">
+        <Title className="text-[var(--text-heading)] text-sm font-medium mb-4">Mean Time To Repair (MTTR) by Category</Title>
         <BarChart
           className="h-72 mt-4"
           data={mttrData}
@@ -32,8 +32,8 @@ export function BreakdownCharts({ statusData, mttrData }: BreakdownChartsProps) 
       </Card>
 
       {/* Fleet Status Donut */}
-      <Card className="bg-[#0d0d0d] border-[#242424] shadow-none">
-        <Title className="text-[#fafafa] text-sm font-medium mb-4">Fleet Health Distribution</Title>
+      <Card className="bg-[var(--bg-primary)] border-[var(--border-default)] shadow-none">
+        <Title className="text-[var(--text-heading)] text-sm font-medium mb-4">Fleet Health Distribution</Title>
         <DonutChart
           className="h-72 mt-4"
           data={statusData}
@@ -48,9 +48,9 @@ export function BreakdownCharts({ statusData, mttrData }: BreakdownChartsProps) 
             <div key={idx} className="flex items-center justify-between text-xs">
               <div className="flex items-center gap-1.5">
                 <div className={`w-2 h-2 rounded-full bg-${idx === 0 ? "emerald" : "rose"}-500`} />
-                <span className="text-[#898989]">{item.name}</span>
+                <span className="text-[var(--text-secondary)]">{item.name}</span>
               </div>
-              <span className="text-[#fafafa] font-medium">{item.value} units</span>
+              <span className="text-[var(--text-heading)] font-medium">{item.value} units</span>
             </div>
           ))}
         </div>

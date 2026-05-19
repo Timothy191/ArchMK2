@@ -28,7 +28,7 @@ export async function POST(req: Request) {
 
     return Response.json(result.object);
   } catch (error) {
-    logError(error instanceof Error ? error : new Error(String(error)), { context: "safety_compliance" }).catch(() => {});
+    logError(error instanceof Error ? error : new Error(String(error)), { context: "safety_compliance" });
     return new Response(
       JSON.stringify({ error: "Failed to analyze safety compliance" }),
       { status: 500, headers: { "Content-Type": "application/json" } },

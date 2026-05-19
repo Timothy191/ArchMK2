@@ -37,7 +37,7 @@ export const pluginMachine = setup({
           context: "plugin_machine",
           pluginName: context.pluginName,
           state: "failed",
-        }).catch(() => {});
+        });
       }
     },
     incrementRetry: assign({
@@ -164,4 +164,3 @@ export const pluginMachine = setup({
   },
 });
 
-export default pluginMachine;

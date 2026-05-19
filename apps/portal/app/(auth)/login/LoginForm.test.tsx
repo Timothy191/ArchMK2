@@ -11,6 +11,15 @@ jest.mock("next/navigation", () => ({
   })),
 }));
 
+jest.mock("next/link", () => ({
+  __esModule: true,
+  default: jest.fn(
+    ({ children, href }: { children: React.ReactNode; href: string }) => (
+      <a href={href}>{children}</a>
+    ),
+  ),
+}));
+
 jest.mock("@repo/supabase/client", () => ({
   createBrowserSupabaseClient: jest.fn(),
 }));
@@ -22,8 +31,27 @@ jest.mock("@repo/ui/Input", () => ({
 }));
 
 jest.mock("@repo/ui/AnimatedButton", () => ({
-  AnimatedButton: (props: React.ButtonHTMLAttributes<HTMLButtonElement>) => (
-    <button {...props} />
+  AnimatedButton: ({
+    children,
+    disabled,
+    className,
+    type,
+    onClick,
+  }: {
+    children: React.ReactNode;
+    disabled?: boolean;
+    className?: string;
+    type?: "button" | "submit" | "reset";
+    onClick?: React.MouseEventHandler<HTMLButtonElement>;
+  }) => (
+    <button
+      type={type}
+      disabled={disabled}
+      className={className}
+      onClick={onClick}
+    >
+      {children}
+    </button>
   ),
 }));
 
@@ -47,11 +75,13 @@ describe("LoginForm", () => {
   it("renders employee ID and password inputs", () => {
     render(<LoginForm />);
 
-    expect(screen.getByPlaceholderText("e.g., admin@plantcor.os")).toBeInTheDocument();
-    expect(screen.getByPlaceholderText("Enter your password")).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: /sign in/i }),
+      screen.getByPlaceholderText("e.g., admin@plantcor.os"),
     ).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText("Enter your password"),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /sign/i })).toBeInTheDocument();
   });
 
   it("submits form and redirects on success", async () => {
@@ -132,12 +162,14 @@ describe("LoginForm", () => {
     fireEvent.submit(screen.getByTestId("login-form"));
 
     await waitFor(() => {
-      expect(screen.getByText("Network error")).toBeInTheDocument();
+      expect(
+        screen.getByText(/Network error. Please check your connection/i),
+      ).toBeInTheDocument();
     });
   });
 
   it("disables button while submitting", async () => {
-    let resolveSignIn: (value: { error: null }) => void;
+    let resolveSignIn: (_value: { error: null }) => void;
     const signInPromise = new Promise<{ error: null }>((resolve) => {
       resolveSignIn = resolve;
     });
@@ -161,14 +193,14 @@ describe("LoginForm", () => {
 
     // Button should be disabled while loading
     await waitFor(() => {
-      expect(screen.getByRole("button")).toBeDisabled();
+      expect(screen.getByRole("button", { name: /sign/i })).toBeDisabled();
     });
 
     resolveSignIn!({ error: null });
 
     // After resolution, button should be enabled
     await waitFor(() => {
-      expect(screen.getByRole("button")).not.toBeDisabled();
+      expect(screen.getByRole("button", { name: /sign/i })).not.toBeDisabled();
     });
   });
 

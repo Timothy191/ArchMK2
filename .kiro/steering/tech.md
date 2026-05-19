@@ -50,7 +50,7 @@ pnpm format
 pnpm --filter portal test
 
 # Single test file
-pnpm --filter portal test -- --testPathPattern=<file>
+pnpm --filter portal test -- --testPathPatterns=<file>
 
 # E2E tests (requires running app)
 pnpm test:e2e

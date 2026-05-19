@@ -43,7 +43,7 @@ class SyncQueue {
       const request = indexedDB.open(this.dbName, this.dbVersion);
 
       request.onerror = () => {
-        logError(new Error("Failed to open IndexedDB for SyncQueue"), { context: "sync_queue_indexeddb_open" }).catch(() => {});
+        logError(new Error("Failed to open IndexedDB for SyncQueue"), { context: "sync_queue_indexeddb_open" });
         reject(request.error);
       };
 
@@ -169,7 +169,7 @@ class SyncQueue {
           action.status = "synced";
           await this.updateAction(action);
         } catch (error) {
-          logError(error instanceof Error ? error : new Error(String(error)), { context: "sync_queue_replay", idempotencyKey: action.idempotencyKey }).catch(() => {});
+          logError(error instanceof Error ? error : new Error(String(error)), { context: "sync_queue_replay", idempotencyKey: action.idempotencyKey });
           action.retryCount++;
           
           if (action.retryCount >= 5) {
@@ -179,7 +179,7 @@ class SyncQueue {
         }
       }
     } catch (err) {
-      logError(err instanceof Error ? err : new Error(String(err)), { context: "sync_queue_process" }).catch(() => {});
+      logError(err instanceof Error ? err : new Error(String(err)), { context: "sync_queue_process" });
     } finally {
       this.isProcessing = false;
     }

@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
       });
     }
   } catch (err: any) {
-    logError(err instanceof Error ? err : new Error(String(err)), { context: "rust_telemetry_plugin" }).catch(() => {});
+    logError(err instanceof Error ? err : new Error(String(err)), { context: "rust_telemetry_plugin" });
     return NextResponse.json({
       wearIndex: 45.2,
       probability: 48.6,

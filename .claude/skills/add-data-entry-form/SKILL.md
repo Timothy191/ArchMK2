@@ -1,6 +1,6 @@
 ---
 name: add-data-entry-form
-description: Scaffold a Supabase data entry form with validation, shift toggle, and dark theme styling
+description: Scaffold a Supabase data entry form with validation, shift toggle, and glass-morphism styling
 disable-model-invocation: true
 ---
 
@@ -28,9 +28,10 @@ Create `apps/portal/app/(departments)/[department]/<tabName>/<FormName>Form.tsx`
 "use client";
 
 import { useState } from "react";
-import { createBrowserSupabaseClient } from "@repo/supabase/client";
+import { createClient } from "@repo/supabase/client";
 import { useRouter } from "next/navigation";
 import { GlassCard } from "@repo/ui/GlassCard";
+import { cn } from "@repo/ui/lib/utils";
 
 // Auto-detect current shift
 const getCurrentShift = (): "day" | "night" => {
@@ -41,15 +42,13 @@ const getCurrentShift = (): "day" | "night" => {
 interface <FormName>FormProps {
   departmentId: string;
   departmentSlug: string;
-  // Add select options as props (e.g. machines, operators)
 }
 
 export function <FormName>Form({
   departmentId,
-  departmentSlug,
 }: <FormName>FormProps) {
   const router = useRouter();
-  const supabase = createBrowserSupabaseClient();
+  const supabase = createClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
@@ -97,13 +96,13 @@ export function <FormName>Form({
 
   if (status === "success") {
     return (
-      <GlassCard className="border-emerald-500/20">
-        <p className="text-emerald-400 text-sm font-medium">
+      <GlassCard>
+        <p className="text-[var(--accent-green)] text-sm font-medium">
           Record submitted successfully
         </p>
         <button
           onClick={() => setStatus("idle")}
-          className="mt-2 text-[#00c573] hover:underline text-sm"
+          className="mt-2 text-[var(--accent-blue)] hover:underline text-sm"
         >
           Submit another
         </button>
@@ -121,11 +120,12 @@ export function <FormName>Form({
               key={shift}
               type="button"
               onClick={() => setFormData({ ...formData, shift: shift })}
-              className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={cn(
+                "flex-1 py-2 rounded-lg text-sm font-medium transition-colors",
                 formData.shift === shift
-                  ? "bg-[#3ecf8e] text-[#171717]"
-                  : "bg-[#171717] text-[#898989] border border-[#363636]"
-              }`}
+                  ? "bg-white/80 shadow-card text-[var(--text-heading)]"
+                  : "bg-white/40 text-[var(--text-secondary)] border border-black/[0.08]",
+              )}
             >
               {shift === "day" ? "Day Shift (06:00–18:00)" : "Night Shift (18:00–06:00)"}
             </button>
@@ -135,23 +135,23 @@ export function <FormName>Form({
         {/* Form fields — generated based on field list */}
         {/* Text input pattern: */}
         <div>
-          <label className="block text-sm text-[#b4b4b4] mb-1"><Label></label>
+          <label className="block text-sm text-[var(--text-secondary)] mb-1"><Label></label>
           <input
             type="text"
             value={formData.<field>}
             onChange={(e) => setFormData({ ...formData, <field>: e.target.value })}
-            className="w-full bg-[#171717] border border-[#363636] rounded-lg px-3 py-2.5 text-[#fafafa] text-sm focus:outline-none focus:border-[#3ecf8e] transition-colors"
+            className="w-full bg-white/70 border border-black/[0.08] rounded-lg px-3 py-2.5 text-[var(--text-primary)] text-sm focus:outline-none focus:border-[var(--accent-blue)] transition-colors"
             required
           />
         </div>
 
         {/* Select pattern: */}
         <div>
-          <label className="block text-sm text-[#b4b4b4] mb-1"><Label></label>
+          <label className="block text-sm text-[var(--text-secondary)] mb-1"><Label></label>
           <select
             value={formData.<field>}
             onChange={(e) => setFormData({ ...formData, <field>: e.target.value })}
-            className="w-full bg-[#171717] border border-[#363636] rounded-lg px-3 py-2.5 text-[#fafafa] text-sm focus:outline-none focus:border-[#3ecf8e] transition-colors"
+            className="w-full bg-white/70 border border-black/[0.08] rounded-lg px-3 py-2.5 text-[var(--text-primary)] text-sm focus:outline-none focus:border-[var(--accent-blue)] transition-colors"
             required
           >
             <option value="">Select...</option>
@@ -161,23 +161,23 @@ export function <FormName>Form({
 
         {/* Textarea pattern: */}
         <div>
-          <label className="block text-sm text-[#b4b4b4] mb-1"><Label></label>
+          <label className="block text-sm text-[var(--text-secondary)] mb-1"><Label></label>
           <textarea
             value={formData.<field>}
             onChange={(e) => setFormData({ ...formData, <field>: e.target.value })}
             rows={3}
-            className="w-full bg-[#171717] border border-[#363636] rounded-lg px-3 py-2.5 text-[#fafafa] text-sm focus:outline-none focus:border-[#3ecf8e] transition-colors resize-none"
+            className="w-full bg-white/70 border border-black/[0.08] rounded-lg px-3 py-2.5 text-[var(--text-primary)] text-sm focus:outline-none focus:border-[var(--accent-blue)] transition-colors resize-none"
           />
         </div>
 
         {/* Error display */}
-        {error && <p className="text-red-400 text-sm">{error}</p>}
+        {error && <p className="text-[var(--accent-red)] text-sm">{error}</p>}
 
         {/* Submit button */}
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full bg-[#3ecf8e] hover:bg-[#35b37d] disabled:bg-[#2e2e2e] disabled:text-[#898989] text-[#171717] font-medium py-2.5 px-6 rounded-lg transition-colors"
+          className="w-full bg-[var(--accent-blue)] hover:brightness-110 disabled:bg-black/[0.06] disabled:text-[var(--text-muted)] text-white font-medium py-2.5 px-6 rounded-lg transition-all"
         >
           {isSubmitting ? "Submitting..." : "Submit"}
         </button>
@@ -198,7 +198,6 @@ import { <FormName>Form } from "./<FormName>Form";
 <<FormName>Form
   departmentId={deptId}
   departmentSlug={params.department}
-  machines={machines || []}
 />
 ```
 
@@ -212,12 +211,13 @@ import { <FormName>Form } from "./<FormName>Form";
 
 ## Design System Reminders
 
-- Input/select styling: `w-full bg-[#171717] border border-[#363636] rounded-lg px-3 py-2.5 text-[#fafafa] text-sm focus:outline-none focus:border-[#3ecf8e] transition-colors`
-- Textarea adds: `resize-none`
-- Submit button: `bg-[#3ecf8e] hover:bg-[#35b37d] disabled:bg-[#2e2e2e] disabled:text-[#898989] text-[#171717] font-medium py-2.5 px-6 rounded-lg transition-colors`
-- Shift toggle active: `bg-[#3ecf8e] text-[#171717]`
-- Shift toggle inactive: `bg-[#171717] text-[#898989] border border-[#363636]`
-- Success card: `border-emerald-500/20` with `text-emerald-400`
-- Error text: `text-red-400`
-- NEVER use `font-bold` or `font-semibold` — use `font-medium`
+- **Theme**: Light-only macOS Sonoma. Never use dark hex colors (`#171717`, `#363636`, `#fafafa`).
+- **Input styling**: `w-full bg-white/70 border border-black/[0.08] rounded-lg px-3 py-2.5 text-[var(--text-primary)] text-sm focus:outline-none focus:border-[var(--accent-blue)] transition-colors`
+- **Textarea**: add `resize-none`
+- **Submit button**: `w-full bg-[var(--accent-blue)] hover:brightness-110 disabled:bg-black/[0.06] disabled:text-[var(--text-muted)] text-white font-medium py-2.5 px-6 rounded-lg transition-all`
+- **Shift toggle active**: `bg-white/80 shadow-card text-[var(--text-heading)]`
+- **Shift toggle inactive**: `bg-white/40 text-[var(--text-secondary)] border border-black/[0.08]`
+- **Labels**: `text-sm text-[var(--text-secondary)]`
+- **Error text**: `text-sm text-[var(--accent-red)]`
 - Import Supabase from `@repo/supabase/client` (browser) for forms
+- Use `cn()` from `@repo/ui/lib/utils` for conditional classes

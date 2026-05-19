@@ -108,7 +108,7 @@ function DelayCard({ delay }: { delay: OperationalDelay }) {
         <div className="flex items-center gap-2 flex-wrap">
           {/* Delay Type */}
           <span
-            className="px-2 py-1 rounded text-xs font-medium text-white"
+            className="px-2 py-1 rounded text-xs font-medium text-[var(--bg-secondary)]"
             style={{ backgroundColor: typeColor }}
           >
             {delay.delay_type.replace("_", " ").toUpperCase()}
@@ -116,10 +116,7 @@ function DelayCard({ delay }: { delay: OperationalDelay }) {
 
           {/* Category */}
           {delay.category && (
-            <span
-              className="text-xs"
-              style={{ color: delay.category.color }}
-            >
+            <span className="text-xs" style={{ color: delay.category.color }}>
               {delay.category.name}
             </span>
           )}
@@ -150,18 +147,25 @@ function DelayCard({ delay }: { delay: OperationalDelay }) {
         {/* Machine */}
         {delay.machine && (
           <p className="text-[var(--text-muted)] text-xs">
-            Machine: <span className="text-[var(--text-secondary)]">{delay.machine.name}</span>
+            Machine:{" "}
+            <span className="text-[var(--text-secondary)]">
+              {delay.machine.name}
+            </span>
           </p>
         )}
 
         {/* Description */}
-        <p className="text-[var(--text-heading)] text-sm">{delay.description}</p>
+        <p className="text-[var(--text-heading)] text-sm">
+          {delay.description}
+        </p>
 
         {/* Impact */}
         {delay.impact_description && (
           <p className="text-sm">
             <span className="text-amber-400">Impact:</span>{" "}
-            <span className="text-[var(--text-secondary)]">{delay.impact_description}</span>
+            <span className="text-[var(--text-secondary)]">
+              {delay.impact_description}
+            </span>
           </p>
         )}
 
@@ -169,7 +173,9 @@ function DelayCard({ delay }: { delay: OperationalDelay }) {
         {delay.recovery_action && (
           <p className="text-sm">
             <span className="text-[var(--accent-cyan)]">Recovery:</span>{" "}
-            <span className="text-[var(--text-secondary)]">{delay.recovery_action}</span>
+            <span className="text-[var(--text-secondary)]">
+              {delay.recovery_action}
+            </span>
           </p>
         )}
       </div>

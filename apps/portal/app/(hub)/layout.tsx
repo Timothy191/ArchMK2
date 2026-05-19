@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { DEPARTMENTS } from "~/lib/departments";
 import { WeatherWidget } from "@/components/weather/WeatherWidget";
-import { AIAssistant } from "@/components/ai/AIAssistant";
+import { SystemClock } from "@/components/clock/SystemClock";
 import { UserNav } from "@/components/nav/UserNav";
 import { Dock, DockIcon } from "@repo/ui/dock";
 import { MacMenuBar } from "@repo/ui/MacMenuBar";
-import { 
-  LayoutDashboard, 
+import {
+  LayoutDashboard,
   Satellite as SatelliteIcon,
   Drill,
   Factory,
@@ -14,12 +14,14 @@ import {
   Wrench,
   Radar,
   HardHat,
-  Flame
+  Flame,
 } from "lucide-react";
 import { cn } from "@repo/ui/lib/utils";
 import { BottomNav } from "@/components/nav/BottomNav";
 
-const deptIcons: Record<string, React.ComponentType<{className?: string}>> = {
+import { AIAssistantWrapper } from "@/components/ai/AIAssistantWrapper";
+
+const deptIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   drilling: Drill,
   production: Factory,
   "access-control": ShieldCheck,
@@ -31,15 +33,27 @@ const deptIcons: Record<string, React.ComponentType<{className?: string}>> = {
 };
 
 const deptColors: Record<string, { icon: string; border: string }> = {
-  drilling:              { icon: "text-amber-500",   border: "hover:border-amber-500/40" },
-  production:            { icon: "text-emerald-500", border: "hover:border-emerald-500/40" },
-  "access-control":      { icon: "text-blue-500",    border: "hover:border-blue-500/40" },
-  engineering:           { icon: "text-violet-500",  border: "hover:border-violet-500/40" },
-  "control-room":        { icon: "text-red-500",     border: "hover:border-red-500/40" },
-  safety:                { icon: "text-orange-500",  border: "hover:border-orange-500/40" },
-  training:              { icon: "text-cyan-500",    border: "hover:border-cyan-500/40" },
-  "satellite-monitoring":{ icon: "text-indigo-500",  border: "hover:border-indigo-500/40" },
-  admin:                 { icon: "text-violet-500",  border: "hover:border-violet-500/40" },
+  drilling: { icon: "text-amber-500", border: "hover:border-amber-500/40" },
+  production: {
+    icon: "text-emerald-500",
+    border: "hover:border-emerald-500/40",
+  },
+  "access-control": {
+    icon: "text-blue-500",
+    border: "hover:border-blue-500/40",
+  },
+  engineering: {
+    icon: "text-violet-500",
+    border: "hover:border-violet-500/40",
+  },
+  "control-room": { icon: "text-red-500", border: "hover:border-red-500/40" },
+  safety: { icon: "text-orange-500", border: "hover:border-orange-500/40" },
+  training: { icon: "text-cyan-500", border: "hover:border-cyan-500/40" },
+  "satellite-monitoring": {
+    icon: "text-indigo-500",
+    border: "hover:border-indigo-500/40",
+  },
+  admin: { icon: "text-violet-500", border: "hover:border-violet-500/40" },
 };
 
 export default function HubLayout({ children }: { children: React.ReactNode }) {
@@ -52,7 +66,9 @@ export default function HubLayout({ children }: { children: React.ReactNode }) {
         rightSlot={
           <div className="flex items-center gap-2">
             <WeatherWidget variant="header" />
-            <div className="h-3 w-px bg-black/[0.12]" />
+            <div className="h-3 w-px bg-[var(--border-emphasis)]" />
+            <SystemClock />
+            <div className="h-3 w-px bg-[var(--border-emphasis)]" />
             <UserNav />
           </div>
         }
@@ -60,43 +76,49 @@ export default function HubLayout({ children }: { children: React.ReactNode }) {
 
       {/* Content — offset by menu bar height (28px), extra bottom padding on mobile for BottomNav */}
       <div className="pt-7">
-        <main className="w-full px-4 py-6 sm:px-8 sm:py-8 pb-20 md:pb-8">{children}</main>
+        <main className="w-full px-4 py-6 sm:px-8 sm:py-8 pb-20 md:pb-8">
+          {children}
+        </main>
       </div>
 
       {/* macOS-style Floating Dock */}
       <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 hidden md:block">
         <Dock iconSize={44} iconMagnification={70} iconDistance={120}>
           <Link href="/">
-            <DockIcon className="bg-white/70 border border-black/[0.08] hover:border-[var(--accent-green)]/50 hover:bg-white/90 transition-all rounded-xl">
+            <DockIcon className="bg-white/70 border border-[var(--border-default)] hover:border-[var(--accent-green)]/50 hover:bg-white/90 transition-all rounded-xl">
               <LayoutDashboard className="w-5 h-5 text-[var(--accent-green)]" />
             </DockIcon>
           </Link>
           {/* Separator */}
-          <div className="w-px h-8 bg-black/[0.08] mx-1" />
-          {DEPARTMENTS.filter(d => d.name !== "satellite-monitoring").slice(0, 5).map((dept) => {
-            const Icon = deptIcons[dept.name];
-            const colors = deptColors[dept.name];
-            return (
-              <Link key={dept.name} href={`/${dept.name}`}>
-                <DockIcon className={cn(
-                  "bg-white/70 border border-black/[0.08] hover:bg-white/90 transition-all rounded-xl",
-                  colors?.border
-                )}>
-                  {Icon && <Icon className={cn("w-5 h-5", colors?.icon)} />}
-                </DockIcon>
-              </Link>
-            );
-          })}
+          <div className="w-px h-8 bg-[var(--border-default)] mx-1" />
+          {DEPARTMENTS.filter((d) => d.name !== "satellite-monitoring")
+            .slice(0, 5)
+            .map((dept) => {
+              const Icon = deptIcons[dept.name];
+              const colors = deptColors[dept.name];
+              return (
+                <Link key={dept.name} href={`/${dept.name}`}>
+                  <DockIcon
+                    className={cn(
+                      "bg-white/70 border border-[var(--border-default)] hover:bg-white/90 transition-all rounded-xl",
+                      colors?.border,
+                    )}
+                  >
+                    {Icon && <Icon className={cn("w-5 h-5", colors?.icon)} />}
+                  </DockIcon>
+                </Link>
+              );
+            })}
           <Link href="/satellite-monitoring">
-            <DockIcon className="bg-white/70 border border-black/[0.08] hover:border-indigo-500/40 hover:bg-white/90 transition-all rounded-xl">
+            <DockIcon className="bg-white/70 border border-[var(--border-default)] hover:border-indigo-500/40 hover:bg-white/90 transition-all rounded-xl">
               <SatelliteIcon className="w-5 h-5 text-indigo-500" />
             </DockIcon>
           </Link>
         </Dock>
       </div>
 
-      {/* AI Assistant */}
-      <AIAssistant context="Hub Dashboard" />
+      {/* AI Assistant — lazy-loaded to keep layout bundle lean */}
+      <AIAssistantWrapper context="Hub Dashboard" />
 
       {/* Mobile bottom navigation (hidden on md+) */}
       <BottomNav />

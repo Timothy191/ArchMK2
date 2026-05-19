@@ -33,14 +33,14 @@ export default function ToolCard({ tool }: ToolCardProps) {
       ? "text-[#3ecf8e]"
       : tool.status === "offline"
         ? "text-[#ef4444]"
-        : "text-[#898989]";
+        : "text-[var(--text-secondary)]";
 
   const statusBg =
     tool.status === "online"
       ? "bg-[#3ecf8e]/10"
       : tool.status === "offline"
         ? "bg-[#ef4444]/10"
-        : "bg-[#242424]";
+        : "bg-[var(--bg-tertiary)]";
 
   const StatusIcon = tool.status === "online" ? Wifi : WifiOff;
 
@@ -55,10 +55,10 @@ export default function ToolCard({ tool }: ToolCardProps) {
             <Icon className="w-5 h-5" style={{ color: tool.color }} />
           </div>
           <div>
-            <h3 className="text-lg font-medium text-[#fafafa]">
+            <h3 className="text-lg font-medium text-[var(--text-heading)]">
               {tool.displayName}
             </h3>
-            <p className="text-[#898989] text-sm">{tool.description}</p>
+            <p className="text-[var(--text-secondary)] text-sm">{tool.description}</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -75,7 +75,7 @@ export default function ToolCard({ tool }: ToolCardProps) {
             href={tool.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#171717] text-[#b4b4b4] text-sm font-medium hover:bg-[#242424] hover:text-[#fafafa] transition-colors border border-[#363636]"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--bg-primary)] text-[var(--text-muted)] text-sm font-medium hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-heading)] transition-colors border border-[var(--border-emphasis)]"
           >
             <ExternalLink className="w-3.5 h-3.5" />
             Open
@@ -86,7 +86,7 @@ export default function ToolCard({ tool }: ToolCardProps) {
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors border ${
               isOpen
                 ? "bg-[#3ecf8e]/20 text-[#3ecf8e] border-[#3ecf8e]/30"
-                : "bg-[#171717] text-[#b4b4b4] border-[#363636] hover:bg-[#242424] hover:text-[#fafafa]"
+                : "bg-[var(--bg-primary)] text-[var(--text-muted)] border-[var(--border-emphasis)] hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-heading)]"
             } disabled:opacity-50 disabled:cursor-not-allowed`}
           >
             {isOpen ? "Close" : "Embed"}
@@ -95,7 +95,7 @@ export default function ToolCard({ tool }: ToolCardProps) {
       </div>
 
       {isOpen && tool.status === "online" && (
-        <div className="flex-1 min-h-[500px] rounded-lg border border-[#363636] overflow-hidden bg-[#0f0f0f] animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="flex-1 min-h-[500px] rounded-lg border border-[var(--border-emphasis)] overflow-hidden bg-[var(--bg-primary)] animate-in fade-in slide-in-from-top-2 duration-200">
           <iframe
             src={tool.url}
             title={tool.displayName}
@@ -107,11 +107,11 @@ export default function ToolCard({ tool }: ToolCardProps) {
       )}
 
       {isOpen && tool.status === "offline" && (
-        <div className="flex-1 min-h-[200px] rounded-lg border border-[#363636] bg-[#0f0f0f] flex items-center justify-center">
+        <div className="flex-1 min-h-[200px] rounded-lg border border-[var(--border-emphasis)] bg-[var(--bg-primary)] flex items-center justify-center">
           <div className="text-center">
             <WifiOff className="w-8 h-8 text-[#ef4444] mx-auto mb-2" />
-            <p className="text-[#b4b4b4]">{tool.displayName} is not running</p>
-            <p className="text-[#898989] text-sm mt-1">
+            <p className="text-[var(--text-muted)]">{tool.displayName} is not running</p>
+            <p className="text-[var(--text-secondary)] text-sm mt-1">
               Start it locally or configure the URL
             </p>
           </div>

@@ -1,0 +1,1 @@
+pnpm turbo run lint type-check 2>&1

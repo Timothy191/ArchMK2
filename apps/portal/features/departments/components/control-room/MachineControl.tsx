@@ -15,7 +15,7 @@ export function MachineControl() {
     <GlassCard className="mt-8">
       <div className="flex items-center gap-2 mb-6">
         <Activity className="w-5 h-5 text-[#3ecf8e]" />
-        <h3 className="text-[#fafafa] font-medium">Live Operational Controls</h3>
+        <h3 className="text-[var(--text-heading)] font-medium">Live Operational Controls</h3>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -65,12 +65,12 @@ export function MachineControl() {
         </div>
       </div>
 
-      <div className="flex items-center justify-end gap-3 mt-8 pt-6 border-t border-[#363636]">
-        <Button variant="outline" className="border-[#363636] text-[#898989] hover:text-[#fafafa]">
+      <div className="flex items-center justify-end gap-3 mt-8 pt-6 border-t border-[var(--border-emphasis)]">
+        <Button variant="outline" className="border-[var(--border-emphasis)] text-[var(--text-secondary)] hover:text-[var(--text-heading)]">
           <RotateCcw className="w-4 h-4 mr-2" />
           Reset Defaults
         </Button>
-        <Button className="bg-[#3ecf8e] text-[#0f0f0f] hover:bg-[#35b87d] font-medium">
+        <Button className="bg-[#3ecf8e] text-[var(--text-heading)] hover:bg-[#35b87d] font-medium">
           Apply Configuration
         </Button>
       </div>

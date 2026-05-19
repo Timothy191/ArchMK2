@@ -10,9 +10,9 @@
  * Token estimates use ~4 chars/token (conservative for English text).
  */
 
-export type ContentType = "conversation" | "document" | "code" | "mixed";
+type ContentType = "conversation" | "document" | "code" | "mixed";
 
-export interface ChunkOptions {
+interface ChunkOptions {
   contentType?: ContentType;
   maxChunkSize?: number; // in tokens, default 512
   overlapSize?: number; // in tokens, default 128

@@ -9,6 +9,7 @@ import { SecondaryButton } from "@repo/ui/SecondaryButton";
 import { cn } from "@repo/ui/lib/utils";
 import { ShiftToggle } from "@repo/ui/ShiftToggle";
 import { toast } from "sonner";
+import { logError } from "@/lib/errors/error-logger";
 
 const dailyLogSchema = z.object({
   shift: z.enum(["day", "night"]),
@@ -45,7 +46,9 @@ export function DailyLogForm({ departmentId, machines }: DailyLogFormProps) {
     },
   });
 
-  const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const [status, setStatus] = useState<
+    "idle" | "submitting" | "success" | "error"
+  >("idle");
   const shiftValue = watch("shift");
 
   async function onSubmit(data: DailyLogFormValues) {
@@ -62,7 +65,7 @@ export function DailyLogForm({ departmentId, machines }: DailyLogFormProps) {
     });
 
     if (error) {
-      console.error(error);
+      logError(error instanceof Error ? error : new Error(String(error)));
       toast.error("Failed to save daily log", {
         description: error.message,
       });
@@ -87,12 +90,13 @@ export function DailyLogForm({ departmentId, machines }: DailyLogFormProps) {
         >
           Shift
         </label>
-        <ShiftToggle 
+        <ShiftToggle
           value={shiftValue}
           onChange={(value) => {
             // Update the form value when shift changes
             setValue("shift", value);
           }}
+          name="shift"
         />
       </div>
 
@@ -126,11 +130,10 @@ export function DailyLogForm({ departmentId, machines }: DailyLogFormProps) {
         <textarea
           id="daily-log-notes"
           {...register("notes")}
-          value={(register("notes") as any).value || ""}
           rows={4}
           className={cn(
             "w-full px-4 py-3 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-default)] text-[var(--text-heading)] placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-blue)]/30 focus:border-[var(--accent-blue)] transition-colors resize-none",
-            errors.notes && "border-red-400"
+            errors.notes && "border-red-400",
           )}
           placeholder="Enter any observations or issues..."
           aria-label="Daily log notes"
@@ -146,10 +149,7 @@ export function DailyLogForm({ departmentId, machines }: DailyLogFormProps) {
 
       {/* Actions */}
       <div className="flex items-center gap-4">
-        <SecondaryButton 
-          type="submit" 
-          disabled={isSubmitting}
-        >
+        <SecondaryButton type="submit" disabled={isSubmitting}>
           {isSubmitting ? "Saving..." : "Save Daily Log"}
         </SecondaryButton>
 

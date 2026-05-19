@@ -44,12 +44,12 @@ export function AddMachineForm({ departmentId }: AddMachineFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 rounded-2xl border border-[#363636] bg-[#242424] p-6">
+    <form onSubmit={handleSubmit} className="space-y-4 rounded-2xl border border-[var(--border-emphasis)] bg-[var(--bg-tertiary)] p-6">
       <input type="hidden" name="department_id" value={departmentId} />
       <input type="hidden" name="department_id" value={departmentId} />
 
       <div className="space-y-2">
-        <label className="block text-sm text-[#b4b4b4]">Name</label>
+        <label className="block text-sm text-[var(--text-muted)]">Name</label>
         <Input
           name="name"
           required
@@ -59,7 +59,7 @@ export function AddMachineForm({ departmentId }: AddMachineFormProps) {
       </div>
 
       <div className="space-y-2">
-        <label className="block text-sm text-[#b4b4b4]">Type</label>
+        <label className="block text-sm text-[var(--text-muted)]">Type</label>
         <Input
           name="machine_type"
           required
@@ -73,7 +73,7 @@ export function AddMachineForm({ departmentId }: AddMachineFormProps) {
       {/* Bin Factor - only for dumper types */}
       {DUMPER_TYPES.some(type => machineType.toLowerCase().includes(type)) && (
         <div className="space-y-2">
-          <label className="block text-sm text-[#b4b4b4]">
+          <label className="block text-sm text-[var(--text-muted)]">
             Bin Factor (BCM per load) <span className="text-red-400">*</span>
           </label>
           <Input
@@ -85,14 +85,14 @@ export function AddMachineForm({ departmentId }: AddMachineFormProps) {
             className="px-4 py-2.5"
             placeholder="e.g. 25.5"
           />
-          <p className="text-[#898989] text-xs">
+          <p className="text-[var(--text-secondary)] text-xs">
             Bank Cubic Meters per truckload. Used for BCM/hour calculations.
           </p>
         </div>
       )}
 
       <div className="space-y-2">
-        <label className="block text-sm text-[#b4b4b4]">Serial Number</label>
+        <label className="block text-sm text-[var(--text-muted)]">Serial Number</label>
         <Input
           name="serial_number"
           className="px-4 py-2.5"
@@ -113,7 +113,7 @@ export function AddMachineForm({ departmentId }: AddMachineFormProps) {
         <button
           type="button"
           onClick={() => setOpen(false)}
-          className="px-4 py-2 rounded-full text-[#898989] text-sm hover:text-[#fafafa] transition-colors"
+          className="px-4 py-2 rounded-full text-[var(--text-secondary)] text-sm hover:text-[var(--text-heading)] transition-colors"
         >
           Cancel
         </button>

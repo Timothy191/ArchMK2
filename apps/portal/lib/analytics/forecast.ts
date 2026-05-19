@@ -18,13 +18,4 @@ export function linearForecast(data: number[], periods: number): number[] {
   return Array.from({ length: periods }, (_, i) => yMean + slope * (n + i - xMean));
 }
 
-/**
- * 7-day rolling average over a numeric array.
- */
-export function rollingAverage(data: number[], window = 7): (number | null)[] {
-  return data.map((_, i) => {
-    if (i < window - 1) return null;
-    const slice = data.slice(i - window + 1, i + 1);
-    return slice.reduce((a, b) => a + b, 0) / window;
-  });
-}
+

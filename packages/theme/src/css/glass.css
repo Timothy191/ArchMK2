@@ -32,37 +32,6 @@
   transition: all var(--transition-fast);
 }
 
-/* ── Dark Glass (forced) ── */
-
-.glass-dark {
-  background: var(--glass-dark-surface);
-  -webkit-backdrop-filter: blur(16px) saturate(160%);
-  backdrop-filter: blur(16px) saturate(160%);
-  border: 1px solid var(--glass-dark-border);
-  border-top-color: var(--glass-dark-border-top);
-  box-shadow: var(--glass-dark-shadow);
-  color: var(--text-on-dark-glass);
-}
-
-.glass-dark-hover:hover {
-  background: var(--glass-dark-surface-hover);
-  box-shadow:
-    0 12px 40px -8px rgba(0, 0, 0, 0.65),
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.14);
-  transform: translateY(-2px);
-}
-
-.glass-dark-muted {
-  color: var(--text-on-dark-glass-muted);
-}
-
-.glass-dark-accent {
-  border-top-color: var(--accent-blue);
-  box-shadow:
-    var(--glass-dark-shadow),
-    var(--shadow-glow-blue);
-}
-
 /* ── Glass Components ── */
 
 .glass-card {

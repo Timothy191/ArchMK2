@@ -1,4 +1,11 @@
 /**
+ * @deprecated Legacy fetch-based Groq AI service. Superseded by the
+ * LangGraph agent in `agent-graph.ts` which uses the Vercel AI SDK
+ * (`streamText`/`convertToModelMessages`) for provider-agnostic LLM calls
+ * with proper failover between Groq (primary) and OpenRouter (secondary).
+ *
+ * Kept for reference and test compatibility only. Do not import in new code.
+ *
  * Groq Multi-Key AI Service for Arch-Systems Portal
  * Uses 3 Groq API keys for rotation to increase free tier capacity
  * Each key: 30 req/min, 1440 req/day
@@ -30,7 +37,7 @@ const GROQ_CONFIG: ProviderConfig = {
   requestsPerDay: 1440,
 };
 
-export interface AIResponse {
+interface AIResponse {
   content: string;
   provider: string;
   keyIndex: number;
@@ -69,7 +76,7 @@ async function getRedisSafe() {
     const { getRedisClient } = await import("@repo/redis/client");
     return await getRedisClient();
   } catch (error) {
-    logError(error instanceof Error ? error : new Error(String(error)), { context: "redis_connection" }).catch(() => {});
+    logError(error instanceof Error ? error : new Error(String(error)), { context: "redis_connection" });
     return null;
   }
 }
@@ -103,7 +110,7 @@ async function isRateLimited(keyIndex: number): Promise<boolean> {
         rpdVal >= config.requestsPerDay
       );
     } catch (err) {
-      logError(err instanceof Error ? err : new Error(String(err)), { context: "redis_rate_limit_check" }).catch(() => {});
+      logError(err instanceof Error ? err : new Error(String(err)), { context: "redis_rate_limit_check" });
     }
   }
 
@@ -164,7 +171,7 @@ async function updateRateLimit(keyIndex: number, tokens: number): Promise<void> 
         await redis.expire(rpdKey, 86400);
       }
     } catch (err) {
-      logError(err instanceof Error ? err : new Error(String(err)), { context: "redis_rate_limit_update" }).catch(() => {});
+      logError(err instanceof Error ? err : new Error(String(err)), { context: "redis_rate_limit_update" });
     }
   }
 }
@@ -229,12 +236,12 @@ async function callProvider(
   const apiKey = getApiKey(keyIndex);
 
   if (!apiKey) {
-    logError(new Error(`No API key for Groq key ${keyIndex + 1}`), { context: "groq_missing_key", keyIndex }).catch(() => {});
+    logError(new Error(`No API key for Groq key ${keyIndex + 1}`), { context: "groq_missing_key", keyIndex });
     return null;
   }
 
   if (await isRateLimited(keyIndex)) {
-    logError(new Error(`Groq key ${keyIndex + 1} rate limited`), { context: "groq_rate_limited", keyIndex }).catch(() => {});
+    logError(new Error(`Groq key ${keyIndex + 1} rate limited`), { context: "groq_rate_limited", keyIndex });
     return null;
   }
 
@@ -257,7 +264,7 @@ async function callProvider(
 
     if (!response.ok) {
       const errorText = await response.text();
-      logError(new Error(`Groq key ${keyIndex + 1} API error: ${errorText}`), { context: "groq_api_error", keyIndex }).catch(() => {});
+      logError(new Error(`Groq key ${keyIndex + 1} API error: ${errorText}`), { context: "groq_api_error", keyIndex });
       return null;
     }
 
@@ -284,7 +291,7 @@ async function callProvider(
         : undefined,
     };
   } catch (error) {
-    logError(error instanceof Error ? error : new Error(String(error)), { context: "groq_request_failed", keyIndex }).catch(() => {});
+    logError(error instanceof Error ? error : new Error(String(error)), { context: "groq_request_failed", keyIndex });
     return null;
   }
 }
@@ -400,7 +407,7 @@ export async function* streamAIResponse(
       if (hasContent) return;
 
     } catch (error) {
-      logError(error instanceof Error ? error : new Error(String(error)), { context: "groq_streaming_error", keyIndex }).catch(() => {});
+      logError(error instanceof Error ? error : new Error(String(error)), { context: "groq_streaming_error", keyIndex });
       continue; // Try next key
     }
   }
@@ -504,7 +511,7 @@ export async function generateAIResponseWithSearch(
 
     return generateAIResponse(augmentedRequest, true);
   } catch (error) {
-    logError(error instanceof Error ? error : new Error(String(error)), { context: "search_augmentation_failed" }).catch(() => {});
+    logError(error instanceof Error ? error : new Error(String(error)), { context: "search_augmentation_failed" });
     // Fallback to LLM-only response
     const fallbackRequest: AIRequest = {
       messages: [
@@ -536,7 +543,7 @@ export async function generateAIResponseWithGoogleAI(
       token: results.subsequent_request_token,
     };
   } catch (error) {
-    logError(error instanceof Error ? error : new Error(String(error)), { context: "google_ai_mode_failed" }).catch(() => {});
+    logError(error instanceof Error ? error : new Error(String(error)), { context: "google_ai_mode_failed" });
     throw new APIError("Google AI Mode unavailable", {
       statusCode: 503,
       context: { provider: "google_ai", reason: "service_unavailable" },
@@ -615,52 +622,57 @@ export async function generateDepartmentAIResponse(
     // Department-specific search strategies
     switch (department) {
       case "engineering":
-      case "drilling":
+      case "drilling": {
         // Search patents and shopping for equipment
-        const [patentResults, shoppingResults] = await Promise.all([
+        const [patentResults, _shoppingResults] = await Promise.all([
           searchGoogle(query, { num: 3 }),
           searchGoogleShopping(query, { num: 3 }),
         ]);
         sources.push("patents", "shopping");
         context += formatSearchResults(patentResults);
         break;
+      }
 
-      case "safety":
+      case "safety": {
         // Search news and videos
-        const [newsResults, videoResults] = await Promise.all([
+        const [newsResults, _videoResults] = await Promise.all([
           searchGoogleNews(query, { num: 3 }),
           searchYouTube(query, { num: 3 }),
         ]);
         sources.push("news", "videos");
         context += formatSearchResults(newsResults);
         break;
+      }
 
-      case "training":
+      case "training": {
         // Search videos and scholar
-        const [trainingVideos, scholarResults] = await Promise.all([
+        const [trainingVideos, _scholarResults] = await Promise.all([
           searchYouTube(query, { num: 5 }),
           searchGoogle(query, { num: 3 }),
         ]);
         sources.push("videos", "scholar");
         context += formatSearchResults(trainingVideos);
         break;
+      }
 
       case "access-control":
-      case "control-room":
+      case "control-room": {
         // Search maps and local services
-        const [mapsResults, localResults] = await Promise.all([
+        const [mapsResults, _localResults] = await Promise.all([
           searchGoogleMaps(query, { num: 3 }),
           searchGoogle(query, { num: 3 }),
         ]);
         sources.push("maps", "local");
         context += formatSearchResults(mapsResults);
         break;
+      }
 
-      default:
+      default: {
         // General search
         const generalResults = await searchGoogle(query, { num: 5 });
         sources.push("search");
         context += formatSearchResults(generalResults);
+      }
     }
 
     // Augment with context if available
@@ -688,7 +700,7 @@ export async function generateDepartmentAIResponse(
     const response = await generateAIResponse(fallbackRequest, true);
     return { response: response.content, sources };
   } catch (error) {
-    logError(error instanceof Error ? error : new Error(String(error)), { context: "department_ai_failed" }).catch(() => {});
+    logError(error instanceof Error ? error : new Error(String(error)), { context: "department_ai_failed" });
     // Ultimate fallback
     const fallbackRequest: AIRequest = {
       messages: [{ role: "user", content: query }],

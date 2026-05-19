@@ -19,10 +19,10 @@ const MonitoringMap = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-[480px] bg-[#171717] border border-[#363636] rounded-xl flex items-center justify-center">
+      <div className="h-[480px] bg-[var(--bg-primary)] border border-[var(--border-emphasis)] rounded-xl flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 border-2 border-[#3ecf8e] border-t-transparent rounded-full animate-spin" />
-          <p className="text-[#898989] text-sm">Loading satellite map…</p>
+          <p className="text-[var(--text-secondary)] text-sm">Loading satellite map…</p>
         </div>
       </div>
     ),
@@ -79,19 +79,19 @@ export function SatelliteMonitoringDashboard({ defaultTab = "overview" }: Satell
       {/* Header */}
       <div className="flex items-start justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-semibold text-white">Advanced Satellite Monitoring</h1>
-          <p className="text-[#898989] text-sm mt-1">
+          <h1 className="text-2xl font-semibold text-[var(--text-heading)]">Advanced Satellite Monitoring</h1>
+          <p className="text-[var(--text-secondary)] text-sm mt-1">
             SAR / InSAR · Hyperspectral · High-Resolution Imagery · Copernicus / ESA
           </p>
         </div>
         <div className="flex flex-col items-end gap-1.5">
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#171717] border border-[#363636]">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[var(--bg-primary)] border border-[var(--border-emphasis)]">
             <span className="w-2 h-2 rounded-full bg-[#3ecf8e] animate-pulse" />
-            <span className="text-xs text-[#898989]">Sentinel-1 — 12-day cycle</span>
+            <span className="text-xs text-[var(--text-secondary)]">Sentinel-1 — 12-day cycle</span>
           </div>
-          <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-[#171717] border border-[#363636]">
-            <span className="text-[10px] text-[#898989]">S2 last pass:</span>
-            <span className="text-[10px] text-[#b4b4b4] font-medium">
+          <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-[var(--bg-primary)] border border-[var(--border-emphasis)]">
+            <span className="text-[10px] text-[var(--text-secondary)]">S2 last pass:</span>
+            <span className="text-[10px] text-[var(--text-muted)] font-medium">
               {new Date(Date.now() - 3 * 86400000).toLocaleDateString("en-ZA", { day: "2-digit", month: "short" })}
             </span>
           </div>
@@ -101,43 +101,43 @@ export function SatelliteMonitoringDashboard({ defaultTab = "overview" }: Satell
       {/* KPI strip */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <GlassCard>
-          <p className="text-[#898989] text-xs uppercase tracking-wide">Critical</p>
+          <p className="text-[var(--text-secondary)] text-xs uppercase tracking-wide">Critical</p>
           <p className={`text-2xl font-bold mt-1 ${critical > 0 ? "text-red-400" : "text-[#3ecf8e]"}`}>
             {critical}
           </p>
-          <p className="text-[#898989] text-xs mt-0.5">deformation alerts</p>
+          <p className="text-[var(--text-secondary)] text-xs mt-0.5">deformation alerts</p>
         </GlassCard>
         <GlassCard>
-          <p className="text-[#898989] text-xs uppercase tracking-wide">Moderate</p>
-          <p className={`text-2xl font-bold mt-1 ${moderate > 0 ? "text-orange-400" : "text-[#fafafa]"}`}>
+          <p className="text-[var(--text-secondary)] text-xs uppercase tracking-wide">Moderate</p>
+          <p className={`text-2xl font-bold mt-1 ${moderate > 0 ? "text-orange-400" : "text-[var(--text-heading)]"}`}>
             {moderate}
           </p>
-          <p className="text-[#898989] text-xs mt-0.5">zones monitored</p>
+          <p className="text-[var(--text-secondary)] text-xs mt-0.5">zones monitored</p>
         </GlassCard>
         <GlassCard>
-          <p className="text-[#898989] text-xs uppercase tracking-wide">Minor</p>
-          <p className={`text-2xl font-bold mt-1 ${minor > 0 ? "text-amber-400" : "text-[#fafafa]"}`}>
+          <p className="text-[var(--text-secondary)] text-xs uppercase tracking-wide">Minor</p>
+          <p className={`text-2xl font-bold mt-1 ${minor > 0 ? "text-amber-400" : "text-[var(--text-heading)]"}`}>
             {minor}
           </p>
-          <p className="text-[#898989] text-xs mt-0.5">within threshold</p>
+          <p className="text-[var(--text-secondary)] text-xs mt-0.5">within threshold</p>
         </GlassCard>
         <GlassCard>
-          <p className="text-[#898989] text-xs uppercase tracking-wide">Stable</p>
+          <p className="text-[var(--text-secondary)] text-xs uppercase tracking-wide">Stable</p>
           <p className="text-2xl font-bold text-[#3ecf8e] mt-1">{stable}</p>
-          <p className="text-[#898989] text-xs mt-0.5">no movement</p>
+          <p className="text-[var(--text-secondary)] text-xs mt-0.5">no movement</p>
         </GlassCard>
       </div>
 
       {/* Tab bar */}
-      <div className="flex flex-wrap gap-1 p-1 bg-[#171717] border border-[#363636] rounded-xl w-fit">
+      <div className="flex flex-wrap gap-1 p-1 bg-[var(--bg-primary)] border border-[var(--border-emphasis)] rounded-xl w-fit">
         {TABS.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors ${
               activeTab === tab.id
-                ? "bg-[#3ecf8e] text-[#171717] font-medium"
-                : "text-[#898989] hover:text-[#fafafa]"
+                ? "bg-[#3ecf8e] text-[var(--text-heading)] font-medium"
+                : "text-[var(--text-secondary)] hover:text-[var(--text-heading)]"
             }`}
           >
             <span>{tab.icon}</span>
@@ -162,37 +162,37 @@ export function SatelliteMonitoringDashboard({ defaultTab = "overview" }: Satell
           {selectedReading && (
             <GlassCard className="p-4">
               <div className="flex items-center justify-between mb-3">
-                <p className="text-base font-semibold text-[#fafafa]">
+                <p className="text-base font-semibold text-[var(--text-heading)]">
                   📍 {selectedReading.location}
                 </p>
                 <button
                   onClick={() => setSelectedReading(null)}
-                  className="text-[#898989] hover:text-[#fafafa] text-sm"
+                  className="text-[var(--text-secondary)] hover:text-[var(--text-heading)] text-sm"
                 >
                   ✕
                 </button>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
                 <div>
-                  <p className="text-[#898989] text-xs">Shift</p>
-                  <p className="text-[#fafafa] font-medium">
+                  <p className="text-[var(--text-secondary)] text-xs">Shift</p>
+                  <p className="text-[var(--text-heading)] font-medium">
                     {selectedReading.shiftMm > 0 ? "+" : ""}
                     {selectedReading.shiftMm} mm
                   </p>
                 </div>
                 <div>
-                  <p className="text-[#898989] text-xs">Trend</p>
-                  <p className="text-[#fafafa] font-medium capitalize">{selectedReading.trend}</p>
+                  <p className="text-[var(--text-secondary)] text-xs">Trend</p>
+                  <p className="text-[var(--text-heading)] font-medium capitalize">{selectedReading.trend}</p>
                 </div>
                 <div>
-                  <p className="text-[#898989] text-xs">Area</p>
-                  <p className="text-[#fafafa] font-medium capitalize">
+                  <p className="text-[var(--text-secondary)] text-xs">Area</p>
+                  <p className="text-[var(--text-heading)] font-medium capitalize">
                     {selectedReading.area.replace(/-/g, " ")}
                   </p>
                 </div>
                 <div>
-                  <p className="text-[#898989] text-xs">Sensor</p>
-                  <p className="text-[#fafafa] font-medium">{selectedReading.sensor}</p>
+                  <p className="text-[var(--text-secondary)] text-xs">Sensor</p>
+                  <p className="text-[var(--text-heading)] font-medium">{selectedReading.sensor}</p>
                 </div>
               </div>
             </GlassCard>
@@ -201,28 +201,28 @@ export function SatelliteMonitoringDashboard({ defaultTab = "overview" }: Satell
           {/* Overview bbox info */}
           {activeTab === "overview" && (
             <GlassCard className="p-4">
-              <p className="text-xs font-medium text-[#b4b4b4] uppercase tracking-wider mb-3">
+              <p className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider mb-3">
                 Site Bounding Box
               </p>
               <div className="grid grid-cols-2 gap-2 text-xs font-mono">
-                <div className="p-2 bg-[#0f0f0f] rounded-lg">
-                  <span className="text-[#898989]">W: </span>
-                  <span className="text-[#fafafa]">{DEFAULT_MINE_BBOX.west}°</span>
+                <div className="p-2 bg-[var(--bg-primary)] rounded-lg">
+                  <span className="text-[var(--text-secondary)]">W: </span>
+                  <span className="text-[var(--text-heading)]">{DEFAULT_MINE_BBOX.west}°</span>
                 </div>
-                <div className="p-2 bg-[#0f0f0f] rounded-lg">
-                  <span className="text-[#898989]">E: </span>
-                  <span className="text-[#fafafa]">{DEFAULT_MINE_BBOX.east}°</span>
+                <div className="p-2 bg-[var(--bg-primary)] rounded-lg">
+                  <span className="text-[var(--text-secondary)]">E: </span>
+                  <span className="text-[var(--text-heading)]">{DEFAULT_MINE_BBOX.east}°</span>
                 </div>
-                <div className="p-2 bg-[#0f0f0f] rounded-lg">
-                  <span className="text-[#898989]">S: </span>
-                  <span className="text-[#fafafa]">{DEFAULT_MINE_BBOX.south}°</span>
+                <div className="p-2 bg-[var(--bg-primary)] rounded-lg">
+                  <span className="text-[var(--text-secondary)]">S: </span>
+                  <span className="text-[var(--text-heading)]">{DEFAULT_MINE_BBOX.south}°</span>
                 </div>
-                <div className="p-2 bg-[#0f0f0f] rounded-lg">
-                  <span className="text-[#898989]">N: </span>
-                  <span className="text-[#fafafa]">{DEFAULT_MINE_BBOX.north}°</span>
+                <div className="p-2 bg-[var(--bg-primary)] rounded-lg">
+                  <span className="text-[var(--text-secondary)]">N: </span>
+                  <span className="text-[var(--text-heading)]">{DEFAULT_MINE_BBOX.north}°</span>
                 </div>
               </div>
-              <p className="text-[10px] text-[#898989] mt-2">
+              <p className="text-[10px] text-[var(--text-secondary)] mt-2">
                 Configure in{" "}
                 <code className="text-[#3ecf8e]">lib/monitoring-api.ts</code>{" "}
                 →{" "}
@@ -252,9 +252,9 @@ export function SatelliteMonitoringDashboard({ defaultTab = "overview" }: Satell
         </div>
       </div>
       {/* Geotechnical / ISO disclaimer */}
-      <div className="p-3 rounded-xl bg-[#0f0f0f] border border-[#242424] mt-2">
-        <p className="text-[10px] text-[#898989] leading-relaxed">
-          <strong className="text-[#b4b4b4]">Disclaimer:</strong> All InSAR displacement values are
+      <div className="p-3 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-default)] mt-2">
+        <p className="text-[10px] text-[var(--text-secondary)] leading-relaxed">
+          <strong className="text-[var(--text-muted)]">Disclaimer:</strong> All InSAR displacement values are
           Line-of-Sight (LOS) at Sentinel-1 incidence angle (~38–40°) and are indicative only.
           Vertical decomposition requires multi-geometry processing (StaMPS / MintPy / ISCE2).
           This tool does not replace certified geotechnical monitoring (SANS 10160 / ISO 17123).

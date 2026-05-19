@@ -114,7 +114,7 @@ describe("AddMachineForm", () => {
   });
 
   it("shows 'Adding...' while submitting", async () => {
-    let resolve: (v: { success: boolean }) => void;
+    let resolve: (_v: { success: boolean }) => void;
     addMachine.mockReturnValue(
       new Promise((r) => {
         resolve = r;

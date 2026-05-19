@@ -10,7 +10,10 @@ interface BreakdownsTableProps {
   showStatus: boolean;
 }
 
-export function BreakdownsTable({ breakdowns, showStatus }: BreakdownsTableProps) {
+export function BreakdownsTable({
+  breakdowns,
+  showStatus,
+}: BreakdownsTableProps) {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
@@ -43,18 +46,18 @@ export function BreakdownsTable({ breakdowns, showStatus }: BreakdownsTableProps
       {showStatus && (
         <div className="flex items-center gap-3">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#898989]" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-secondary)]" />
             <input
               placeholder="Search Fleet ID, Machine Type or Reason..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-3 py-2 rounded-lg bg-[#171717] border border-[#363636] text-[#fafafa] text-sm placeholder:text-[#555] focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/20 transition-colors"
+              className="w-full pl-10 pr-3 py-2 rounded-lg bg-[var(--bg-primary)] border border-[var(--border-emphasis)] text-[var(--text-heading)] text-sm placeholder:text-[#555] focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/20 transition-colors"
             />
           </div>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-3 py-2 rounded-lg bg-[#171717] border border-[#363636] text-[#fafafa] text-sm focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/20 transition-colors"
+            className="px-3 py-2 rounded-lg bg-[var(--bg-primary)] border border-[var(--border-emphasis)] text-[var(--text-heading)] text-sm focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/20 transition-colors"
           >
             <option value="">All Statuses</option>
             <option value="active">Active</option>
@@ -62,7 +65,7 @@ export function BreakdownsTable({ breakdowns, showStatus }: BreakdownsTableProps
           </select>
           <button
             onClick={() => router.refresh()}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#242424] border border-[#363636] text-[#898989] hover:text-[#fafafa] text-sm transition-colors"
+            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-emphasis)] text-[var(--text-secondary)] hover:text-[var(--text-heading)] text-sm transition-colors"
           >
             <RefreshCw className="w-4 h-4" />
             Refresh
@@ -71,40 +74,40 @@ export function BreakdownsTable({ breakdowns, showStatus }: BreakdownsTableProps
       )}
 
       {/* Table */}
-      <div className="rounded-xl border border-[#363636] bg-[#242424] overflow-hidden">
+      <div className="rounded-xl border border-[var(--border-emphasis)] bg-[var(--bg-tertiary)] overflow-hidden">
         {filtered.length === 0 ? (
-          <div className="p-8 text-center text-[#898989] text-sm">
+          <div className="p-8 text-center text-[var(--text-secondary)] text-sm">
             No records found.
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-[#363636]">
-                  <th className="text-left px-4 py-3 text-[#898989] text-xs uppercase tracking-wide font-medium">
+                <tr className="border-b border-[var(--border-emphasis)]">
+                  <th className="text-left px-4 py-3 text-[var(--text-secondary)] text-xs uppercase tracking-wide font-medium">
                     Fleet ID
                   </th>
-                  <th className="text-left px-4 py-3 text-[#898989] text-xs uppercase tracking-wide font-medium">
+                  <th className="text-left px-4 py-3 text-[var(--text-secondary)] text-xs uppercase tracking-wide font-medium">
                     Machine
                   </th>
-                  <th className="text-left px-4 py-3 text-[#898989] text-xs uppercase tracking-wide font-medium">
+                  <th className="text-left px-4 py-3 text-[var(--text-secondary)] text-xs uppercase tracking-wide font-medium">
                     Date In
                   </th>
-                  <th className="text-left px-4 py-3 text-[#898989] text-xs uppercase tracking-wide font-medium">
+                  <th className="text-left px-4 py-3 text-[var(--text-secondary)] text-xs uppercase tracking-wide font-medium">
                     Date Out
                   </th>
-                  <th className="text-left px-4 py-3 text-[#898989] text-xs uppercase tracking-wide font-medium">
+                  <th className="text-left px-4 py-3 text-[var(--text-secondary)] text-xs uppercase tracking-wide font-medium">
                     Duration
                   </th>
-                  <th className="text-left px-4 py-3 text-[#898989] text-xs uppercase tracking-wide font-medium">
+                  <th className="text-left px-4 py-3 text-[var(--text-secondary)] text-xs uppercase tracking-wide font-medium">
                     Reason
                   </th>
                   {showStatus && (
-                    <th className="text-left px-4 py-3 text-[#898989] text-xs uppercase tracking-wide font-medium">
+                    <th className="text-left px-4 py-3 text-[var(--text-secondary)] text-xs uppercase tracking-wide font-medium">
                       Status
                     </th>
                   )}
-                  <th className="text-left px-4 py-3 text-[#898989] text-xs uppercase tracking-wide font-medium">
+                  <th className="text-left px-4 py-3 text-[var(--text-secondary)] text-xs uppercase tracking-wide font-medium">
                     Record
                   </th>
                 </tr>
@@ -113,12 +116,15 @@ export function BreakdownsTable({ breakdowns, showStatus }: BreakdownsTableProps
                 {filtered.map((b) => (
                   <tr
                     key={b.id}
-                    className={`border-b border-[#363636] last:border-0 hover:bg-[#2e2e2e] transition-colors ${
+                    className={`border-b border-[var(--border-emphasis)] last:border-0 hover:bg-[var(--bg-tertiary)] transition-colors ${
                       b.missing_book_in ? "border-l-2 border-l-amber-500" : ""
                     }`}
                   >
                     <td className="px-4 py-3 text-violet-400 font-medium">
                       {b.fleet_id}
+                    </td>
+                    <td className="px-4 py-3 text-[var(--text-heading)]">
+                      {b.machine_name || b.fleet_id}
                     </td>
                     <td className="px-4 py-3 text-[#ccc]">{b.machine_type}</td>
                     <td className="px-4 py-3 text-[#ccc] whitespace-nowrap">
@@ -133,7 +139,7 @@ export function BreakdownsTable({ breakdowns, showStatus }: BreakdownsTableProps
                           {calcDuration(b)}
                         </span>
                       ) : (
-                        <span className="text-[#898989]">—</span>
+                        <span className="text-[var(--text-secondary)]">—</span>
                       )}
                     </td>
                     <td className="px-4 py-3 text-[#ccc] max-w-[200px] truncate">
@@ -158,7 +164,9 @@ export function BreakdownsTable({ breakdowns, showStatus }: BreakdownsTableProps
                           Missing Book-In
                         </span>
                       ) : (
-                        <span className="text-[#898989] text-xs">Normal</span>
+                        <span className="text-[var(--text-secondary)] text-xs">
+                          Normal
+                        </span>
                       )}
                     </td>
                   </tr>
@@ -170,7 +178,7 @@ export function BreakdownsTable({ breakdowns, showStatus }: BreakdownsTableProps
       </div>
 
       {/* Count */}
-      <div className="text-[#898989] text-xs">
+      <div className="text-[var(--text-secondary)] text-xs">
         {filtered.length} record{filtered.length !== 1 ? "s" : ""} found
       </div>
     </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import Map from "react-map-gl/maplibre";
 import DeckGL from "@deck.gl/react";
 import { ScatterplotLayer } from "@deck.gl/layers";
@@ -11,7 +11,7 @@ import {
   type DeformationReading,
 } from "@/lib/monitoring-api";
 
-export type MapLayerKey =
+type MapLayerKey =
   | "none"
   | "sar"
   | "optical"
@@ -26,7 +26,7 @@ interface MonitoringMapProps {
   deformationReadings?: DeformationReading[];
   activeLayer?: MapLayerKey;
   height?: string;
-  onReadingClick?: (reading: DeformationReading) => void;
+  onReadingClick?: (_reading: DeformationReading) => void;
   showLayerSwitcher?: boolean;
 }
 
@@ -45,33 +45,6 @@ const LAYER_OPTIONS: { key: MapLayerKey; label: string }[] = [
   { key: "geology", label: "Geology" },
   { key: "osm", label: "Streets" },
 ];
-
-function buildDeformationGeoJSON(readings: DeformationReading[]) {
-  return {
-    type: "FeatureCollection" as const,
-    features: readings.map((r) => ({
-      type: "Feature" as const,
-      geometry: { type: "Point" as const, coordinates: [r.lon, r.lat] },
-      properties: {
-        id: r.id,
-        location: r.location,
-        level: r.level,
-        shiftMm: r.shiftMm,
-        velocityMmPerMonth: r.velocityMmPerMonth,
-        sensor: r.sensor,
-        color: LEVEL_COLORS[r.level] ?? "#3ecf8e",
-        radius:
-          r.level === "critical"
-            ? 14
-            : r.level === "moderate"
-              ? 11
-              : r.level === "minor"
-                ? 9
-                : 7,
-      },
-    })),
-  };
-}
 
 export function MonitoringMap({
   center = { lat: -26.25, lon: 26.75 },
@@ -135,7 +108,7 @@ export function MonitoringMap({
 
   return (
     <div
-      className="relative rounded-xl overflow-hidden border border-[#363636]"
+      className="relative rounded-xl overflow-hidden border border-[var(--border-emphasis)]"
       style={{ height }}
     >
       <DeckGL
@@ -181,10 +154,10 @@ export function MonitoringMap({
             <button
               key={opt.key}
               onClick={() => setCurrentLayer(opt.key)}
-              className={`px-2.5 py-1 text-[11px] font-medium rounded-lg border transition-colors shadow-sm ${
+              className={`px-2.5 py-1 text-[11px] font-medium rounded-lg border transition-colors shadow-diffusion-sm ${
                 currentLayer === opt.key
-                  ? "bg-[#3ecf8e] text-[#171717] border-[#3ecf8e]"
-                  : "bg-[#0f0f0f]/85 text-[#b4b4b4] border-[#363636] hover:text-[#fafafa]"
+                  ? "bg-[#3ecf8e] text-[var(--text-heading)] border-[#3ecf8e]"
+                  : "bg-[var(--bg-primary)]/85 text-[var(--text-muted)] border-[var(--border-emphasis)] hover:text-[var(--text-heading)]"
               }`}
             >
               {opt.label}
@@ -194,20 +167,20 @@ export function MonitoringMap({
       )}
 
       {/* Active layer info badge */}
-      <div className="absolute bottom-8 right-2 px-2 py-1 bg-[#0f0f0f]/85 rounded-lg text-[10px] text-[#898989] max-w-[180px] text-right pointer-events-none">
-        <p className="text-[#b4b4b4] font-medium">{meta?.label}</p>
+      <div className="absolute bottom-8 right-2 px-2 py-1 bg-[var(--bg-primary)]/85 rounded-lg text-[10px] text-[var(--text-secondary)] max-w-[180px] text-right pointer-events-none">
+        <p className="text-[var(--text-muted)] font-medium">{meta?.label}</p>
         <p>{meta?.description}</p>
       </div>
 
       {/* Deformation legend */}
-      <div className="absolute bottom-2 left-2 flex items-center gap-2 px-2 py-1 bg-[#0f0f0f]/85 rounded-lg pointer-events-none">
+      <div className="absolute bottom-2 left-2 flex items-center gap-2 px-2 py-1 bg-[var(--bg-primary)]/85 rounded-lg pointer-events-none">
         {(["stable", "minor", "moderate", "critical"] as const).map((lvl) => (
           <div key={lvl} className="flex items-center gap-1">
             <span
               className="w-2.5 h-2.5 rounded-full inline-block"
               style={{ background: LEVEL_COLORS[lvl] }}
             />
-            <span className="text-[10px] text-[#898989] capitalize">{lvl}</span>
+            <span className="text-[10px] text-[var(--text-secondary)] capitalize">{lvl}</span>
           </div>
         ))}
       </div>

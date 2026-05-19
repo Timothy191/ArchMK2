@@ -17,7 +17,6 @@ export async function SafetyDashboard({ deptId }: { deptId: string }) {
 
   const todayCount = todayIncidents?.length ?? 0;
   const openCount = todayIncidents?.filter(i => i.status === "open").length ?? 0;
-  const lostTimeCount = todayIncidents?.filter(i => i.incident_type === "lost-time").length ?? 0;
   const injuredToday = todayIncidents?.reduce((sum, i) => sum + (i.injured_parties || 0), 0) ?? 0;
 
   // Last 30 days stats
@@ -65,7 +64,7 @@ export async function SafetyDashboard({ deptId }: { deptId: string }) {
       {/* KPI Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <GlassCard>
-          <p className="text-[#898989] text-xs uppercase tracking-wide">LTI-Free Days</p>
+          <p className="text-[var(--text-secondary)] text-xs uppercase tracking-wide">LTI-Free Days</p>
           <p className="text-2xl font-medium text-[#3ecf8e] mt-1">
             {ltiFreeDays}d
           </p>
@@ -76,31 +75,31 @@ export async function SafetyDashboard({ deptId }: { deptId: string }) {
           )}
         </GlassCard>
         <GlassCard>
-          <p className="text-[#898989] text-xs uppercase tracking-wide">Incident-Free Days (30d)</p>
+          <p className="text-[var(--text-secondary)] text-xs uppercase tracking-wide">Incident-Free Days (30d)</p>
           <p className="text-2xl font-medium text-emerald-400 mt-1">
             {incidentFreeDays}d
           </p>
-          <p className="text-[#898989] text-xs mt-1">
+          <p className="text-[var(--text-secondary)] text-xs mt-1">
             out of 30
           </p>
         </GlassCard>
         <GlassCard>
-          <p className="text-[#898989] text-xs uppercase tracking-wide">Open Incidents</p>
+          <p className="text-[var(--text-secondary)] text-xs uppercase tracking-wide">Open Incidents</p>
           <p className="text-2xl font-medium text-amber-400 mt-1">
             {openCount}
           </p>
           {todayCount > 0 && (
-            <p className="text-[#898989] text-xs mt-1">
+            <p className="text-[var(--text-secondary)] text-xs mt-1">
               {todayCount} today
             </p>
           )}
         </GlassCard>
         <GlassCard>
-          <p className="text-[#898989] text-xs uppercase tracking-wide">Lost Time (30d)</p>
+          <p className="text-[var(--text-secondary)] text-xs uppercase tracking-wide">Lost Time (30d)</p>
           <p className="text-2xl font-medium text-red-400 mt-1">
             {monthlyLostTime}
           </p>
-          <p className="text-[#898989] text-xs mt-1">
+          <p className="text-[var(--text-secondary)] text-xs mt-1">
             {monthlyCount} total incidents
           </p>
         </GlassCard>
@@ -145,13 +144,13 @@ export async function SafetyDashboard({ deptId }: { deptId: string }) {
       <div className="flex flex-wrap gap-3">
         <a
           href={`/safety/daily-log`}
-          className="px-4 py-2 bg-[#3ecf8e] text-[#171717] font-medium rounded-lg hover:bg-[#35b37d] transition-colors text-sm"
+          className="px-4 py-2 bg-[#3ecf8e] text-[var(--text-heading)] font-medium rounded-lg hover:bg-[#35b37d] transition-colors text-sm"
         >
           + Log Daily Check
         </a>
         <a
           href={`/safety/reports`}
-          className="px-4 py-2 bg-[#171717] border border-[#363636] text-[#fafafa] font-medium rounded-lg hover:bg-[#242424] transition-colors text-sm"
+          className="px-4 py-2 bg-[var(--bg-primary)] border border-[var(--border-emphasis)] text-[var(--text-heading)] font-medium rounded-lg hover:bg-[var(--bg-tertiary)] transition-colors text-sm"
         >
           View Reports
         </a>
@@ -160,7 +159,7 @@ export async function SafetyDashboard({ deptId }: { deptId: string }) {
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <GlassCard>
-          <h3 className="text-sm font-medium text-[#fafafa] mb-3">Today's Incidents</h3>
+          <h3 className="text-sm font-medium text-[var(--text-heading)] mb-3">Today's Incidents</h3>
           {todayCount === 0 ? (
             <p className="text-[#3ecf8e] text-sm">
               No incidents reported today
@@ -169,11 +168,11 @@ export async function SafetyDashboard({ deptId }: { deptId: string }) {
             <div className="space-y-2">
               {todayIncidents?.map((inc) => (
                 <div key={inc.id} className="flex justify-between text-sm">
-                  <span className="text-[#b4b4b4]">{inc.incident_type.replace("-", " ")}</span>
+                  <span className="text-[var(--text-muted)]">{inc.incident_type.replace("-", " ")}</span>
                   <span className={`text-xs px-2 py-0.5 rounded-full ${
                     inc.status === "open" ? "text-amber-400 bg-amber-400/10" :
                     inc.status === "resolved" ? "text-[#3ecf8e] bg-[#3ecf8e]/10" :
-                    "text-[#898989] bg-[#898989]/10"
+                    "text-[var(--text-secondary)] bg-[var(--text-secondary)]/10"
                   }`}>
                     {inc.status}
                   </span>
@@ -184,23 +183,23 @@ export async function SafetyDashboard({ deptId }: { deptId: string }) {
         </GlassCard>
 
         <GlassCard>
-          <h3 className="text-sm font-medium text-[#fafafa] mb-3">30-Day Summary</h3>
+          <h3 className="text-sm font-medium text-[var(--text-heading)] mb-3">30-Day Summary</h3>
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <span className="text-[#b4b4b4]">Total incidents</span>
-              <span className="text-[#fafafa]">{monthlyCount}</span>
+              <span className="text-[var(--text-muted)]">Total incidents</span>
+              <span className="text-[var(--text-heading)]">{monthlyCount}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[#b4b4b4]">Near misses</span>
-              <span className="text-[#fafafa]">{monthlyIncidents?.filter(i => i.incident_type === "near-miss").length ?? 0}</span>
+              <span className="text-[var(--text-muted)]">Near misses</span>
+              <span className="text-[var(--text-heading)]">{monthlyIncidents?.filter(i => i.incident_type === "near-miss").length ?? 0}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[#b4b4b4]">Equipment damage</span>
-              <span className="text-[#fafafa]">{monthlyIncidents?.filter(i => i.incident_type === "equipment-damage").length ?? 0}</span>
+              <span className="text-[var(--text-muted)]">Equipment damage</span>
+              <span className="text-[var(--text-heading)]">{monthlyIncidents?.filter(i => i.incident_type === "equipment-damage").length ?? 0}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[#b4b4b4]">Injured parties (today)</span>
-              <span className={injuredToday > 0 ? "text-red-400" : "text-[#fafafa]"}>
+              <span className="text-[var(--text-muted)]">Injured parties (today)</span>
+              <span className={injuredToday > 0 ? "text-red-400" : "text-[var(--text-heading)]"}>
                 {injuredToday}
               </span>
             </div>

@@ -118,7 +118,7 @@ function OperationCard({
                 ? "bg-emerald-400"
                 : isInProgress
                 ? "bg-amber-400 animate-pulse"
-                : "bg-[#898989]"
+                : "bg-[var(--text-secondary)]"
             }`}
           />
 
@@ -129,7 +129,7 @@ function OperationCard({
             </p>
             <div className="flex items-center gap-3 mt-0.5 text-xs text-[var(--text-muted)]">
               <span>{operation.operator?.full_name || "No Operator"}</span>
-              <span className="text-[#363636]">|</span>
+              <span className="text-[var(--border-emphasis)]">|</span>
               <span>{operation.site?.name || "No Site"}</span>
             </div>
           </div>
@@ -149,11 +149,11 @@ function OperationCard({
             )}
             {binFactor > 0 && (
               <>
-                <span className="text-[#363636]">|</span>
+                <span className="text-[var(--border-emphasis)]">|</span>
                 <span className="text-[var(--accent-cyan)] text-xs">
                   {materialBCM.toFixed(1)} BCM
                 </span>
-                <span className="text-[#363636]">|</span>
+                <span className="text-[var(--border-emphasis)]">|</span>
                 <span className="text-amber-400 text-xs">
                   {bcmPerHour.toFixed(1)} BCM/h
                 </span>

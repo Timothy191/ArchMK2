@@ -37,7 +37,7 @@ export function ExportButton({ filename, rows }: ExportButtonProps) {
     <button
       onClick={handleExport}
       disabled={rows.length === 0}
-      className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/70 border border-black/[0.08] text-[var(--text-body)] text-sm font-medium hover:bg-white/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed min-h-[44px]"
+      className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/70 border border-[var(--border-default)] text-[var(--text-body)] text-sm font-medium hover:bg-white/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed min-h-[44px]"
     >
       <Download className="w-4 h-4" />
       Export CSV

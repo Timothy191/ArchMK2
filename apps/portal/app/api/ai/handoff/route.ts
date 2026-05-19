@@ -26,7 +26,7 @@ export async function POST(req: Request) {
 
     return Response.json({ content: result.text });
   } catch (error) {
-    logError(error instanceof Error ? error : new Error(String(error)), { context: "shift_handoff" }).catch(() => {});
+    logError(error instanceof Error ? error : new Error(String(error)), { context: "shift_handoff" });
     return new Response(
       JSON.stringify({ error: "Failed to generate shift handoff report" }),
       { status: 500, headers: { "Content-Type": "application/json" } },

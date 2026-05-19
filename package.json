@@ -10,7 +10,7 @@
     "lint:root": "eslint . --max-warnings 0 --ignore-pattern apps --ignore-pattern packages",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,md}\"",
-    "quality": "turbo run //#quality && pnpm deps:lint && pnpm knip",
+    "quality": "turbo run lint type-check test lint:tokens lint:css //#lint-root //#format-check && pnpm deps:lint && pnpm knip",
     "ui": "pnpm --filter @repo/ui ui",
     "test": "turbo run test",
     "test:e2e": "playwright test",
@@ -21,7 +21,7 @@
     "knip:fix": "knip --fix",
     "md:lint": "markdownlint \"**/*.md\" --ignore node_modules --ignore .turbo --ignore '**/node_modules' --ignore '**/.next' --ignore '**/dist'",
     "md:fix": "markdownlint \"**/*.md\" --fix --ignore node_modules --ignore .turbo --ignore '**/node_modules' --ignore '**/.next' --ignore '**/dist'",
-    "size": "bundlesize",
+    "commitlint": "commitlint --edit",
     "deploy:local": "bash scripts/deploy-local.sh",
     "fresh-start": "bash scripts/deploy-local.sh --clean",
     "monitor": "bash scripts/monitor-hud.sh",
@@ -31,20 +31,27 @@
     "prepare": "husky"
   },
   "lint-staged": {
-    "*.{js,ts,tsx}": "eslint --fix"
+    "*.{js,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,css,mjs,yaml,yml}": "prettier --write",
+    "*": "secretlint --secretlintrc-path .secretlintrc.json"
   },
   "devDependencies": {
+    "@commitlint/cli": "^21.0.1",
+    "@commitlint/config-conventional": "^21.0.1",
     "@playwright/test": "^1.60.0",
     "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
-    "@repo/errors": "workspace:*",
+    "@secretlint/secretlint-rule-preset-recommend": "^13.0.2",
     "husky": "^9.1.7",
-    "lint-staged": "^17.0.4",
-    "prettier": "catalog:",
-    "supabase": "catalog:",
-    "bundlesize": "^0.18.0",
     "knip": "^5.45.0",
+    "lint-staged": "^17.0.4",
     "markdownlint-cli": "^0.41.0",
+    "prettier": "catalog:",
+    "secretlint": "^13.0.2",
+    "supabase": "catalog:",
     "syncpack": "^13.0.4",
     "turbo": "^2.9.14"
   },
@@ -56,7 +63,5 @@
     "node": "20.17.0",
     "pnpm": "9.12.0"
   },
-  "dependencies": {
-    "@supabase/supabase-js": "^2.105.4"
-  }
+  "dependencies": {}
 }

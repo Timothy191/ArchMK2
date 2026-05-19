@@ -6,7 +6,7 @@ import { GlassCard } from "@repo/ui/GlassCard";
 import { Search, UserPlus, Edit2, Trash2 } from "lucide-react";
 import { Button } from "@repo/ui/components/ui/button";
 import { Badge } from "@repo/ui/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@repo/ui/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@repo/ui/components/ui/dialog";
 import { Input } from "@repo/ui/components/ui/input";
 import { logError } from "@/lib/errors/error-logger";
 
@@ -67,7 +67,7 @@ export function UsersTab() {
       .eq("id", editingEmployee.id);
 
     if (error) {
-      logError(new Error(error.message), { context: "users_tab_update_employee" }).catch(() => {});
+      logError(new Error(error.message), { context: "users_tab_update_employee" });
       return;
     }
 
@@ -221,7 +221,7 @@ function EditEmployeeForm({
 }: {
   employee: Employee | null;
   departments: any[];
-  onSubmit: (data: any) => void;
+  onSubmit: (_data: any) => void;
   onCancel: () => void;
 }) {
   const [role, setRole] = useState(employee?.role || "operator");

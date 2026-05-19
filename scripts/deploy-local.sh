@@ -400,17 +400,17 @@ else
 fi
 
 # ── Browser Redirection ───────────────────────────────────
-AUTO_LOGIN_URL="$LOGIN_URL?email=$DEFAULT_EMAIL&password=$DEFAULT_PASS"
-log "Opening browser to dashboard: $AUTO_LOGIN_URL"
+INTRO_URL="http://localhost:$PORT"
+log "Opening browser to intro page: $INTRO_URL"
 
 if command -v google-chrome > /dev/null 2>&1; then
-  google-chrome --new-window "$AUTO_LOGIN_URL" > /dev/null 2>&1 &
+  google-chrome --new-window "$INTRO_URL" > /dev/null 2>&1 &
 elif command -v xdg-open > /dev/null 2>&1; then
-  xdg-open "$AUTO_LOGIN_URL" > /dev/null 2>&1 &
+  xdg-open "$INTRO_URL" > /dev/null 2>&1 &
 elif command -v open > /dev/null 2>&1; then
-  open "$AUTO_LOGIN_URL"
+  open "$INTRO_URL"
 else
-  log "Please open $AUTO_LOGIN_URL in your browser manually."
+  log "Please open $INTRO_URL in your browser manually."
 fi
 
 log "Local deployment completed successfully!"

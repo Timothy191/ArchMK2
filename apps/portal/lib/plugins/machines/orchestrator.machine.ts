@@ -1,4 +1,4 @@
-import { setup, assign, type AnyActorRef, type SnapshotFrom } from "xstate";
+import { setup, assign, type SnapshotFrom } from "xstate";
 import { pluginMachine } from "./plugin.machine";
 import {
   OrchestratorContext,
@@ -33,7 +33,8 @@ function computeHealthReport(plugins: Map<string, PluginActor>): HealthReport {
 
   for (const [name, actor] of plugins.entries()) {
     const snapshot = actor.getSnapshot() as PluginSnapshot;
-    const state = snapshot.status === "active" ? (snapshot.value as string) : "idle";
+    const state =
+      snapshot.status === "active" ? (snapshot.value as string) : "idle";
     const context = snapshot.context as { error?: string };
 
     switch (state) {
@@ -146,7 +147,8 @@ export const orchestratorMachine = setup({
     allPluginsLoaded: ({ context }) => {
       for (const actor of context.plugins.values()) {
         const snapshot = actor.getSnapshot() as PluginSnapshot;
-        const state = snapshot.status === "active" ? (snapshot.value as string) : "idle";
+        const state =
+          snapshot.status === "active" ? (snapshot.value as string) : "idle";
         if (state === "idle" || state === "loading") {
           return false;
         }
@@ -192,6 +194,10 @@ export const orchestratorMachine = setup({
         "plugin.stateChanged": {
           actions: ["updateHealthReport"],
         },
+        UNLOAD_ALL: {
+          target: "idle",
+          actions: ["unloadAllPlugins"],
+        },
       },
     },
     active: {
@@ -226,4 +232,3 @@ export const orchestratorMachine = setup({
   },
 });
 
-export default orchestratorMachine;

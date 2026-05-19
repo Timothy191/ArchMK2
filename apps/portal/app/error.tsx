@@ -2,7 +2,13 @@
 
 import { useEffect } from "react";
 import { SecondaryButton } from "@repo/ui/SecondaryButton";
-import { isAppError, isValidationError, isAuthError, isNotFoundError } from "@repo/errors";
+import {
+  isAppError,
+  isValidationError,
+  isAuthError,
+  isNotFoundError,
+} from "@repo/errors";
+import { logError } from "@/lib/errors/error-logger";
 
 interface RootErrorProps {
   error: Error & { digest?: string };
@@ -47,17 +53,10 @@ function getErrorContext(error: Error): Record<string, unknown> | null {
 
 export default function RootError({ error, reset }: RootErrorProps) {
   useEffect(() => {
-    // Log error with structured data for monitoring
     if (isAppError(error)) {
-      console.error("[AppError]", {
-        code: error.code,
-        statusCode: error.statusCode,
-        message: error.message,
-        context: error.context,
-        cause: error.cause,
-      });
+      logError(error);
     } else {
-      console.error("[Error]", error);
+      logError(error instanceof Error ? error : new Error(String(error)));
     }
   }, [error]);
 
@@ -73,9 +72,7 @@ export default function RootError({ error, reset }: RootErrorProps) {
           <h1 className="text-3xl font-medium text-[var(--text-heading)]">
             {title}
           </h1>
-          <p className="text-[var(--text-muted)] text-sm">
-            {message}
-          </p>
+          <p className="text-[var(--text-muted)] text-sm">{message}</p>
         </div>
 
         {/* Show error code for AppErrors */}

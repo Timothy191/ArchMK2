@@ -74,7 +74,7 @@ export function ControlRoomActivityFeed({
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-medium text-[#fafafa]">Activity Feed</h2>
+        <h2 className="text-xl font-medium text-[var(--text-heading)]">Activity Feed</h2>
         <div className="flex items-center gap-2">
           {(["all", "insert", "update", "delete"] as const).map((f) => (
             <button
@@ -82,8 +82,8 @@ export function ControlRoomActivityFeed({
               onClick={() => setFilter(f)}
               className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
                 filter === f
-                  ? "bg-[#2e2e2e] text-[#fafafa] border border-[#3ecf8e]"
-                  : "bg-[#171717] text-[#898989] border border-[#363636] hover:text-[#fafafa]"
+                  ? "bg-[var(--bg-tertiary)] text-[var(--text-heading)] border border-[#3ecf8e]"
+                  : "bg-[var(--bg-primary)] text-[var(--text-secondary)] border border-[var(--border-emphasis)] hover:text-[var(--text-heading)]"
               }`}
             >
               {f === "all" ? "All" : f}
@@ -107,9 +107,9 @@ export function ControlRoomActivityFeed({
                           : "bg-red-400"
                     }`}
                   />
-                  <p className="text-[#fafafa] text-sm">{activity.message}</p>
+                  <p className="text-[var(--text-heading)] text-sm">{activity.message}</p>
                 </div>
-                <span className="text-[#898989] text-xs">
+                <span className="text-[var(--text-secondary)] text-xs">
                   {new Date(activity.timestamp).toLocaleTimeString()}
                 </span>
               </div>
@@ -118,7 +118,7 @@ export function ControlRoomActivityFeed({
 
           {activities.length === 0 && (
             <GlassCard>
-              <p className="text-[#898989] text-sm text-center py-8">
+              <p className="text-[var(--text-secondary)] text-sm text-center py-8">
                 Waiting for activity...
               </p>
             </GlassCard>

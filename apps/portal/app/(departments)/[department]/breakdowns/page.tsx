@@ -3,6 +3,7 @@ import { BreakdownsDashboard } from "@/features/departments/components/engineeri
 import type {
   Breakdown,
   BreakdownMetrics,
+  Machine,
 } from "@/features/departments/components/engineering/breakdowns";
 
 export default async function BreakdownsPage({
@@ -19,11 +20,19 @@ export default async function BreakdownsPage({
   // Fetch all non-deleted breakdowns
   const { data: breakdowns } = await supabase
     .from("breakdowns")
-    .select("*")
+    .select("*, machine_name")
     .eq("department_id", deptId)
     .is("deleted_at", null)
     .order("created_at", { ascending: false })
     .limit(200);
+
+  // Fetch active machines for the department
+  const { data: machines } = await supabase
+    .from("machines")
+    .select("id, name, machine_type, serial_number, active")
+    .eq("department_id", deptId)
+    .eq("active", true)
+    .order("name");
 
   // Compute metrics
   const allBreakdowns = (breakdowns ?? []) as Breakdown[];
@@ -59,6 +68,7 @@ export default async function BreakdownsPage({
       departmentId={deptId}
       breakdowns={allBreakdowns}
       metrics={metrics}
+      machines={(machines ?? []) as Machine[]}
     />
   );
 }

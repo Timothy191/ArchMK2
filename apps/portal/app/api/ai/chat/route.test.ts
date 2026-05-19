@@ -3,11 +3,15 @@
  */
 
 import { POST } from "./route";
-import { resetRateLimits } from "./limiter";
+import { resetRateLimits } from "@/lib/ai/rate-limiter";
 
 jest.mock("@repo/supabase/server", () => ({
   createServerSupabaseClient: jest.fn().mockResolvedValue({
-    auth: { getUser: jest.fn().mockResolvedValue({ data: { user: { id: "user-1" } }, error: null }) },
+    auth: {
+      getUser: jest
+        .fn()
+        .mockResolvedValue({ data: { user: { id: "user-1" } }, error: null }),
+    },
   }),
 }));
 
@@ -42,8 +46,11 @@ jest.mock("@/lib/ai/memory", () => ({
 }));
 
 const { streamText } = jest.requireMock("ai");
-const { createServerSupabaseClient } = jest.requireMock("@repo/supabase/server");
-const { storeMemory, retrieveRelevantMemories } = jest.requireMock("@/lib/ai/memory");
+const { createServerSupabaseClient } = jest.requireMock(
+  "@repo/supabase/server",
+);
+const { storeMemory, retrieveRelevantMemories } =
+  jest.requireMock("@/lib/ai/memory");
 
 describe("POST /api/ai/chat", () => {
   beforeEach(() => {
@@ -106,7 +113,7 @@ describe("POST /api/ai/chat", () => {
     const req = createRequest(body);
     const res = await POST(req);
     expect(res.status).toBe(429);
-    expect(await res.text()).toBe("Rate limited");
+    expect(await res.json()).toEqual({ error: "Rate limited" });
   });
 
   it("resets rate limit window after 60 seconds", async () => {
@@ -213,7 +220,9 @@ describe("POST /api/ai/chat", () => {
 
   it("stores and retrieves memories for user message", async () => {
     const req = createRequest({
-      messages: [{ id: "msg-1", role: "user", content: "Tell me about mining" }],
+      messages: [
+        { id: "msg-1", role: "user", content: "Tell me about mining" },
+      ],
       sessionId: "session-abc",
     });
 
@@ -243,7 +252,9 @@ describe("POST /api/ai/chat", () => {
   });
 
   it("continues when memory retrieval fails", async () => {
-    retrieveRelevantMemories.mockRejectedValue(new Error("Memory service down"));
+    retrieveRelevantMemories.mockRejectedValue(
+      new Error("Memory service down"),
+    );
 
     const req = createRequest({
       messages: [{ id: "msg-1", role: "user", content: "Hello" }],

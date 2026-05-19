@@ -1,16 +1,17 @@
-import { streamText, convertToModelMessages, stepCountIs } from "ai";
+"use server";
+
+/**
+ * AI Chat API — Graph-native agent orchestration.
+ *
+ * Nodes: authenticate → rateLimit → resolveContext → loadMemory → gatherContext → callLLM → output → (post-stream: saveMemory)
+ * Conditional edges: primary failure → retry with secondary provider.
+ */
+
 import { z } from "zod";
-import { models } from "@/lib/ai/providers";
-import { systemPrompts } from "@/lib/ai/prompts";
-import { aiTools } from "@/lib/ai/tools";
 import { createServerSupabaseClient } from "@repo/supabase/server";
-import {
-  storeMemory,
-  retrieveRelevantMemories,
-  formatMemoriesForContext,
-} from "@/lib/ai/memory";
 import { logError } from "@/lib/errors/error-logger";
-import { checkRateLimit } from "./limiter";
+import { createInitialAgentState } from "@/lib/ai/agent-state";
+import { runAgentGraph, finalizeAgentGraph } from "@/lib/ai/agent-graph";
 
 const ChatRequestSchema = z.object({
   messages: z
@@ -27,19 +28,14 @@ const ChatRequestSchema = z.object({
   sessionId: z.string().min(1).max(256).optional(),
 });
 
-
-
 function generateSessionId(): string {
   return `sess_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
 }
 
 export async function POST(req: Request) {
   const ip = req.headers.get("x-forwarded-for") ?? "unknown";
-  if (!checkRateLimit(ip)) {
-    return new Response("Rate limited", { status: 429 });
-  }
 
-  // Authenticate user
+  // Authenticate early so we have a userId for the graph
   const supabase = await createServerSupabaseClient();
   const {
     data: { user },
@@ -52,8 +48,6 @@ export async function POST(req: Request) {
       headers: { "Content-Type": "application/json" },
     });
   }
-
-  const userId = user.id;
 
   const body = await req.json();
   const parsed = ChatRequestSchema.safeParse(body);
@@ -68,135 +62,50 @@ export async function POST(req: Request) {
     );
   }
 
-  const { messages, context, sessionId: clientSessionId } = parsed.data;
+  const {
+    messages: rawMessages,
+    context,
+    sessionId: clientSessionId,
+  } = parsed.data;
   const sessionId = clientSessionId ?? generateSessionId();
 
-  // Get the latest user message for memory storage and retrieval
-  const latestUserMessage = [...messages]
-    .reverse()
-    .find((m) => m.role === "user");
+  // Normalize messages to satisfy UIMessage type (parts required)
+  const messages = rawMessages.map((m) => ({
+    ...m,
+    parts: m.parts ?? [],
+  }));
 
-  let memoryContext = "";
-
-  if (latestUserMessage) {
-    try {
-      // Store user message as episodic memory
-      await storeMemory({
-        sessionId,
-        userId,
-        content: `User: ${latestUserMessage.content}`,
-        memoryType: "episodic",
-        metadata: {
-          message_id: latestUserMessage.id,
-          role: "user",
-          ip,
-        },
-      });
-
-      // Retrieve relevant memories (same session + semantic facts)
-      const [sessionMemories, semanticMemories] = await Promise.all([
-        retrieveRelevantMemories({
-          userId,
-          query: latestUserMessage.content,
-          sessionId,
-          memoryType: "episodic",
-          limit: 10,
-          useHybridSearch: true,
-        }).catch((err) => {
-          logError(err instanceof Error ? err : new Error(String(err)), { context: "chat_session_memory_retrieval" }).catch(() => {});
-          return [];
-        }),
-        retrieveRelevantMemories({
-          userId,
-          query: latestUserMessage.content,
-          memoryType: "semantic",
-          limit: 5,
-          useHybridSearch: true,
-        }).catch((err) => {
-          logError(err instanceof Error ? err : new Error(String(err)), { context: "chat_semantic_memory_retrieval" }).catch(() => {});
-          return [];
-        }),
-      ]);
-
-      const combinedMemories = [...sessionMemories, ...semanticMemories]
-        .sort((a, b) => (b.combinedScore ?? 0) - (a.combinedScore ?? 0))
-        .slice(0, 10);
-
-      memoryContext = formatMemoriesForContext(combinedMemories);
-    } catch (err) {
-      logError(err instanceof Error ? err : new Error(String(err)), { context: "chat_memory_system" }).catch(() => {});
-      // Continue without memory if retrieval fails
-    }
-  }
-
-  const convertedMessages = await convertToModelMessages(
-    messages.map((m) => ({ ...m, parts: m.parts ?? [] })),
+  const initialState = createInitialAgentState(
+    user.id,
+    sessionId,
+    ip,
+    messages,
+    context,
   );
 
   try {
-    const result = streamText({
-      model: models.primary,
-      system: systemPrompts.chat(context, memoryContext),
-      messages: convertedMessages,
-      tools: aiTools,
-      stopWhen: stepCountIs(5),
-    });
+    const { response, finalState } = await runAgentGraph(initialState);
 
-    // Fire-and-forget: store assistant response when streaming completes
-    Promise.resolve(result.text)
-      .then(async (assistantText) => {
-        const text = typeof assistantText === "string" ? assistantText : "";
-        if (text.trim().length > 0) {
-          await storeMemory({
-            sessionId,
-            userId,
-            content: `Assistant: ${text}`,
-            memoryType: "episodic",
-            metadata: { role: "assistant", provider: "primary" },
-          });
-        }
-      })
-      .catch((err: unknown) => {
-        logError(err instanceof Error ? err : new Error(String(err)), { context: "chat_store_assistant_memory_primary" }).catch(() => {});
-      });
-
-    return result.toUIMessageStreamResponse();
-  } catch (error) {
-    logError(error instanceof Error ? error : new Error(String(error)), { context: "chat_primary_provider_failed" }).catch(() => {});
-
-    try {
-      const result = streamText({
-        model: models.secondary,
-        system: systemPrompts.chat(context, memoryContext),
-        messages: convertedMessages,
-        tools: aiTools,
-        stopWhen: stepCountIs(5),
-      });
-
-      Promise.resolve(result.text)
-        .then(async (assistantText) => {
-          const text = typeof assistantText === "string" ? assistantText : "";
-          if (text.trim().length > 0) {
-            await storeMemory({
-              sessionId,
-              userId,
-              content: `Assistant: ${text}`,
-              memoryType: "episodic",
-              metadata: { role: "assistant", provider: "secondary" },
-            });
-          }
-        })
-        .catch((err: unknown) => {
-          logError(err instanceof Error ? err : new Error(String(err)), { context: "chat_store_assistant_memory_secondary" }).catch(() => {});
+    // If we streamed successfully, queue memory finalization.
+    // In Vercel Edge, use waitUntil if available; otherwise the
+    // client should send the sessionId back on the next request
+    // and we'll save memory then (idempotent).
+    if (finalState.nextNode === "saveMemory") {
+      finalizeAgentGraph(finalState).catch((err: unknown) => {
+        logError(err instanceof Error ? err : new Error(String(err)), {
+          context: "chat_finalize_memory",
         });
-
-      return result.toUIMessageStreamResponse();
-    } catch (secondaryError) {
-      logError(secondaryError instanceof Error ? secondaryError : new Error(String(secondaryError)), { context: "chat_streaming_error" }).catch(() => {});
-      return new Response(
-        JSON.stringify({ error: "Failed to generate response" }),
-        { status: 500, headers: { "Content-Type": "application/json" } },
-      );
+      });
     }
+
+    return response;
+  } catch (error) {
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      context: "chat_agent_graph_unhandled",
+    });
+    return new Response(
+      JSON.stringify({ error: "Failed to process request" }),
+      { status: 500, headers: { "Content-Type": "application/json" } },
+    );
   }
 }

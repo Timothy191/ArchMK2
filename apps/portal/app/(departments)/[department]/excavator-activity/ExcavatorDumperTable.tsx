@@ -297,5 +297,4 @@ export function ExcavatorDumperTable({
   );
 }
 
-// Export the getAvailableDumpers helper for use in the form
-export { MATERIAL_TYPES };
+

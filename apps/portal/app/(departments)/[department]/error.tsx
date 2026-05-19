@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import Link from "next/link";
 import { SecondaryButton } from "@repo/ui/SecondaryButton";
 import { isAppError, isNotFoundError, isAuthError } from "@repo/errors";
+import { logError } from "@/lib/errors/error-logger";
 
 interface DepartmentErrorProps {
   error: Error & { digest?: string };
@@ -32,17 +33,15 @@ function getActionLink(error: Error): { href: string; label: string } {
   return { href: "/", label: "Back to Hub" };
 }
 
-export default function DepartmentError({ error, reset }: DepartmentErrorProps) {
+export default function DepartmentError({
+  error,
+  reset,
+}: DepartmentErrorProps) {
   useEffect(() => {
     if (isAppError(error)) {
-      console.error("[DepartmentError]", {
-        code: error.code,
-        statusCode: error.statusCode,
-        message: error.message,
-        context: error.context,
-      });
+      logError(error);
     } else {
-      console.error("[DepartmentError]", error);
+      logError(error instanceof Error ? error : new Error(String(error)));
     }
   }, [error]);
 
@@ -52,7 +51,9 @@ export default function DepartmentError({ error, reset }: DepartmentErrorProps) 
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-medium text-[var(--text-heading)]">{title}</h2>
+      <h2 className="text-2xl font-medium text-[var(--text-heading)]">
+        {title}
+      </h2>
       <p className="text-[var(--text-muted)] text-sm">{message}</p>
       {isAppError(error) && (
         <div className="text-xs text-[var(--text-muted)] font-mono">

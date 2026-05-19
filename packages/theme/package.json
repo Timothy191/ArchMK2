@@ -16,7 +16,6 @@
     "./motion": "./src/tokens/motion.ts"
   },
   "dependencies": {
-    "framer-motion": "catalog:",
     "lucide-react": "catalog:",
     "next-themes": "^0.4.6"
   },

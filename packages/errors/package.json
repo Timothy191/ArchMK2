@@ -19,9 +19,9 @@
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {
-    "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vercel": "^54.2.0"
   },
   "engines": {
     "node": ">=20.17.0"

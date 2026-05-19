@@ -50,13 +50,16 @@ export function UrgencyBar({
       >
         <Wrench className="w-4 h-4 shrink-0" />
         <span>
-          <AnimatedNumber value={breakdowns} duration={0.4} /> active
-          breakdown{breakdowns > 1 ? "s" : ""}
+          <AnimatedNumber value={breakdowns} duration={0.4} /> active breakdown
+          {breakdowns > 1 ? "s" : ""}
         </span>
       </Link>
     ),
     offlineMachines > 0 && (
-      <span key="offline" className="flex items-center gap-2 text-sm text-[var(--text-muted)]">
+      <span
+        key="offline"
+        className="flex items-center gap-2 text-sm text-[var(--text-muted)]"
+      >
         <Activity className="w-4 h-4 shrink-0" />
         <span>
           <AnimatedNumber value={offlineMachines} duration={0.4} /> machine
@@ -72,7 +75,7 @@ export function UrgencyBar({
         <span key={i} className="contents">
           {item}
           {i < items.length - 1 && (
-            <span className="w-px h-4 bg-black/[0.10] hidden sm:block" />
+            <span className="w-px h-4 bg-[var(--border-emphasis)] hidden sm:block" />
           )}
         </span>
       ))}

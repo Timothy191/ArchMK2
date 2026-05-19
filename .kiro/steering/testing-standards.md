@@ -9,7 +9,7 @@ fileMatchPattern: ["**/*.test.*", "**/*.spec.*", "e2e/**/*"]
 
 - Files: `*.test.ts` or `*.test.tsx` in `apps/portal/`
 - Run: `pnpm --filter portal test`
-- Single file: `pnpm --filter portal test -- --testPathPattern=<file>`
+- Single file: `pnpm --filter portal test -- --testPathPatterns=<file>`
 - Mock `@repo/supabase`, never `@supabase/supabase-js`
 - Test behavior, not implementation details
 - Use descriptive test names: `"should X when Y"`

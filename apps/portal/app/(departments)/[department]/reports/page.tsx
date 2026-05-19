@@ -206,7 +206,7 @@ export default async function ReportsPage({
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="border-b border-white/10">
+              <tr className="border-b border-[var(--border-default)]">
                 <th className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
                   Date
                 </th>

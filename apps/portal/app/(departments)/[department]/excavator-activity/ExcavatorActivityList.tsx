@@ -126,11 +126,11 @@ function ActivityCard({
             </p>
             <div className="flex items-center gap-3 mt-0.5 text-xs text-[var(--text-muted)]">
               <span>{activity.operator?.full_name || "No Operator"}</span>
-              <span className="text-[#363636]">|</span>
+              <span className="text-[var(--border-emphasis)]">|</span>
               <span>{activity.site?.name || "No Site"}</span>
               {activity.block_mined && (
                 <>
-                  <span className="text-[#363636]">|</span>
+                  <span className="text-[var(--border-emphasis)]">|</span>
                   <span className="text-amber-400">
                     Block {activity.block_mined.code}
                   </span>

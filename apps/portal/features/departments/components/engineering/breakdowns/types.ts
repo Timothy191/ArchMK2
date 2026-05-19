@@ -2,6 +2,7 @@ export interface Breakdown {
   id: string;
   department_id: string;
   fleet_id: string;
+  machine_name: string | null;
   machine_type: string;
   date_in: string;
   time_in: string;
@@ -27,6 +28,7 @@ export interface BreakdownMetrics {
 
 export interface CreateBreakdownInput {
   fleet_id: string;
+  machine_name?: string;
   machine_type: string;
   date_in: string;
   time_in: string;
@@ -46,6 +48,14 @@ export interface DirectCheckoutInput {
   repair_notes?: string;
   date_out: string;
   time_out: string;
+}
+
+export interface Machine {
+  id: string;
+  name: string;
+  machine_type: string;
+  serial_number: string | null;
+  active: boolean;
 }
 
 export const MACHINE_TYPES = [

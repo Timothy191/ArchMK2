@@ -77,7 +77,7 @@ export function ScadaPanel({ departmentId }: ScadaPanelProps) {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-medium text-[#fafafa]">SCADA Overview</h2>
+        <h2 className="text-xl font-medium text-[var(--text-heading)]">SCADA Overview</h2>
         <div className="flex items-center gap-3 text-sm">
           <span className="px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
             {activeCount} Online
@@ -89,7 +89,7 @@ export function ScadaPanel({ departmentId }: ScadaPanelProps) {
       </div>
 
       {loading && (
-        <p className="text-[#898989] text-sm">Loading machines...</p>
+        <p className="text-[var(--text-secondary)] text-sm">Loading machines...</p>
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -97,12 +97,12 @@ export function ScadaPanel({ departmentId }: ScadaPanelProps) {
           <GlassCard key={machine.id}>
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-[#fafafa] font-medium">{machine.name}</p>
-                <p className="text-[#898989] text-xs mt-0.5">
+                <p className="text-[var(--text-heading)] font-medium">{machine.name}</p>
+                <p className="text-[var(--text-secondary)] text-xs mt-0.5">
                   {machine.machine_type}
                 </p>
                 {machine.serial_number && (
-                  <p className="text-[#898989] text-xs">
+                  <p className="text-[var(--text-secondary)] text-xs">
                     SN: {machine.serial_number}
                   </p>
                 )}
@@ -122,7 +122,7 @@ export function ScadaPanel({ departmentId }: ScadaPanelProps) {
 
         {!loading && machines.length === 0 && (
           <GlassCard>
-            <p className="text-[#898989] text-sm text-center py-8">
+            <p className="text-[var(--text-secondary)] text-sm text-center py-8">
               No machines registered for this department.
             </p>
           </GlassCard>

@@ -59,6 +59,7 @@ yarn-error.log*
 .frontend.pid
 .portal.pid
 portal.log
+dev.log
 deploy.log
 
 # Supabase local state (synced from packages/database/migrations/ by deploy-local.sh)

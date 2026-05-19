@@ -19,28 +19,28 @@
 
   /* Background range — macOS system grays */
   /* ARCH PALETTE — macOS Ventura/Sonoma Light */
-  --arch0: #f5f5f7;  /* macOS base background */
-  --arch1: #ffffff;  /* elevated surface / card */
-  --arch2: #e8e8ed;  /* sunken / input bg */
-  --arch3: #d2d2d7;  /* pressed / deeply sunken */
+  --arch0: #f5f5f7; /* macOS base background */
+  --arch1: #ffffff; /* elevated surface / card */
+  --arch2: #e8e8ed; /* sunken / input bg */
+  --arch3: #d2d2d7; /* pressed / deeply sunken */
 
   /* Border range — hairline to emphasis */
-  --arch4: rgba(0, 0, 0, 0.06);   /* border subtle */
-  --arch5: rgba(0, 0, 0, 0.12);   /* border default */
-  --arch6: rgba(0, 0, 0, 0.20);   /* border emphasis */
-  --arch7: rgba(0, 0, 0, 0.30);   /* border strong */
+  --arch4: rgba(0, 0, 0, 0.06); /* border subtle */
+  --arch5: rgba(0, 0, 0, 0.12); /* border default */
+  --arch6: rgba(0, 0, 0, 0.2); /* border emphasis */
+  --arch7: rgba(0, 0, 0, 0.3); /* border strong */
 
   /* Text range — macOS type hierarchy */
-  --arch8: #a1a1a6;   /* muted / placeholder */
-  --arch9: #6e6e73;   /* secondary / caption */
-  --arch10: #3a3a3c;  /* body */
-  --arch11: #1d1d1f;  /* heading / primary */
+  --arch8: #a1a1a6; /* muted / placeholder */
+  --arch9: #6e6e73; /* secondary / caption */
+  --arch10: #3a3a3c; /* body */
+  --arch11: #1d1d1f; /* heading / primary */
 
   /* Aurora Accents — status colors (unchanged) */
-  --arch12: #ff3b30;  /* red — error / danger */
-  --arch13: #ff9f0a;  /* orange — warning */
-  --arch14: #34c759;  /* green — success */
-  --arch15: #007aff;  /* blue — macOS system blue / info */
+  --arch12: #ff3b30; /* red — error / danger */
+  --arch13: #ff9f0a; /* orange — warning */
+  --arch14: #34c759; /* green — success */
+  --arch15: #007aff; /* blue — macOS system blue / info */
 
   /* ═══════════════════════════════════════════════════════════════
        TIER 2 — SEMANTIC ALIASES
@@ -72,11 +72,11 @@
        @deprecated Use the canonical --accent-* tokens instead.
        Migration tracked in packages/theme/DECISIONS.md.
        ═══════════════════════════════════════════════════════════════ */
-  --accent-cyan: var(--arch15);    /* @deprecated → use --accent-blue */
-  --accent-indigo: var(--arch15);  /* @deprecated → use --accent-blue */
-  --accent-violet: var(--arch15);  /* @deprecated → use --accent-blue */
-  --accent-alert: var(--arch12);   /* @deprecated → use --accent-red */
-  --accent-amber: var(--arch13);   /* @deprecated → use --accent-orange */
+  --accent-cyan: var(--arch15); /* @deprecated → use --accent-blue */
+  --accent-indigo: var(--arch15); /* @deprecated → use --accent-blue */
+  --accent-violet: var(--arch15); /* @deprecated → use --accent-blue */
+  --accent-alert: var(--arch12); /* @deprecated → use --accent-red */
+  --accent-amber: var(--arch13); /* @deprecated → use --accent-orange */
   --accent-emerald: var(--arch14); /* @deprecated → use --accent-green */
 
   /* macOS traffic light colors */
@@ -87,33 +87,33 @@
   /* ═══════════════════════════════════════════════════════════════
        SHADCN/UI HSL VARIABLES — macOS Light
        ═══════════════════════════════════════════════════════════════ */
-  --background: 240 5% 96%;        /* #f5f5f7 */
-  --foreground: 240 6% 10%;        /* #1d1d1f */
-  --card: 0 0% 100%;               /* white */
+  --background: 240 5% 96%; /* #f5f5f7 */
+  --foreground: 240 6% 10%; /* #1d1d1f */
+  --card: 0 0% 100%; /* white */
   --card-foreground: 240 6% 10%;
   --popover: 0 0% 100%;
   --popover-foreground: 240 6% 10%;
-  --primary: 211 100% 50%;         /* #007aff macOS blue */
+  --primary: 211 100% 50%; /* #007aff macOS blue */
   --primary-foreground: 0 0% 100%;
-  --secondary: 240 5% 91%;         /* #e8e8ed */
+  --secondary: 240 5% 91%; /* #e8e8ed */
   --secondary-foreground: 240 6% 10%;
   --muted: 240 5% 91%;
-  --muted-foreground: 240 3% 44%;  /* #6e6e73 */
+  --muted-foreground: 240 3% 44%; /* #6e6e73 */
   --accent: 240 5% 91%;
   --accent-foreground: 240 6% 10%;
-  --destructive: 4 86% 58%;        /* #ff3b30 */
+  --destructive: 4 86% 58%; /* #ff3b30 */
   --destructive-foreground: 0 0% 100%;
-  --border: 240 6% 87%;            /* rgba-ish light border */
+  --border: 240 6% 87%; /* rgba-ish light border */
   --input: 240 5% 91%;
   --ring: 211 100% 50%;
   --radius: 0.75rem;
 
   /* Charts — macOS system colors */
-  --chart-1: 211 100% 50%;   /* blue */
-  --chart-2: 142 71% 45%;    /* green */
-  --chart-3: 37 100% 50%;    /* orange */
-  --chart-4: 4 86% 58%;      /* red */
-  --chart-5: 270 60% 55%;    /* purple */
+  --chart-1: 211 100% 50%; /* blue */
+  --chart-2: 142 71% 45%; /* green */
+  --chart-3: 37 100% 50%; /* orange */
+  --chart-4: 4 86% 58%; /* red */
+  --chart-5: 270 60% 55%; /* purple */
 
   /* ═══════════════════════════════════════════════════════════════
        TREMOR BRAND — macOS Light
@@ -144,7 +144,8 @@
   --glass-surface-strong: rgba(255, 255, 255, 0.92);
   --glass-border: rgba(0, 0, 0, 0.08);
   --glass-border-top: rgba(255, 255, 255, 0.95);
-  --glass-shadow: 0 8px 32px -8px rgba(0, 0, 0, 0.12),
+  --glass-shadow:
+    0 8px 32px -8px rgba(0, 0, 0, 0.12),
     inset 0 1px 0 0 rgba(255, 255, 255, 0.8);
   --text-on-glass: rgba(10, 10, 20, 0.92);
   --text-on-glass-muted: rgba(10, 10, 20, 0.55);
@@ -156,29 +157,29 @@
   /* ═══════════════════════════════════════════════════════════════
        DIFFUSION SHADOW SYSTEM — Light mode (softer)
        ═══════════════════════════════════════════════════════════════ */
-  --shadow-diffusion-sm: 0 2px 8px -2px rgba(0, 0, 0, 0.08),
-    0 1px 2px -1px rgba(0, 0, 0, 0.04);
-  --shadow-diffusion-md: 0 4px 16px -4px rgba(0, 0, 0, 0.10),
-    0 2px 4px -2px rgba(0, 0, 0, 0.06);
-  --shadow-diffusion-lg: 0 8px 32px -8px rgba(0, 0, 0, 0.14),
-    0 4px 8px -4px rgba(0, 0, 0, 0.08);
-  --shadow-diffusion-xl: 0 16px 48px -12px rgba(0, 0, 0, 0.18),
-    0 8px 16px -8px rgba(0, 0, 0, 0.10);
-  --shadow-card: 0 2px 12px -2px rgba(0, 0, 0, 0.10),
-    0 1px 0 0 rgba(255, 255, 255, 0.95),
+  --shadow-diffusion-sm:
+    0 2px 8px -2px rgba(0, 0, 0, 0.08), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+  --shadow-diffusion-md:
+    0 4px 16px -4px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+  --shadow-diffusion-lg:
+    0 8px 32px -8px rgba(0, 0, 0, 0.14), 0 4px 8px -4px rgba(0, 0, 0, 0.08);
+  --shadow-diffusion-xl:
+    0 16px 48px -12px rgba(0, 0, 0, 0.18), 0 8px 16px -8px rgba(0, 0, 0, 0.1);
+  --shadow-card:
+    0 2px 12px -2px rgba(0, 0, 0, 0.1), 0 1px 0 0 rgba(255, 255, 255, 0.95),
     inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
-  --shadow-card-hover: 0 6px 24px -4px rgba(0, 0, 0, 0.14),
-    0 1px 0 0 rgba(255, 255, 255, 0.95);
-  --shadow-elevated: 0 12px 40px -8px rgba(0, 0, 0, 0.18),
-    0 2px 8px -4px rgba(0, 0, 0, 0.10);
-  --shadow-glow-blue: 0 0 20px rgba(0, 122, 255, 0.18),
-    0 0 60px rgba(0, 122, 255, 0.06);
-  --shadow-glow-primary: 0 0 20px rgba(0, 122, 255, 0.18),
-    0 0 60px rgba(0, 122, 255, 0.06);
-  --shadow-glow-electric: 0 0 24px rgba(0, 122, 255, 0.28),
-    0 0 80px rgba(0, 122, 255, 0.10);
-  --shadow-window: 0 20px 60px -10px rgba(0, 0, 0, 0.20),
-    0 8px 24px -8px rgba(0, 0, 0, 0.12),
+  --shadow-card-hover:
+    0 6px 24px -4px rgba(0, 0, 0, 0.14), 0 1px 0 0 rgba(255, 255, 255, 0.95);
+  --shadow-elevated:
+    0 12px 40px -8px rgba(0, 0, 0, 0.18), 0 2px 8px -4px rgba(0, 0, 0, 0.1);
+  --shadow-glow-blue:
+    0 0 20px rgba(0, 122, 255, 0.18), 0 0 60px rgba(0, 122, 255, 0.06);
+  --shadow-glow-primary:
+    0 0 20px rgba(0, 122, 255, 0.18), 0 0 60px rgba(0, 122, 255, 0.06);
+  --shadow-glow-electric:
+    0 0 24px rgba(0, 122, 255, 0.28), 0 0 80px rgba(0, 122, 255, 0.1);
+  --shadow-window:
+    0 20px 60px -10px rgba(0, 0, 0, 0.2), 0 8px 24px -8px rgba(0, 0, 0, 0.12),
     inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
 
   /* ═══════════════════════════════════════════════════════════════
@@ -218,88 +219,4 @@
   color-scheme: light;
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   DARK MODE — [data-theme="dark"]
-   ─────────────────────────────────────────────────────────────────────────
-   Overrides TIER 1 PRIMITIVES only. Semantic aliases auto-update because
-   they reference --arch* vars above. Components require zero changes.
-
-   Activation: set data-theme="dark" on <html>. The existing localStorage
-   toggle in apps/portal/app/layout.tsx adds the "dark" class; Phase 3
-   wiring switches it to set data-theme="dark" attribute instead.
-
-   Status: SCAFFOLDED — dark mode is disabled by default until the
-   operational requirement changes. See packages/theme/DECISIONS.md #003.
-   ═══════════════════════════════════════════════════════════════════════════ */
-[data-theme="dark"] {
-  color-scheme: dark;
-
-  /* ── TIER 1 PRIMITIVES — dark scale (inverted grays) ──────────────────── */
-  --arch0: #1c1c1e;   /* dark base background */
-  --arch1: #2c2c2e;   /* elevated dark surface */
-  --arch2: #3a3a3c;   /* sunken / input bg */
-  --arch3: #48484a;   /* pressed / deeply sunken */
-
-  /* Borders — inverted (light on dark) */
-  --arch4: rgba(255, 255, 255, 0.08);  /* border subtle */
-  --arch5: rgba(255, 255, 255, 0.14);  /* border default */
-  --arch6: rgba(255, 255, 255, 0.22);  /* border emphasis */
-  --arch7: rgba(255, 255, 255, 0.32);  /* border strong */
-
-  /* Text range — inverted (light text on dark) */
-  --arch8: #636366;   /* muted / placeholder */
-  --arch9: #8e8e93;   /* secondary / caption */
-  --arch10: #ebebf0;  /* body */
-  --arch11: #f5f5f7;  /* heading / primary */
-
-  /* Accents — macOS dark mode system colors (slightly adjusted brightness) */
-  --arch12: #ff453a;  /* red — error / danger */
-  --arch13: #ff9f0a;  /* orange — warning */
-  --arch14: #32d74b;  /* green — success */
-  --arch15: #0a84ff;  /* blue — macOS dark system blue */
-
-  /* ── GLASS TOKENS — dark frosted glass ────────────────────────────────── */
-  --glass-surface: rgba(28, 28, 30, 0.72);
-  --glass-surface-hover: rgba(44, 44, 46, 0.88);
-  --glass-surface-strong: rgba(58, 58, 60, 0.96);
-  --glass-border: rgba(255, 255, 255, 0.10);
-  --glass-border-top: rgba(255, 255, 255, 0.18);
-  --glass-shadow: 0 4px 16px -4px rgba(0, 0, 0, 0.50), 0 1px 0 0 rgba(255, 255, 255, 0.08);
-  --text-on-glass: rgba(245, 245, 247, 0.92);
-  --text-on-glass-muted: rgba(245, 245, 247, 0.55);
-
-  /* Dark glass variants */
-  --glass-dark-surface: rgba(28, 28, 30, 0.80);
-  --glass-dark-surface-hover: rgba(44, 44, 46, 0.92);
-  --glass-dark-border: rgba(255, 255, 255, 0.10);
-  --glass-dark-border-top: rgba(255, 255, 255, 0.18);
-  --glass-dark-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.60), 0 1px 0 0 rgba(255, 255, 255, 0.08);
-  --text-on-dark-glass: rgba(245, 245, 247, 0.92);
-  --text-on-dark-glass-muted: rgba(245, 245, 247, 0.55);
-
-  /* ── VIBRANCY — dark sidebar ───────────────────────────────────────────── */
-  --vibrancy-surface: rgba(28, 28, 30, 0.82);
-  --vibrancy-border: rgba(255, 255, 255, 0.06);
-
-  /* ── SHADOWS — darker, heavier depth for dark mode ────────────────────── */
-  --shadow-diffusion-sm: 0 2px 8px -2px rgba(0, 0, 0, 0.40), 0 1px 2px -1px rgba(0, 0, 0, 0.24);
-  --shadow-diffusion-md: 0 4px 16px -4px rgba(0, 0, 0, 0.48), 0 2px 4px -2px rgba(0, 0, 0, 0.28);
-  --shadow-diffusion-lg: 0 8px 32px -8px rgba(0, 0, 0, 0.56), 0 4px 8px -4px rgba(0, 0, 0, 0.32);
-  --shadow-diffusion-xl: 0 16px 48px -12px rgba(0, 0, 0, 0.64), 0 8px 16px -8px rgba(0, 0, 0, 0.40);
-  --shadow-card: 0 2px 12px -2px rgba(0, 0, 0, 0.50), 0 1px 0 0 rgba(255, 255, 255, 0.08), inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
-  --shadow-card-hover: 0 6px 24px -4px rgba(0, 0, 0, 0.60), 0 1px 0 0 rgba(255, 255, 255, 0.08);
-  --shadow-elevated: 0 12px 40px -8px rgba(0, 0, 0, 0.64), 0 2px 8px -4px rgba(0, 0, 0, 0.40);
-  --shadow-window: 0 20px 60px -10px rgba(0, 0, 0, 0.70), 0 8px 24px -8px rgba(0, 0, 0, 0.48), inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
-  --shadow-glow-blue: 0 0 20px rgba(10, 132, 255, 0.30), 0 0 60px rgba(10, 132, 255, 0.10);
-  --shadow-glow-primary: 0 0 20px rgba(10, 132, 255, 0.30), 0 0 60px rgba(10, 132, 255, 0.10);
-  --shadow-glow-electric: 0 0 24px rgba(10, 132, 255, 0.40), 0 0 80px rgba(10, 132, 255, 0.14);
-
-  /* ── macOS TRAFFIC LIGHTS — dark mode variants ─────────────────────────── */
-  --mac-red: #ff5f57;
-  --mac-yellow: #febc2e;
-  --mac-green: #28c840;
-
-  /* ── WAVE TOKENS — dark mode (more visible) ────────────────────────────── */
-  --wave-intensity: 0.4;
-  --wave-opacity: 0.15;
-}
+/* Light-only. No dark mode. */

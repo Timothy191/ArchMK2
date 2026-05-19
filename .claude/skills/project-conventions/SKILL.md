@@ -1,6 +1,6 @@
 ---
 name: project-conventions
-description: Project-specific conventions for the Arch Systems monorepo. Load before any implementation or review task in this codebase. Enforces monorepo, Next.js App Router, Supabase, and dark-mode design system rules.
+description: Project-specific conventions for the Arch Systems monorepo. Load before any implementation or review task in this codebase. Enforces monorepo, Next.js App Router, Supabase, and light-only macOS design system rules.
 user-invocable: false
 disable-model-invocation: false
 ---
@@ -11,7 +11,7 @@ disable-model-invocation: false
 
 - Package manager: pnpm 9.12.0+
 - Workspace protocol: all internal deps use `"workspace:*"`
-- Path alias in portal: `~/*` maps to `./*`
+- Path alias in portal: `~/*` maps to `apps/portal/*`, `@/*` also maps to `apps/portal/*`
 - Run commands from root unless testing: `pnpm dev` (portal only), `pnpm build`, `pnpm lint`
 
 ## Next.js / React
@@ -30,15 +30,18 @@ disable-model-invocation: false
 - RLS must be enabled on every new table
 - Service role keys must never appear in client-side code or `NEXT_PUBLIC_*` vars
 
-## Design System (Dark Mode, Supabase-inspired)
+## Design System (Light-only, macOS Sonoma)
 
-- **Backgrounds**: `#0f0f0f` (page), `#171717` (cards/inputs), `#242424` (hover/card)
-- **Borders**: `#363636` / `#393939` — NEVER use box-shadows for depth
-- **Brand greens**: `#3ecf8e` (accent border, active), `#00c573` (links, hover)
-- **Text**: `#fafafa` (primary), `#b4b4b4` (secondary), `#898989` (muted)
-- **Typography**: Inter font, `font-weight: 400` default, `500` for nav/buttons, NEVER `700`/`bold`
-- **Class merging**: always use `cn()` from `@repo/ui/lib/utils` — NEVER `clsx` or `tailwind-merge` directly
-- **Forbidden patterns**: `bg-white/5`, `border-white/10`, `text-white/50`, `text-white/70`, `font-semibold`, `font-bold`, `shadow-*`, `box-shadow`
+- **Theme**: Light-only. Dark mode does not exist. `#f5f5f7` page background, `#ffffff` card surfaces.
+- **Glass pattern**: `bg-white/70 backdrop-blur-xl border border-black/[0.08]` for elevated surfaces.
+- **Shadows**: Forbidden: raw `shadow-sm/md/lg`, raw `box-shadow` CSS. Use named tokens only: `shadow-diffusion-sm/md/lg/xl`, `shadow-card`, `shadow-card-hover`, `shadow-elevated`, `shadow-window`.
+- **Borders**: `rgba(0, 0, 0, 0.06)` subtle, `rgba(0, 0, 0, 0.12)` default, `rgba(0, 0, 0, 0.2)` emphasis.
+- **Accent**: `#007aff` macOS system blue (`--accent-blue`). Never use green accents.
+- **Text**: `#1d1d1f` heading, `#3a3a3c` body, `#6e6e73` secondary, `#a1a1a6` muted.
+- **Typography**: Inter + Outfit for UI, JetBrains Mono for tabular data. `font-weight: 400` default, `500` for nav/buttons. Never `700`/`bold`.
+- **Class merging**: Always use `cn()` from `@repo/ui/lib/utils` — never `clsx` or `tailwind-merge` directly.
+- **Animation**: Only `opacity`, `transform`, `background-color`, `border-color`, `color`. Never layout properties. Easing `cubic-bezier(0.16, 1, 0.3, 1)`.
+- **Forbidden patterns**: `shadow-*` Tailwind tokens, `font-semibold`, `font-bold`, dark-specific hex colors (`#171717`, `#363636`, `#fafafa`), `border-emerald-*`, `text-emerald-*`.
 
 ## UI Components
 
@@ -48,13 +51,13 @@ disable-model-invocation: false
 
 ### Shared Components (@repo/ui)
 
-- `GlassCard` — Card container with dark theme styling and optional hover animation
+- `GlassCard` — Card container with glass styling (`bg-white/70 backdrop-blur-xl border border-black/[0.08] shadow-card`)
 - `DepartmentLayout` — Sidebar + content layout for department pages
 - `KPI` / `KPICard` — Summary metric cards with color variants (`default`, `green`, `amber`, `red`, `blue`)
 - `KPIGrid` — Responsive grid layout for KPI cards (2, 3, or 4 columns)
 - `PageHeader` — Title + date header used across all department tab pages
 - `ShiftToggle` — Day/night shift selector with `getCurrentShift()` helper
-- `FormFields` — `FormInput`, `FormSelect`, `FormTextarea`, `SubmitButton` with consistent dark theme styling
+- `FormFields` — `FormInput`, `FormSelect`, `FormTextarea`, `SubmitButton` with consistent glass styling
 - `Input` — Styled text input
 - `SecondaryButton` — Secondary action button
 

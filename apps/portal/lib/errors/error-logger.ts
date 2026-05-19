@@ -5,17 +5,17 @@
  * and generic errors. Integrates with monitoring systems.
  */
 
-import { isAppError, AppError } from "@repo/errors";
+import { isAppError } from "@repo/errors";
 
 /**
  * Error severity levels
  */
-export type ErrorSeverity = "debug" | "info" | "warn" | "error" | "fatal";
+type ErrorSeverity = "debug" | "info" | "warn" | "error" | "fatal";
 
 /**
  * Structured error log entry
  */
-export interface ErrorLogEntry {
+interface ErrorLogEntry {
   timestamp: string;
   severity: ErrorSeverity;
   code?: string;
@@ -137,8 +137,12 @@ export async function logError(
     [key: string]: unknown;
   }
 ): Promise<void> {
-  const entry = createErrorLog(error, context);
-  await sendToMonitoring(entry);
+  try {
+    const entry = createErrorLog(error, context);
+    await sendToMonitoring(entry);
+  } catch {
+    // logError must never throw - monitoring failures should not crash the app
+  }
 }
 
 /**

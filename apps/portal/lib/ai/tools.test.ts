@@ -8,7 +8,9 @@ jest.mock("@repo/supabase/server", () => ({
   createServerSupabaseClient: jest.fn(),
 }));
 
-const { createServerSupabaseClient } = jest.requireMock("@repo/supabase/server");
+const { createServerSupabaseClient } = jest.requireMock(
+  "@repo/supabase/server",
+);
 
 function buildSupabase(deptData: unknown, tableData: unknown = []) {
   const mockSingle = jest.fn().mockResolvedValue({ data: deptData });
@@ -16,7 +18,11 @@ function buildSupabase(deptData: unknown, tableData: unknown = []) {
 
   const fromMock = jest.fn().mockImplementation((table: string) => {
     if (table === "departments") {
-      return { select: jest.fn().mockReturnValue({ eq: jest.fn().mockReturnValue({ single: mockSingle }) }) };
+      return {
+        select: jest.fn().mockReturnValue({
+          eq: jest.fn().mockReturnValue({ single: mockSingle }),
+        }),
+      };
     }
     return {
       select: jest.fn().mockReturnValue({
@@ -41,7 +47,7 @@ describe("aiTools export", () => {
 
   it("each tool has a description", () => {
     expect(typeof machineStatusTool.description).toBe("string");
-    expect(machineStatusTool.description.length).toBeGreaterThan(0);
+    expect(machineStatusTool.description!.length).toBeGreaterThan(0);
     expect(typeof shiftLogsTool.description).toBe("string");
     expect(typeof delaysTool.description).toBe("string");
   });
@@ -64,14 +70,25 @@ describe("machineStatusTool.execute", () => {
 
   it("returns error when department not found", async () => {
     buildSupabase(null);
-    const result = await machineStatusTool.execute!({ departmentName: "unknown" });
+    const result = await (machineStatusTool.execute as Function)({
+      departmentName: "unknown",
+    });
     expect(result).toEqual({ error: "Department not found" });
   });
 
   it("queries machines for found department", async () => {
-    const { fromMock } = buildSupabase({ id: "dept-1" }, [{ id: "m-1", name: "Excavator A", machine_type: "excavator", active: true }]);
+    const { fromMock } = buildSupabase({ id: "dept-1" }, [
+      {
+        id: "m-1",
+        name: "Excavator A",
+        machine_type: "excavator",
+        active: true,
+      },
+    ]);
 
-    const result = await machineStatusTool.execute!({ departmentName: "drilling" });
+    const result = await (machineStatusTool.execute as Function)({
+      departmentName: "drilling",
+    });
 
     expect(fromMock).toHaveBeenCalledWith("departments");
     expect(fromMock).toHaveBeenCalledWith("machines");
@@ -84,20 +101,25 @@ describe("shiftLogsTool.execute", () => {
 
   it("returns error when department not found", async () => {
     buildSupabase(null);
-    const result = await shiftLogsTool.execute!({ departmentName: "unknown" });
+    const result = await (shiftLogsTool.execute as Function)({
+      departmentName: "unknown",
+    });
     expect(result).toEqual({ error: "Department not found" });
   });
 
   it("queries daily_logs for found department", async () => {
     const { fromMock } = buildSupabase({ id: "dept-1" }, []);
-    await shiftLogsTool.execute!({ departmentName: "drilling" });
+    await (shiftLogsTool.execute as Function)({ departmentName: "drilling" });
     expect(fromMock).toHaveBeenCalledWith("departments");
     expect(fromMock).toHaveBeenCalledWith("daily_logs");
   });
 
   it("accepts optional date parameter", async () => {
     buildSupabase({ id: "dept-1" }, []);
-    const result = await shiftLogsTool.execute!({ departmentName: "drilling", date: "2026-05-17" });
+    const result = await (shiftLogsTool.execute as Function)({
+      departmentName: "drilling",
+      date: "2026-05-17",
+    });
     expect(result).toHaveProperty("logs");
   });
 });
@@ -107,20 +129,25 @@ describe("delaysTool.execute", () => {
 
   it("returns error when department not found", async () => {
     buildSupabase(null);
-    const result = await delaysTool.execute!({ departmentName: "unknown" });
+    const result = await (delaysTool.execute as Function)({
+      departmentName: "unknown",
+    });
     expect(result).toEqual({ error: "Department not found" });
   });
 
   it("queries operational_delays for found department", async () => {
     const { fromMock } = buildSupabase({ id: "dept-1" }, []);
-    await delaysTool.execute!({ departmentName: "drilling" });
+    await (delaysTool.execute as Function)({ departmentName: "drilling" });
     expect(fromMock).toHaveBeenCalledWith("departments");
     expect(fromMock).toHaveBeenCalledWith("operational_delays");
   });
 
   it("accepts optional date parameter", async () => {
     buildSupabase({ id: "dept-1" }, []);
-    const result = await delaysTool.execute!({ departmentName: "drilling", date: "2026-05-17" });
+    const result = await (delaysTool.execute as Function)({
+      departmentName: "drilling",
+      date: "2026-05-17",
+    });
     expect(result).toHaveProperty("delays");
   });
 });

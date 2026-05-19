@@ -259,7 +259,7 @@ export const DB_RELATIONSHIPS = [
 ]
 
 // Role hierarchy
-export const ROLES = [
+const ROLES = [
   { id: "admin", name: "Admin", description: "Full system access", color: "#ef4444" },
   { id: "supervisor", name: "Supervisor", description: "Multi-department access", color: "#f59e0b" },
   { id: "control_room_operator", name: "Control Room Operator", description: "Control room + read access", color: "#60a5fa" },

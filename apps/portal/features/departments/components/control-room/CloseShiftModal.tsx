@@ -48,7 +48,14 @@ export function CloseShiftModal({
   const validate = useCallback(async () => {
     setState({ type: "validating" });
     try {
-      const result = await closeShift(departmentId, date, shiftType, "", "", true);
+      const result = await closeShift(
+        departmentId,
+        date,
+        shiftType,
+        "",
+        "",
+        true,
+      );
       if (result.errors && result.errors.length > 0) {
         setState({ type: "has_errors", errors: result.errors });
       } else {
@@ -90,8 +97,7 @@ export function CloseShiftModal({
     } catch (err) {
       setState({
         type: "api_error",
-        message:
-          err instanceof Error ? err.message : "Verification failed",
+        message: err instanceof Error ? err.message : "Verification failed",
       });
     }
   };
@@ -123,8 +129,7 @@ export function CloseShiftModal({
     } catch (err) {
       setState({
         type: "api_error",
-        message:
-          err instanceof Error ? err.message : "Failed to close shift",
+        message: err instanceof Error ? err.message : "Failed to close shift",
       });
     }
   };
@@ -132,7 +137,7 @@ export function CloseShiftModal({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--arch11)]/60 backdrop-blur-sm">
       <GlassCard className="w-full max-w-md mx-4">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-medium text-[var(--text-heading)]">
@@ -226,7 +231,7 @@ export function CloseShiftModal({
               type="button"
               onClick={handleVerify}
               disabled={state.type === "verifying" || !employeeCode || !pin}
-              className="w-full flex items-center justify-center gap-2 bg-[var(--accent-blue)] hover:bg-[var(--accent-blue)]/90 disabled:bg-[var(--bg-tertiary)] disabled:text-[var(--text-muted)] text-white font-medium py-2.5 rounded-lg transition-colors"
+              className="w-full flex items-center justify-center gap-2 bg-[var(--accent-blue)] hover:bg-[var(--accent-blue)]/90 disabled:bg-[var(--bg-tertiary)] disabled:text-[var(--text-muted)] text-[var(--bg-secondary)] font-medium py-2.5 rounded-lg transition-colors"
             >
               {state.type === "verifying" ? (
                 <>
@@ -248,19 +253,17 @@ export function CloseShiftModal({
             <div className="flex items-center gap-3 p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
               <UserCheck className="w-5 h-5 text-emerald-400 shrink-0" />
               <div>
-                <p className="text-emerald-300 text-sm font-medium">
+                <p className="text-emerald-700 text-sm font-medium">
                   Approved by
                 </p>
-                <p className="text-emerald-200 text-sm">
-                  {state.employeeName}
-                </p>
+                <p className="text-emerald-600 text-sm">{state.employeeName}</p>
               </div>
             </div>
 
             <button
               type="button"
               onClick={handleCloseShift}
-              className="w-full flex items-center justify-center gap-2 bg-[var(--accent-blue)] hover:bg-[var(--accent-blue)]/90 text-white font-medium py-2.5 rounded-lg transition-colors"
+              className="w-full flex items-center justify-center gap-2 bg-[var(--accent-blue)] hover:bg-[var(--accent-blue)]/90 text-[var(--bg-secondary)] font-medium py-2.5 rounded-lg transition-colors"
             >
               <Lock className="w-4 h-4" />
               Close Shift & Lock
@@ -279,9 +282,7 @@ export function CloseShiftModal({
         {state.type === "submitting" && (
           <div className="flex flex-col items-center py-8 gap-3">
             <Loader2 className="w-8 h-8 text-[var(--accent-blue)] animate-spin" />
-            <p className="text-[var(--text-muted)] text-sm">
-              Closing shift...
-            </p>
+            <p className="text-[var(--text-muted)] text-sm">Closing shift...</p>
           </div>
         )}
 

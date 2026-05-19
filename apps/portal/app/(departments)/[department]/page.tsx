@@ -2,33 +2,93 @@ import dynamic from "next/dynamic";
 import { GlassCard } from "@repo/ui/GlassCard";
 import { getDepartmentContext } from "~/lib/dept-context";
 
-const ScadaPanel = dynamic(() => import("@/features/departments/components/control-room/ScadaPanel").then(mod => mod.ScadaPanel), {
-  loading: () => <div className="h-[400px] animate-pulse bg-white/5 rounded-2xl" />,
-});
+const ScadaPanel = dynamic(
+  () =>
+    import("@/features/departments/components/control-room/ScadaPanel").then(
+      (mod) => mod.ScadaPanel,
+    ),
+  {
+    loading: () => (
+      <div className="h-[400px] animate-pulse bg-[var(--bg-tertiary)] rounded-2xl" />
+    ),
+  },
+);
 
-const AlertPanel = dynamic(() => import("@/features/departments/components/control-room/AlertPanel").then(mod => mod.AlertPanel), {
-  loading: () => <div className="h-[400px] animate-pulse bg-white/5 rounded-2xl" />,
-});
+const AlertPanel = dynamic(
+  () =>
+    import("@/features/departments/components/control-room/AlertPanel").then(
+      (mod) => mod.AlertPanel,
+    ),
+  {
+    loading: () => (
+      <div className="h-[400px] animate-pulse bg-[var(--bg-tertiary)] rounded-2xl" />
+    ),
+  },
+);
 
-const ControlRoomActivityFeed = dynamic(() => import("@/features/departments/components/control-room/ControlRoomActivityFeed").then(mod => mod.ControlRoomActivityFeed), {
-  loading: () => <div className="h-[400px] animate-pulse bg-white/5 rounded-2xl" />,
-});
+const ControlRoomActivityFeed = dynamic(
+  () =>
+    import(
+      "@/features/departments/components/control-room/ControlRoomActivityFeed"
+    ).then((mod) => mod.ControlRoomActivityFeed),
+  {
+    loading: () => (
+      <div className="h-[400px] animate-pulse bg-[var(--bg-tertiary)] rounded-2xl" />
+    ),
+  },
+);
 
-const WeatherWidget = dynamic(() => import("@/components/weather/WeatherWidget").then(mod => mod.WeatherWidget), {
-  loading: () => <div className="h-32 animate-pulse bg-white/5 rounded-2xl" />,
-});
+const WeatherWidget = dynamic(
+  () =>
+    import("@/components/weather/WeatherWidget").then(
+      (mod) => mod.WeatherWidget,
+    ),
+  {
+    loading: () => (
+      <div className="h-32 animate-pulse bg-[var(--bg-tertiary)] rounded-2xl" />
+    ),
+  },
+);
 
-const ShiftCoverageWidget = dynamic(() => import("@/features/departments/components/control-room/ShiftCoverageWidget").then(mod => mod.ShiftCoverageWidget), {
-  loading: () => <div className="h-64 animate-pulse bg-white/5 rounded-2xl" />,
-});
+const ShiftCoverageWidget = dynamic(
+  () =>
+    import(
+      "@/features/departments/components/control-room/ShiftCoverageWidget"
+    ).then((mod) => mod.ShiftCoverageWidget),
+  {
+    loading: () => (
+      <div className="h-64 animate-pulse bg-[var(--bg-tertiary)] rounded-2xl" />
+    ),
+  },
+);
 
-const SatelliteMonitoringDashboard = dynamic(() => import("@/features/departments/components/satellite/SatelliteMonitoringDashboard").then(mod => mod.SatelliteMonitoringDashboard), {
-  loading: () => <div className="fixed inset-0 flex items-center justify-center bg-black"><div className="w-8 h-8 border-2 border-cyan-500/20 border-t-cyan-500 rounded-full animate-spin" /></div>,
-});
+const SatelliteMonitoringDashboard = dynamic(
+  () =>
+    import(
+      "@/features/departments/components/satellite/SatelliteMonitoringDashboard"
+    ).then((mod) => mod.SatelliteMonitoringDashboard),
+  {
+    loading: () => (
+      <div className="fixed inset-0 flex items-center justify-center bg-[var(--bg-primary)]">
+        <div className="w-8 h-8 border-2 border-cyan-500/20 border-t-cyan-500 rounded-full animate-spin" />
+      </div>
+    ),
+  },
+);
 
-const SafetyDashboard = dynamic(() => import("@/features/departments/components/safety/SafetyDashboard").then(mod => mod.SafetyDashboard), {
-  loading: () => <div className="fixed inset-0 flex items-center justify-center bg-black"><div className="w-8 h-8 border-2 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin" /></div>,
-});
+const SafetyDashboard = dynamic(
+  () =>
+    import("@/features/departments/components/safety/SafetyDashboard").then(
+      (mod) => mod.SafetyDashboard,
+    ),
+  {
+    loading: () => (
+      <div className="fixed inset-0 flex items-center justify-center bg-[var(--bg-primary)]">
+        <div className="w-8 h-8 border-2 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin" />
+      </div>
+    ),
+  },
+);
 
 export default async function DepartmentDashboard({
   params,
@@ -36,7 +96,7 @@ export default async function DepartmentDashboard({
   params: Promise<{ department: string }>;
 }) {
   const { department: deptSlug } = await params;
-  const { dept, deptId, supabase, today } = await getDepartmentContext({
+  const { deptId, supabase, today } = await getDepartmentContext({
     department: deptSlug,
   });
 
@@ -104,7 +164,7 @@ export default async function DepartmentDashboard({
       {isControlRoom ? (
         <>
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-medium text-white">
+            <h2 className="text-2xl font-medium text-[var(--text-heading)]">
               Control Room Dashboard
             </h2>
             <p className="text-[var(--text-muted)] text-sm">
@@ -199,33 +259,39 @@ export default async function DepartmentDashboard({
         </>
       ) : (
         <>
-          <h2 className="text-2xl font-medium text-white">Dashboard</h2>
+          <h2 className="text-2xl font-medium text-[var(--text-heading)]">
+            Dashboard
+          </h2>
 
           {/* Weather for drilling department - critical for outdoor operations */}
           {deptSlug === "drilling" && <WeatherWidget variant="full" />}
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <GlassCard>
-              <p className="text-white/50 text-sm">Today&apos;s Log</p>
-              <p className="text-2xl font-bold text-white mt-1">
+              <p className="text-[var(--text-muted)] text-sm">
+                Today&apos;s Log
+              </p>
+              <p className="text-2xl font-bold text-[var(--text-heading)] mt-1">
                 {shiftCount > 0
                   ? `${shiftCount} shift${shiftCount > 1 ? "s" : ""} logged`
                   : "Not logged"}
               </p>
               {latestShift && (
-                <p className="text-white/40 text-xs mt-1">
+                <p className="text-[var(--text-muted)] text-xs mt-1">
                   Latest: {latestShift}
                 </p>
               )}
             </GlassCard>
             <GlassCard>
-              <p className="text-white/50 text-sm">Active Machines</p>
-              <p className="text-2xl font-bold text-white mt-1">
+              <p className="text-[var(--text-muted)] text-sm">
+                Active Machines
+              </p>
+              <p className="text-2xl font-bold text-[var(--text-heading)] mt-1">
                 {machineCount ?? 0}
               </p>
             </GlassCard>
             <GlassCard>
-              <p className="text-white/50 text-sm">Status</p>
+              <p className="text-[var(--text-muted)] text-sm">Status</p>
               <p className="text-2xl font-bold text-emerald-400 mt-1">
                 {machineCount && machineCount > 0
                   ? `${machineCount} machine${machineCount > 1 ? "s" : ""} active`

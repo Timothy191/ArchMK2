@@ -13,83 +13,58 @@ import {
   useTheme as useNextThemes,
 } from "next-themes";
 
-type Theme = "light" | "dark" | "system";
-
 interface ArchThemeContextType {
-  theme: Theme;
-  resolvedTheme: "light" | "dark";
-  setTheme: (theme: Theme) => void;
+  theme: "light";
+  resolvedTheme: "light";
+  setTheme: () => void;
   toggleTheme: () => void;
 }
 
 const ArchThemeContext = createContext<ArchThemeContextType | undefined>(
-  undefined
+  undefined,
 );
 
 /**
- * ArchThemeProvider — Unified theme provider for the Arch System.
+ * ArchThemeProvider — Light-only theme provider for the Arch System.
  *
- * Wraps next-themes for SSR-safe theme resolution (localStorage, system preference).
- * Adds Arch-specific behavior:
- * - Syncs `data-theme` attribute alongside `class` for CSS variable switching
- * - Adds `theme-transitioning` class for 350ms smooth transitions
- * - Updates `<meta name="theme-color">` for mobile browsers
+ * Defaults to light. No dark mode support.
+ * Syncs `data-theme="light"` and updates `<meta name="theme-color">`.
  */
 export function ArchThemeProvider({ children }: { children: ReactNode }) {
   return (
-    <NextThemesProvider attribute="class" defaultTheme="dark" enableSystem>
+    <NextThemesProvider
+      attribute="class"
+      defaultTheme="light"
+      enableSystem={false}
+    >
       <ArchThemeInner>{children}</ArchThemeInner>
     </NextThemesProvider>
   );
 }
 
 function ArchThemeInner({ children }: { children: ReactNode }) {
-  const { theme, setTheme, resolvedTheme: nextResolved } = useNextThemes();
-  const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">("dark");
+  const { theme, setTheme } = useNextThemes();
 
-  // Sync data-theme attribute and transition class
   useEffect(() => {
-    if (!nextResolved) return;
     const root = document.documentElement;
-    const isDark = nextResolved === "dark";
+    root.setAttribute("data-theme", "light");
 
-    setResolvedTheme(isDark ? "dark" : "light");
-
-    // Sync data-theme for CSS variable switching
-    root.setAttribute("data-theme", isDark ? "dark" : "light");
-
-    // Update mobile theme-color
     const metaThemeColor = document.querySelector('meta[name="theme-color"]');
     if (metaThemeColor) {
-      metaThemeColor.setAttribute(
-        "content",
-        isDark ? "#050508" : "#f0f0f5"
-      );
+      metaThemeColor.setAttribute("content", "#f5f5f7");
     }
-
-    // Add transition class briefly during theme changes
-    root.classList.add("theme-transitioning");
-    const timeout = setTimeout(() => {
-      root.classList.remove("theme-transitioning");
-    }, 350);
-
-    return () => {
-      clearTimeout(timeout);
-      root.classList.remove("theme-transitioning");
-    };
-  }, [nextResolved]);
+  }, []);
 
   const toggleTheme = useCallback(() => {
-    const current = resolvedTheme;
-    setTheme(current === "dark" ? "light" : "dark");
-  }, [resolvedTheme, setTheme]);
+    // No-op: light only
+  }, []);
 
   return (
     <ArchThemeContext.Provider
       value={{
-        theme: (theme as Theme) || "system",
-        resolvedTheme,
-        setTheme: setTheme as (t: Theme) => void,
+        theme: "light",
+        resolvedTheme: "light",
+        setTheme: () => {},
         toggleTheme,
       }}
     >

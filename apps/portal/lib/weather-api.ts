@@ -56,17 +56,44 @@ const weatherCodes: Record<number, { description: string; icon: string }> = {
   99: { description: "Thunderstorm with heavy hail", icon: "⛈️" },
 };
 
-export function getWeatherDescription(code: number): { description: string; icon: string } {
+export function getWeatherDescription(code: number): {
+  description: string;
+  icon: string;
+} {
   return weatherCodes[code] || { description: "Unknown", icon: "❓" };
+}
+
+export function getWindDirection(deg: number): string {
+  const dirs = [
+    "N",
+    "NNE",
+    "NE",
+    "ENE",
+    "E",
+    "ESE",
+    "SE",
+    "SSE",
+    "S",
+    "SSW",
+    "SW",
+    "WSW",
+    "W",
+    "WNW",
+    "NW",
+    "NNW",
+  ];
+  const normalized = ((deg % 360) + 360) % 360;
+  const index = Math.round(normalized / 22.5) % 16;
+  return dirs[index] ?? "N";
 }
 
 /**
  * Fetch current weather for coordinates
  */
 export async function fetchWeather(
-  lat: number = 51.5074, // London default
-  lon: number = -0.1278,
-  locationName?: string
+  lat: number = -26.35914, // Delmas, Mpumalanga, South Africa default
+  lon: number = 28.79267,
+  locationName?: string,
 ): Promise<WeatherData> {
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,weather_code,wind_speed_10m,wind_direction_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=auto`;
 
@@ -118,7 +145,9 @@ export async function fetchWeather(
 /**
  * Search for location coordinates by name (using Open-Meteo Geocoding API)
  */
-export async function searchLocation(name: string): Promise<{ lat: number; lon: number; name: string }[]> {
+export async function searchLocation(
+  name: string,
+): Promise<{ lat: number; lon: number; name: string }[]> {
   const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(name)}&count=5&language=en&format=json`;
 
   const response = await fetch(url, { next: { revalidate: 86400 } }); // Cache 24 hours

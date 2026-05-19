@@ -2,7 +2,6 @@ import type { Config } from "tailwindcss";
 import tailwindcssAnimate from "tailwindcss-animate";
 
 const archTheme: Config = {
-  darkMode: ["selector", "[data-theme='dark']"],
   content: [
     "./pages/**/*.{ts,tsx}",
     "./components/**/*.{ts,tsx}",
@@ -57,10 +56,10 @@ const archTheme: Config = {
         "text-heading": "var(--text-heading)",
 
         // @deprecated Tier 3 aliases — kept for backward compat; migrate to canonical accent-*
-        "accent-cyan": "var(--accent-cyan)",     // @deprecated → use accent-blue
+        "accent-cyan": "var(--accent-cyan)", // @deprecated → use accent-blue
         "accent-indigo": "var(--accent-indigo)", // @deprecated → use accent-blue
         "accent-violet": "var(--accent-violet)", // @deprecated → use accent-blue
-        "accent-alert": "var(--accent-alert)",   // @deprecated → use accent-red
+        "accent-alert": "var(--accent-alert)", // @deprecated → use accent-red
 
         // macOS system accent colors
         "accent-blue": "var(--accent-blue)",
@@ -80,30 +79,30 @@ const archTheme: Config = {
         "glass-surface-hover": "var(--glass-surface-hover)",
         "glass-surface-strong": "var(--glass-surface-strong)",
         "glass-border": "var(--glass-border)",
-        "vibrancy": "var(--vibrancy-surface)",
+        vibrancy: "var(--vibrancy-surface)",
 
         // Arch semantic namespace — for production-ready theme consistency
         arch: {
           surface: {
-            primary: "var(--bg-primary)",      // --arch0 #f5f5f7
-            secondary: "var(--bg-secondary)",   // --arch1 #ffffff
-            tertiary: "var(--bg-tertiary)",     // --arch2 #e8e8ed
+            primary: "var(--bg-primary)", // --arch0 #f5f5f7
+            secondary: "var(--bg-secondary)", // --arch1 #ffffff
+            tertiary: "var(--bg-tertiary)", // --arch2 #e8e8ed
           },
           text: {
-            primary: "var(--text-heading)",     // --arch11 #1d1d1f
-            secondary: "var(--text-body)",      // --arch10 #3a3a3c
-            tertiary: "var(--text-muted)",      // --arch8 #a1a1a6
+            primary: "var(--text-heading)", // --arch11 #1d1d1f
+            secondary: "var(--text-body)", // --arch10 #3a3a3c
+            tertiary: "var(--text-muted)", // --arch8 #a1a1a6
           },
           border: {
-            primary: "var(--border-default)",   // --arch5
-            subtle: "var(--border-subtle)",    // --arch4
+            primary: "var(--border-default)", // --arch5
+            subtle: "var(--border-subtle)", // --arch4
             emphasis: "var(--border-emphasis)", // --arch6
           },
           accent: {
-            blue: "var(--accent-blue)",         // --arch15 #007aff
-            red: "var(--accent-red)",           // --arch12 #ff3b30
-            orange: "var(--accent-orange)",     // --arch13 #ff9f0a
-            green: "var(--accent-green)",       // --arch14 #34c759
+            blue: "var(--accent-blue)", // --arch15 #007aff
+            red: "var(--accent-red)", // --arch12 #ff3b30
+            orange: "var(--accent-orange)", // --arch13 #ff9f0a
+            green: "var(--accent-green)", // --arch14 #34c759
           },
         },
 
@@ -255,7 +254,7 @@ const archTheme: Config = {
           "0%, 100%": { opacity: "0.15", transform: "scale(1)" },
           "50%": { opacity: "0.25", transform: "scale(1.05)" },
         },
-        "float": {
+        float: {
           "0%, 100%": { transform: "translate(0, 0)" },
           "25%": { transform: "translate(10px, -20px)" },
           "50%": { transform: "translate(-15px, -40px)" },
@@ -273,7 +272,7 @@ const archTheme: Config = {
         "ken-burns": "ken-burns 20s ease-in-out infinite",
         "gradient-shift": "gradient-shift 8s ease-in-out infinite",
         "pulse-glow": "pulse-glow 6s ease-in-out infinite",
-        "float": "float 15s ease-in-out infinite",
+        float: "float 15s ease-in-out infinite",
         "window-open": "window-open 0.25s cubic-bezier(0.16, 1, 0.3, 1) both",
         "traffic-pulse": "traffic-pulse 2s ease-in-out infinite",
       },

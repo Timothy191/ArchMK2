@@ -111,7 +111,7 @@ function NoteCard({ note }: { note: EngineeringNote }) {
         <div className="flex items-center gap-2 flex-wrap">
           {/* Issue Type */}
           <span
-            className="px-2 py-1 rounded text-xs font-medium text-white"
+            className="px-2 py-1 rounded text-xs font-medium text-[var(--bg-secondary)]"
             style={{ backgroundColor: issueColor }}
           >
             {note.issue_type.charAt(0).toUpperCase() + note.issue_type.slice(1)}
@@ -161,7 +161,9 @@ function NoteCard({ note }: { note: EngineeringNote }) {
         {note.action_taken && (
           <div className="text-sm">
             <span className="text-[var(--accent-cyan)]">Action:</span>{" "}
-            <span className="text-[var(--text-secondary)]">{note.action_taken}</span>
+            <span className="text-[var(--text-secondary)]">
+              {note.action_taken}
+            </span>
           </div>
         )}
 

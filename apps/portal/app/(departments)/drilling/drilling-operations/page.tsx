@@ -81,9 +81,19 @@ async function getDrillOperations(): Promise<{
       block_drilled,
       holes,
       meters_drilled,
-      production_delays,
-      non_productional_delays,
-      engineering_delays,
+      holes,
+      meters_drilled,
+      delay_blasting,
+      delay_no_operator,
+      delay_natural,
+      delay_lunch_breaks,
+      delay_safety_talks,
+      delay_tramming,
+      delay_non_prod_other,
+      delay_get,
+      delay_maintenance,
+      delay_mech_breakdown,
+      delay_elec_breakdown,
       status,
       machines!inner(name)
     `)
@@ -104,9 +114,9 @@ async function getDrillOperations(): Promise<{
     block_drilled: op.block_drilled,
     holes: op.holes || 0,
     meters_drilled: op.meters_drilled || 0,
-    production_delays: op.production_delays || 0,
-    non_productional_delays: op.non_productional_delays || 0,
-    engineering_delays: op.engineering_delays || 0,
+    production_delays: (op.delay_blasting || 0) + (op.delay_no_operator || 0) + (op.delay_natural || 0) + (op.delay_lunch_breaks || 0) + (op.delay_safety_talks || 0),
+    non_productional_delays: (op.delay_tramming || 0) + (op.delay_non_prod_other || 0),
+    engineering_delays: (op.delay_get || 0) + (op.delay_maintenance || 0) + (op.delay_mech_breakdown || 0) + (op.delay_elec_breakdown || 0),
     status: op.status,
   }));
 
@@ -139,8 +149,33 @@ function formatDelay(minutes: number): string {
 export default async function DrillingOperationsPage() {
   const { drills, operations } = await getDrillOperations();
 
-  // Create a map of machine_id to operation for quick lookup
-  const operationsByMachine = new Map(operations.map(op => [op.machine_id, op]));
+  // Combine operations for the same machine into a single daily aggregate (Day + Night Shift)
+  const operationsByMachine = new Map<string, DrillOperation>();
+  
+  operations.forEach(op => {
+    if (operationsByMachine.has(op.machine_id)) {
+      const existing = operationsByMachine.get(op.machine_id)!;
+      existing.holes += op.holes || 0;
+      existing.meters_drilled += op.meters_drilled || 0;
+      existing.production_delays += op.production_delays || 0;
+      existing.non_productional_delays += op.non_productional_delays || 0;
+      existing.engineering_delays += op.engineering_delays || 0;
+      
+      if (op.open_hours !== null) {
+        existing.open_hours = Math.min(existing.open_hours || Infinity, op.open_hours);
+      }
+      if (op.close_hours !== null) {
+        existing.close_hours = Math.max(existing.close_hours || 0, op.close_hours);
+      }
+      
+      existing.total_hours = (existing.total_hours || 0) + (op.total_hours || 0);
+      if (op.operator_name && !existing.operator_name?.includes(op.operator_name)) {
+        existing.operator_name = `${existing.operator_name} & ${op.operator_name}`;
+      }
+    } else {
+      operationsByMachine.set(op.machine_id, { ...op });
+    }
+  });
 
   // Combine drills with their operations (or create empty operation if none exists)
   const tableData = drills.map(drill => {

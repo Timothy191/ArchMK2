@@ -8,7 +8,7 @@ import { DeformationVelocityChart } from "./DeformationVelocityChart";
 interface SARLayerPanelProps {
   scenes: STACItem[];
   readings?: DeformationReading[];
-  onSceneSelect?: (scene: STACItem) => void;
+  onSceneSelect?: (_scene: STACItem) => void;
 }
 
 const COLORMAP_STEPS = [
@@ -49,7 +49,7 @@ export function SARLayerPanel({ scenes, readings = [], onSceneSelect }: SARLayer
           <span className="text-blue-400 text-xl mt-0.5">📡</span>
           <div>
             <p className="text-sm font-semibold text-blue-400">Sentinel-1 SAR / InSAR</p>
-            <p className="text-xs text-[#898989] mt-1 leading-relaxed">
+            <p className="text-xs text-[var(--text-secondary)] mt-1 leading-relaxed">
               Synthetic Aperture Radar operates through clouds and at night. Differential InSAR (D-InSAR)
               measures millimetre-level ground deformation between acquisition pairs — critical for
               pit wall stability monitoring and tailings dam integrity assessments.
@@ -69,8 +69,8 @@ export function SARLayerPanel({ scenes, readings = [], onSceneSelect }: SARLayer
       </div>
 
       {/* Deformation Colormap Legend */}
-      <div className="p-4 rounded-xl bg-[#171717] border border-[#363636]">
-        <p className="text-xs font-medium text-[#b4b4b4] uppercase tracking-wider mb-3">
+      <div className="p-4 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-emphasis)]">
+        <p className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider mb-3">
           LOS Deformation Colormap (mm)
         </p>
         <div className="flex items-center h-5 rounded overflow-hidden">
@@ -80,32 +80,32 @@ export function SARLayerPanel({ scenes, readings = [], onSceneSelect }: SARLayer
         </div>
         <div className="flex justify-between mt-1">
           {COLORMAP_STEPS.map((step) => (
-            <span key={step.label} className="text-[9px] text-[#898989]">{step.label}</span>
+            <span key={step.label} className="text-[9px] text-[var(--text-secondary)]">{step.label}</span>
           ))}
         </div>
-        <p className="text-[10px] text-[#898989] mt-1.5">
+        <p className="text-[10px] text-[var(--text-secondary)] mt-1.5">
           Dark red = strong subsidence · Green = stable · Indigo = uplift
         </p>
       </div>
 
       {/* Alert Thresholds by area */}
-      <div className="p-4 rounded-xl bg-[#171717] border border-[#363636]">
-        <p className="text-xs font-medium text-[#b4b4b4] uppercase tracking-wider mb-3">
+      <div className="p-4 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-emphasis)]">
+        <p className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider mb-3">
           Velocity Alert Thresholds (mm / month)
         </p>
         <table className="w-full text-[11px]">
           <thead>
             <tr>
-              <th className="text-left text-[#898989] pb-1.5 font-medium">Area</th>
+              <th className="text-left text-[var(--text-secondary)] pb-1.5 font-medium">Area</th>
               <th className="text-center text-amber-400 pb-1.5 font-medium">Minor</th>
               <th className="text-center text-orange-400 pb-1.5 font-medium">Moderate</th>
               <th className="text-center text-red-400 pb-1.5 font-medium">Critical</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#242424]">
+          <tbody className="divide-y divide-[var(--border-default)]">
             {(Object.entries(ALERT_THRESHOLDS) as [string, { minor: number; moderate: number; critical: number }][]).map(([area, t]) => (
               <tr key={area}>
-                <td className="py-1 text-[#b4b4b4]">{AREA_LABELS[area] ?? area}</td>
+                <td className="py-1 text-[var(--text-muted)]">{AREA_LABELS[area] ?? area}</td>
                 <td className="py-1 text-center text-amber-400">≥{t.minor}</td>
                 <td className="py-1 text-center text-orange-400">≥{t.moderate}</td>
                 <td className="py-1 text-center text-red-400">≥{t.critical}</td>
@@ -117,8 +117,8 @@ export function SARLayerPanel({ scenes, readings = [], onSceneSelect }: SARLayer
 
       {/* Zone velocity chart */}
       {readings.length > 0 && (
-        <div className="p-4 rounded-xl bg-[#171717] border border-[#363636]">
-          <p className="text-xs font-medium text-[#b4b4b4] uppercase tracking-wider mb-2">
+        <div className="p-4 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-emphasis)]">
+          <p className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider mb-2">
             Zone Velocity History
           </p>
           {/* Zone selector */}
@@ -130,7 +130,7 @@ export function SARLayerPanel({ scenes, readings = [], onSceneSelect }: SARLayer
                 className={`text-[10px] px-2 py-0.5 rounded-full border transition-colors ${
                   selectedZone?.id === r.id
                     ? "bg-blue-500/20 border-blue-500/40 text-blue-300"
-                    : "bg-[#242424] border-[#363636] text-[#898989] hover:text-[#fafafa]"
+                    : "bg-[var(--bg-tertiary)] border-[var(--border-emphasis)] text-[var(--text-secondary)] hover:text-[var(--text-heading)]"
                 }`}
               >
                 {r.location}
@@ -144,7 +144,7 @@ export function SARLayerPanel({ scenes, readings = [], onSceneSelect }: SARLayer
                 area={selectedZone.area}
                 height={90}
               />
-              <p className="text-[10px] text-[#898989] mt-2">
+              <p className="text-[10px] text-[var(--text-secondary)] mt-2">
                 LOS incidence angle: {selectedZone.losAngleDeg}° ·
                 Vertical ≈ LOS ÷ cos({selectedZone.losAngleDeg}°) ={" "}
                 {Math.abs(Math.round(selectedZone.velocityMmPerMonth / Math.cos(selectedZone.losAngleDeg * Math.PI / 180) * 10) / 10)} mm/mo
@@ -155,8 +155,8 @@ export function SARLayerPanel({ scenes, readings = [], onSceneSelect }: SARLayer
       )}
 
       {/* 12-day revisit timeline */}
-      <div className="p-4 rounded-xl bg-[#171717] border border-[#363636]">
-        <p className="text-xs font-medium text-[#b4b4b4] uppercase tracking-wider mb-3">
+      <div className="p-4 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-emphasis)]">
+        <p className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider mb-3">
           Sentinel-1 Acquisition Timeline (12-day cycle)
         </p>
         <div className="flex items-center gap-0">
@@ -166,36 +166,36 @@ export function SARLayerPanel({ scenes, readings = [], onSceneSelect }: SARLayer
                 className={`w-3 h-3 rounded-full border-2 ${
                   i === 0
                     ? "bg-[#3ecf8e] border-[#3ecf8e]"
-                    : "bg-[#242424] border-[#363636]"
+                    : "bg-[var(--bg-tertiary)] border-[var(--border-emphasis)]"
                 }`}
               />
               {i < revisitDates.length - 1 && (
                 <div className="absolute" />
               )}
-              <p className="text-[9px] text-[#898989] mt-1 text-center leading-tight">
+              <p className="text-[9px] text-[var(--text-secondary)] mt-1 text-center leading-tight">
                 {date.toLocaleDateString("en-ZA", { day: "2-digit", month: "short" })}
               </p>
             </div>
           ))}
         </div>
         <div className="flex items-center gap-2 mt-3">
-          <div className="flex-1 h-px bg-gradient-to-r from-[#3ecf8e] to-[#363636]" />
-          <span className="text-[10px] text-[#898989] shrink-0">→ 60 days</span>
+          <div className="flex-1 h-px bg-gradient-to-r from-[#3ecf8e] to-[var(--border-emphasis)]" />
+          <span className="text-[10px] text-[var(--text-secondary)] shrink-0">→ 60 days</span>
         </div>
-        <p className="text-[10px] text-[#898989] mt-1">
+        <p className="text-[10px] text-[var(--text-secondary)] mt-1">
           Sentinel-1A/B combined repeat: 6 days (when both satellites active)
         </p>
       </div>
 
       {/* Scene List */}
       <div>
-        <p className="text-xs font-medium text-[#b4b4b4] uppercase tracking-wider mb-2">
+        <p className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider mb-2">
           Recent Sentinel-1 Acquisitions
         </p>
         {scenes.length === 0 ? (
-          <div className="p-4 rounded-xl bg-[#171717] border border-[#363636] text-center">
-            <p className="text-[#898989] text-sm">Copernicus STAC — no scenes in bbox/timerange</p>
-            <p className="text-[#898989] text-xs mt-1">
+          <div className="p-4 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-emphasis)] text-center">
+            <p className="text-[var(--text-secondary)] text-sm">Copernicus STAC — no scenes in bbox/timerange</p>
+            <p className="text-[var(--text-secondary)] text-xs mt-1">
               Deformation readings from last processed InSAR pass shown on map
             </p>
           </div>
@@ -208,18 +208,18 @@ export function SARLayerPanel({ scenes, readings = [], onSceneSelect }: SARLayer
                 className={`w-full text-left p-3 rounded-xl border transition-colors ${
                   selectedScene === scene.id
                     ? "bg-blue-500/10 border-blue-500/30"
-                    : "bg-[#171717] border-[#363636] hover:bg-[#242424]"
+                    : "bg-[var(--bg-primary)] border-[var(--border-emphasis)] hover:bg-[var(--bg-tertiary)]"
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <p className="text-xs text-[#fafafa] font-medium font-mono truncate max-w-[160px]">
+                  <p className="text-xs text-[var(--text-heading)] font-medium font-mono truncate max-w-[160px]">
                     {scene.id.slice(0, 22)}…
                   </p>
                   <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 shrink-0">
                     {scene.properties["s1:polarisation"] ?? "SAR"}
                   </span>
                 </div>
-                <div className="mt-1 flex items-center gap-3 text-xs text-[#898989]">
+                <div className="mt-1 flex items-center gap-3 text-xs text-[var(--text-secondary)]">
                   <span>{formatSceneDate(scene.properties.datetime)}</span>
                   <span>{scene.properties.platform ?? "Sentinel-1"}</span>
                 </div>
@@ -230,8 +230,8 @@ export function SARLayerPanel({ scenes, readings = [], onSceneSelect }: SARLayer
       </div>
 
       {/* Technical footer */}
-      <div className="p-3 rounded-xl bg-[#0f0f0f] border border-[#242424]">
-        <p className="text-[10px] text-[#898989] leading-relaxed">
+      <div className="p-3 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-default)]">
+        <p className="text-[10px] text-[var(--text-secondary)] leading-relaxed">
           Full InSAR time-series processing requires StaMPS, MintPy, or ISCE2 pipelines.
           Pre-computed deformation estimates shown here — contact your geotechnical team
           for certified InSAR displacement reports per SANS/ISO 17123.

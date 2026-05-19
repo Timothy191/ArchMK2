@@ -1,0 +1,154 @@
+import { createServerSupabaseClient } from "@repo/supabase/server";
+import { NextResponse } from "next/server";
+
+const ALLOWED_SCANNER_SOURCES = process.env.ALLOWED_SCANNER_SOURCES?.split(",").map((s) => s.trim()) || [
+  "C66-HARDWARE",
+  "C66-SCANNER",
+  "GATE-TERMINAL",
+];
+
+export async function POST(request: Request) {
+  try {
+    const source = request.headers.get("x-scanner-source") || "unknown";
+
+    if (!ALLOWED_SCANNER_SOURCES.includes(source)) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized scanner source" },
+        { status: 403 },
+      );
+    }
+
+    const supabase = await createServerSupabaseClient();
+    const contentType = request.headers.get("content-type") || "";
+
+    let code = "";
+    if (contentType.includes("application/json")) {
+      const body = await request.json();
+      code =
+        body.barcodeData || body.barcode || body.data || body.qr_code || "";
+    } else {
+      code = await request.text();
+    }
+
+    code = code.trim();
+    if (!code) {
+      return NextResponse.json(
+        { success: false, error: "Empty code payload" },
+        { status: 400 },
+      );
+    }
+
+    // 1. Find the Badge and check if it's active
+    const { data: badge, error: badgeError } = await supabase
+      .from("badges")
+      .select("id, is_active, entity_type, personnel_id, visitor_id")
+      .eq("qr_code", code)
+      .single();
+
+    if (badgeError || !badge) {
+      // Badge not found in database at all
+      await logAccess(
+        supabase,
+        null,
+        "UNKNOWN",
+        "DENIED - Unrecognized Badge",
+        source,
+      );
+      return NextResponse.json(
+        { success: false, name: "Unrecognized Badge" },
+        { status: 404 },
+      );
+    }
+
+    if (!badge.is_active) {
+      // Badge revoked
+      await logAccess(
+        supabase,
+        badge.id,
+        badge.entity_type,
+        "DENIED - Badge Revoked",
+        source,
+      );
+      return NextResponse.json(
+        { success: false, name: "Revoked Badge" },
+        { status: 403 },
+      );
+    }
+
+    // 2. Resolve the Identity
+    let entityName = "Unknown Entity";
+    let isAuthorized = true;
+    let denialReason = null;
+
+    if (badge.entity_type === "personnel" && badge.personnel_id) {
+      const { data: person } = await supabase
+        .from("personnel")
+        .select("first_name, surname, status")
+        .eq("id", badge.personnel_id)
+        .single();
+      if (person) {
+        entityName = `${person.first_name} ${person.surname}`;
+        if (person.status !== "Active") {
+          isAuthorized = false;
+          denialReason = `DENIED - Personnel Status: ${person.status}`;
+        }
+      }
+    } else if (badge.entity_type === "visitor" && badge.visitor_id) {
+      const { data: visitor } = await supabase
+        .from("visitors")
+        .select("name, status")
+        .eq("id", badge.visitor_id)
+        .single();
+      if (visitor) {
+        entityName = visitor.name;
+        if (visitor.status !== "Checked In") {
+          isAuthorized = false;
+          denialReason = `DENIED - Visitor Status: ${visitor.status}`;
+        }
+      }
+    }
+
+    // 3. Log the Access Event
+    await logAccess(
+      supabase,
+      badge.id,
+      badge.entity_type,
+      isAuthorized ? null : denialReason,
+      source,
+      isAuthorized,
+    );
+
+    return NextResponse.json({
+      success: isAuthorized,
+      name: entityName,
+      message: isAuthorized ? "Access Granted" : denialReason,
+    });
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error("[C66 API Error]", error);
+    return NextResponse.json(
+      { success: false, error: "Internal Server Error" },
+      { status: 500 },
+    );
+  }
+}
+
+async function logAccess(
+  supabase: any,
+  badgeId: string | null,
+  entityType: string,
+  denialReason: string | null,
+  gateLocation: string,
+  accessGranted: boolean = false,
+) {
+  await supabase.from("access_logs").insert([
+    {
+      badge_id: badgeId,
+      access_type: entityType,
+      direction: "IN", // Simplified for now, could be toggled based on previous state
+      gate_location: gateLocation,
+      access_granted: accessGranted,
+      denial_reason: denialReason,
+    },
+  ]);
+}
