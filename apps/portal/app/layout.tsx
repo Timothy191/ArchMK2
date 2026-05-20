@@ -2,6 +2,7 @@ import "@repo/ui/globals.css";
 import { ArchThemeProvider } from "@repo/theme/react";
 import type { Metadata, Viewport } from "next";
 import { Inter, Outfit } from "next/font/google";
+import { HighlightInit } from "@highlight-run/next/client";
 import { AnimatedWavesBackground } from "@/components/AnimatedWavesBackground";
 import { OfflineBanner } from "@/components/OfflineBanner";
 import { AIAssistantSidebarWrapper } from "@/features/shared/components/ai/AIAssistantSidebarWrapper";
@@ -63,6 +64,12 @@ export default function RootLayout({
         <link
           rel="dns-prefetch"
           href={process.env.NEXT_PUBLIC_SUPABASE_URL || "https://*.supabase.co"}
+        />
+        <HighlightInit
+          projectId={process.env.NEXT_PUBLIC_HIGHLIGHT_PROJECT_ID}
+          serviceName="arch-portal"
+          tracingOrigins
+          networkRecording
         />
         <script
           dangerouslySetInnerHTML={{

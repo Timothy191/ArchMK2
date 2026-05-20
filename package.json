@@ -28,6 +28,7 @@
     "monitor:grafana": "docker compose -f docker-compose.monitoring.yml up -d",
     "monitor:grafana-stop": "docker compose -f docker-compose.monitoring.yml down",
     "shutdown": "bash scripts/shutdown.sh",
+    "db:docs": "bash scripts/generate-db-docs.sh",
     "prepare": "husky"
   },
   "lint-staged": {

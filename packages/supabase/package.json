@@ -21,6 +21,7 @@
     "supabase:push": "pnpx supabase db push"
   },
   "dependencies": {
+    "@opentelemetry/api": "^1.9.1",
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "catalog:",
     "kysely": "^0.27.6",

@@ -16,6 +16,7 @@ This file provides guidance to Claude Code when working with code in this reposi
 - `pnpm --filter @repo/database supabase:push` — Push migrations to the local Supabase instance.
 - `pnpm --filter @repo/database supabase:reset` — Reset local Supabase (destructive; useful for schema drift).
 - `pnpm --filter @repo/database supabase:gen` — Regenerate TypeScript database types into `packages/types/src/database.types.ts`.
+- `pnpm db:docs` — Generate ER diagrams and Markdown schema docs via `tbls` into `docs/database/` (requires local Supabase running and `tbls` CLI installed).
 - `pnpm --filter <app> dev` — Run a specific app (portal, cms, overview).
 - `pnpm ui` — Open the shadcn/ui CLI for the `@repo/ui` package.
 - `pnpm knip` — Find unused exports/dependencies.

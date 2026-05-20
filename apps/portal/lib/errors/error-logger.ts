@@ -1,11 +1,12 @@
 /**
  * Error Logging Utility
- * 
+ *
  * Provides structured error logging for both AppError instances
  * and generic errors. Integrates with monitoring systems.
  */
 
 import { isAppError } from "@repo/errors";
+import { H } from "@highlight-run/next/server";
 
 /**
  * Error severity levels
@@ -51,10 +52,10 @@ function createErrorLog(
     userId?: string;
     sessionId?: string;
     [key: string]: unknown;
-  }
+  },
 ): ErrorLogEntry {
   const timestamp = new Date().toISOString();
-  
+
   if (isAppError(error)) {
     return {
       timestamp,
@@ -87,37 +88,49 @@ function createErrorLog(
 
 /**
  * Send error to monitoring service
- * 
- * Currently logs to console. Replace with your monitoring service:
- * - Sentry
- * - DataDog
- * - LogRocket
- * - Custom endpoint
+ *
+ * Wired to Highlight for session replay + error tracking.
+ * Falls back to console logging.
  */
 async function sendToMonitoring(entry: ErrorLogEntry): Promise<void> {
-  // TODO: Replace with your error monitoring service
-  // Examples:
-  // await Sentry.captureException(entry);
-  // await fetch('/api/log', { method: 'POST', body: JSON.stringify(entry) });
-  
-  // For now, just log to console with structured format
-  // eslint-disable-next-line no-console
-  const logMethod = entry.severity === "error" || entry.severity === "fatal" 
-    ? console.error  // eslint-disable-line no-console
-    : console.warn;  // eslint-disable-line no-console
-  
-  logMethod(`[${entry.severity.toUpperCase()}] ${entry.code || "UNKNOWN"}: ${entry.message}`, {
-    timestamp: entry.timestamp,
+  const error = new Error(entry.message);
+  if (entry.stack) {
+    error.stack = entry.stack;
+  }
+
+  H.consumeError(error, undefined, undefined, {
+    ...entry.context,
+    severity: entry.severity,
+    code: entry.code,
     statusCode: entry.statusCode,
-    context: entry.context,
     url: entry.url,
     method: entry.method,
+    userId: entry.userId,
+    sessionId: entry.sessionId,
   });
+
+  // Keep console output for local debugging
+  // eslint-disable-next-line no-console
+  const logMethod =
+    entry.severity === "error" || entry.severity === "fatal"
+      ? console.error // eslint-disable-line no-console
+      : console.warn; // eslint-disable-line no-console
+
+  logMethod(
+    `[${entry.severity.toUpperCase()}] ${entry.code || "UNKNOWN"}: ${entry.message}`,
+    {
+      timestamp: entry.timestamp,
+      statusCode: entry.statusCode,
+      context: entry.context,
+      url: entry.url,
+      method: entry.method,
+    },
+  );
 }
 
 /**
  * Main error logger function
- * 
+ *
  * Usage:
  * ```typescript
  * try {
@@ -135,7 +148,7 @@ export async function logError(
     userId?: string;
     sessionId?: string;
     [key: string]: unknown;
-  }
+  },
 ): Promise<void> {
   try {
     const entry = createErrorLog(error, context);
@@ -147,9 +160,9 @@ export async function logError(
 
 /**
  * Create an API route error handler
- * 
+ *
  * Wraps API route handlers with automatic error logging
- * 
+ *
  * Usage:
  * ```typescript
  * export async function POST(req: Request) {
@@ -165,7 +178,7 @@ export async function withErrorLogging<T>(
   options?: {
     userId?: string;
     sessionId?: string;
-  }
+  },
 ): Promise<T> {
   try {
     return await handler();
@@ -184,11 +197,11 @@ export async function withErrorLogging<T>(
 
 /**
  * Server action error logger
- * 
+ *
  * Usage in server actions:
  * ```typescript
  * "use server";
- * 
+ *
  * export async function createUser(data: UserData) {
  *   return await withServerActionLogging(async () => {
  *     // Your action logic
@@ -198,7 +211,7 @@ export async function withErrorLogging<T>(
  */
 export async function withServerActionLogging<T>(
   handler: () => Promise<T>,
-  actionName: string
+  actionName: string,
 ): Promise<T> {
   try {
     return await handler();

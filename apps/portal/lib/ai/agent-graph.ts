@@ -18,6 +18,7 @@ import {
   retrieveRelevantMemories,
   formatMemoriesForContext,
 } from "./memory";
+import { withSpan } from "@repo/supabase";
 import { logError } from "@/lib/errors/error-logger";
 import { checkRateLimit } from "./rate-limiter";
 import { trackUsage } from "./cost-tracker";
@@ -301,19 +302,27 @@ async function outputNode(state: AgentState): Promise<Partial<AgentState>> {
 // Graph Router
 // ============================================================================
 
+function wrapNode(
+  name: AgentNodeName,
+  node: (_state: AgentState) => Promise<Partial<AgentState>>,
+): (_state: AgentState) => Promise<Partial<AgentState>> {
+  return (state: AgentState) =>
+    withSpan(`agent.node.${name}`, () => node(state), { node: name });
+}
+
 const NODE_MAP: Record<
   AgentNodeName,
   ((_state: AgentState) => Promise<Partial<AgentState>>) | null
 > = {
-  authenticate: authenticateNode,
-  rateLimit: rateLimitNode,
-  resolveContext: resolveContextNode,
-  loadMemory: loadMemoryNode,
-  gatherContext: gatherContextNode,
-  callLLM: callLLMNode,
+  authenticate: wrapNode("authenticate", authenticateNode),
+  rateLimit: wrapNode("rateLimit", rateLimitNode),
+  resolveContext: wrapNode("resolveContext", resolveContextNode),
+  loadMemory: wrapNode("loadMemory", loadMemoryNode),
+  gatherContext: wrapNode("gatherContext", gatherContextNode),
+  callLLM: wrapNode("callLLM", callLLMNode),
   executeTools: null, // handled by streamText internally via Vercel AI SDK
-  saveMemory: saveMemoryNode,
-  output: outputNode,
+  saveMemory: wrapNode("saveMemory", saveMemoryNode),
+  output: wrapNode("output", outputNode),
   END: null,
 };
 
@@ -327,36 +336,42 @@ const NODE_MAP: Record<
 export async function runAgentGraph(
   initialState: AgentState,
 ): Promise<{ response: Response; finalState: AgentState }> {
-  let state = initialState;
+  return withSpan(
+    "agent.graph.run",
+    async () => {
+      let state = initialState;
 
-  while (state.shouldContinue && state.nextNode !== "END") {
-    const node = NODE_MAP[state.nextNode];
-    if (!node) break;
+      while (state.shouldContinue && state.nextNode !== "END") {
+        const node = NODE_MAP[state.nextNode];
+        if (!node) break;
 
-    const update = await node(state);
-    state = reduceState(state, update);
-  }
+        const update = await node(state);
+        state = reduceState(state, update);
+      }
 
-  if (state.error) {
-    const response = new Response(JSON.stringify({ error: state.error }), {
-      status: state.statusCode ?? 500,
-      headers: { "Content-Type": "application/json" },
-    });
-    return { response, finalState: state };
-  }
+      if (state.error) {
+        const response = new Response(JSON.stringify({ error: state.error }), {
+          status: state.statusCode ?? 500,
+          headers: { "Content-Type": "application/json" },
+        });
+        return { response, finalState: state };
+      }
 
-  if (!state.streamResponse) {
-    const response = new Response(
-      JSON.stringify({ error: "No response generated" }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      },
-    );
-    return { response, finalState: state };
-  }
+      if (!state.streamResponse) {
+        const response = new Response(
+          JSON.stringify({ error: "No response generated" }),
+          {
+            status: 500,
+            headers: { "Content-Type": "application/json" },
+          },
+        );
+        return { response, finalState: state };
+      }
 
-  return { response: state.streamResponse, finalState: state };
+      return { response: state.streamResponse, finalState: state };
+    },
+    { sessionId: initialState.sessionId, provider: initialState.provider },
+  );
 }
 
 /**

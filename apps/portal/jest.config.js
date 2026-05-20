@@ -24,17 +24,27 @@ module.exports = {
     "^@repo/redis/(.*)$": "<rootDir>/../../packages/redis/src/$1",
     "^@repo/theme/(.*)$": "<rootDir>/../../packages/theme/$1",
     "^@repo/ui/lib/(.*)$": "<rootDir>/../../packages/ui/src/lib/$1",
-    "^@repo/ui/GlassCard$": "<rootDir>/../../packages/ui/src/components/GlassCard.tsx",
-    "^@repo/ui/SecondaryButton$": "<rootDir>/../../packages/ui/src/components/SecondaryButton.tsx",
-    "^@repo/ui/ShiftToggle$": "<rootDir>/../../packages/ui/src/components/ShiftToggle.tsx",
+    "^@repo/ui/GlassCard$":
+      "<rootDir>/../../packages/ui/src/components/GlassCard.tsx",
+    "^@repo/ui/SecondaryButton$":
+      "<rootDir>/../../packages/ui/src/components/SecondaryButton.tsx",
+    "^@repo/ui/ShiftToggle$":
+      "<rootDir>/../../packages/ui/src/components/ShiftToggle.tsx",
     "^@repo/ui/Input$": "<rootDir>/../../packages/ui/src/components/Input.tsx",
-    "^@repo/ui/FormFields$": "<rootDir>/../../packages/ui/src/components/FormFields.tsx",
-    "^@repo/ui/DepartmentLayout$": "<rootDir>/../../packages/ui/src/components/DepartmentLayout.tsx",
+    "^@repo/ui/FormFields$":
+      "<rootDir>/../../packages/ui/src/components/FormFields.tsx",
+    "^@repo/ui/DepartmentLayout$":
+      "<rootDir>/../../packages/ui/src/components/DepartmentLayout.tsx",
     "^@repo/ui/KPI$": "<rootDir>/../../packages/ui/src/components/KPI.tsx",
-    "^@repo/ui/PageHeader$": "<rootDir>/../../packages/ui/src/components/PageHeader.tsx",
-    "^@repo/ui/MacMenuBar$": "<rootDir>/../../packages/ui/src/components/MacMenuBar.tsx",
-    "^@repo/ui/MacTitleBar$": "<rootDir>/../../packages/ui/src/components/MacTitleBar.tsx",
+    "^@repo/ui/PageHeader$":
+      "<rootDir>/../../packages/ui/src/components/PageHeader.tsx",
+    "^@repo/ui/MacMenuBar$":
+      "<rootDir>/../../packages/ui/src/components/MacMenuBar.tsx",
+    "^@repo/ui/MacTitleBar$":
+      "<rootDir>/../../packages/ui/src/components/MacTitleBar.tsx",
     "^@repo/utils$": "<rootDir>/../../packages/utils/src/index.ts",
+    "^@repo/ui/DataGrid$":
+      "<rootDir>/../../packages/ui/src/components/ui/data-grid.tsx",
   },
   collectCoverageFrom: [
     "lib/**/*.{ts,tsx}",

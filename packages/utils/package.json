@@ -3,13 +3,19 @@
   "version": "1.0.0",
   "private": true,
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./inngest": "./src/inngest.ts",
+    "./novu": "./src/novu.ts"
   },
   "dependencies": {
+    "@novu/node": "^2.6.6",
+    "exceljs": "^4.4.0",
+    "inngest": "^4.4.0",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
+    "msw": "^2.14.6",
     "typescript": "catalog:"
   }
 }

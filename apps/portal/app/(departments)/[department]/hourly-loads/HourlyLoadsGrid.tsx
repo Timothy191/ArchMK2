@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
+import dynamic from "next/dynamic";
 import { GlassCard } from "@repo/ui/GlassCard";
 import { createBrowserSupabaseClient } from "@repo/supabase/client";
 import { useRouter } from "next/navigation";
@@ -8,6 +9,11 @@ import { exportToExcel, parseExcel } from "@repo/utils";
 import { SecondaryButton } from "@repo/ui/SecondaryButton";
 import { Download, Upload } from "lucide-react";
 import { logError } from "@/lib/errors/error-logger";
+
+const DataGrid = dynamic(
+  () => import("@repo/ui/DataGrid").then((m) => m.DataGrid),
+  { ssr: false },
+);
 
 interface Machine {
   id: string;
@@ -40,9 +46,6 @@ interface HourlyLoadsGridProps {
   hourlyLoads: HourlyLoad[];
 }
 
-// 12 hours per shift
-// Day shift: 06:00-17:59
-// Night shift: 18:00-05:59
 const HOURS_12 = Array.from({ length: 12 }, (_, i) => i + 1);
 
 const DAY_HOUR_LABELS = [
@@ -83,7 +86,6 @@ export function HourlyLoadsGrid({
   const supabase = createBrowserSupabaseClient();
   const today = new Date().toISOString().split("T")[0];
 
-  // Create a map for quick lookup
   const loadsByMachine = new Map<string, HourlyLoad>();
   hourlyLoads.forEach((load) => {
     loadsByMachine.set(load.machine_id, load);
@@ -92,14 +94,8 @@ export function HourlyLoadsGrid({
   const [selectedShift, setSelectedShift] = useState<"day" | "night">(
     new Date().getHours() >= 6 && new Date().getHours() < 18 ? "day" : "night",
   );
-  const [editingCell, setEditingCell] = useState<{
-    machineId: string;
-    hour: number;
-  } | null>(null);
-  const [editValue, setEditValue] = useState("");
   const [saving, setSaving] = useState(false);
 
-  // Get hour labels based on shift
   const hourLabels =
     selectedShift === "day" ? DAY_HOUR_LABELS : NIGHT_HOUR_LABELS;
 
@@ -107,11 +103,11 @@ export function HourlyLoadsGrid({
     (machineId: string, hourIndex: number): number => {
       const load = loadsByMachine.get(machineId);
       if (!load || load.shift_type !== selectedShift) return 0;
-      const hourField =
-        `hour_${hourIndex.toString().padStart(2, "0")}` as keyof HourlyLoad;
-      return (load[hourField] as number) || 0;
+      const field =
+        `hour_${(hourIndex + 1).toString().padStart(2, "0")}` as keyof HourlyLoad;
+      return (load[field] as number) || 0;
     },
-    [loadsByMachine],
+    [loadsByMachine, selectedShift],
   );
 
   const getMachineTotal = useCallback(
@@ -123,68 +119,122 @@ export function HourlyLoadsGrid({
     [loadsByMachine, selectedShift],
   );
 
-  const handleCellClick = (machineId: string, hour: number) => {
-    setEditingCell({ machineId, hour });
-    setEditValue(getHourValue(machineId, hour).toString());
-  };
+  // Build RevoGrid source rows (stable reference)
+  const source = useMemo(() => {
+    return machines.map((machine) => {
+      const row: Record<string, string | number> = {
+        machineName: machine.name,
+        machineType: machine.machine_type,
+      };
+      HOURS_12.forEach((_, index) => {
+        row[`hour_${(index + 1).toString().padStart(2, "0")}`] = getHourValue(
+          machine.id,
+          index,
+        );
+      });
+      row.total = getMachineTotal(machine.id);
+      return row;
+    });
+  }, [machines, loadsByMachine, selectedShift, getHourValue, getMachineTotal]);
 
-  const handleSave = async () => {
-    if (!editingCell) return;
+  // Build RevoGrid columns (stable reference)
+  const columns = useMemo(() => {
+    const cols = [
+      {
+        prop: "machineName",
+        name: "Machine",
+        size: 160,
+        pin: "colPinStart" as const,
+      },
+      ...HOURS_12.map((_, index) => ({
+        prop: `hour_${(index + 1).toString().padStart(2, "0")}`,
+        name: `${hourLabels[index]}:00`,
+        size: 72,
+        sortable: false,
+      })),
+      {
+        prop: "total",
+        name: "Total",
+        size: 80,
+        readonly: true,
+      },
+    ];
+    return cols;
+  }, [hourLabels]);
 
-    const value = parseInt(editValue, 10) || 0;
-    if (value < 0 || value > 100) {
-      alert("Please enter a value between 0 and 100");
-      return;
-    }
+  const handleAfterEdit = useCallback(
+    async (e: any) => {
+      const detail = e?.detail ?? e;
+      const prop: string = detail?.prop;
+      const rowIndex: number = detail?.rowIndex ?? detail?.row?.index;
+      const val = detail?.val;
 
-    setSaving(true);
+      if (
+        typeof rowIndex !== "number" ||
+        !prop?.startsWith("hour_") ||
+        val === undefined
+      )
+        return;
 
-    try {
-      const { machineId, hour } = editingCell;
-      // Find existing load for this machine, date, and shift
-      const existingLoad = hourlyLoads.find(
-        (l) => l.machine_id === machineId && l.shift_type === selectedShift,
-      );
-      const hourField = `hour_${hour.toString().padStart(2, "0")}`;
-
-      if (existingLoad) {
-        // Update existing record
-        const { error } = await supabase
-          .from("hourly_loads")
-          .update({ [hourField]: value })
-          .eq("id", existingLoad.id);
-
-        if (error) throw error;
-      } else {
-        // Insert new record with shift_type
-        const { error } = await supabase.from("hourly_loads").insert({
-          department_id: departmentId,
-          machine_id: machineId,
-          load_date: today,
-          shift_type: selectedShift,
-          [hourField]: value,
-        });
-
-        if (error) throw error;
+      const value = parseInt(String(val), 10) || 0;
+      if (value < 0 || value > 100) {
+        alert("Please enter a value between 0 and 100");
+        router.refresh();
+        return;
       }
 
-      setEditingCell(null);
-      setEditValue("");
-      router.refresh();
-    } catch (err) {
-      logError(err instanceof Error ? err : new Error(String(err)), {
-        context: "hourly_loads_save",
-      });
-      alert("Failed to save. Please try again.");
-    }
-  };
+      const machine = machines[rowIndex];
+      if (!machine) return;
+
+      setSaving(true);
+      try {
+        const existingLoad = hourlyLoads.find(
+          (l) => l.machine_id === machine.id && l.shift_type === selectedShift,
+        );
+
+        if (existingLoad) {
+          const { error } = await supabase
+            .from("hourly_loads")
+            .update({ [prop]: value })
+            .eq("id", existingLoad.id);
+          if (error) throw error;
+        } else {
+          const { error } = await supabase.from("hourly_loads").insert({
+            department_id: departmentId,
+            machine_id: machine.id,
+            load_date: today,
+            shift_type: selectedShift,
+            [prop]: value,
+          });
+          if (error) throw error;
+        }
+        router.refresh();
+      } catch (err) {
+        logError(err instanceof Error ? err : new Error(String(err)), {
+          context: "hourly_loads_save",
+        });
+        alert("Failed to save. Please try again.");
+      } finally {
+        setSaving(false);
+      }
+    },
+    [
+      machines,
+      hourlyLoads,
+      selectedShift,
+      departmentId,
+      today,
+      supabase,
+      router,
+    ],
+  );
 
   const handleExport = () => {
     const exportData = machines.map((machine) => {
       const data: any = { Machine: machine.name, Type: machine.machine_type };
-      HOURS_12.forEach((hour, index) => {
+      HOURS_12.forEach((_, index) => {
         const label = `${hourLabels[index]}:00`;
-        data[label] = getHourValue(machine.id, hour);
+        data[label] = getHourValue(machine.id, index);
       });
       data.Total = getMachineTotal(machine.id);
       return data;
@@ -205,7 +255,6 @@ export function HourlyLoadsGrid({
     try {
       const data = await parseExcel(file);
 
-      // Process each row
       for (const row of data) {
         const machineName = row.Machine;
         const machine = machines.find((m) => m.name === machineName);
@@ -219,10 +268,10 @@ export function HourlyLoadsGrid({
         };
 
         let hasData = false;
-        HOURS_12.forEach((hour, index) => {
+        HOURS_12.forEach((_, index) => {
           const label = `${hourLabels[index]}:00`;
           if (row[label] !== undefined) {
-            updateData[`hour_${hour.toString().padStart(2, "0")}`] =
+            updateData[`hour_${(index + 1).toString().padStart(2, "0")}`] =
               parseInt(row[label], 10) || 0;
             hasData = true;
           }
@@ -255,15 +304,6 @@ export function HourlyLoadsGrid({
     } finally {
       setSaving(false);
       if (e.target) e.target.value = "";
-    }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      handleSave();
-    } else if (e.key === "Escape") {
-      setEditingCell(null);
-      setEditValue("");
     }
   };
 
@@ -339,90 +379,15 @@ export function HourlyLoadsGrid({
         </div>
       </div>
 
-      <GlassCard className="overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr>
-              <th className="text-left text-[var(--text-muted)] text-xs font-medium p-3 border-b border-r border-[var(--border-default)] sticky left-0 bg-[var(--bg-secondary)] z-10">
-                Machine
-              </th>
-              {HOURS_12.map((hour, index) => (
-                <th
-                  key={hour}
-                  className="text-center text-[var(--text-muted)] text-xs font-medium p-2 border-b border-[var(--border-default)] w-14"
-                >
-                  {hourLabels[index]}:00
-                </th>
-              ))}
-              <th className="text-center text-[var(--accent-cyan)] text-xs font-medium p-3 border-b border-l border-[var(--border-default)]">
-                Total
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {machines.map((machine) => (
-              <tr key={machine.id} className="hover:bg-[var(--bg-tertiary)]/50">
-                <td className="p-3 border-b border-r border-[var(--border-default)] sticky left-0 bg-[var(--bg-secondary)] z-10">
-                  <div>
-                    <p className="text-[var(--text-heading)] text-sm font-medium">
-                      {machine.name}
-                    </p>
-                    <p className="text-[var(--text-muted)] text-xs">
-                      {machine.machine_type}
-                    </p>
-                  </div>
-                </td>
-                {HOURS_12.map((hour) => {
-                  const value = getHourValue(machine.id, hour);
-                  const isEditing =
-                    editingCell?.machineId === machine.id &&
-                    editingCell?.hour === hour;
-                  const hasValue = value > 0;
-
-                  return (
-                    <td
-                      key={hour}
-                      className="p-1 border-b border-[var(--border-default)] text-center"
-                    >
-                      {isEditing ? (
-                        <input
-                          type="number"
-                          min="0"
-                          max="100"
-                          value={editValue}
-                          onChange={(e) => setEditValue(e.target.value)}
-                          onKeyDown={handleKeyDown}
-                          onBlur={handleSave}
-                          disabled={saving}
-                          autoFocus
-                          aria-label={`Hourly load percentage for hour ${hour}`}
-                          className="w-12 h-8 bg-[var(--bg-secondary)] border border-[var(--accent-cyan)] rounded text-center text-[var(--text-heading)] text-sm focus:outline-none"
-                        />
-                      ) : (
-                        <button
-                          onClick={() => handleCellClick(machine.id, hour)}
-                          className={`w-12 h-8 rounded text-sm font-medium transition-colors ${
-                            hasValue
-                              ? "bg-[var(--accent-cyan)]/20 text-[var(--accent-cyan)] border border-[var(--accent-cyan)]/50 hover:bg-[var(--accent-cyan)]/30"
-                              : "bg-[var(--bg-secondary)] text-[var(--text-muted)] border border-[var(--border-default)] hover:bg-[var(--bg-tertiary)]"
-                          }`}
-                        >
-                          {hasValue ? value : "-"}
-                        </button>
-                      )}
-                    </td>
-                  );
-                })}
-                <td className="p-3 border-b border-l border-[var(--border-default)] text-center">
-                  <span className="text-[var(--accent-cyan)] font-medium">
-                    {getMachineTotal(machine.id)}
-                  </span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </GlassCard>
+      <DataGrid
+        columns={columns}
+        source={source}
+        height="500px"
+        resize={false}
+        filter={false}
+        sorting={false}
+        onAfterEdit={handleAfterEdit}
+      />
     </div>
   );
 }

@@ -1,5 +1,14 @@
 import "@testing-library/jest-dom";
 
+// Mock Highlight server SDK before any module imports it — it pulls in Node-only deps
+jest.mock("@highlight-run/next/server", () => ({
+  H: {
+    init: jest.fn(),
+    consumeError: jest.fn(),
+    recordMetric: jest.fn(),
+  },
+}));
+
 // Jest setup file — provide Web API globals that Next.js server modules expect
 // but jsdom may not define in all versions.
 
