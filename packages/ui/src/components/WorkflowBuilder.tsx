@@ -44,9 +44,9 @@ export interface WorkflowBuilderProps {
   /** Initial edges to render */
   initialEdges?: Edge[];
   /** Callback when workflow is saved */
-  onSave?: (nodes: Node[], edges: Edge[]) => void;
+  onSave?: (currentNodes: Node[], currentEdges: Edge[]) => void;
   /** Callback when workflow is executed */
-  onExecute?: (nodes: Node[], edges: Edge[]) => Promise<void>;
+  onExecute?: (currentNodes: Node[], currentEdges: Edge[]) => Promise<void>;
   /** Read-only mode */
   readOnly?: boolean;
   /** Custom styles */
@@ -111,7 +111,7 @@ export function WorkflowBuilder({
       };
       setEdges((eds) => addEdge(edge, eds));
     },
-    [setEdges]
+    [setEdges],
   );
 
   // Add new plugin node

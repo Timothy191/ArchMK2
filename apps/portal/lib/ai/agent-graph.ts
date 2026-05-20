@@ -20,7 +20,13 @@ import {
 } from "./memory";
 import { logError } from "@/lib/errors/error-logger";
 import { checkRateLimit } from "./rate-limiter";
-import type { AgentState, AgentNodeName, AgentContext, LLMResponse } from "./agent-state";
+import { trackUsage } from "./cost-tracker";
+import type {
+  AgentState,
+  AgentNodeName,
+  AgentContext,
+  LLMResponse,
+} from "./agent-state";
 import { reduceState } from "./agent-state";
 
 // ============================================================================
@@ -48,9 +54,7 @@ async function authenticateNode(
   return { nextNode: "rateLimit" };
 }
 
-async function rateLimitNode(
-  state: AgentState,
-): Promise<Partial<AgentState>> {
+async function rateLimitNode(state: AgentState): Promise<Partial<AgentState>> {
   const allowed = await checkRateLimit(state.ip);
   if (!allowed) {
     return {
@@ -104,9 +108,7 @@ function getMessageText(msg: AgentState["messages"][number]): string {
   return textPart?.text ?? "";
 }
 
-async function loadMemoryNode(
-  state: AgentState,
-): Promise<Partial<AgentState>> {
+async function loadMemoryNode(state: AgentState): Promise<Partial<AgentState>> {
   const latestUserMessage = [...state.messages]
     .reverse()
     .find((m) => m.role === "user");
@@ -177,9 +179,7 @@ async function gatherContextNode(
   return { nextNode: "callLLM" };
 }
 
-async function callLLMNode(
-  state: AgentState,
-): Promise<Partial<AgentState>> {
+async function callLLMNode(state: AgentState): Promise<Partial<AgentState>> {
   try {
     const converted = await convertToModelMessages(
       state.messages.map((m) => ({ ...m, parts: m.parts ?? [] })),
@@ -225,15 +225,24 @@ async function callLLMNode(
   }
 }
 
-async function saveMemoryNode(
-  state: AgentState,
-): Promise<Partial<AgentState>> {
+async function saveMemoryNode(state: AgentState): Promise<Partial<AgentState>> {
   if (state.assistantResponseStored || !state.llmResponse) {
     return { nextNode: "END" };
   }
 
   try {
     const text = await state.llmResponse.text;
+
+    // Track token usage (non-fatal; don't crash chat flow for logging failure)
+    try {
+      const usage = await state.llmResponse.usage;
+      await trackUsage(state.sessionId, state.userId, state.provider, usage, {
+        role: "assistant",
+        node: "saveMemory",
+      });
+    } catch {
+      /* ignore usage tracking errors */
+    }
 
     if (text.trim().length > 0) {
       await storeMemory({
@@ -254,9 +263,7 @@ async function saveMemoryNode(
   }
 }
 
-async function outputNode(
-  state: AgentState,
-): Promise<Partial<AgentState>> {
+async function outputNode(state: AgentState): Promise<Partial<AgentState>> {
   if (!state.llmResponse) {
     return {
       error: "No LLM response available",

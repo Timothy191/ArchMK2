@@ -8,7 +8,17 @@ import { BreakdownStats } from "./BreakdownStats";
 import { BookInForm } from "./BookInForm";
 import { BookOutForm } from "./BookOutForm";
 import { BreakdownsTable } from "./BreakdownsTable";
-import { BreakdownCharts } from "./BreakdownCharts";
+import dynamic from "next/dynamic";
+
+const BreakdownCharts = dynamic(
+  () => import("./BreakdownCharts").then((m) => m.BreakdownCharts),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-64 animate-pulse bg-[var(--bg-tertiary)] rounded-xl" />
+    ),
+  },
+);
 
 type Tab = "overview" | "bookin" | "bookout" | "query";
 

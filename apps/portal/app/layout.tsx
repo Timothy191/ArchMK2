@@ -5,15 +5,18 @@ import { Inter, Outfit } from "next/font/google";
 import { AnimatedWavesBackground } from "@/components/AnimatedWavesBackground";
 import { OfflineBanner } from "@/components/OfflineBanner";
 import { AIAssistantSidebarWrapper } from "@/features/shared/components/ai/AIAssistantSidebarWrapper";
+import { SmoothScrollProvider } from "@/components/SmoothScrollProvider";
 
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
+  display: "swap",
 });
 
 const outfit = Outfit({
   subsets: ["latin"],
   variable: "--font-outfit",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -44,7 +47,7 @@ export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
-}): JSX.Element {
+}): React.JSX.Element {
   return (
     <html
       lang="en"
@@ -53,6 +56,14 @@ export default function RootLayout({
     >
       <head>
         <meta name="theme-color" content="#f5f5f7" />
+        <link
+          rel="preconnect"
+          href={process.env.NEXT_PUBLIC_SUPABASE_URL || "https://*.supabase.co"}
+        />
+        <link
+          rel="dns-prefetch"
+          href={process.env.NEXT_PUBLIC_SUPABASE_URL || "https://*.supabase.co"}
+        />
         <script
           dangerouslySetInnerHTML={{
             __html: `document.documentElement.setAttribute('data-theme', 'light');`,
@@ -61,12 +72,14 @@ export default function RootLayout({
       </head>
       <body className="text-[var(--text-heading)] min-h-screen font-sans antialiased selection:bg-[var(--accent-blue)]/30 selection:text-[var(--accent-blue)] relative overflow-x-hidden bg-[var(--bg-primary)]">
         <ArchThemeProvider>
-          <OfflineBanner />
-          <AnimatedWavesBackground />
-          <AIAssistantSidebarWrapper />
+          <SmoothScrollProvider>
+            <OfflineBanner />
+            <AnimatedWavesBackground />
+            <AIAssistantSidebarWrapper />
 
-          {/* Content wrapper */}
-          <div className="relative z-10">{children}</div>
+            {/* Content wrapper */}
+            <div className="relative z-10">{children}</div>
+          </SmoothScrollProvider>
         </ArchThemeProvider>
       </body>
     </html>

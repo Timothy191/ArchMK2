@@ -3,7 +3,7 @@ import { DEPARTMENTS } from "~/lib/departments";
 import { WeatherWidget } from "@/components/weather/WeatherWidget";
 import { SystemClock } from "@/components/clock/SystemClock";
 import { UserNav } from "@/components/nav/UserNav";
-import { Dock, DockIcon } from "@repo/ui/dock";
+import { Dock, DockIcon } from "@/components/DockWrapper";
 import { MacMenuBar } from "@repo/ui/MacMenuBar";
 import {
   LayoutDashboard,

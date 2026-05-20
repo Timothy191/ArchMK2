@@ -45,9 +45,7 @@ export const AnimeTimeline = forwardRef<
 
       let cancelled = false;
 
-      import("animejs").then(({ animate, createScope, createTimeline }) => {
-        if (cancelled || !root.current) return;
-
+      import("animejs").then(({ createScope, createTimeline }) => {
         scope.current = createScope({ root }).add(() => {
           timelineRef.current = createTimeline({
             autoplay: autoPlay,

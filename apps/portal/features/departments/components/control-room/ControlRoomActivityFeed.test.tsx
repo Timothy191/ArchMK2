@@ -1,13 +1,41 @@
-import { render, screen, waitFor, fireEvent, act } from "@testing-library/react";
+import {
+  render,
+  screen,
+  waitFor,
+  fireEvent,
+  act,
+} from "@testing-library/react";
 import { ControlRoomActivityFeed } from "./ControlRoomActivityFeed";
 
 jest.mock("@repo/supabase/client", () => ({
   createBrowserSupabaseClient: jest.fn(),
 }));
 
+jest.mock("@repo/ui/AnimatedList", () => ({
+  AnimatedFeed: ({
+    children,
+    className,
+  }: {
+    children: React.ReactNode;
+    className?: string;
+  }) => (
+    <div data-testid="animated-feed" className={className}>
+      {children}
+    </div>
+  ),
+}));
+
 jest.mock("@repo/ui/GlassCard", () => ({
-  GlassCard: ({ children, className }: { children: React.ReactNode; className?: string }) => (
-    <div data-testid="glass-card" className={className}>{children}</div>
+  GlassCard: ({
+    children,
+    className,
+  }: {
+    children: React.ReactNode;
+    className?: string;
+  }) => (
+    <div data-testid="glass-card" className={className}>
+      {children}
+    </div>
   ),
 }));
 

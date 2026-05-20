@@ -106,20 +106,20 @@
 }
 
 .glass-button-accent {
-  background: rgba(0, 212, 170, 0.15);
-  border-color: rgba(0, 212, 170, 0.3);
-  color: var(--accent-cyan);
+  background: rgba(0, 122, 255, 0.15);
+  border-color: rgba(0, 122, 255, 0.3);
+  color: var(--accent-blue);
 }
 
 .glass-button-accent:hover {
-  background: rgba(0, 212, 170, 0.25);
+  background: rgba(0, 122, 255, 0.25);
   box-shadow: var(--shadow-glow-primary);
 }
 
 .glass-button-danger {
   background: rgba(244, 63, 94, 0.15);
   border-color: rgba(244, 63, 94, 0.3);
-  color: var(--accent-alert);
+  color: var(--accent-red);
 }
 
 .glass-button-danger:hover {
@@ -182,8 +182,8 @@
 
 .glass-nav-item.active {
   background: var(--glass-surface-hover);
-  color: var(--accent-cyan);
-  border-left: 2px solid var(--accent-cyan);
+  color: var(--accent-blue);
+  border-left: 2px solid var(--accent-blue);
 }
 
 .glass-shine-sweep {
@@ -197,7 +197,7 @@
 
 .glass-spinner {
   border: 2px solid var(--glass-border);
-  border-top-color: var(--accent-cyan);
+  border-top-color: var(--accent-blue);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -206,27 +206,27 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--accent-cyan);
-  box-shadow: 0 0 8px rgba(0, 212, 170, 0.4);
+  background: var(--accent-blue);
+  box-shadow: 0 0 8px rgba(0, 122, 255, 0.4);
   animation: pulse-glow 2s ease-in-out infinite;
 }
 
 /* ── Glow Effects ── */
 
 .glow-border {
-  border: 1px solid rgba(0, 212, 170, 0.3);
-  box-shadow: 0 0 12px rgba(0, 212, 170, 0.08);
+  border: 1px solid rgba(0, 122, 255, 0.3);
+  box-shadow: 0 0 12px rgba(0, 122, 255, 0.08);
 }
 
 .glow-border-strong {
-  border: 1px solid rgba(0, 212, 170, 0.5);
-  box-shadow: 0 0 20px rgba(0, 212, 170, 0.15);
+  border: 1px solid rgba(0, 122, 255, 0.5);
+  box-shadow: 0 0 20px rgba(0, 122, 255, 0.15);
 }
 
 /* ── Text Effects ── */
 
 .text-gradient {
-  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-indigo));
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-blue));
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -240,7 +240,7 @@
 }
 
 .text-glow {
-  text-shadow: 0 0 20px rgba(0, 212, 170, 0.3);
+  text-shadow: 0 0 20px rgba(0, 122, 255, 0.3);
 }
 
 /* ── Liquid Glass (Premium) ── */

@@ -17,7 +17,7 @@
  */
 
 import { createServerSupabaseClient } from "@repo/supabase/server";
-import { generateEmbedding, batchGenerateEmbeddings } from "./embeddings";
+import { batchGenerateEmbeddings } from "./embeddings";
 import { logError } from "@/lib/errors/error-logger";
 
 // ---------------------------------------------------------------------------
@@ -73,7 +73,11 @@ const DEFAULT_TABLES: NonNullable<SyncConfig["tables"]> = [
 // ---------------------------------------------------------------------------
 
 async function getWatermark(
-  supabase: ReturnType<typeof createServerSupabaseClient> extends Promise<infer T> ? T : never,
+  supabase: ReturnType<typeof createServerSupabaseClient> extends Promise<
+    infer T
+  >
+    ? T
+    : never,
   tableName: string,
 ): Promise<string | null> {
   const { data } = await supabase
@@ -100,7 +104,10 @@ async function updateWatermark(
   );
 
   if (error) {
-    logError(new Error(error.message), { context: "embedding_sync_watermark", tableName });
+    logError(new Error(error.message), {
+      context: "embedding_sync_watermark",
+      tableName,
+    });
   }
 }
 
@@ -143,7 +150,6 @@ async function syncTable(
   config: NonNullable<SyncConfig["tables"]>[number],
   batchSize: number,
 ): Promise<void> {
-  const tableRef = `${config.schema}.${config.table}`;
   const watermark = await getWatermark(supabase, config.table);
 
   let query = supabase
@@ -162,9 +168,7 @@ async function syncTable(
 
   if (error || !rows || rows.length === 0) return;
 
-  const toEmbed = rows.filter(
-    (r: any) => r[config.contentColumn]?.length > 10,
-  );
+  const toEmbed = rows.filter((r: any) => r[config.contentColumn]?.length > 10);
 
   if (toEmbed.length === 0) return;
 
@@ -234,11 +238,7 @@ async function syncTable(
  * Returns a stop function to cancel.
  */
 export function startEmbeddingSync(config: SyncConfig = {}): () => void {
-  const {
-    intervalMs = 5000,
-    batchSize = 10,
-    tables = DEFAULT_TABLES,
-  } = config;
+  const { intervalMs = 5000, batchSize = 10, tables = DEFAULT_TABLES } = config;
 
   let active = true;
 

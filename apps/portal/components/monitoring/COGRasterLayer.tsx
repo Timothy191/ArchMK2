@@ -13,19 +13,42 @@ interface COGBandConfig {
 }
 
 const BAND_COMBOS: COGBandConfig[] = [
-  { label: "True Color", value: "truecolor", description: "RGB natural color (B4/B3/B2)" },
-  { label: "False Color", value: "falsecolor", description: "NIR + Red + Green vegetation analysis" },
-  { label: "NDVI", value: "ndvi", description: "Normalized Difference Vegetation Index" },
-  { label: "Geology", value: "geology", description: "Geological enhancement (SWIR bands)" },
-  { label: "SAR Mosaic", value: "sar", description: "Sentinel-1 GRD mosaic (VV/VH)" },
+  {
+    label: "True Color",
+    value: "truecolor",
+    description: "RGB natural color (B4/B3/B2)",
+  },
+  {
+    label: "False Color",
+    value: "falsecolor",
+    description: "NIR + Red + Green vegetation analysis",
+  },
+  {
+    label: "NDVI",
+    value: "ndvi",
+    description: "Normalized Difference Vegetation Index",
+  },
+  {
+    label: "Geology",
+    value: "geology",
+    description: "Geological enhancement (SWIR bands)",
+  },
+  {
+    label: "SAR Mosaic",
+    value: "sar",
+    description: "Sentinel-1 GRD mosaic (VV/VH)",
+  },
 ];
 
 // Demo COG tile endpoints for satellite imagery
 const COG_TILE_URLS: Record<string, string> = {
-  truecolor: "https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2020_3857/default/GoogleMapsCompatible/{z}/{y}/{x}.jpg",
-  falsecolor: "https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2020_3857/default/GoogleMapsCompatible/{z}/{y}/{x}.jpg",
+  truecolor:
+    "https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2020_3857/default/GoogleMapsCompatible/{z}/{y}/{x}.jpg",
+  falsecolor:
+    "https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2020_3857/default/GoogleMapsCompatible/{z}/{y}/{x}.jpg",
   ndvi: "https://tiles.maps.eox.at/wmts/1.0.0/ndvi_30m_2019_3857/default/GoogleMapsCompatible/{z}/{y}/{x}.jpeg",
-  geology: "https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2020_3857/default/GoogleMapsCompatible/{z}/{y}/{x}.jpg",
+  geology:
+    "https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2020_3857/default/GoogleMapsCompatible/{z}/{y}/{x}.jpg",
   sar: "https://tiles.maps.eox.at/wmts/1.0.0/sar_mosaic_3857/default/GoogleMapsCompatible/{z}/{y}/{x}.jpeg",
 };
 
@@ -50,7 +73,7 @@ export function COGRasterLayer({
   const [activeBand, setActiveBand] = useState("truecolor");
   const [opacity, setOpacity] = useState(1.0);
 
-  const tileUrl = COG_TILE_URLS[activeBand] ?? COG_TILE_URLS.truecolor;
+  const tileUrl: string = COG_TILE_URLS[activeBand] ?? COG_TILE_URLS.truecolor!;
 
   const layers = [
     new BitmapLayer({
@@ -73,10 +96,9 @@ export function COGRasterLayer({
               Cloud-Optimized GeoTIFF (COG)
             </p>
             <p className="text-xs text-[var(--text-secondary)] mt-1 leading-relaxed">
-              GPU-accelerated raster rendering directly in the browser.
-              Supports multi-spectral band composites, NDVI analytics,
-              and SAR mosaics via COG / WMTS endpoints.
-              Imagery &copy; EOX / ESA Copernicus.
+              GPU-accelerated raster rendering directly in the browser. Supports
+              multi-spectral band composites, NDVI analytics, and SAR mosaics
+              via COG / WMTS endpoints. Imagery &copy; EOX / ESA Copernicus.
             </p>
           </div>
         </div>
@@ -102,7 +124,9 @@ export function COGRasterLayer({
 
       {/* Opacity slider */}
       <div className="flex items-center gap-2">
-        <span className="text-xs text-[var(--text-secondary)] w-14">Opacity</span>
+        <span className="text-xs text-[var(--text-secondary)] w-14">
+          Opacity
+        </span>
         <input
           type="range"
           min={0}
@@ -140,9 +164,7 @@ export function COGRasterLayer({
                 },
                 "osm-bg": {
                   type: "raster",
-                  tiles: [
-                    "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-                  ],
+                  tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
                   tileSize: 256,
                   attribution:
                     "&copy; <a href='https://www.openstreetmap.org/copyright'>OSM</a>",

@@ -10,7 +10,7 @@
             "command": "node \"/home/timothy/Project/Arch-Mk2/.claude/hooks/scripts/secret-scan.js\""
           }
         ]
-      },
+      }
     ],
     "PostToolUse": [
       {
@@ -96,5 +96,18 @@
     "remember@claude-plugins-official": true,
     "claude-code-setup@claude-plugins-official": true
   },
-  "theme": "dark"
+  "theme": "dark",
+  "autoCompactEnabled": true,
+  "showTurnDuration": true,
+  "alwaysThinkingEnabled": true,
+  "showThinkingSummaries": true,
+  "effortLevel": "xhigh",
+  "prefersReducedMotion": true,
+  "skillListingBudgetFraction": 0.05,
+  "skillListingMaxDescChars": 2048,
+  "terminalProgressBarEnabled": true,
+  "todoFeatureEnabled": true,
+  "companyAnnouncements": [
+    "features: /spec | bugfixes: /fix | requirements: /prd"
+  ]
 }

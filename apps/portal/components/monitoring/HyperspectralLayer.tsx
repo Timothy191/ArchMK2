@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import type { STACItem } from "@/lib/monitoring-api";
 import { formatSceneDate, getSTACQuicklookUrl } from "@/lib/monitoring-api";
@@ -325,31 +326,38 @@ export function HyperspectralLayer({
                   {isExpanded && (
                     <div className="px-3 pb-3 pt-0 border-t border-[var(--border-default)]">
                       {quicklook && (
-                        <img
+                        <Image
                           src={quicklook}
                           alt="Scene quicklook preview"
                           className="w-full h-24 object-cover rounded-lg mt-2 mb-2"
                           loading="lazy"
                           width={320}
                           height={96}
+                          unoptimized
                         />
                       )}
                       <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[10px]">
                         {scene.properties["s2:mgrs_tile"] && (
                           <>
-                            <span className="text-[var(--text-secondary)]">MGRS Tile</span>
+                            <span className="text-[var(--text-secondary)]">
+                              MGRS Tile
+                            </span>
                             <span className="text-[var(--text-heading)] font-mono">
                               {scene.properties["s2:mgrs_tile"]}
                             </span>
                           </>
                         )}
-                        <span className="text-[var(--text-secondary)]">Platform</span>
+                        <span className="text-[var(--text-secondary)]">
+                          Platform
+                        </span>
                         <span className="text-[var(--text-heading)]">
                           {scene.properties.platform ?? "Sentinel-2"}
                         </span>
                         {cloud !== undefined && (
                           <>
-                            <span className="text-[var(--text-secondary)]">Cloud cover</span>
+                            <span className="text-[var(--text-secondary)]">
+                              Cloud cover
+                            </span>
                             <span className="text-[var(--text-heading)]">
                               {cloud.toFixed(1)}%
                             </span>

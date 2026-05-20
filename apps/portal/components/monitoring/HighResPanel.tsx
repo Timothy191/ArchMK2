@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState, useMemo } from "react";
 import type { STACItem } from "@/lib/monitoring-api";
 import { formatSceneDate, getSTACQuicklookUrl } from "@/lib/monitoring-api";
@@ -188,13 +189,17 @@ export function HighResPanel({ scenes }: HighResPanelProps) {
         {stockpileResult ? (
           <div className="grid grid-cols-2 gap-2">
             <div className="p-2.5 bg-[var(--bg-primary)] rounded-lg">
-              <p className="text-[10px] text-[var(--text-secondary)]">Volume (m³)</p>
+              <p className="text-[10px] text-[var(--text-secondary)]">
+                Volume (m³)
+              </p>
               <p className="text-lg font-bold text-[#3ecf8e]">
                 {stockpileResult.volumeM3.toLocaleString()}
               </p>
             </div>
             <div className="p-2.5 bg-[var(--bg-primary)] rounded-lg">
-              <p className="text-[10px] text-[var(--text-secondary)]">Tonnage (t)</p>
+              <p className="text-[10px] text-[var(--text-secondary)]">
+                Tonnage (t)
+              </p>
               <p className="text-lg font-bold text-[var(--text-heading)]">
                 {stockpileResult.tonnage.toLocaleString()}
               </p>
@@ -275,7 +280,9 @@ export function HighResPanel({ scenes }: HighResPanelProps) {
             >
               <span className="text-xl shrink-0">{uc.icon}</span>
               <div>
-                <p className="text-sm font-medium text-[var(--text-heading)]">{uc.title}</p>
+                <p className="text-sm font-medium text-[var(--text-heading)]">
+                  {uc.title}
+                </p>
                 <p className="text-xs text-[var(--text-secondary)] mt-0.5 leading-relaxed">
                   {uc.description}
                 </p>
@@ -331,7 +338,9 @@ export function HighResPanel({ scenes }: HighResPanelProps) {
                   <td className="p-2.5 text-[11px]">
                     <span
                       className={
-                        p.cost === "Free" ? "text-[#3ecf8e]" : "text-[var(--text-secondary)]"
+                        p.cost === "Free"
+                          ? "text-[#3ecf8e]"
+                          : "text-[var(--text-secondary)]"
                       }
                     >
                       {p.cost}
@@ -351,7 +360,9 @@ export function HighResPanel({ scenes }: HighResPanelProps) {
         </p>
         {scenes.length === 0 ? (
           <div className="p-4 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-emphasis)] text-center">
-            <p className="text-[var(--text-secondary)] text-sm">No recent scenes available</p>
+            <p className="text-[var(--text-secondary)] text-sm">
+              No recent scenes available
+            </p>
             <p className="text-[var(--text-secondary)] text-xs mt-1">
               Add Planet/Maxar API keys in Settings for daily sub-metre imagery
             </p>
@@ -376,13 +387,14 @@ export function HighResPanel({ scenes }: HighResPanelProps) {
                   }`}
                 >
                   {quicklook && selectedScene === scene.id && (
-                    <img
+                    <Image
                       src={quicklook}
                       alt="Scene quicklook preview"
                       className="w-full h-20 object-cover"
                       loading="lazy"
                       width={320}
                       height={80}
+                      unoptimized
                     />
                   )}
                   <div className="p-3">

@@ -3,15 +3,15 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
-  Drill,
+  Shovel,
   Factory,
   ShieldCheck,
   Wrench,
   Monitor,
   HardHat,
   GraduationCap,
-  Satellite,
-} from "lucide-react";
+  Broadcast,
+} from "@phosphor-icons/react";
 import { SpotlightCard } from "@repo/ui/SpotlightCard";
 import { GlowBorderCard } from "@repo/ui/GlowBorderCard";
 import { Badge } from "@repo/ui/components/ui/badge";
@@ -19,14 +19,14 @@ import { cn } from "@repo/ui/lib/utils";
 import type { Department } from "~/lib/departments";
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
-  Drill,
+  Drill: Shovel,
   Factory,
   ShieldCheck,
   Wrench,
   Monitor,
   HardHat,
   GraduationCap,
-  Satellite,
+  Satellite: Broadcast,
 };
 
 const COLOR_MAP: Record<string, { bg: string; glow: string }> = {

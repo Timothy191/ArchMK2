@@ -2,6 +2,7 @@
 load-tests/
 scripts/
 tools/
+template/
 
 # Generated artifacts
 apps/portal/public/sw.js

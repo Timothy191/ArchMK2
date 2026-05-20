@@ -11,7 +11,7 @@ import {
   Activity,
 } from "lucide-react";
 import { ExportButton } from "@/features/analytics/components/ExportButton";
-import { ProductionTrendChart } from "@/features/analytics/components/ProductionTrendChart";
+import { ProductionTrendChart } from "@/features/analytics/components/ProductionTrendChartWrapper";
 
 export const dynamic = "force-dynamic";
 
@@ -36,7 +36,9 @@ export default async function ExecutiveDashboardPage() {
   const db = await createReadReplicaClient();
   const today = new Date().toISOString().split("T")[0]!;
   const monthStart = today.slice(0, 7) + "-01";
-  const thirtyDaysAgo = new Date(Date.now() - 30 * 86400000).toISOString().split("T")[0]!;
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 86400000)
+    .toISOString()
+    .split("T")[0]!;
 
   // Step 1: get daily_log IDs for MTD and 30-day window
   const [{ data: mtdLogs }, { data: trendLogs }] = await Promise.all([
@@ -90,19 +92,28 @@ export default async function ExecutiveDashboardPage() {
           .from("production_logs")
           .select("coal_tonnes, waste_tonnes")
           .in("daily_log_id", mtdLogIds)
-      : Promise.resolve({ data: [] as { coal_tonnes: number; waste_tonnes: number }[], error: null }),
+      : Promise.resolve({
+          data: [] as { coal_tonnes: number; waste_tonnes: number }[],
+          error: null,
+        }),
     mtdLogIds.length > 0
       ? db
           .from("fuel_logs")
           .select("diesel_litres")
           .in("daily_log_id", mtdLogIds)
-      : Promise.resolve({ data: [] as { diesel_litres: number }[], error: null }),
+      : Promise.resolve({
+          data: [] as { diesel_litres: number }[],
+          error: null,
+        }),
     mtdLogIds.length > 0
       ? db
           .from("machine_hours")
           .select("hours_worked")
           .in("daily_log_id", mtdLogIds)
-      : Promise.resolve({ data: [] as { hours_worked: number }[], error: null }),
+      : Promise.resolve({
+          data: [] as { hours_worked: number }[],
+          error: null,
+        }),
     db
       .from("breakdowns")
       .select("id, status")
@@ -113,22 +124,34 @@ export default async function ExecutiveDashboardPage() {
           .from("production_logs")
           .select("daily_log_id, coal_tonnes, waste_tonnes")
           .in("daily_log_id", trendLogIds)
-      : Promise.resolve({ data: [] as { daily_log_id: string; coal_tonnes: number; waste_tonnes: number }[], error: null }),
+      : Promise.resolve({
+          data: [] as {
+            daily_log_id: string;
+            coal_tonnes: number;
+            waste_tonnes: number;
+          }[],
+          error: null,
+        }),
   ]);
 
   // Compute MTD aggregates
-  const totalCoalMtd = productionMtd?.reduce((s, r) => s + (r.coal_tonnes ?? 0), 0) ?? 0;
-  const totalWasteMtd = productionMtd?.reduce((s, r) => s + (r.waste_tonnes ?? 0), 0) ?? 0;
+  const totalCoalMtd =
+    productionMtd?.reduce((s, r) => s + (r.coal_tonnes ?? 0), 0) ?? 0;
+  const totalWasteMtd =
+    productionMtd?.reduce((s, r) => s + (r.waste_tonnes ?? 0), 0) ?? 0;
   const totalTonnageMtd = totalCoalMtd + totalWasteMtd;
-  const totalFuelMtd = fuelMtd?.reduce((s, r) => s + (r.diesel_litres ?? 0), 0) ?? 0;
-  const totalHoursMtd = machineHoursMtd?.reduce((s, r) => s + (r.hours_worked ?? 0), 0) ?? 0;
+  const totalFuelMtd =
+    fuelMtd?.reduce((s, r) => s + (r.diesel_litres ?? 0), 0) ?? 0;
+  const totalHoursMtd =
+    machineHoursMtd?.reduce((s, r) => s + (r.hours_worked ?? 0), 0) ?? 0;
   const fleetPct =
     totalMachines && totalMachines > 0
       ? Math.round(((activeMachines ?? 0) / totalMachines) * 100)
       : 0;
   const fuelPerTonne =
     totalTonnageMtd > 0 ? (totalFuelMtd / totalTonnageMtd).toFixed(2) : "—";
-  const openBreakdowns = breakdownsMtd?.filter((b) => b.status === "active").length ?? 0;
+  const openBreakdowns =
+    breakdownsMtd?.filter((b) => b.status === "active").length ?? 0;
 
   // Build 30-day chart data — aggregate production per log_date
   const prodByLogId = new Map<string, { coal: number; waste: number }>();
@@ -221,7 +244,13 @@ export default async function ExecutiveDashboardPage() {
           <KPICard
             label="Active Breakdowns"
             value={openBreakdowns}
-            color={openBreakdowns > 5 ? "red" : openBreakdowns > 2 ? "amber" : "green"}
+            color={
+              openBreakdowns > 5
+                ? "red"
+                : openBreakdowns > 2
+                  ? "amber"
+                  : "green"
+            }
           />
           <KPICard
             label="Active Personnel"
@@ -252,11 +281,7 @@ export default async function ExecutiveDashboardPage() {
             value={breakdownsMtd?.length ?? 0}
             color="default"
           />
-          <KPICard
-            label="Reporting Date"
-            value={today}
-            color="default"
-          />
+          <KPICard label="Reporting Date" value={today} color="default" />
         </KPIGrid>
       </section>
 

@@ -6,9 +6,11 @@
  */
 
 import type { UIMessage } from "ai";
+import type { TokenUsage } from "./cost-tracker";
 
 export interface LLMResponse {
   text: PromiseLike<string>;
+  usage: PromiseLike<TokenUsage>;
   toUIMessageStreamResponse: () => Response;
 }
 
@@ -48,6 +50,7 @@ export interface AgentState {
   iterations: number;
   maxIterations: number;
   provider: "primary" | "secondary";
+  usage?: TokenUsage;
 
   // Output
   streamResponse?: Response;

@@ -20,8 +20,7 @@
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
-    "typescript": "catalog:",
-    "vercel": "^54.2.0"
+    "typescript": "catalog:"
   },
   "engines": {
     "node": ">=20.17.0"

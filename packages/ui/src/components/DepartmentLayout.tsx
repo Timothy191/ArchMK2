@@ -6,58 +6,63 @@ import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { MacTitleBar } from "./MacTitleBar";
 import {
-  BarChart2,
+  ChartBar,
   Clock,
   Cpu,
-  AlertTriangle,
+  Warning,
   Wrench,
-  Pickaxe,
+  Shovel,
   GitCommit,
   Database,
   FileText,
-  Satellite,
-  ClipboardList,
-  History,
+  Broadcast,
+  ClipboardText,
+  ClockCounterClockwise,
   Radio,
-  Layers,
-  ScanSearch,
+  Stack,
+  MagnifyingGlass,
   CheckSquare,
-  Drill,
-  Activity,
+  Pulse,
   ShieldCheck,
   Users,
   CreditCard,
   Factory,
-  Settings,
-  CircleDot,
-} from "lucide-react";
-import type { LucideProps } from "lucide-react";
+  Gear,
+  Circle,
+  Monitor,
+  HardHat,
+  GraduationCap,
+} from "@phosphor-icons/react";
+import type { IconProps } from "@phosphor-icons/react";
 
-const ICON_MAP: Record<string, React.ComponentType<LucideProps>> = {
-  BarChart2,
+const ICON_MAP: Record<string, React.ComponentType<IconProps>> = {
+  BarChart2: ChartBar,
   Clock,
   Cpu,
-  AlertTriangle,
+  AlertTriangle: Warning,
   Wrench,
-  Pickaxe,
+  Pickaxe: Shovel,
   GitCommit,
   Database,
   FileText,
-  Satellite,
-  ClipboardList,
-  History,
+  Satellite: Broadcast,
+  ClipboardList: ClipboardText,
+  History: ClockCounterClockwise,
   Radio,
-  Layers,
-  ScanSearch,
+  Layers: Stack,
+  ScanSearch: MagnifyingGlass,
   CheckSquare,
-  Drill,
-  Activity,
+  Drill: Shovel,
+  Activity: Pulse,
   ShieldCheck,
   Users,
   CreditCard,
   Factory,
-  Settings,
-  CircleDot,
+  Settings: Gear,
+  CircleDot: Circle,
+  Monitor,
+  HardHat,
+  GraduationCap,
 };
 
 interface Tab {
@@ -128,7 +133,7 @@ export function DepartmentLayout({
                 "bg-indigo-500/10 text-indigo-600",
             )}
           >
-            <BarChart2 className="w-3.5 h-3.5" />
+            <ChartBar className="w-3.5 h-3.5" />
           </div>
           <span className="text-[12px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider">
             {department.displayName}

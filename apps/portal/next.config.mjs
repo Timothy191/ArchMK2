@@ -1,11 +1,22 @@
 import { withSentryConfig } from "@sentry/nextjs";
 import withPWA from "@ducanh2912/next-pwa";
+import withBundleAnalyzer from "@next/bundle-analyzer";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  transpilePackages: ["@repo/ui", "@repo/supabase", "@repo/utils", "@repo/redis"],
+  transpilePackages: [
+    "@repo/ui",
+    "@repo/supabase",
+    "@repo/utils",
+    "@repo/redis",
+  ],
   experimental: {
     ppr: false,
+  },
+  images: {
+    formats: ["image/avif", "image/webp"],
+    minimumCacheTTL: 60,
+    remotePatterns: [{ protocol: "https", hostname: "**" }],
   },
   compiler: {
     removeConsole: process.env.NODE_ENV === "production",
@@ -15,6 +26,18 @@ const nextConfig = {
     config.resolve.extensionAlias = {
       ".js": [".ts", ".tsx", ".js"],
       ".mjs": [".mts", ".mjs"],
+    };
+    config.optimization.splitChunks = {
+      ...config.optimization.splitChunks,
+      cacheGroups: {
+        ...config.optimization.splitChunks?.cacheGroups,
+        d3: {
+          test: /[\\/]node_modules[\\/](d3|d3-.*)[\\/]/,
+          name: "d3-vendor",
+          chunks: "all",
+          priority: 30,
+        },
+      },
     };
     return config;
   },
@@ -60,7 +83,11 @@ const pwaConfig = withPWA({
   },
 })(nextConfig);
 
-export default withSentryConfig(pwaConfig, {
+const analyzedConfig = withBundleAnalyzer({
+  enabled: process.env.ANALYZE === "true",
+})(pwaConfig);
+
+export default withSentryConfig(analyzedConfig, {
   org: process.env.SENTRY_ORG,
   project: process.env.SENTRY_PROJECT,
   silent: !process.env.CI,

@@ -32,7 +32,7 @@ jobs:
       PORT: 3000
       N8N_URL: http://localhost:5678
       FLOWISE_URL: http://localhost:3000
-      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres # secretlint-disable-line
       PAYLOAD_SECRET: dummy-payload-secret-for-ci
 
     steps:
@@ -94,6 +94,25 @@ jobs:
 
       - name: Bundle Size Check
         run: pnpm bundlesize
+
+      - name: Start portal for Lighthouse
+        run: pnpm --filter portal start &
+        env:
+          PORT: 3000
+
+      - name: Wait for portal
+        run: npx wait-on http://localhost:3000 --timeout 60000
+
+      - name: Run Lighthouse CI
+        run: npx @lhci/cli@0.14.x autorun
+
+      - name: Upload Lighthouse results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-report
+          path: .lighthouseci/
+          retention-days: 14
 
       - name: Upload Turborepo Summary
         if: always()

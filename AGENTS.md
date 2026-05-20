@@ -1,67 +1,162 @@
 # AGENTS.md
 
 ## Prerequisites
-- Node.js `>=20.17.0` (via volta), pnpm `9.12.0`, Docker (for Supabase)
+
+- Node.js `>=20.17.0` (via Volta), pnpm `9.12.0`, Docker (for local Supabase)
 
 ## Quick Start
+
 ```bash
 pnpm install
-cp apps/portal/.env.example apps/portal/.env
-pnpm --filter @repo/database supabase:dev  # separate terminal, Docker required
-pnpm dev
+cp apps/portal/.env.example apps/portal/.env     # also fill root .env.example fields
+pnpm --filter @repo/database supabase:dev        # separate terminal, Docker; db on :54321
+pnpm dev                                          # Next.js dev server on :3000
 ```
 
-## Commands
+## Monorepo
+
+Turborepo + pnpm workspaces (`apps/*`, `packages/*`).
+
+| Area                | Purpose                                                        |
+| ------------------- | -------------------------------------------------------------- |
+| `apps/portal`       | Next.js 15 mining operations portal (main app)                 |
+| `apps/cms`          | Payload CMS v3                                                 |
+| `apps/overview`     | Standalone architectural visualisation                         |
+| `packages/ui`       | Shared Radix/shadcn UI components                              |
+| `packages/theme`    | OKLCH design tokens + Tailwind preset (single source of truth) |
+| `packages/supabase` | Browser, server, and middleware Supabase clients               |
+| `packages/database` | SQL migrations (source of truth)                               |
+| `packages/redis`    | Redis cache helpers (department slug resolution in middleware) |
+| `packages/eval`     | Python/DeepEval AI code-generation compliance suite            |
+
+Dependency versions use pnpm [`catalog:`](pnpm-workspace.yaml) indirection (e.g. `catalog:react19`).  
+Before changing a shared dep, look up the named catalog block in `pnpm-workspace.yaml`.
+
+---
+
+## Commands (non-obvious ones bolded)
+
 ```bash
-pnpm dev                    # Portal dev server (Next.js on :3000)
-pnpm build                  # Build all packages
-pnpm lint                   # Lint all packages
-pnpm type-check             # TypeScript check across all packages
-pnpm test                   # All unit tests (Jest), portal suffix for filter
-pnpm test:e2e               # Playwright (app must be running on :3000)
-pnpm quality                # Full gate: lint → type-check → test → format-check → syncpack → knip
-pnpm --filter portal test -- --testPathPatterns=<file>  # Single test
-pnpm format                 # Prettier write all
-pnpm deps:lint              # syncpack dependency version mismatch check
-pnpm deps:fix               # Fix dependency version mismatches
-pnpm knip                   # Find unused exports/deps
-pnpm --filter @repo/database supabase:gen  # Regenerate TS types → packages/types/src/database.types.ts
-pnpm --filter @repo/ui ui   # Open shadcn/ui CLI for @repo/ui
-pnpm deploy:local           # Full local stack deploy (Supabase + build + start)
-pnpm fresh-start            # Clean redeploy
-pnpm shutdown               # Graceful local services shutdown
-pnpm monitor                # Terminal sysops HUD
-pnpm monitor:grafana        # Start Grafana via Docker Compose
-pnpm md:lint                # Markdown lint
+pnpm dev                    # portal only (Next.js :3000)
+pnpm --filter portal dev   # explicit portal
+
+# quality gate (runs lint → type-check → test → lint:tokens → lint:css → format-check → lint-root → deps:lint → knip)
+pnpm quality
+
+# files not obvious from scripts alone:
+pnpm --filter @repo/database supabase:push  # push migrations to local DB
+pnpm --filter @repo/database supabase:reset # destructive — wipes local DB
+pnpm --filter @repo/database supabase:gen    # regen TS types → packages/types/src/database.types.ts
+pnpm knip:fix               # auto-remove dead exports/deps found by knip
+pnpm md:fix                 # auto-fix markdown lint
+pnpm monitor:grafana-stop   # stop Grafana stack started by monitor:grafana
 ```
 
-## Architecture
-- Monorepo: Turborepo + pnpm workspaces (`apps/*`, `packages/*`)
-- `apps/portal` — Next.js 15 (App Router) + React 19 + Tailwind CSS. Main mining operations portal.
-- `apps/cms` — Payload CMS v3 (headless)
-- `apps/overview` — Standalone Next.js architectural viz app
-- Key packages: `@repo/theme` (design tokens + Tailwind preset), `@repo/ui` (shared components, Radix + shadcn/ui), `@repo/supabase` (client/server/middleware helpers), `@repo/database` (migrations), `@repo/redis`, `@repo/errors`, `@repo/utils`, `@repo/hooks`, `@repo/eval`
-- Path aliases in `apps/portal`: `@/` and `~/` → `apps/portal/`
+Run a **single file**:
 
-## Critical Conventions
-- **Theme**: **Light-only** (macOS Sonoma visual language). Dark mode does not exist.
-- **Shadows**: Raw `box-shadow` CSS, Tailwind `shadow-sm/md/lg` all **forbidden**. Use `shadow-diffusion-*` / `shadow-card` / `shadow-window` tokens from the theme preset only.
-- **Glass pattern**: `bg-white/70 backdrop-blur-xl border border-black/[0.08]` for elevated surfaces.
-- **Class merging**: `cn()` from `@repo/ui/lib/utils`
-- **RLS**: Must be enabled on every new Supabase table
-- **Server Actions**: Use `createServerSupabaseClient()` from `@repo/supabase/server`. Validate user at top.
-- **Animation**: Only `opacity`, `transform`, `background-color`, `border-color`, `color`. Never layout properties. Easing `cubic-bezier(0.16, 1, 0.3, 1)`.
+```bash
+pnpm --filter portal test -- --testPathPatterns=<file>
+```
 
-## Migrations
-- Author in `packages/database/migrations/` (source of truth, sequential numeric names)
-- `packages/supabase/supabase/migrations/` is a deploy-time copy (may lag; timestamp-named files)
-- Run `supabase:gen` after new migrations to update `packages/types/src/database.types.ts`
+---
 
-## AI & Workflow
-- LangGraph 8-node agent workflow at `apps/portal/lib/ai/agent-graph.ts` (OpenRouter primary → Groq fallback)
-- Custom n8n MCP server at `tools/n8n-mcp/` wired via `.mcp.json`
-- Husky pre-commit runs `pnpm lint-staged` (ESLint on staged `*.{ts,tsx,js,jsx}`)
-- `.claude/settings.json` hooks auto-secret-scan, auto-format (Prettier), auto-lint portal files after edits
+## Supabase Migrations
 
-## Verification Order
-`lint` → `type-check` → `test` → `build` (CI mirrors this). Run `pnpm quality` before push.
+Source of truth: `packages/database/migrations/` — zero-padded sequential numbers (`NNN_name.sql`).  
+`packages/supabase/supabase/migrations/` is a deploy-time copy only; **never edit directly**.  
+`supabase:gen` must always be run after a migration to regenerate `packages/types/src/database.types.ts`.  
+CI/services use env vars prefixed with `SUPABASE_` (not `NEXT_PUBLIC_SUPABASE_`).
+
+---
+
+## Supabase Auth & Middleware
+
+- Middleware at `apps/portal/middleware.ts`: handles session refresh, department-slug → UUID resolution (Redis-cached), and role-based route gating.
+- The **`employees` table** is the authorization source of truth: role = `employees.role`, department = `employees.department_id`, not Supabase Auth metadata.
+- `/api/c66` is **exempt from auth** — keep this when touching middleware.
+- Server Actions: `createServerSupabaseClient()` from `@repo/supabase/server`. **Always validate the user at the top.**
+- **RLS** must be enabled on every new Supabase table.
+- New `@repo/*` imports in portal tests: add the corresponding `moduleNameMapper` entry in `apps/portal/jest.config.js` (for new UI components, etc).
+
+---
+
+## Portal Path Aliases
+
+```
+~/*     → apps/portal/*
+@/*    → apps/portal/*
+```
+
+`@/app/*`, `@/features/*`, `@/components/*`, `@/lib/*`, `@/hooks/*` → respective subdirectories.  
+Root layout: `apps/portal/app/layout.tsx` — mounts `ArchThemeProvider`, `OfflineBanner`, `AnimatedWavesBackground`, `AIAssistantSidebarWrapper`.
+
+---
+
+## Portal Route Groups
+
+| Group                         | Notes                                                                                                                                                                                                                        |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `(auth)/`                     | Login, reset/update password — auth layout + `AnimatedWavesBackground`                                                                                                                                                       |
+| `(departments)/[department]/` | Dynamic dashboard per department (drilling, production, engineering, …) and static sub-routes like `drilling/drilling-operations/` — **static sub-pages must export their own `layout.tsx` re-exporting `DepartmentLayout`** |
+| `(hub)/`                      | Landing / executive view                                                                                                                                                                                                     |
+| `api/`                        | API routes (ai, c66, export, health, plugins, sync, tools, webhooks); Server Actions co-located near features                                                                                                                |
+| `admin/`                      | Admin panel                                                                                                                                                                                                                  |
+
+---
+
+## Design System (visit `DESIGN.md` for full palette)
+
+- **Light-only theme** — hardcoded via `<script>` in `<head>`; `data-theme="light"`; dark mode does not exist.
+- **Shadows**: raw `box-shadow` and Tailwind `shadow-sm/md/lg` are **forbidden**. Use `shadow-card`, `shadow-window`, `shadow-diffusion-*` tokens only.
+- **Glass pattern**: `bg-white/70 backdrop-blur-xl border border-black/[0.08]`
+- **Class merging**: always use `cn()` from `@repo/ui/lib/utils`
+- **Icon imports**: always named (`import { Drill } from "lucide-react"`), never `* as Icons`. Unscoped imports produced a 1.3 MB chunk in the past.
+- **Animation**: only `opacity`, `transform`, `background-color`, `border-color`, `color`; never layout props. Easing: `cubic-bezier(0.16, 1, 0.3, 1)`.
+
+---
+
+## Testing
+
+| Suite                       | Command                                                  | Notes                                                                  |
+| --------------------------- | -------------------------------------------------------- | ---------------------------------------------------------------------- |
+| Unit (Jest, jsdom, ts-jest) | `pnpm test`                                              | Does **not** need Supabase running                                     |
+| Single file                 | `pnpm --filter portal test -- --testPathPatterns=<file>` |                                                                        |
+| E2E (Playwright)            | `pnpm test:e2e`                                          | **Requires dev server on :3000**                                       |
+| Visual snapshots            | `e2e/visual/__snapshots__/`                              | Chromium binary: `/usr/bin/google-chrome` (see `playwright.config.ts`) |
+| AI compliance               | `packages/eval/` (Python/DeepEval)                       |                                                                        |
+
+Coverage targets: lines 40 %, branches 30 %, functions 35 %, statements 40 % (`jest.config.js`).
+
+---
+
+## CI Verification Order
+
+```
+deps:lint → lint → type-check → test → build → bundlesize
+```
+
+CI also runs `pnpm md:lint`. The `quality` gate bundles all of the above; run it before pushing.
+
+---
+
+## Environment Variables (local vs CI)
+
+Start local from `apps/portal/.env.example`:
+
+- Supabase local: `NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321`, service key from `supabase start` output.
+- Read-replica (optional): `SUPABASE_READ_REPLICA_URL=http://127.0.0.1:54322`
+- CI uses synthetic values; do not ship real keys.
+
+---
+
+## Key Config Files
+
+| File                                     | What it controls                                          |
+| ---------------------------------------- | --------------------------------------------------------- |
+| `packages/database/supabase/config.toml` | Local Supabase port / keys                                |
+| `turbo.json`                             | Pipeline DAG, env passthrough, cache rules                |
+| `apps/portal/next.config.mjs`            | PWA + Sentry + `transpilePackages` for workspace deps     |
+| `knip.json`                              | Entry points for dead-code detector (add new routes here) |
+| `.mcp.json`                              | n8n MCP server (`tools/n8n-mcp/`), codebase-memory MCP    |
+| `.syncpackrc.js`                         | Inter-package dependency version checks                   |
+| `.secretlintrc.json`                     | Secret scanning on staged files (lint-staged hook)        |

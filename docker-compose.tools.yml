@@ -74,7 +74,15 @@ services:
       - LANGFUSE_INIT_PUBLIC_KEY=pk-lf-plantcor
       - LANGFUSE_INIT_SECRET_KEY=sk-lf-plantcor
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/public/health"]
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:3000/api/public/health",
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -137,12 +145,26 @@ services:
     networks:
       - plantcor-tools
 
+  fuxa:
+    image: frangoteam/fuxa:latest
+    container_name: plantcor-fuxa
+    restart: unless-stopped
+    ports:
+      - "1881:1881"
+    volumes:
+      - fuxa_data:/root/.fuxa
+    environment:
+      - NODE_ENV=production
+    networks:
+      - plantcor-tools
+
 volumes:
   flowise_data:
   redis_data:
   langfuse_db_data:
   qdrant_data:
   prometheus_data:
+  fuxa_data:
 
 networks:
   plantcor-tools:

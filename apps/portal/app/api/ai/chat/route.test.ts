@@ -45,6 +45,18 @@ jest.mock("@/lib/ai/memory", () => ({
   formatMemoriesForContext: jest.fn().mockReturnValue(""),
 }));
 
+// In-memory mock for Redis cache so rate limiter state is fully controllable
+const mockCache = new Map<string, unknown>();
+jest.mock("@repo/redis/cache", () => ({
+  cacheGet: jest.fn(async (key: string) => mockCache.get(key) ?? null),
+  cacheSet: jest.fn(async (key: string, value: unknown) => {
+    mockCache.set(key, value);
+  }),
+  cacheDelete: jest.fn(async (key: string) => {
+    mockCache.delete(key);
+  }),
+}));
+
 const { streamText } = jest.requireMock("ai");
 const { createServerSupabaseClient } = jest.requireMock(
   "@repo/supabase/server",
@@ -55,6 +67,7 @@ const { storeMemory, retrieveRelevantMemories } =
 describe("POST /api/ai/chat", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockCache.clear();
     resetRateLimits();
     streamText.mockReturnValue({
       toUIMessageStreamResponse: jest

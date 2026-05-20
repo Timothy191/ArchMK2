@@ -9,7 +9,7 @@ interface TrendPoint {
   waste: number;
 }
 
-interface ProductionTrendChartProps {
+export interface ProductionTrendChartProps {
   data: TrendPoint[];
   showForecast?: boolean;
 }
@@ -20,9 +20,7 @@ export function ProductionTrendChart({
 }: ProductionTrendChartProps) {
   const coalValues = data.map((d) => d.coal);
   const forecast: number[] =
-    showForecast && data.length >= 7
-      ? linearForecast(coalValues, 7)
-      : [];
+    showForecast && data.length >= 7 ? linearForecast(coalValues, 7) : [];
 
   const lastDate = data.at(-1)?.date ?? new Date().toISOString().split("T")[0]!;
 
@@ -47,14 +45,17 @@ export function ProductionTrendChart({
     ...forecastPoints,
   ];
 
-  const categories = showForecast && forecast.length > 0
-    ? ["Coal (t)", "Waste (t)", "Coal Forecast"]
-    : ["Coal (t)", "Waste (t)"];
+  const categories =
+    showForecast && forecast.length > 0
+      ? ["Coal (t)", "Waste (t)", "Coal Forecast"]
+      : ["Coal (t)", "Waste (t)"];
 
   if (data.length === 0) {
     return (
       <div className="flex items-center justify-center h-48">
-        <Text className="text-[var(--text-muted)]">No production data in the last 30 days</Text>
+        <Text className="text-[var(--text-muted)]">
+          No production data in the last 30 days
+        </Text>
       </div>
     );
   }

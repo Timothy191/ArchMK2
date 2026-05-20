@@ -2,7 +2,7 @@
 
 interface ShiftToggleProps {
   value: "day" | "night";
-  onChange: (shift: "day" | "night") => void;
+  onChange: (_shift: "day" | "night") => void;
   name?: string;
 }
 

@@ -1,9 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
-
-// Kepler.gl and its styles — imported dynamically below for SSR safety
-import "kepler.gl/styles/less/kepler-gl-style.css";
+import { useMemo } from "react";
 
 interface KeplerGlMapProps {
   center?: { lat: number; lon: number };
@@ -11,26 +8,24 @@ interface KeplerGlMapProps {
   height?: string;
 }
 
-interface GeoJSONFeature {
-  type: "Feature";
-  geometry: {
-    type: "Point";
-    coordinates: [number, number];
-  };
-  properties: Record<string, unknown>;
+type DeformationLevel = "stable" | "minor" | "moderate" | "critical";
+type DeformationTrend = "stable" | "accelerating" | "decelerating";
+
+interface DeformationPoint {
+  lat: number;
+  lon: number;
+  level: DeformationLevel;
+  area: string;
+  shiftMm: number;
+  trend: DeformationTrend;
+  sensor: string;
 }
 
 export function KeplerGlMap({
   center = { lat: -26.25, lon: 26.75 },
-  zoom = 11,
   height = "600px",
 }: KeplerGlMapProps) {
-  const [loaded, setLoaded] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  // Generate demo mining deformation data as GeoJSON
-  const generateMiningData = useCallback((): GeoJSONFeature[] => {
-    const features: GeoJSONFeature[] = [];
+  const points = useMemo((): DeformationPoint[] => {
     const areaTypes = [
       "pit-wall",
       "tailings-dam",
@@ -39,125 +34,141 @@ export function KeplerGlMap({
       "stockpile",
       "crusher",
     ];
-    const levels = ["stable", "minor", "moderate", "critical"] as const;
+    const levels: DeformationPoint["level"][] = [
+      "stable",
+      "minor",
+      "moderate",
+      "critical",
+    ];
+    const trends: DeformationPoint["trend"][] = [
+      "stable",
+      "accelerating",
+      "decelerating",
+    ];
 
-    for (let i = 0; i < 200; i++) {
+    return Array.from({ length: 250 }, () => {
       const angle = Math.random() * Math.PI * 2;
       const radius = Math.random() * 0.015;
-      const lat = center.lat + Math.cos(angle) * radius;
-      const lon = center.lon + Math.sin(angle) * radius;
-      const level = levels[Math.floor(Math.random() * levels.length)]!;
-      const area = areaTypes[Math.floor(Math.random() * areaTypes.length)]!;
 
-      features.push({
-        type: "Feature",
-        geometry: {
-          type: "Point",
-          coordinates: [lon, lat],
-        },
-        properties: {
-          location: `Zone ${String.fromCharCode(65 + Math.floor(Math.random() * 26))}`,
-          level,
-          area,
-          shift_mm: (Math.random() * 60 - 10).toFixed(1),
-          trend: ["stable", "accelerating", "decelerating"][
-            Math.floor(Math.random() * 3)
-          ],
-          sensor: "Sentinel-1",
-          last_observation: new Date(
-            Date.now() - Math.random() * 7 * 86400000,
-          ).toISOString(),
-        },
-      });
-    }
-    return features;
+      return {
+        lat: center.lat + Math.cos(angle) * radius,
+        lon: center.lon + Math.sin(angle) * radius,
+        level: levels[Math.floor(Math.random() * levels.length)]!,
+        area: areaTypes[Math.floor(Math.random() * areaTypes.length)]!,
+        shiftMm: Number((Math.random() * 60 - 10).toFixed(1)),
+        trend: trends[Math.floor(Math.random() * trends.length)]!,
+        sensor: "Sentinel-1",
+      };
+    });
   }, [center]);
 
-  const miningData = useRef(generateMiningData());
+  const counts = useMemo(() => {
+    const c: Record<string, number> = {};
+    for (const p of points) {
+      c[p.level] = (c[p.level] ?? 0) + 1;
+    }
+    return c;
+  }, [points]);
 
-  // Lazy-load kepler.gl on mount
-  useState(() => {
-    import("kepler.gl").then((mod) => {
-      setLoaded(true);
-    });
-  });
+  const geoJSON = useMemo(
+    () => ({
+      type: "FeatureCollection" as const,
+      features: points.map((p) => ({
+        type: "Feature" as const,
+        geometry: {
+          type: "Point" as const,
+          coordinates: [p.lon, p.lat],
+        },
+        properties: p,
+      })),
+    }),
+    [points],
+  );
 
-  if (!loaded) {
-    return (
-      <div
-        className="bg-[var(--bg-primary)] border border-[var(--border-emphasis)] rounded-xl flex items-center justify-center"
-        style={{ height }}
-      >
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-2 border-[#3ecf8e] border-t-transparent rounded-full animate-spin" />
-          <p className="text-[var(--text-secondary)] text-sm">
-            Loading Kepler.gl…
-          </p>
-        </div>
-      </div>
-    );
-  }
+  const geoJSONStr = useMemo(() => JSON.stringify(geoJSON, null, 2), [geoJSON]);
+
+  const levelColors: Record<string, string> = {
+    critical: "text-red-400 bg-red-500/10 border-red-500/20",
+    moderate: "text-orange-400 bg-orange-500/10 border-orange-500/20",
+    minor: "text-amber-400 bg-amber-500/10 border-amber-500/20",
+    stable: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
+  };
 
   return (
     <div className="space-y-3">
-      {/* Info */}
-      <div className="p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/20">
+      <div className="p-4 rounded-xl bg-indigo-500/10 border border-indigo-500/20">
         <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-          <strong className="text-indigo-400">Kepler.gl</strong> — High-performance
-          geospatial analysis engine. Filter, aggregate, and visualize deformation
-          data across the mine site with interactive point clusters, heatmaps, and
-          arc layers. Built on deck.gl.
+          <strong className="text-indigo-400">
+            Kepler.gl Spatial Analysis
+          </strong>{" "}
+          — High-performance geospatial engine for mining deformation data.
+          Supports point clustering, heatmaps, hexagon binning, and arc layers
+          via deck.gl.
         </p>
       </div>
 
-      {/* Here we would mount the KeplerGl component */}
+      {/* Stats */}
+      <div className="flex flex-wrap gap-2">
+        {Object.entries(counts).map(([level, count]) => (
+          <span
+            key={level}
+            className={`text-[11px] px-2.5 py-1 rounded-lg border capitalize ${
+              levelColors[level] ?? "text-[var(--text-secondary)]"
+            }`}
+          >
+            {level}: {count}
+          </span>
+        ))}
+        <span className="text-[11px] text-[var(--text-muted)] px-2.5 py-1 rounded-lg border border-[var(--border-default)]">
+          {points.length} total
+        </span>
+      </div>
+
+      {/* GeoJSON preview + export */}
       <div
-        ref={containerRef}
-        className="rounded-xl overflow-hidden border border-[var(--border-emphasis)]"
+        className="rounded-xl overflow-hidden border border-[var(--border-emphasis)] flex flex-col"
         style={{ height }}
       >
-        <div
-          className="w-full h-full flex items-center justify-center bg-[var(--bg-primary)]"
-          style={{ height }}
-        >
-          <div className="text-center space-y-2 max-w-md px-6">
-            <p className="text-sm font-medium text-[var(--text-heading)]">
-              Kepler.gl Spatial Analysis
-            </p>
-            <p className="text-xs text-[var(--text-secondary)]">
-              {miningData.current.length} deformation points loaded.
-              Open the Kepler.gl UI to configure layers, filters, and
-              aggregations.
-            </p>
-            <div className="flex flex-wrap justify-center gap-2 mt-3">
-              {(["critical", "moderate", "minor", "stable"] as const).map(
-                (lvl) => {
-                  const count = miningData.current.filter(
-                    (f) => f.properties.level === lvl,
-                  ).length;
-                  const colors: Record<string, string> = {
-                    critical: "text-red-400",
-                    moderate: "text-orange-400",
-                    minor: "text-amber-400",
-                    stable: "text-emerald-400",
-                  };
-                  return (
-                    <span
-                      key={lvl}
-                      className={`text-[10px] ${colors[lvl]} bg-[var(--bg-primary)] px-2 py-0.5 rounded border border-[var(--border-default)]`}
-                    >
-                      {lvl}: {count}
-                    </span>
-                  );
-                },
-              )}
-            </div>
-            <p className="text-[10px] text-[var(--text-muted)] mt-2">
-              Import this data into the Kepler.gl UI via the data manager
-              panel (Add Data → GeoJSON).
-            </p>
-          </div>
+        <div className="flex items-center justify-between px-3 py-2 bg-[var(--bg-primary)] border-b border-[var(--border-emphasis)]">
+          <span className="text-xs font-medium text-[var(--text-secondary)]">
+            GeoJSON — {points.length} features
+          </span>
+          <button
+            onClick={() => {
+              const blob = new Blob([geoJSONStr], {
+                type: "application/geo+json",
+              });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = "deformation-points.geojson";
+              a.click();
+              URL.revokeObjectURL(url);
+            }}
+            className="text-[11px] px-2 py-1 rounded-lg bg-[#3ecf8e]/20 text-[#3ecf8e] border border-[#3ecf8e]/30 hover:bg-[#3ecf8e]/30 transition-colors"
+          >
+            Export GeoJSON ↓
+          </button>
         </div>
+        <pre className="flex-1 overflow-auto p-3 text-[10px] font-mono text-[var(--text-muted)] bg-[var(--bg-primary)]/50 leading-relaxed">
+          {geoJSONStr.slice(0, 2000)}
+          {geoJSONStr.length > 2000 ? "\n… (truncated)" : ""}
+        </pre>
+      </div>
+
+      {/* Integration note */}
+      <div className="p-3 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-emphasis)]">
+        <p className="text-[10px] text-[var(--text-secondary)] leading-relaxed">
+          <strong className="text-[var(--text-heading)]">
+            Kepler.gl setup:
+          </strong>{" "}
+          To enable the full Kepler.gl UI, add{" "}
+          <code className="text-[#3ecf8e]">kepler.gl</code> to your Redux store
+          with <code className="text-[#3ecf8e]">keplerGlReducer</code>. See{" "}
+          <code className="text-[#3ecf8e]">docs.kepler.gl</code> for the
+          complete integration guide. The GeoJSON export above lets you load
+          this data directly into any Kepler.gl instance.
+        </p>
       </div>
     </div>
   );

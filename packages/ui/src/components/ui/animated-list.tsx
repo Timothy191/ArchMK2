@@ -7,6 +7,7 @@ import React, {
   type ComponentPropsWithoutRef,
 } from "react";
 import { AnimatePresence, motion, type MotionProps } from "framer-motion";
+import { useAutoAnimate } from "@formkit/auto-animate/react";
 
 import { cn } from "@repo/ui/lib/utils";
 
@@ -112,6 +113,29 @@ export function AnimatedFeed({
           </motion.div>
         ))}
       </AnimatePresence>
+    </div>
+  );
+}
+
+/**
+ * AutoAnimateList — zero-config animated list wrapper using @formkit/auto-animate.
+ * Provides smooth mount/unmount/reorder transitions without Framer Motion boilerplate.
+ * Ideal for KPI grids, table rows, and simple card lists.
+ */
+export interface AutoAnimateListProps extends ComponentPropsWithoutRef<"div"> {
+  children: React.ReactNode;
+}
+
+export function AutoAnimateList({
+  children,
+  className,
+  ...props
+}: AutoAnimateListProps) {
+  const [parent] = useAutoAnimate({ duration: 250, easing: "ease-out" });
+
+  return (
+    <div ref={parent} className={className} {...props}>
+      {children}
     </div>
   );
 }

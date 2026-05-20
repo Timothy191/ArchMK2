@@ -4,7 +4,7 @@ import Link from "next/link";
 import { createServerSupabaseClient } from "@repo/supabase/server";
 import { createReadReplicaClient } from "@repo/supabase/read-replica";
 import { UrgencyBar } from "@/features/hub/components/UrgencyBar";
-import { ProductionTrend } from "@/features/hub/components/ProductionTrend";
+import { ProductionTrend } from "@/features/hub/components/ProductionTrendWrapper";
 import { ToolBanner } from "@/features/hub/components/ToolBanner";
 import { getTools } from "@/lib/tools";
 import { DEPARTMENTS } from "~/lib/departments";

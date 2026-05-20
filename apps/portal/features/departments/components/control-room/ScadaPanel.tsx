@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { createBrowserSupabaseClient } from "@repo/supabase/client";
 import { GlassCard } from "@repo/ui/GlassCard";
 import { MachineControl } from "./MachineControl";
+import { FuxaFrame } from "@/components/control-room/FuxaFrame";
 
 interface Machine {
   id: string;
@@ -21,6 +22,7 @@ interface ScadaPanelProps {
 export function ScadaPanel({ departmentId }: ScadaPanelProps) {
   const [machines, setMachines] = useState<Machine[]>([]);
   const [loading, setLoading] = useState(true);
+  const [viewMode, setViewMode] = useState<"list" | "scada">("list");
 
   useEffect(() => {
     const supabase = createBrowserSupabaseClient();
@@ -77,7 +79,9 @@ export function ScadaPanel({ departmentId }: ScadaPanelProps) {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-medium text-[var(--text-heading)]">SCADA Overview</h2>
+        <h2 className="text-xl font-medium text-[var(--text-heading)]">
+          SCADA Overview
+        </h2>
         <div className="flex items-center gap-3 text-sm">
           <span className="px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
             {activeCount} Online
@@ -88,48 +92,83 @@ export function ScadaPanel({ departmentId }: ScadaPanelProps) {
         </div>
       </div>
 
-      {loading && (
-        <p className="text-[var(--text-secondary)] text-sm">Loading machines...</p>
-      )}
-
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-        {machines.map((machine) => (
-          <GlassCard key={machine.id}>
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-[var(--text-heading)] font-medium">{machine.name}</p>
-                <p className="text-[var(--text-secondary)] text-xs mt-0.5">
-                  {machine.machine_type}
-                </p>
-                {machine.serial_number && (
-                  <p className="text-[var(--text-secondary)] text-xs">
-                    SN: {machine.serial_number}
-                  </p>
-                )}
-              </div>
-              <span
-                className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-                  machine.active
-                    ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                    : "bg-red-500/10 text-red-400 border border-red-500/20"
-                }`}
-              >
-                {machine.active ? "Online" : "Offline"}
-              </span>
-            </div>
-          </GlassCard>
-        ))}
-
-        {!loading && machines.length === 0 && (
-          <GlassCard>
-            <p className="text-[var(--text-secondary)] text-sm text-center py-8">
-              No machines registered for this department.
-            </p>
-          </GlassCard>
-        )}
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => setViewMode("list")}
+          className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+            viewMode === "list"
+              ? "bg-[#3ecf8e] text-[var(--text-heading)]"
+              : "text-[var(--text-secondary)] hover:text-[var(--text-heading)]"
+          }`}
+        >
+          Machine List
+        </button>
+        <button
+          type="button"
+          onClick={() => setViewMode("scada")}
+          className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+            viewMode === "scada"
+              ? "bg-[#3ecf8e] text-[var(--text-heading)]"
+              : "text-[var(--text-secondary)] hover:text-[var(--text-heading)]"
+          }`}
+        >
+          SCADA Dashboard
+        </button>
       </div>
 
-      <MachineControl />
+      {viewMode === "list" ? (
+        <>
+          {loading && (
+            <p className="text-[var(--text-secondary)] text-sm">
+              Loading machines...
+            </p>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            {machines.map((machine) => (
+              <GlassCard key={machine.id}>
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-[var(--text-heading)] font-medium">
+                      {machine.name}
+                    </p>
+                    <p className="text-[var(--text-secondary)] text-xs mt-0.5">
+                      {machine.machine_type}
+                    </p>
+                    {machine.serial_number && (
+                      <p className="text-[var(--text-secondary)] text-xs">
+                        SN: {machine.serial_number}
+                      </p>
+                    )}
+                  </div>
+                  <span
+                    className={`px-2.5 py-1 rounded-full text-xs font-medium ${
+                      machine.active
+                        ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                        : "bg-red-500/10 text-red-400 border border-red-500/20"
+                    }`}
+                  >
+                    {machine.active ? "Online" : "Offline"}
+                  </span>
+                </div>
+              </GlassCard>
+            ))}
+
+            {!loading && machines.length === 0 && (
+              <GlassCard>
+                <p className="text-[var(--text-secondary)] text-sm text-center py-8">
+                  No machines registered for this department.
+                </p>
+              </GlassCard>
+            )}
+          </div>
+
+          <MachineControl />
+        </>
+      ) : (
+        <FuxaFrame />
+      )}
     </div>
   );
 }
