@@ -243,16 +243,28 @@ export function BookInForm({
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-[var(--border-emphasis)]">
-                    <th className="text-left px-4 py-3 text-[var(--text-secondary)] text-xs uppercase tracking-wide font-medium">
+                    <th
+                      scope="col"
+                      className="text-left px-4 py-3 text-[var(--text-secondary)] text-xs uppercase tracking-wide font-medium"
+                    >
                       Fleet ID
                     </th>
-                    <th className="text-left px-4 py-3 text-[var(--text-secondary)] text-xs uppercase tracking-wide font-medium">
+                    <th
+                      scope="col"
+                      className="text-left px-4 py-3 text-[var(--text-secondary)] text-xs uppercase tracking-wide font-medium"
+                    >
                       Machine
                     </th>
-                    <th className="text-left px-4 py-3 text-[var(--text-secondary)] text-xs uppercase tracking-wide font-medium">
+                    <th
+                      scope="col"
+                      className="text-left px-4 py-3 text-[var(--text-secondary)] text-xs uppercase tracking-wide font-medium"
+                    >
                       Type
                     </th>
-                    <th className="text-left px-4 py-3 text-[var(--text-secondary)] text-xs uppercase tracking-wide font-medium">
+                    <th
+                      scope="col"
+                      className="text-left px-4 py-3 text-[var(--text-secondary)] text-xs uppercase tracking-wide font-medium"
+                    >
                       Date In
                     </th>
                   </tr>
@@ -269,10 +281,10 @@ export function BookInForm({
                       <td className="px-4 py-3 text-[var(--text-heading)]">
                         {b.machine_name || b.fleet_id}
                       </td>
-                      <td className="px-4 py-3 text-[#ccc]">
+                      <td className="px-4 py-3 text-[var(--text-muted)]">
                         {b.machine_type}
                       </td>
-                      <td className="px-4 py-3 text-[#ccc] whitespace-nowrap">
+                      <td className="px-4 py-3 text-[var(--text-muted)] whitespace-nowrap">
                         {b.date_in}
                       </td>
                     </tr>

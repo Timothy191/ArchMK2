@@ -1,10 +1,10 @@
 import "@repo/ui/globals.css";
 import { ArchThemeProvider } from "@repo/theme/react";
 import type { Metadata, Viewport } from "next";
-import { Inter, Outfit } from "next/font/google";
+import { Inter, Outfit, JetBrains_Mono } from "next/font/google";
 import { HighlightInit } from "@highlight-run/next/client";
-import { AnimatedWavesBackground } from "@/components/AnimatedWavesBackground";
 import { OfflineBanner } from "@/components/OfflineBanner";
+import { AnimatedWavesBackgroundWrapper } from "@/components/AnimatedWavesBackgroundWrapper";
 import { AIAssistantSidebarWrapper } from "@/features/shared/components/ai/AIAssistantSidebarWrapper";
 import { SmoothScrollProvider } from "@/components/SmoothScrollProvider";
 
@@ -17,6 +17,12 @@ const inter = Inter({
 const outfit = Outfit({
   subsets: ["latin"],
   variable: "--font-outfit",
+  display: "swap",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
   display: "swap",
 });
 
@@ -53,7 +59,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${inter.variable} ${outfit.variable}`}
+      className={`${inter.variable} ${outfit.variable} ${jetbrainsMono.variable}`}
     >
       <head>
         <meta name="theme-color" content="#f5f5f7" />
@@ -81,7 +87,7 @@ export default function RootLayout({
         <ArchThemeProvider>
           <SmoothScrollProvider>
             <OfflineBanner />
-            <AnimatedWavesBackground />
+            <AnimatedWavesBackgroundWrapper />
             <AIAssistantSidebarWrapper />
 
             {/* Content wrapper */}

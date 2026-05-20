@@ -52,7 +52,8 @@ export function AuditLogsTab() {
       log.employees?.full_name.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesAction = actionFilter === "all" || log.action === actionFilter;
-    const matchesTable = tableFilter === "all" || log.table_name === tableFilter;
+    const matchesTable =
+      tableFilter === "all" || log.table_name === tableFilter;
 
     return matchesSearch && matchesAction && matchesTable;
   });
@@ -113,19 +114,34 @@ export function AuditLogsTab() {
           <table className="w-full text-left">
             <thead>
               <tr className="border-b border-[var(--border-default)]">
-                <th className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider"
+                >
                   Timestamp
                 </th>
-                <th className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider"
+                >
                   User
                 </th>
-                <th className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider"
+                >
                   Action
                 </th>
-                <th className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider"
+                >
                   Table
                 </th>
-                <th className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider"
+                >
                   Changes
                 </th>
               </tr>
@@ -133,19 +149,28 @@ export function AuditLogsTab() {
             <tbody className="divide-y divide-[var(--border-default)]">
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-[var(--text-muted)]">
+                  <td
+                    colSpan={5}
+                    className="px-6 py-12 text-center text-[var(--text-muted)]"
+                  >
                     Loading...
                   </td>
                 </tr>
               ) : filteredLogs.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-[var(--text-muted)]">
+                  <td
+                    colSpan={5}
+                    className="px-6 py-12 text-center text-[var(--text-muted)]"
+                  >
                     No audit logs found.
                   </td>
                 </tr>
               ) : (
                 filteredLogs.map((log) => (
-                  <tr key={log.id} className="hover:bg-[var(--bg-tertiary)] transition-colors">
+                  <tr
+                    key={log.id}
+                    className="hover:bg-[var(--bg-tertiary)] transition-colors"
+                  >
                     <td className="px-6 py-4 text-[var(--text-muted)] text-sm">
                       {new Date(log.created_at).toLocaleString()}
                     </td>

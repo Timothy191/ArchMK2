@@ -84,30 +84,54 @@ export function BreakdownsTable({
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-[var(--border-emphasis)]">
-                  <th className="text-left px-4 py-3 text-[var(--text-secondary)] text-xs uppercase tracking-wide font-medium">
+                  <th
+                    scope="col"
+                    className="text-left px-4 py-3 text-[var(--text-secondary)] text-xs uppercase tracking-wide font-medium"
+                  >
                     Fleet ID
                   </th>
-                  <th className="text-left px-4 py-3 text-[var(--text-secondary)] text-xs uppercase tracking-wide font-medium">
+                  <th
+                    scope="col"
+                    className="text-left px-4 py-3 text-[var(--text-secondary)] text-xs uppercase tracking-wide font-medium"
+                  >
                     Machine
                   </th>
-                  <th className="text-left px-4 py-3 text-[var(--text-secondary)] text-xs uppercase tracking-wide font-medium">
+                  <th
+                    scope="col"
+                    className="text-left px-4 py-3 text-[var(--text-secondary)] text-xs uppercase tracking-wide font-medium"
+                  >
                     Date In
                   </th>
-                  <th className="text-left px-4 py-3 text-[var(--text-secondary)] text-xs uppercase tracking-wide font-medium">
+                  <th
+                    scope="col"
+                    className="text-left px-4 py-3 text-[var(--text-secondary)] text-xs uppercase tracking-wide font-medium"
+                  >
                     Date Out
                   </th>
-                  <th className="text-left px-4 py-3 text-[var(--text-secondary)] text-xs uppercase tracking-wide font-medium">
+                  <th
+                    scope="col"
+                    className="text-left px-4 py-3 text-[var(--text-secondary)] text-xs uppercase tracking-wide font-medium"
+                  >
                     Duration
                   </th>
-                  <th className="text-left px-4 py-3 text-[var(--text-secondary)] text-xs uppercase tracking-wide font-medium">
+                  <th
+                    scope="col"
+                    className="text-left px-4 py-3 text-[var(--text-secondary)] text-xs uppercase tracking-wide font-medium"
+                  >
                     Reason
                   </th>
                   {showStatus && (
-                    <th className="text-left px-4 py-3 text-[var(--text-secondary)] text-xs uppercase tracking-wide font-medium">
+                    <th
+                      scope="col"
+                      className="text-left px-4 py-3 text-[var(--text-secondary)] text-xs uppercase tracking-wide font-medium"
+                    >
                       Status
                     </th>
                   )}
-                  <th className="text-left px-4 py-3 text-[var(--text-secondary)] text-xs uppercase tracking-wide font-medium">
+                  <th
+                    scope="col"
+                    className="text-left px-4 py-3 text-[var(--text-secondary)] text-xs uppercase tracking-wide font-medium"
+                  >
                     Record
                   </th>
                 </tr>

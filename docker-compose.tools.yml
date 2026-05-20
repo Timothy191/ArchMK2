@@ -13,6 +13,9 @@ services:
       - N8N_BASIC_AUTH_PASSWORD=plantcor
       - N8N_ENCRYPTION_KEY=plantcor-secret-key-change-in-production
       - WEBHOOK_URL=http://localhost:5678/
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
       - N8N_CONCURRENCY_PRODUCTION_LIMIT=16
       - N8N_LOG_LEVEL=warn
       - OTEL_SDK_DISABLED=false
@@ -60,7 +63,7 @@ services:
     container_name: plantcor-langfuse
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "3002:3000"
     environment:
       - NODE_ENV=production
       - LANGFUSE_ENABLE_EXPERIMENTAL_FEATURES=true
@@ -138,7 +141,7 @@ services:
     container_name: plantcor-prometheus
     restart: unless-stopped
     ports:
-      - "9090:9090"
+      - "9092:9090"
     volumes:
       - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus_data:/prometheus

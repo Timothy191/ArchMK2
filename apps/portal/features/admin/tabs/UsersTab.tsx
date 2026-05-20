@@ -6,7 +6,12 @@ import { GlassCard } from "@repo/ui/GlassCard";
 import { Search, UserPlus, Edit2, Trash2 } from "lucide-react";
 import { Button } from "@repo/ui/components/ui/button";
 import { Badge } from "@repo/ui/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@repo/ui/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@repo/ui/components/ui/dialog";
 import { Input } from "@repo/ui/components/ui/input";
 import { logError } from "@/lib/errors/error-logger";
 
@@ -67,7 +72,9 @@ export function UsersTab() {
       .eq("id", editingEmployee.id);
 
     if (error) {
-      logError(new Error(error.message), { context: "users_tab_update_employee" });
+      logError(new Error(error.message), {
+        context: "users_tab_update_employee",
+      });
       return;
     }
 
@@ -77,7 +84,7 @@ export function UsersTab() {
   };
 
   const filteredEmployees = employees.filter((emp) =>
-    emp.full_name.toLowerCase().includes(searchTerm.toLowerCase())
+    emp.full_name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const deptMap = new Map(departments.map((d) => [d.id, d.display_name]));
@@ -105,22 +112,40 @@ export function UsersTab() {
           <table className="w-full text-left">
             <thead>
               <tr className="border-b border-[var(--border-default)]">
-                <th className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider"
+                >
                   Name
                 </th>
-                <th className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider"
+                >
                   Role
                 </th>
-                <th className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider"
+                >
                   Department
                 </th>
-                <th className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider"
+                >
                   Accessible Depts
                 </th>
-                <th className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider"
+                >
                   Created
                 </th>
-                <th className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider text-right">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider text-right"
+                >
                   Actions
                 </th>
               </tr>
@@ -128,19 +153,28 @@ export function UsersTab() {
             <tbody className="divide-y divide-[var(--border-default)]">
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-[var(--text-muted)]">
+                  <td
+                    colSpan={6}
+                    className="px-6 py-12 text-center text-[var(--text-muted)]"
+                  >
                     Loading...
                   </td>
                 </tr>
               ) : filteredEmployees.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-[var(--text-muted)]">
+                  <td
+                    colSpan={6}
+                    className="px-6 py-12 text-center text-[var(--text-muted)]"
+                  >
                     No employees found.
                   </td>
                 </tr>
               ) : (
                 filteredEmployees.map((emp) => (
-                  <tr key={emp.id} className="hover:bg-[var(--bg-tertiary)] transition-colors">
+                  <tr
+                    key={emp.id}
+                    className="hover:bg-[var(--bg-tertiary)] transition-colors"
+                  >
                     <td className="px-6 py-4 text-[var(--text-heading)] text-sm font-medium">
                       {emp.full_name}
                     </td>
@@ -159,7 +193,9 @@ export function UsersTab() {
                       </Badge>
                     </td>
                     <td className="px-6 py-4 text-[var(--text-muted)] text-sm">
-                      {emp.department_id ? deptMap.get(emp.department_id) : "Unassigned"}
+                      {emp.department_id
+                        ? deptMap.get(emp.department_id)
+                        : "Unassigned"}
                     </td>
                     <td className="px-6 py-4 text-[var(--text-muted)] text-sm">
                       {emp.accessible_departments?.length || 0} departments
@@ -225,26 +261,39 @@ function EditEmployeeForm({
   onCancel: () => void;
 }) {
   const [role, setRole] = useState(employee?.role || "operator");
-  const [departmentId, setDepartmentId] = useState(employee?.department_id || "");
+  const [departmentId, setDepartmentId] = useState(
+    employee?.department_id || "",
+  );
   const [accessibleDepts, setAccessibleDepts] = useState<string[]>(
-    employee?.accessible_departments || []
+    employee?.accessible_departments || [],
   );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit({ role, department_id: departmentId || null, accessible_departments: accessibleDepts });
+    onSubmit({
+      role,
+      department_id: departmentId || null,
+      accessible_departments: accessibleDepts,
+    });
   };
 
   const toggleAccessibleDept = (deptId: string) => {
     setAccessibleDepts((prev) =>
-      prev.includes(deptId) ? prev.filter((d) => d !== deptId) : [...prev, deptId]
+      prev.includes(deptId)
+        ? prev.filter((d) => d !== deptId)
+        : [...prev, deptId],
     );
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label htmlFor="role" className="block text-sm font-medium text-[var(--text-body)] mb-2">Role</label>
+        <label
+          htmlFor="role"
+          className="block text-sm font-medium text-[var(--text-body)] mb-2"
+        >
+          Role
+        </label>
         <select
           id="role"
           value={role}
@@ -259,7 +308,12 @@ function EditEmployeeForm({
       </div>
 
       <div>
-        <label htmlFor="department" className="block text-sm font-medium text-[var(--text-body)] mb-2">Primary Department</label>
+        <label
+          htmlFor="department"
+          className="block text-sm font-medium text-[var(--text-body)] mb-2"
+        >
+          Primary Department
+        </label>
         <select
           id="department"
           value={departmentId}
@@ -276,7 +330,9 @@ function EditEmployeeForm({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-[var(--text-body)] mb-2">Accessible Departments</label>
+        <label className="block text-sm font-medium text-[var(--text-body)] mb-2">
+          Accessible Departments
+        </label>
         <div className="grid grid-cols-2 gap-2">
           {departments.map((dept) => (
             <button
@@ -299,7 +355,10 @@ function EditEmployeeForm({
         <Button type="button" variant="outline" onClick={onCancel}>
           Cancel
         </Button>
-        <Button type="submit" className="bg-[var(--accent-emerald)] hover:bg-[var(--accent-green)] text-[var(--bg-void)]">
+        <Button
+          type="submit"
+          className="bg-[var(--accent-emerald)] hover:bg-[var(--accent-green)] text-[var(--bg-void)]"
+        >
           Save Changes
         </Button>
       </div>

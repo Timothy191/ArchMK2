@@ -6,7 +6,12 @@ import { GlassCard } from "@repo/ui/GlassCard";
 import { Edit2, Trash2, Plus } from "lucide-react";
 import { Button } from "@repo/ui/components/ui/button";
 import { Badge } from "@repo/ui/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@repo/ui/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@repo/ui/components/ui/dialog";
 import { Input } from "@repo/ui/components/ui/input";
 import { logError } from "@/lib/errors/error-logger";
 
@@ -20,10 +25,26 @@ interface Department {
   created_at: string;
 }
 
-const COLORS = ["amber", "emerald", "blue", "violet", "red", "orange", "cyan", "indigo"];
+const COLORS = [
+  "amber",
+  "emerald",
+  "blue",
+  "violet",
+  "red",
+  "orange",
+  "cyan",
+  "indigo",
+];
 
 const ICONS = [
-  "Drill", "Factory", "Shield", "Wrench", "Monitor", "HeartPulse", "GraduationCap", "Satellite",
+  "Drill",
+  "Factory",
+  "Shield",
+  "Wrench",
+  "Monitor",
+  "HeartPulse",
+  "GraduationCap",
+  "Satellite",
 ];
 
 export function DepartmentsTab() {
@@ -38,7 +59,10 @@ export function DepartmentsTab() {
   }, []);
 
   const loadDepartments = async () => {
-    const { data } = await supabase.from("departments").select("*").order("display_name");
+    const { data } = await supabase
+      .from("departments")
+      .select("*")
+      .order("display_name");
     if (data) setDepartments(data);
     setLoading(false);
   };
@@ -59,10 +83,16 @@ export function DepartmentsTab() {
         .from("departments")
         .update(formData)
         .eq("id", editingDept.id);
-      if (error) logError(new Error(error.message), { context: "departments_tab_update" });
+      if (error)
+        logError(new Error(error.message), {
+          context: "departments_tab_update",
+        });
     } else {
       const { error } = await supabase.from("departments").insert(formData);
-      if (error) logError(new Error(error.message), { context: "departments_tab_create" });
+      if (error)
+        logError(new Error(error.message), {
+          context: "departments_tab_create",
+        });
     }
     setShowEditDialog(false);
     setEditingDept(null);
@@ -72,14 +102,17 @@ export function DepartmentsTab() {
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this department?")) return;
     const { error } = await supabase.from("departments").delete().eq("id", id);
-    if (error) logError(new Error(error.message), { context: "departments_tab_delete" });
+    if (error)
+      logError(new Error(error.message), { context: "departments_tab_delete" });
     loadDepartments();
   };
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-medium text-[var(--text-heading)]">Departments</h2>
+        <h2 className="text-lg font-medium text-[var(--text-heading)]">
+          Departments
+        </h2>
         <Button
           onClick={handleCreate}
           className="bg-[var(--accent-emerald)] hover:bg-[var(--accent-green)] text-[var(--bg-void)]"
@@ -94,22 +127,40 @@ export function DepartmentsTab() {
           <table className="w-full text-left">
             <thead>
               <tr className="border-b border-[var(--border-default)]">
-                <th className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider"
+                >
                   Name
                 </th>
-                <th className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider"
+                >
                   Slug
                 </th>
-                <th className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider"
+                >
                   Icon
                 </th>
-                <th className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider"
+                >
                   Color
                 </th>
-                <th className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider"
+                >
                   Description
                 </th>
-                <th className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider text-right">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider text-right"
+                >
                   Actions
                 </th>
               </tr>
@@ -117,19 +168,28 @@ export function DepartmentsTab() {
             <tbody className="divide-y divide-[var(--border-default)]">
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-[var(--text-muted)]">
+                  <td
+                    colSpan={6}
+                    className="px-6 py-12 text-center text-[var(--text-muted)]"
+                  >
                     Loading...
                   </td>
                 </tr>
               ) : departments.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-[var(--text-muted)]">
+                  <td
+                    colSpan={6}
+                    className="px-6 py-12 text-center text-[var(--text-muted)]"
+                  >
                     No departments found.
                   </td>
                 </tr>
               ) : (
                 departments.map((dept) => (
-                  <tr key={dept.id} className="hover:bg-[var(--bg-tertiary)] transition-colors">
+                  <tr
+                    key={dept.id}
+                    className="hover:bg-[var(--bg-tertiary)] transition-colors"
+                  >
                     <td className="px-6 py-4 text-[var(--text-heading)] text-sm font-medium">
                       {dept.display_name}
                     </td>
@@ -140,7 +200,10 @@ export function DepartmentsTab() {
                       {dept.icon}
                     </td>
                     <td className="px-6 py-4">
-                      <Badge variant="outline" className={`bg-${dept.color}-500/10 text-${dept.color}-400 border-${dept.color}-500/20`}>
+                      <Badge
+                        variant="outline"
+                        className={`bg-${dept.color}-500/10 text-${dept.color}-400 border-${dept.color}-500/20`}
+                      >
                         {dept.color}
                       </Badge>
                     </td>
@@ -149,7 +212,11 @@ export function DepartmentsTab() {
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex gap-2 justify-end">
-                        <Button variant="outline" size="sm" onClick={() => handleEdit(dept)}>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEdit(dept)}
+                        >
                           <Edit2 className="w-4 h-4" />
                         </Button>
                         <Button
@@ -173,7 +240,9 @@ export function DepartmentsTab() {
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
         <DialogContent className="bg-[var(--bg-primary)] border-[var(--border-default)]">
           <DialogHeader>
-            <DialogTitle>{editingDept ? "Edit Department" : "Create Department"}</DialogTitle>
+            <DialogTitle>
+              {editingDept ? "Edit Department" : "Create Department"}
+            </DialogTitle>
           </DialogHeader>
           <DepartmentForm
             department={editingDept}
@@ -199,7 +268,9 @@ function DepartmentForm({
   onCancel: () => void;
 }) {
   const [name, setName] = useState(department?.name || "");
-  const [displayName, setDisplayName] = useState(department?.display_name || "");
+  const [displayName, setDisplayName] = useState(
+    department?.display_name || "",
+  );
   const [icon, setIcon] = useState(department?.icon || "Building2");
   const [color, setColor] = useState(department?.color || "blue");
   const [description, setDescription] = useState(department?.description || "");
@@ -212,7 +283,12 @@ function DepartmentForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label htmlFor="displayName" className="block text-sm font-medium text-[var(--text-body)] mb-2">Display Name</label>
+        <label
+          htmlFor="displayName"
+          className="block text-sm font-medium text-[var(--text-body)] mb-2"
+        >
+          Display Name
+        </label>
         <Input
           id="displayName"
           value={displayName}
@@ -223,18 +299,30 @@ function DepartmentForm({
       </div>
 
       <div>
-        <label htmlFor="name" className="block text-sm font-medium text-[var(--text-body)] mb-2">Slug (URL-friendly name)</label>
+        <label
+          htmlFor="name"
+          className="block text-sm font-medium text-[var(--text-body)] mb-2"
+        >
+          Slug (URL-friendly name)
+        </label>
         <Input
           id="name"
           value={name}
-          onChange={(e) => setName(e.target.value.toLowerCase().replace(/\s+/g, "-"))}
+          onChange={(e) =>
+            setName(e.target.value.toLowerCase().replace(/\s+/g, "-"))
+          }
           className="bg-[var(--bg-secondary)] border-[var(--border-default)]"
           required
         />
       </div>
 
       <div>
-        <label htmlFor="icon" className="block text-sm font-medium text-[var(--text-body)] mb-2">Icon</label>
+        <label
+          htmlFor="icon"
+          className="block text-sm font-medium text-[var(--text-body)] mb-2"
+        >
+          Icon
+        </label>
         <select
           id="icon"
           value={icon}
@@ -250,7 +338,12 @@ function DepartmentForm({
       </div>
 
       <div>
-        <label htmlFor="color" className="block text-sm font-medium text-[var(--text-body)] mb-2">Color</label>
+        <label
+          htmlFor="color"
+          className="block text-sm font-medium text-[var(--text-body)] mb-2"
+        >
+          Color
+        </label>
         <select
           id="color"
           value={color}
@@ -266,7 +359,12 @@ function DepartmentForm({
       </div>
 
       <div>
-        <label htmlFor="description" className="block text-sm font-medium text-[var(--text-body)] mb-2">Description</label>
+        <label
+          htmlFor="description"
+          className="block text-sm font-medium text-[var(--text-body)] mb-2"
+        >
+          Description
+        </label>
         <textarea
           id="description"
           value={description}
@@ -281,7 +379,10 @@ function DepartmentForm({
         <Button type="button" variant="outline" onClick={onCancel}>
           Cancel
         </Button>
-        <Button type="submit" className="bg-[var(--accent-emerald)] hover:bg-[var(--accent-green)] text-[var(--bg-void)]">
+        <Button
+          type="submit"
+          className="bg-[var(--accent-emerald)] hover:bg-[var(--accent-green)] text-[var(--bg-void)]"
+        >
           {department ? "Update" : "Create"}
         </Button>
       </div>

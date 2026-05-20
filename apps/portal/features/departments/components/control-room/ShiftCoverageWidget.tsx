@@ -4,12 +4,7 @@ import { useState, useEffect } from "react";
 import { GlassCard } from "@repo/ui/GlassCard";
 import { createBrowserSupabaseClient } from "@repo/supabase/client";
 import { getCurrentShift } from "@repo/ui/ShiftToggle";
-import {
-  Clock,
-  CheckCircle,
-  XCircle,
-  AlertTriangle,
-} from "lucide-react";
+import { Clock, CheckCircle, XCircle, AlertTriangle } from "lucide-react";
 import { CloseShiftModal } from "./CloseShiftModal";
 
 interface ShiftCoverageWidgetProps {
@@ -96,9 +91,7 @@ export function ShiftCoverageWidget({
         }
       } catch (err) {
         if (!cancelled) {
-          setError(
-            err instanceof Error ? err.message : "Failed to load data",
-          );
+          setError(err instanceof Error ? err.message : "Failed to load data");
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -179,13 +172,22 @@ export function ShiftCoverageWidget({
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-[var(--bg-tertiary)]">
-                    <th className="text-left px-3 py-2 text-[var(--text-muted)] text-xs font-medium">
+                    <th
+                      scope="col"
+                      className="text-left px-3 py-2 text-[var(--text-muted)] text-xs font-medium"
+                    >
                       Machine
                     </th>
-                    <th className="text-right px-3 py-2 text-[var(--text-muted)] text-xs font-medium">
+                    <th
+                      scope="col"
+                      className="text-right px-3 py-2 text-[var(--text-muted)] text-xs font-medium"
+                    >
                       Hours
                     </th>
-                    <th className="text-center px-3 py-2 text-[var(--text-muted)] text-xs font-medium">
+                    <th
+                      scope="col"
+                      className="text-center px-3 py-2 text-[var(--text-muted)] text-xs font-medium"
+                    >
                       Status
                     </th>
                   </tr>
@@ -208,7 +210,9 @@ export function ShiftCoverageWidget({
                           : "—"}
                       </td>
                       <td className="px-3 py-2 text-center">
-                        {m.has_entry && m.hours_worked !== null && m.hours_worked > 0 ? (
+                        {m.has_entry &&
+                        m.hours_worked !== null &&
+                        m.hours_worked > 0 ? (
                           <CheckCircle className="w-4 h-4 text-emerald-400 mx-auto" />
                         ) : m.has_entry && m.hours_worked === 0 ? (
                           <AlertTriangle className="w-4 h-4 text-amber-400 mx-auto" />

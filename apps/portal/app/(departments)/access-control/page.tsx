@@ -1,7 +1,8 @@
 import { getDepartmentContext } from "~/lib/dept-context";
 import { GlassCard } from "@repo/ui/GlassCard";
 import { createReadReplicaClient } from "@repo/supabase/read-replica";
-import { ShieldCheck, Users, AlertTriangle } from "lucide-react";
+import nextDynamic from "next/dynamic";
+import { Skeleton } from "@repo/ui/components/ui/skeleton";
 
 export const dynamic = "force-dynamic";
 
@@ -55,83 +56,96 @@ async function getAccessControlDashboardData(deptId: string, today: string) {
   };
 }
 
+const DashboardKPIGrid = nextDynamic(
+  () => import("./components/DashboardKPIGrid"),
+  { loading: () => <Skeleton className="h-[140px] w-full" /> },
+);
+const DashboardChartsRow = nextDynamic(
+  () => import("./components/DashboardChartsRow"),
+  { loading: () => <Skeleton className="h-[260px] w-full" /> },
+);
+const DashboardActivityFeed = nextDynamic(
+  () => import("./components/DashboardActivityFeed"),
+  { loading: () => <Skeleton className="h-[360px] w-full" /> },
+);
+const DashboardEntityStatus = nextDynamic(
+  () => import("./components/DashboardEntityStatus"),
+  { loading: () => <Skeleton className="h-[360px] w-full" /> },
+);
+
 export default async function AccessControlDashboardPage() {
   const { deptId, today } = await getDepartmentContext({
     department: "access-control",
   });
 
-  const { shiftCount, latestShift, activeBadges, activeVisitors, alertCount } =
+  const { activeBadges, activeVisitors, alertCount } =
     await getAccessControlDashboardData(deptId, today);
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-semibold text-[var(--text-heading)]">
-          Access Control Dashboard
-        </h2>
-        <p className="text-[var(--text-muted)] text-sm">
-          {new Date().toLocaleDateString("en-ZA", {
-            weekday: "long",
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          })}
-        </p>
+      {/* Top summary row bridging real DB data with template KPIs */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <GlassCard>
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-emerald-500/10 rounded-lg">
+              <span className="text-emerald-400 font-bold text-sm">BADGES</span>
+            </div>
+            <div>
+              <p className="text-[var(--text-muted)] text-xs font-medium uppercase tracking-wider">
+                Active Badges
+              </p>
+              <p className="text-2xl font-bold text-[var(--text-heading)] mt-1">
+                {activeBadges}
+              </p>
+            </div>
+          </div>
+        </GlassCard>
+        <GlassCard>
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-cyan-400/10 rounded-lg">
+              <span className="text-cyan-400 font-bold text-sm">VISITORS</span>
+            </div>
+            <div>
+              <p className="text-[var(--text-muted)] text-xs font-medium uppercase tracking-wider">
+                Active Visitors
+              </p>
+              <p className="text-2xl font-bold text-cyan-400 mt-1">
+                {activeVisitors}
+              </p>
+            </div>
+          </div>
+        </GlassCard>
+        <GlassCard>
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-amber-400/10 rounded-lg">
+              <span className="text-amber-400 font-bold text-sm">ALERTS</span>
+            </div>
+            <div>
+              <p className="text-[var(--text-muted)] text-xs font-medium uppercase tracking-wider">
+                Alerts Today
+              </p>
+              <p className="text-2xl font-bold text-amber-400 mt-1">
+                {alertCount}
+              </p>
+            </div>
+          </div>
+        </GlassCard>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <GlassCard>
-          <div className="flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-[var(--accent-blue)]" />
-            <p className="text-[var(--text-muted)] text-xs font-medium uppercase tracking-wider">
-              Today's Log
-            </p>
-          </div>
-          <p className="text-2xl font-bold text-[var(--text-heading)] mt-2">
-            {shiftCount > 0
-              ? `${shiftCount} shift${shiftCount > 1 ? "s" : ""} logged`
-              : "Not logged"}
-          </p>
-          {latestShift && (
-            <p className="text-[var(--text-muted)] text-xs mt-1">
-              Latest: {latestShift}
-            </p>
-          )}
-        </GlassCard>
+      {/* Template KPI Bento Grid */}
+      <DashboardKPIGrid />
 
-        <GlassCard>
-          <div className="flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-emerald-500" />
-            <p className="text-[var(--text-muted)] text-xs font-medium uppercase tracking-wider">
-              Active Badges
-            </p>
-          </div>
-          <p className="text-2xl font-bold text-[var(--text-heading)] mt-2">
-            {activeBadges}
-          </p>
-        </GlassCard>
+      {/* Charts Row */}
+      <DashboardChartsRow />
 
-        <GlassCard>
-          <div className="flex items-center gap-2">
-            <Users className="w-4 h-4 text-cyan-400" />
-            <p className="text-[var(--text-muted)] text-xs font-medium uppercase tracking-wider">
-              Active Visitors
-            </p>
-          </div>
-          <p className="text-2xl font-bold text-cyan-400 mt-2">
-            {activeVisitors}
-          </p>
-        </GlassCard>
-
-        <GlassCard>
-          <div className="flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4 text-amber-400" />
-            <p className="text-[var(--text-muted)] text-xs font-medium uppercase tracking-wider">
-              Alerts Today
-            </p>
-          </div>
-          <p className="text-2xl font-bold text-amber-400 mt-2">{alertCount}</p>
-        </GlassCard>
+      {/* Bottom Row: Activity Feed + Entity Status */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
+        <div className="xl:col-span-2">
+          <DashboardActivityFeed />
+        </div>
+        <div className="xl:col-span-1">
+          <DashboardEntityStatus />
+        </div>
       </div>
     </div>
   );

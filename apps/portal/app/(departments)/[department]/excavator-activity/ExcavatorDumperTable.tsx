@@ -163,22 +163,40 @@ export function ExcavatorDumperTable({
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-[var(--border-default)]">
-                <th className="text-left text-[var(--text-muted)] py-2 px-2 font-medium w-8">
+                <th
+                  scope="col"
+                  className="text-left text-[var(--text-muted)] py-2 px-2 font-medium w-8"
+                >
                   #
                 </th>
-                <th className="text-left text-[var(--text-muted)] py-2 px-2 font-medium">
+                <th
+                  scope="col"
+                  className="text-left text-[var(--text-muted)] py-2 px-2 font-medium"
+                >
                   Dumper
                 </th>
-                <th className="text-left text-[var(--text-muted)] py-2 px-2 font-medium">
+                <th
+                  scope="col"
+                  className="text-left text-[var(--text-muted)] py-2 px-2 font-medium"
+                >
                   Material
                 </th>
-                <th className="text-right text-[var(--text-muted)] py-2 px-2 font-medium">
+                <th
+                  scope="col"
+                  className="text-right text-[var(--text-muted)] py-2 px-2 font-medium"
+                >
                   Loads
                 </th>
-                <th className="text-right text-[var(--text-muted)] py-2 px-2 font-medium">
+                <th
+                  scope="col"
+                  className="text-right text-[var(--text-muted)] py-2 px-2 font-medium"
+                >
                   BCM
                 </th>
-                <th className="text-right text-[var(--text-muted)] py-2 px-2 font-medium w-24">
+                <th
+                  scope="col"
+                  className="text-right text-[var(--text-muted)] py-2 px-2 font-medium w-24"
+                >
                   Actions
                 </th>
               </tr>
@@ -296,5 +314,3 @@ export function ExcavatorDumperTable({
     </div>
   );
 }
-
-

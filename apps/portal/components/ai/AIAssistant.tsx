@@ -330,6 +330,7 @@ export function AIAssistant({ context, className }: AIAssistantProps) {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Ask about equipment, shifts, safety..."
+                  aria-label="Ask a question"
                   className="flex-1 px-4 py-2.5 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-default)] text-[var(--text-heading)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-blue)] focus:ring-2 focus:ring-[var(--accent-blue)]/15 transition-colors text-sm"
                   disabled={isLoading}
                 />

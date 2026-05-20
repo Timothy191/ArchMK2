@@ -6,7 +6,7 @@ services:
     container_name: plantcor-prometheus
     restart: unless-stopped
     ports:
-      - "9090:9090"
+      - "9092:9090"
     volumes:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus_data:/prometheus
@@ -18,9 +18,9 @@ services:
     container_name: plantcor-grafana
     restart: unless-stopped
     ports:
-      - "9091:3000"  # Exposed on port 9091 to avoid colliding with Next.js (3000) or Flowise (3001)
+      - "9091:3000" # Exposed on port 9091 to avoid colliding with Next.js (3000) or Flowise (3001)
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=plantcor  # Default admin password
+      - GF_SECURITY_ADMIN_PASSWORD=plantcor # Default admin password
       - GF_USERS_ALLOW_SIGN_UP=false
     volumes:
       - grafana_data:/var/lib/grafana

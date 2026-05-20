@@ -66,6 +66,16 @@
   --accent-green: var(--arch14);
   --accent-blue: var(--arch15);
 
+  /* Semantic status colors — used by QR access control and similar modules */
+  --success: #34c759;
+  --success-foreground: 0 0% 100%;
+  --warning: #ff9f0a;
+  --warning-foreground: 0 0% 100%;
+  --danger: #ff3b30;
+  --danger-foreground: 0 0% 100%;
+  --info: #007aff;
+  --info-foreground: 0 0% 100%;
+
   /* ═══════════════════════════════════════════════════════════════
        TIER 3 — DEPRECATED ALIASES
        These map to their canonical Tier 2 equivalents.

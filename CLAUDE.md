@@ -49,7 +49,7 @@ This file provides guidance to Claude Code when working with code in this reposi
   - `@repo/database` — SQL migrations in `migrations/`. This is the source of truth; `packages/supabase/supabase/migrations/` is a deploy-time copy.
   - `@repo/errors` — Domain-specific error classes (e.g., `AuthError`, `ValidationError`). Prefer these over generic `Error`.
   - `@repo/redis` — Shared Redis client utilities for caching (used in middleware for department slug resolution).
-  - `@repo/utils` — Common utilities (excel export, n8n integration, class merging via `cn()`).
+  - `@repo/utils` — Common utilities (excel export, n8n integration, class merging via `cn()`). Subpath exports: `@repo/utils/inngest` (background jobs), `@repo/utils/novu` (notification workflows).
   - `@repo/hooks` — Shared React hooks.
   - `@repo/types` — Common TypeScript interfaces (including auto-generated database types from `supabase:gen`).
   - `@repo/eval` — Python/DeepEval evaluation suite for AI code generation compliance (design system, imports, RLS, department patterns).
@@ -146,6 +146,8 @@ Lint → Type-check → Test → Build. Run `pnpm quality` locally before pushin
 - `.claude/AGENTS.md` — Quick-start reference.
 - `.claude/SOUL.md` — Style rules.
 - `.claude/LEARNED.md` — Accumulated self-correction rules.
+- `.claude/STATE.md` — Current phase, active plans, and quality gate status.
+- `.claude/rules/` — Modular domain-specific supplements (verification, testing, development-practices, code-review, task-workflow).
 
 ### Self-Correction Protocol
 

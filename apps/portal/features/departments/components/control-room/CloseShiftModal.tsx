@@ -146,6 +146,7 @@ export function CloseShiftModal({
           <button
             type="button"
             onClick={onClose}
+            aria-label="Close modal"
             className="text-[var(--text-muted)] hover:text-[var(--text-heading)] transition-colors"
           >
             <X className="w-5 h-5" />

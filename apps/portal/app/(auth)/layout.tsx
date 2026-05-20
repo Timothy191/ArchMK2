@@ -87,7 +87,7 @@ export default function AuthLayout({
       )}
 
       <div
-        className={`relative z-10 w-full max-w-md max-h-[90vh] overflow-y-auto transition-all duration-[1500ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${
+        className={`relative z-10 w-full max-w-md max-h-[90vh] overflow-y-auto transition-[opacity,transform] duration-[1500ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${
           introComplete
             ? "opacity-100 translate-y-0"
             : "opacity-0 translate-y-8 pointer-events-none select-none"

@@ -192,7 +192,7 @@ export function HighResPanel({ scenes }: HighResPanelProps) {
               <p className="text-[10px] text-[var(--text-secondary)]">
                 Volume (m³)
               </p>
-              <p className="text-lg font-bold text-[#3ecf8e]">
+              <p className="text-lg font-bold text-[var(--accent-green)]">
                 {stockpileResult.volumeM3.toLocaleString()}
               </p>
             </div>
@@ -247,7 +247,7 @@ export function HighResPanel({ scenes }: HighResPanelProps) {
         </div>
         {cdFrom && cdTo && cdTo > cdFrom ? (
           <div className="p-2 bg-[#3ecf8e]/10 border border-[#3ecf8e]/20 rounded-lg">
-            <p className="text-[11px] text-[#3ecf8e]">
+            <p className="text-[11px] text-[var(--accent-green)]">
               ✓ Period selected:{" "}
               {Math.round(
                 (new Date(cdTo).getTime() - new Date(cdFrom).getTime()) /
@@ -301,16 +301,28 @@ export function HighResPanel({ scenes }: HighResPanelProps) {
           <table className="w-full text-xs">
             <thead>
               <tr className="bg-[var(--bg-tertiary)]">
-                <th className="text-left p-2.5 text-[var(--text-secondary)] font-medium">
+                <th
+                  scope="col"
+                  className="text-left p-2.5 text-[var(--text-secondary)] font-medium"
+                >
                   Provider
                 </th>
-                <th className="text-left p-2.5 text-[var(--text-secondary)] font-medium">
+                <th
+                  scope="col"
+                  className="text-left p-2.5 text-[var(--text-secondary)] font-medium"
+                >
                   GSD
                 </th>
-                <th className="text-left p-2.5 text-[var(--text-secondary)] font-medium">
+                <th
+                  scope="col"
+                  className="text-left p-2.5 text-[var(--text-secondary)] font-medium"
+                >
                   Revisit
                 </th>
-                <th className="text-left p-2.5 text-[var(--text-secondary)] font-medium">
+                <th
+                  scope="col"
+                  className="text-left p-2.5 text-[var(--text-secondary)] font-medium"
+                >
                   Cost
                 </th>
               </tr>
@@ -319,7 +331,7 @@ export function HighResPanel({ scenes }: HighResPanelProps) {
               {PROVIDERS.map((p, i) => (
                 <tr
                   key={p.name}
-                  className={`border-t border-[var(--border-emphasis)] ${i % 2 === 0 ? "bg-[var(--bg-primary)]" : "bg-[#1a1a1a]"}`}
+                  className={`border-t border-[var(--border-emphasis)] ${i % 2 === 0 ? "bg-[var(--bg-primary)]" : "bg-[var(--bg-secondary)]"}`}
                 >
                   <td className="p-2.5 text-[var(--text-heading)]">
                     <span className="text-[11px]">{p.name}</span>
@@ -339,7 +351,7 @@ export function HighResPanel({ scenes }: HighResPanelProps) {
                     <span
                       className={
                         p.cost === "Free"
-                          ? "text-[#3ecf8e]"
+                          ? "text-[var(--accent-green)]"
                           : "text-[var(--text-secondary)]"
                       }
                     >
@@ -407,7 +419,7 @@ export function HighResPanel({ scenes }: HighResPanelProps) {
                           <span
                             className={`text-[10px] px-1.5 py-0.5 rounded-full ${
                               cloud < 10
-                                ? "bg-[#3ecf8e]/20 text-[#3ecf8e]"
+                                ? "bg-[#3ecf8e]/20 text-[var(--accent-green)]"
                                 : "bg-amber-500/20 text-amber-400"
                             }`}
                           >

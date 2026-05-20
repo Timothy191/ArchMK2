@@ -86,7 +86,7 @@ export function LoginForm() {
     <form
       data-testid="login-form"
       onSubmit={handleSubmit}
-      className="space-y-4 rounded-2xl border border-[var(--border-default)] bg-[#f5f5f7]/80 backdrop-blur-md p-6 transition-all duration-300 hover:bg-[#f5f5f7]/90"
+      className="space-y-4 rounded-2xl border border-[var(--border-default)] bg-white/70 backdrop-blur-xl p-6 transition-[opacity,transform] duration-300 hover:bg-white/80"
     >
       <div className="space-y-2">
         <label

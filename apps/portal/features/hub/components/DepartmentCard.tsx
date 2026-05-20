@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
 import {
   Shovel,
   Factory,
@@ -83,7 +82,7 @@ export function DepartmentCard({ department, index }: DepartmentCardProps) {
       <div className="flex items-center justify-between mb-6">
         <div
           className={cn(
-            "p-2.5 rounded-xl border backdrop-blur-md transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(0,122,255,0.10)]",
+            "p-2.5 rounded-xl border backdrop-blur-md transition-[opacity,transform] duration-300 group-hover:scale-110 group-hover:shadow-glow-blue",
             config.bg,
           )}
         >
@@ -146,10 +145,10 @@ export function DepartmentCard({ department, index }: DepartmentCardProps) {
   );
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, delay: index * 0.05 }}
+    <div
+      style={{
+        animation: `fade-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) ${index * 0.05}s both`,
+      }}
       className={cn("h-full", department.gridSpan)}
     >
       <Link
@@ -175,6 +174,6 @@ export function DepartmentCard({ department, index }: DepartmentCardProps) {
           </SpotlightCard>
         )}
       </Link>
-    </motion.div>
+    </div>
   );
 }

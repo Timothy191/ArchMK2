@@ -93,16 +93,28 @@ export default async function HistoryPage({
           <table className="w-full text-left">
             <thead>
               <tr className="border-b border-[var(--border-default)]">
-                <th className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider"
+                >
                   Date
                 </th>
-                <th className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider"
+                >
                   Shift
                 </th>
-                <th className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider"
+                >
                   Notes
                 </th>
-                <th className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider"
+                >
                   Created
                 </th>
               </tr>

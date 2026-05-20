@@ -78,10 +78,11 @@ export function AIAssistantSidebar() {
       {/* Trigger Button */}
       <button
         onClick={openSidebar}
-        className="fixed bottom-6 right-6 z-50 p-4 rounded-full bg-accent-cyan text-bg-void border border-accent-cyan/30 flex items-center gap-2 group shadow-diffusion-md transition-transform duration-200 ease-out hover:scale-105 active:scale-95"
+        aria-label="Open AI Assistant"
+        className="fixed bottom-6 right-6 z-50 p-4 rounded-full bg-accent-cyan text-bg-void border border-accent-cyan/30 flex items-center gap-2 group shadow-diffusion-md transition-[opacity,transform] duration-200 ease-out hover:scale-105 active:scale-95"
       >
         <Sparkles className="w-5 h-5" />
-        <span className="max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-500 font-medium whitespace-nowrap">
+        <span className="opacity-0 scale-x-0 origin-left overflow-hidden group-hover:opacity-100 group-hover:scale-x-100 transition-[opacity,transform] duration-500 font-medium whitespace-nowrap">
           AI Assistant
         </span>
       </button>
@@ -194,6 +195,7 @@ export function AIAssistantSidebar() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Ask about operations, safety, or breakdowns..."
+                  aria-label="Ask a question"
                   className="w-full bg-bg-void border border-border-subtle rounded-xl px-4 py-3 pr-12 text-text-primary text-sm focus:outline-none focus:border-accent-cyan/50 transition-colors"
                 />
                 <button

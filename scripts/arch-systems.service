@@ -1,0 +1,43 @@
+[Unit]
+Description=Arch-Systems Portal
+After=network.target docker.service
+Wants=docker.service
+
+[Service]
+Type=simple
+User=node
+WorkingDirectory=/opt/arch-systems/apps/portal
+
+# Environment
+Environment=NODE_ENV=production
+Environment=PORT=3000
+EnvironmentFile=/opt/arch-systems/apps/portal/.env
+
+# Start command
+ExecStart=/usr/bin/pnpm start
+ExecStop=/bin/kill -SIGTERM $MAINPID
+ExecReload=/bin/kill -SIGUSR1 $MAINPID
+
+# Restart policy
+Restart=on-failure
+RestartSec=10
+StartLimitInterval=60s
+StartLimitBurst=3
+
+# Graceful shutdown
+TimeoutStopSec=30
+KillSignal=SIGTERM
+
+# Logging
+StandardOutput=append:/var/log/arch-systems/portal.log
+StandardError=append:/var/log/arch-systems/portal-error.log
+SyslogIdentifier=arch-systems
+
+# Security
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/arch-systems /var/log/arch-systems
+
+[Install]
+WantedBy=multi-user.target

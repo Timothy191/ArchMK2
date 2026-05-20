@@ -157,16 +157,28 @@ function ActivityCard({
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-[var(--border-default)]">
-                  <th className="text-left text-[var(--text-muted)] py-1.5 px-2 font-medium text-xs">
+                  <th
+                    scope="col"
+                    className="text-left text-[var(--text-muted)] py-1.5 px-2 font-medium text-xs"
+                  >
                     Dumper
                   </th>
-                  <th className="text-left text-[var(--text-muted)] py-1.5 px-2 font-medium text-xs">
+                  <th
+                    scope="col"
+                    className="text-left text-[var(--text-muted)] py-1.5 px-2 font-medium text-xs"
+                  >
                     Material
                   </th>
-                  <th className="text-right text-[var(--text-muted)] py-1.5 px-2 font-medium text-xs">
+                  <th
+                    scope="col"
+                    className="text-right text-[var(--text-muted)] py-1.5 px-2 font-medium text-xs"
+                  >
                     Loads
                   </th>
-                  <th className="text-right text-[var(--text-muted)] py-1.5 px-2 font-medium text-xs">
+                  <th
+                    scope="col"
+                    className="text-right text-[var(--text-muted)] py-1.5 px-2 font-medium text-xs"
+                  >
                     BCM
                   </th>
                 </tr>

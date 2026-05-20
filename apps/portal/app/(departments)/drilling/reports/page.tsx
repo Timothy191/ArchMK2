@@ -227,31 +227,58 @@ export default async function DrillingReportsPage({
           <table className="w-full text-left">
             <thead>
               <tr className="border-b border-white/10">
-                <th className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider"
+                >
                   Date
                 </th>
-                <th className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider"
+                >
                   Drill Rig
                 </th>
-                <th className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider"
+                >
                   Operator
                 </th>
-                <th className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider"
+                >
                   Block
                 </th>
-                <th className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider text-right">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider text-right"
+                >
                   Hours
                 </th>
-                <th className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider text-right">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider text-right"
+                >
                   Holes
                 </th>
-                <th className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider text-right">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider text-right"
+                >
                   Meters
                 </th>
-                <th className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider text-right">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider text-right"
+                >
                   Delays
                 </th>
-                <th className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider text-center">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider text-center"
+                >
                   Status
                 </th>
               </tr>

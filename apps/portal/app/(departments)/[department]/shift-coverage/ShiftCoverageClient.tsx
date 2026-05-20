@@ -107,9 +107,7 @@ export function ShiftCoverageClient({
         setIsClosed(statusData?.status === "closed");
       } catch (err) {
         if (!cancelled) {
-          setError(
-            err instanceof Error ? err.message : "Failed to load data",
-          );
+          setError(err instanceof Error ? err.message : "Failed to load data");
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -172,6 +170,7 @@ export function ShiftCoverageClient({
             <button
               type="button"
               onClick={prevDay}
+              aria-label="Previous day"
               className="p-2 text-[var(--text-muted)] hover:text-[var(--text-heading)] hover:bg-[var(--bg-tertiary)] rounded-lg transition-colors"
             >
               <ChevronLeft className="w-5 h-5" />
@@ -187,6 +186,7 @@ export function ShiftCoverageClient({
             <button
               type="button"
               onClick={nextDay}
+              aria-label="Next day"
               className="p-2 text-[var(--text-muted)] hover:text-[var(--text-heading)] hover:bg-[var(--bg-tertiary)] rounded-lg transition-colors"
             >
               <ChevronRight className="w-5 h-5" />
@@ -241,13 +241,22 @@ export function ShiftCoverageClient({
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-[var(--bg-tertiary)]">
-                  <th className="text-left px-4 py-2.5 text-[var(--text-muted)] text-xs font-medium">
+                  <th
+                    scope="col"
+                    className="text-left px-4 py-2.5 text-[var(--text-muted)] text-xs font-medium"
+                  >
                     Machine
                   </th>
-                  <th className="text-right px-4 py-2.5 text-[var(--text-muted)] text-xs font-medium">
+                  <th
+                    scope="col"
+                    className="text-right px-4 py-2.5 text-[var(--text-muted)] text-xs font-medium"
+                  >
                     Hours
                   </th>
-                  <th className="text-center px-4 py-2.5 text-[var(--text-muted)] text-xs font-medium">
+                  <th
+                    scope="col"
+                    className="text-center px-4 py-2.5 text-[var(--text-muted)] text-xs font-medium"
+                  >
                     Status
                   </th>
                 </tr>
@@ -289,9 +298,7 @@ export function ShiftCoverageClient({
                       ) : (
                         <div className="flex items-center justify-center gap-1.5">
                           <XCircle className="w-4 h-4 text-red-400" />
-                          <span className="text-red-400 text-xs">
-                            Missing
-                          </span>
+                          <span className="text-red-400 text-xs">Missing</span>
                         </div>
                       )}
                     </td>
@@ -328,13 +335,22 @@ export function ShiftCoverageClient({
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-[var(--bg-tertiary)]">
-                  <th className="text-left px-4 py-2.5 text-[var(--text-muted)] text-xs font-medium">
+                  <th
+                    scope="col"
+                    className="text-left px-4 py-2.5 text-[var(--text-muted)] text-xs font-medium"
+                  >
                     Date
                   </th>
-                  <th className="text-left px-4 py-2.5 text-[var(--text-muted)] text-xs font-medium">
+                  <th
+                    scope="col"
+                    className="text-left px-4 py-2.5 text-[var(--text-muted)] text-xs font-medium"
+                  >
                     Shift
                   </th>
-                  <th className="text-left px-4 py-2.5 text-[var(--text-muted)] text-xs font-medium">
+                  <th
+                    scope="col"
+                    className="text-left px-4 py-2.5 text-[var(--text-muted)] text-xs font-medium"
+                  >
                     Closed At
                   </th>
                 </tr>

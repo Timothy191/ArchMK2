@@ -1,12 +1,5 @@
 import * as Sentry from "@sentry/nextjs";
 import { H } from "@highlight-run/next/server";
-import { NodeSDK } from "@opentelemetry/sdk-node";
-import { getNodeAutoInstrumentations } from "@opentelemetry/auto-instrumentations-node";
-import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
-import { resourceFromAttributes } from "@opentelemetry/resources";
-import { ATTR_SERVICE_NAME } from "@opentelemetry/semantic-conventions";
-
-let otelSdk: NodeSDK | null = null;
 
 export async function register() {
   // Highlight server-side init
@@ -19,16 +12,28 @@ export async function register() {
     });
   }
 
-  // OpenTelemetry NodeSDK
+  // OpenTelemetry NodeSDK — dynamic import to prevent webpack from bundling native gRPC modules
   if (
     process.env.NEXT_RUNTIME === "nodejs" &&
     process.env.OTEL_EXPORTER_OTLP_ENDPOINT
   ) {
+    const { NodeSDK } = await import("@opentelemetry/sdk-node");
+    const { getNodeAutoInstrumentations } = await import(
+      "@opentelemetry/auto-instrumentations-node"
+    );
+    const { OTLPTraceExporter } = await import(
+      "@opentelemetry/exporter-trace-otlp-http"
+    );
+    const { resourceFromAttributes } = await import("@opentelemetry/resources");
+    const { ATTR_SERVICE_NAME } = await import(
+      "@opentelemetry/semantic-conventions"
+    );
+
     const traceExporter = new OTLPTraceExporter({
       url: process.env.OTEL_EXPORTER_OTLP_ENDPOINT,
     });
 
-    otelSdk = new NodeSDK({
+    const otelSdk = new NodeSDK({
       resource: resourceFromAttributes({
         [ATTR_SERVICE_NAME]: process.env.OTEL_SERVICE_NAME || "arch-portal",
       }),

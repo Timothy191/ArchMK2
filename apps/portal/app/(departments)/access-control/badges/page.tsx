@@ -156,7 +156,7 @@ export default async function BadgesPage() {
               </p>
 
               {/* Placeholder for actual QR code rendering */}
-              <div className="w-48 h-48 bg-white rounded-xl p-2 flex items-center justify-center mt-4 shadow-lg shadow-black/20 group-hover:shadow-[var(--accent-cyan)]/10 transition-all duration-500">
+              <div className="w-48 h-48 bg-white rounded-xl p-2 flex items-center justify-center mt-4 shadow-card group-hover:shadow-[var(--accent-cyan)]/10 transition-[box-shadow] duration-500">
                 <div className="w-full h-full border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center bg-gray-50">
                   <span className="text-xs text-gray-400 font-medium">
                     Select Badge

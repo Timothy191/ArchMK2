@@ -10,18 +10,18 @@ import {
 } from "@repo/ui/components/ui/table";
 import { GlassCard } from "@repo/ui/GlassCard";
 import { Button } from "@repo/ui/components/ui/button";
-import { 
-  Activity, 
-  Archive, 
-  Calendar, 
-  TrendingUp, 
+import {
+  Activity,
+  Archive,
+  Calendar,
+  TrendingUp,
   AlertTriangle,
   Gauge,
   Thermometer,
   Droplets,
   ArrowDown,
   Layers,
-  Database
+  Database,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -56,8 +56,10 @@ async function getTelemetryData(selectedMachineId?: string): Promise<{
   drills: { id: string; name: string }[];
 }> {
   const supabase = await createServerSupabaseClient();
-  
-  const { data: { user } } = await supabase.auth.getUser();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) {
     redirect("/login");
   }
@@ -85,54 +87,60 @@ async function getTelemetryData(selectedMachineId?: string): Promise<{
     .order("name");
 
   // Get current month telemetry summary using the database function
-  const { data: telemetry } = await supabase
-    .rpc("get_telemetry_summary", {
-      p_department_id: dept.id,
-      p_machine_id: selectedMachineId || null,
-      p_granularity: "day"
-    });
+  const { data: telemetry } = await supabase.rpc("get_telemetry_summary", {
+    p_department_id: dept.id,
+    p_machine_id: selectedMachineId || null,
+    p_granularity: "day",
+  });
 
   // Get archived months
   const { data: archives } = await supabase
     .from("machine_telemetry_archive")
-    .select(`
+    .select(
+      `
       id,
       year_month,
       archived_at,
       record_count,
       machines!inner(name)
-    `)
+    `,
+    )
     .eq("department_id", dept.id)
     .order("archived_at", { ascending: false })
     .limit(12);
 
-  const transformedArchives: ArchivedMonth[] = (archives || []).map((a: any) => ({
-    id: a.id,
-    year_month: a.year_month,
-    machine_name: a.machines?.name || "Unknown",
-    archived_at: a.archived_at,
-    record_count: a.record_count,
-  }));
+  const transformedArchives: ArchivedMonth[] = (archives || []).map(
+    (a: any) => ({
+      id: a.id,
+      year_month: a.year_month,
+      machine_name: a.machines?.name || "Unknown",
+      archived_at: a.archived_at,
+      record_count: a.record_count,
+    }),
+  );
 
   return {
     currentMonth,
     telemetry: (telemetry || []) as TelemetryRecord[],
     archives: transformedArchives,
-    drills: drills || []
+    drills: drills || [],
   };
 }
 
-function formatNumber(num: number | null | undefined, decimals: number = 1): string {
+function formatNumber(
+  num: number | null | undefined,
+  decimals: number = 1,
+): string {
   if (num === null || num === undefined) return "—";
   return num.toFixed(decimals);
 }
 
 function formatDate(dateStr: string): string {
   const date = new Date(dateStr);
-  return date.toLocaleDateString("en-US", { 
-    month: "short", 
+  return date.toLocaleDateString("en-US", {
+    month: "short",
     day: "numeric",
-    year: "numeric"
+    year: "numeric",
   });
 }
 
@@ -152,15 +160,27 @@ export default async function MachineTelemetryPage({
 }: MachineTelemetryPageProps) {
   const { machineId } = await searchParams;
   const selectedMachineId = machineId === "all" ? undefined : machineId;
-  const { currentMonth, telemetry, archives, drills } = await getTelemetryData(selectedMachineId);
+  const { currentMonth, telemetry, archives, drills } =
+    await getTelemetryData(selectedMachineId);
 
   // Calculate monthly totals
-  const totalRecords = telemetry.reduce((sum, t) => sum + (t.record_count || 0), 0);
-  const totalAlerts = telemetry.reduce((sum, t) => sum + (t.total_alerts || 0), 0);
-  const avgPenetration = telemetry.length > 0
-    ? telemetry.reduce((sum, t) => sum + (t.avg_penetration_rate || 0), 0) / telemetry.length
-    : 0;
-  const maxBitDepth = Math.max(...telemetry.map(t => t.max_bit_depth || 0), 0);
+  const totalRecords = telemetry.reduce(
+    (sum, t) => sum + (t.record_count || 0),
+    0,
+  );
+  const totalAlerts = telemetry.reduce(
+    (sum, t) => sum + (t.total_alerts || 0),
+    0,
+  );
+  const avgPenetration =
+    telemetry.length > 0
+      ? telemetry.reduce((sum, t) => sum + (t.avg_penetration_rate || 0), 0) /
+        telemetry.length
+      : 0;
+  const maxBitDepth = Math.max(
+    ...telemetry.map((t) => t.max_bit_depth || 0),
+    0,
+  );
 
   return (
     <div className="space-y-6">
@@ -173,7 +193,10 @@ export default async function MachineTelemetryPage({
           <div className="flex items-center gap-2 mt-1">
             <Calendar className="w-4 h-4 text-[var(--text-muted)]" />
             <p className="text-sm text-[var(--text-muted)]">
-              Current Period: <span className="font-medium text-[var(--accent-blue)]">{formatMonth(currentMonth)}</span>
+              Current Period:{" "}
+              <span className="font-medium text-[var(--accent-blue)]">
+                {formatMonth(currentMonth)}
+              </span>
             </p>
           </div>
         </div>
@@ -184,7 +207,7 @@ export default async function MachineTelemetryPage({
               Live View
             </Button>
           </Link>
-          <Button className="bg-[var(--accent-blue)] hover:bg-[#0071e3]">
+          <Button className="bg-[var(--accent-blue)] hover:bg-[var(--accent-blue)]/90">
             <Gauge className="w-4 h-4 mr-2" />
             Export Data
           </Button>
@@ -221,9 +244,7 @@ export default async function MachineTelemetryPage({
           <p className="text-[var(--text-muted)] text-xs font-medium uppercase tracking-wider text-red-400">
             Alerts
           </p>
-          <p className="text-2xl font-bold text-red-400 mt-1">
-            {totalAlerts}
-          </p>
+          <p className="text-2xl font-bold text-red-400 mt-1">{totalAlerts}</p>
         </GlassCard>
       </div>
 
@@ -238,11 +259,14 @@ export default async function MachineTelemetryPage({
               Daily aggregated telemetry data for active month
             </p>
           </div>
-          
+
           <div className="flex flex-wrap items-center gap-4">
             {/* Filter Dropdown */}
             <form method="GET" className="flex items-center gap-2">
-              <label htmlFor="machineId" className="text-xs text-[var(--text-muted)] uppercase tracking-wider font-semibold">
+              <label
+                htmlFor="machineId"
+                className="text-xs text-[var(--text-muted)] uppercase tracking-wider font-semibold"
+              >
                 Filter Rig:
               </label>
               <select
@@ -269,12 +293,15 @@ export default async function MachineTelemetryPage({
             <div className="flex items-center gap-2 border-l border-[var(--border-subtle)] pl-4">
               <TrendingUp className="w-5 h-5 text-emerald-500" />
               <span className="text-sm text-[var(--text-body)]">
-                Max Depth: <span className="font-semibold text-emerald-400">{formatNumber(maxBitDepth, 1)}m</span>
+                Max Depth:{" "}
+                <span className="font-semibold text-emerald-400">
+                  {formatNumber(maxBitDepth, 1)}m
+                </span>
               </span>
             </div>
           </div>
         </div>
-        
+
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
@@ -324,8 +351,8 @@ export default async function MachineTelemetryPage({
             <TableBody>
               {telemetry.length === 0 ? (
                 <TableRow>
-                  <TableCell 
-                    colSpan={10} 
+                  <TableCell
+                    colSpan={10}
                     className="text-center py-12 text-[var(--text-muted)]"
                   >
                     <Activity className="w-12 h-12 mx-auto mb-3 opacity-30" />
@@ -337,12 +364,17 @@ export default async function MachineTelemetryPage({
                 </TableRow>
               ) : (
                 telemetry.map((record) => {
-                  const isHighRPM = record.avg_engine_rpm && record.avg_engine_rpm > 2100;
-                  const isOverheating = record.avg_engine_temp && record.avg_engine_temp > 95;
-                  const isWarm = record.avg_engine_temp && record.avg_engine_temp > 85 && record.avg_engine_temp <= 95;
+                  const isHighRPM =
+                    record.avg_engine_rpm && record.avg_engine_rpm > 2100;
+                  const isOverheating =
+                    record.avg_engine_temp && record.avg_engine_temp > 95;
+                  const isWarm =
+                    record.avg_engine_temp &&
+                    record.avg_engine_temp > 85 &&
+                    record.avg_engine_temp <= 95;
 
                   return (
-                    <TableRow 
+                    <TableRow
                       key={`${record.machine_id}-${record.period}`}
                       className="border-b border-[var(--border-subtle)] hover:bg-[var(--bg-tertiary)]/50"
                     >
@@ -352,10 +384,14 @@ export default async function MachineTelemetryPage({
                       <TableCell className="text-[var(--text-body)]">
                         {record.machine_name}
                       </TableCell>
-                      <TableCell className={`text-right font-medium ${isHighRPM ? 'text-amber-400' : 'text-[var(--text-body)]'}`}>
+                      <TableCell
+                        className={`text-right font-medium ${isHighRPM ? "text-amber-400" : "text-[var(--text-body)]"}`}
+                      >
                         {formatNumber(record.avg_engine_rpm, 0)} rpm
                       </TableCell>
-                      <TableCell className={`text-right font-semibold ${isOverheating ? 'text-red-400' : isWarm ? 'text-amber-400' : 'text-[var(--text-body)]'}`}>
+                      <TableCell
+                        className={`text-right font-semibold ${isOverheating ? "text-red-400" : isWarm ? "text-amber-400" : "text-[var(--text-body)]"}`}
+                      >
                         {formatNumber(record.avg_engine_temp, 1)}°C
                       </TableCell>
                       <TableCell className="text-right text-[var(--text-body)] font-medium">
@@ -403,10 +439,11 @@ export default async function MachineTelemetryPage({
             </h3>
           </div>
           <p className="text-sm text-[var(--text-muted)] mt-1">
-            Previous months telemetry data is automatically archived and preserved for safe keeping
+            Previous months telemetry data is automatically archived and
+            preserved for safe keeping
           </p>
         </div>
-        
+
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
@@ -435,8 +472,8 @@ export default async function MachineTelemetryPage({
             <TableBody>
               {archives.length === 0 ? (
                 <TableRow>
-                  <TableCell 
-                    colSpan={5} 
+                  <TableCell
+                    colSpan={5}
                     className="text-center py-8 text-[var(--text-muted)]"
                   >
                     <Archive className="w-8 h-8 mx-auto mb-2 opacity-30" />
@@ -448,7 +485,7 @@ export default async function MachineTelemetryPage({
                 </TableRow>
               ) : (
                 archives.map((archive) => (
-                  <TableRow 
+                  <TableRow
                     key={archive.id}
                     className="border-b border-[var(--border-subtle)] hover:bg-[var(--bg-tertiary)]/50"
                   >
@@ -465,10 +502,10 @@ export default async function MachineTelemetryPage({
                       {formatDate(archive.archived_at)}
                     </TableCell>
                     <TableCell className="text-center">
-                      <Button 
-                        variant="ghost" 
+                      <Button
+                        variant="ghost"
                         size="sm"
-                        className="text-[var(--accent-blue)] hover:text-[#0071e3]"
+                        className="text-[var(--accent-blue)] hover:text-[var(--accent-blue)]/90"
                       >
                         View Summary
                       </Button>
@@ -496,18 +533,28 @@ export default async function MachineTelemetryPage({
             <li>Historical data is preserved indefinitely for analysis</li>
           </ul>
         </GlassCard>
-        
+
         <GlassCard className="p-4">
           <h4 className="font-semibold text-[var(--text-heading)] mb-2 flex items-center gap-2">
             <Gauge className="w-4 h-4 text-[var(--accent-blue)]" />
             Telemetry Metrics
           </h4>
           <ul className="text-sm text-[var(--text-body)] space-y-1 list-disc list-inside">
-            <li><strong>Engine:</strong> RPM, temperature, operating hours</li>
-            <li><strong>Hydraulics:</strong> Pressure, temperature, flow rate</li>
-            <li><strong>Drilling:</strong> Bit depth, penetration rate, WOB</li>
-            <li><strong>Environment:</strong> Ambient temp, vibration levels</li>
-            <li><strong>Alerts:</strong> Warning codes and fault conditions</li>
+            <li>
+              <strong>Engine:</strong> RPM, temperature, operating hours
+            </li>
+            <li>
+              <strong>Hydraulics:</strong> Pressure, temperature, flow rate
+            </li>
+            <li>
+              <strong>Drilling:</strong> Bit depth, penetration rate, WOB
+            </li>
+            <li>
+              <strong>Environment:</strong> Ambient temp, vibration levels
+            </li>
+            <li>
+              <strong>Alerts:</strong> Warning codes and fault conditions
+            </li>
           </ul>
         </GlassCard>
       </div>

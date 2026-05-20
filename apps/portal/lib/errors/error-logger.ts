@@ -6,7 +6,6 @@
  */
 
 import { isAppError } from "@repo/errors";
-import { H } from "@highlight-run/next/server";
 
 /**
  * Error severity levels
@@ -98,16 +97,23 @@ async function sendToMonitoring(entry: ErrorLogEntry): Promise<void> {
     error.stack = entry.stack;
   }
 
-  H.consumeError(error, undefined, undefined, {
-    ...entry.context,
-    severity: entry.severity,
-    code: entry.code,
-    statusCode: entry.statusCode,
-    url: entry.url,
-    method: entry.method,
-    userId: entry.userId,
-    sessionId: entry.sessionId,
-  });
+  if (typeof window === "undefined") {
+    try {
+      const { H } = await import("@highlight-run/next/server");
+      H.consumeError(error, undefined, undefined, {
+        ...entry.context,
+        severity: entry.severity,
+        code: entry.code,
+        statusCode: entry.statusCode,
+        url: entry.url,
+        method: entry.method,
+        userId: entry.userId,
+        sessionId: entry.sessionId,
+      });
+    } catch {
+      // Highlight not available; fall through to console logging
+    }
+  }
 
   // Keep console output for local debugging
   // eslint-disable-next-line no-console

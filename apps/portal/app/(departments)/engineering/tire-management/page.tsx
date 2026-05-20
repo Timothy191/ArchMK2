@@ -20,7 +20,7 @@ export default async function TireManagementPage() {
             Inspections, wear tracking &amp; replacement scheduling
           </p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--accent-blue)] hover:bg-[#0071e3] text-white text-sm font-medium transition-all hover:scale-[1.02] active:scale-[0.98]">
+        <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--accent-blue)] hover:bg-[var(--accent-blue)]/90 text-white text-sm font-medium transition-[opacity,transform] hover:scale-[1.02] active:scale-[0.98]">
           <Plus className="w-4 h-4" />
           Log Inspection
         </button>
