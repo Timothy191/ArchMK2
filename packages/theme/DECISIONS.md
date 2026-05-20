@@ -102,11 +102,11 @@ it via `scripts/generate-tokens.mjs`. The JS values should never be edited manua
 
 Three tiers enforced by `scripts/validate-tokens.mjs` and documented inline in `variables.css`:
 
-| Tier | Tokens | Rule |
-|------|--------|------|
-| **Primitive** | `--arch0`–`--arch15` | Raw values only. Never referenced in components or `preset.ts` semantic sections. |
-| **Semantic** | `--bg-primary`, `--text-body`, `--shadow-card`, etc. | All component and utility references. Auto-updated by dark mode. |
-| **Deprecated** | `--accent-cyan`, `--accent-indigo`, `--accent-violet`, `--accent-alert`, `--accent-amber`, `--accent-emerald` | Map to canonical Tier 2. Stylelint warns. Migrate on touch. |
+| Tier           | Tokens                                                                                                        | Rule                                                                              |
+| -------------- | ------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| **Primitive**  | `--arch0`–`--arch15`                                                                                          | Raw values only. Never referenced in components or `preset.ts` semantic sections. |
+| **Semantic**   | `--bg-primary`, `--text-body`, `--shadow-card`, etc.                                                          | All component and utility references. Auto-updated by dark mode.                  |
+| **Deprecated** | `--accent-cyan`, `--accent-indigo`, `--accent-violet`, `--accent-alert`, `--accent-amber`, `--accent-emerald` | Map to canonical Tier 2. Stylelint warns. Migrate on touch.                       |
 
 ---
 
@@ -119,3 +119,35 @@ and must not be edited manually.
 Eliminates drift between the CSS source of truth and TypeScript consumers.
 
 **Regenerate**: `pnpm --filter @repo/theme codegen` or `turbo run codegen`.
+
+---
+
+## 009 — Style Dictionary as the single source of truth
+
+**Decision**: `tokens.json` is now the single source of truth for all design tokens.
+Style Dictionary generates CSS, TypeScript, and JSON outputs automatically.
+
+**Why**: The previous manual triad (CSS + TS + Tailwind) required editing three files for every
+token change. This created drift and maintenance burden. Style Dictionary (industry standard from
+Amazon, Salesforce, Adobe) provides a W3C DTCG-compliant token format with automatic multi-platform
+output generation.
+
+**Migration**:
+
+- `variables.css` → Now imports `variables-generated.css` (Style Dictionary output)
+- `colors.ts` → References updated to use generated values where appropriate
+- `tokens.json` → New W3C DTCG format token source file
+
+**Build command**: `pnpm --filter @repo/theme build` or `pnpm codegen`
+
+**Watch mode**: `pnpm tokens:watch` (auto-rebuilds on tokens.json changes)
+
+**Token format**: W3C Design Tokens Community Group (DTCG) specification with references:
+
+```json
+{
+  "bg": {
+    "primary": { "value": "{arch.0}", "type": "color" }
+  }
+}
+```

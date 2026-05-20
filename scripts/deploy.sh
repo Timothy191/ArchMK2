@@ -133,13 +133,25 @@ success() {
 
 # ── Lock Management ───────────────────────────────────────
 acquire_lock() {
+  if [ "$FORCE" = true ]; then
+    rm -f "$LOCK_FILE"
+  fi
+  
   if [ -f "$LOCK_FILE" ]; then
     local pid
     pid=$(cat "$LOCK_FILE" 2>/dev/null || echo "")
-    if [ -n "$pid" ] && ps -p "$pid" > /dev/null 2>&1; then
-      error "Deployment already in progress (PID: $pid)"
-      error "Use --force to override or wait for completion"
-      exit 1
+    if [ -n "$pid" ]; then
+      # Check if process exists and is not a zombie
+      local proc_stat
+      proc_stat=$(ps -o stat= -p "$pid" 2>/dev/null || echo "")
+      if [ -n "$proc_stat" ] && [ "$proc_stat" != "Z" ] && [ "$proc_stat" != "Z+" ]; then
+        error "Deployment already in progress (PID: $pid, status: $proc_stat)"
+        error "Use --force to override or wait for completion"
+        exit 1
+      fi
+      # Zombie or dead process - remove stale lock
+      warn "Removing stale lock from dead process (PID: $pid)"
+      rm -f "$LOCK_FILE"
     fi
   fi
   echo $$ > "$LOCK_FILE"

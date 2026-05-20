@@ -18,17 +18,10 @@ services:
       - N8N_PROTOCOL=http
       - N8N_CONCURRENCY_PRODUCTION_LIMIT=16
       - N8N_LOG_LEVEL=warn
-      - OTEL_SDK_DISABLED=false
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://langfuse:4318
-      - OTEL_EXPORTER_OTLP_HEADERS=Authorization=Bearer sk-lf-plantcor
-      - OTEL_SERVICE_NAME=n8n-agent
-      - OTEL_LOG_USER_PROMPTS=1
-      - OTEL_LOG_TOOL_DETAILS=1
     volumes:
       - /home/timothy/.n8n:/home/node/.n8n
     depends_on:
-      langfuse:
-        condition: service_healthy
+      - redis
     networks:
       - plantcor-tools
 
@@ -76,6 +69,16 @@ services:
       - LANGFUSE_INIT_USER_NAME=Timothy
       - LANGFUSE_INIT_PUBLIC_KEY=pk-lf-plantcor
       - LANGFUSE_INIT_SECRET_KEY=sk-lf-plantcor
+      # secretlint-disable-next-line
+      - DATABASE_URL=postgresql://langfuse:langfuse@plantcor-langfuse-db:5432/langfuse
+      - CLICKHOUSE_URL=http://plantcor-clickhouse:8123/default
+      - CLICKHOUSE_MIGRATION_URL=clickhouse://plantcor-clickhouse:9000/default
+      - NEXTAUTH_URL=http://localhost:3002
+      - NEXTAUTH_SECRET=plantcor-secret-key-change-in-production
+      - SALT=plantcor-salt-change-in-production
+      - ENCRYPTION_KEY=plantcor-encryption-key-change-in-production
+      - CLICKHOUSE_USER=clickhouse
+      - CLICKHOUSE_PASSWORD=clickhouse
     healthcheck:
       test:
         [
