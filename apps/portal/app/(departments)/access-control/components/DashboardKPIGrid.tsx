@@ -110,65 +110,69 @@ function KPICard({
   );
 }
 
-const kpiData: KPICardProps[] = [
-  {
-    id: "kpi-active-qr",
-    title: "Active QR Codes",
-    value: "1,284",
-    subtext: "Across employees, vehicles & equipment",
-    icon: QrCode,
-    trend: { direction: "up", label: "+23 this week" },
-    variant: "success",
-    hero: true,
-  },
-  {
-    id: "kpi-expiring-soon",
-    title: "Expiring Within 7 Days",
-    value: "47",
-    subtext: "Require renewal before expiry",
-    icon: Clock,
-    trend: { direction: "up", label: "+12 since yesterday" },
-    variant: "warning",
-  },
-  {
-    id: "kpi-denied-today",
-    title: "Denied Attempts Today",
-    value: "9",
-    subtext: "Across all zones — review required",
-    icon: ShieldAlert,
-    trend: { direction: "up", label: "+4 vs. yesterday" },
-    variant: "danger",
-  },
-  {
-    id: "kpi-access-today",
-    title: "Access Events Today",
-    value: "342",
-    subtext: "Total scans across all entry points",
-    icon: ScanLine,
-    trend: { direction: "neutral", label: "Normal range" },
-    variant: "default",
-  },
-  {
-    id: "kpi-expired-assigned",
-    title: "Expired Still Assigned",
-    value: "3",
-    subtext: "Critical — revoke immediately",
-    icon: AlertCircle,
-    trend: { direction: "down", label: "Down from 7" },
-    variant: "danger",
-  },
-  {
-    id: "kpi-entity-coverage",
-    title: "Entity QR Coverage",
-    value: "94.2%",
-    subtext: "Of all registered entities have active QR",
-    icon: CheckCircle2,
-    trend: { direction: "up", label: "+1.3% this month" },
-    variant: "success",
-  },
-];
+interface DashboardKPIGridProps {
+  metrics: AccessControlMetrics;
+}
 
-export default function DashboardKPIGrid() {
+export default function DashboardKPIGrid({ metrics }: DashboardKPIGridProps) {
+  const kpiData: KPICardProps[] = [
+    {
+      id: "kpi-active-qr",
+      title: "Active QR Codes",
+      value: metrics.activeQrCodes.toLocaleString(),
+      subtext: "Across employees, vehicles & equipment",
+      icon: QrCode,
+      trend: { direction: "up", label: "+23 this week" },
+      variant: "success",
+      hero: true,
+    },
+    {
+      id: "kpi-expiring-soon",
+      title: "Expiring Within 7 Days",
+      value: metrics.expiringSoon.toLocaleString(),
+      subtext: "Require renewal before expiry",
+      icon: Clock,
+      trend: { direction: "up", label: "+12 since yesterday" },
+      variant: "warning",
+    },
+    {
+      id: "kpi-denied-today",
+      title: "Denied Attempts Today",
+      value: metrics.deniedToday.toLocaleString(),
+      subtext: "Across all zones — review required",
+      icon: ShieldAlert,
+      trend: { direction: "up", label: "+4 vs. yesterday" },
+      variant: "danger",
+    },
+    {
+      id: "kpi-access-today",
+      title: "Access Events Today",
+      value: metrics.accessEventsToday.toLocaleString(),
+      subtext: "Total scans across all entry points",
+      icon: ScanLine,
+      trend: { direction: "neutral", label: "Normal range" },
+      variant: "default",
+    },
+    {
+      id: "kpi-expired-assigned",
+      title: "Expired Still Assigned",
+      value: metrics.expiredAssigned.toLocaleString(),
+      subtext: "Critical — revoke immediately",
+      icon: AlertCircle,
+      trend: { direction: "down", label: "Down from 7" },
+      variant: "danger",
+    },
+    {
+      id: "kpi-entity-coverage",
+      title: "Entity QR Coverage",
+      value: `${metrics.entityCoverage}%`,
+      subtext: "Of all registered entities have active QR",
+      icon: CheckCircle2,
+      trend: { direction: "up", label: "+1.3% this month" },
+      variant: "success",
+    },
+  ];
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <div className="sm:col-span-2 lg:col-span-2">

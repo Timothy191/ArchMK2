@@ -55,7 +55,8 @@ export async function trackUsage(
       prompt_tokens: usage.inputTokens,
       completion_tokens: usage.outputTokens,
       total_tokens: usage.totalTokens,
-      estimated_cost_usd: 0, // local Ollama — no API cost
+      estimated_cost_usd:
+        ((usage.inputTokens ?? 0) + (usage.outputTokens ?? 0)) * 0.000001,
       ...meta,
     });
   } catch (err) {
@@ -73,7 +74,11 @@ export async function getUsageSummary(
   userId: string,
   startDate: Date,
   endDate: Date,
-): Promise<{ totalCostUsd: number; totalTokens: number; requestCount: number }> {
+): Promise<{
+  totalCostUsd: number;
+  totalTokens: number;
+  requestCount: number;
+}> {
   const supabase = await createServerSupabaseClient();
   const { data, error } = await supabase
     .from("ai_usage_logs")
@@ -97,7 +102,9 @@ export async function getUsageSummary(
 /**
  * Get formatted usage records for a session.
  */
-export async function getSessionUsage(sessionId: string): Promise<UsageRecord[]> {
+export async function getSessionUsage(
+  sessionId: string,
+): Promise<UsageRecord[]> {
   try {
     const supabase = await createServerSupabaseClient();
     const { data, error } = await supabase

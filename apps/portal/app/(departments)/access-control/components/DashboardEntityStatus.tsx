@@ -4,46 +4,26 @@ import React from "react";
 import { Users, Car, Wrench, ChevronRight } from "lucide-react";
 
 interface EntityRow {
-  id: string;
   type: string;
-  icon: React.ElementType;
   total: number;
   active: number;
   expiring: number;
   expired: number;
 }
 
-const entityRows: EntityRow[] = [
-  {
-    id: "ent-employees",
-    type: "Employees",
-    icon: Users,
-    total: 412,
-    active: 387,
-    expiring: 19,
-    expired: 6,
-  },
-  {
-    id: "ent-vehicles",
-    type: "Vehicles",
-    icon: Car,
-    total: 88,
-    active: 82,
-    expiring: 4,
-    expired: 2,
-  },
-  {
-    id: "ent-equipment",
-    type: "Equipment",
-    icon: Wrench,
-    total: 204,
-    active: 195,
-    expiring: 7,
-    expired: 2,
-  },
-];
+interface DashboardEntityStatusProps {
+  entityStatus: EntityRow[];
+}
 
-export default function DashboardEntityStatus() {
+const typeToIcon: Record<string, React.ElementType> = {
+  Employees: Users,
+  Vehicles: Car,
+  Equipment: Wrench,
+};
+
+export default function DashboardEntityStatus({
+  entityStatus,
+}: DashboardEntityStatusProps) {
   return (
     <div className="bg-card rounded-xl border border-border shadow-card h-full">
       <div className="px-5 py-4 border-b border-border">
@@ -53,12 +33,12 @@ export default function DashboardEntityStatus() {
         </p>
       </div>
       <div className="divide-y divide-border">
-        {entityRows.map((row) => {
-          const Icon = row.icon;
+        {entityStatus.map((row) => {
+          const Icon = typeToIcon[row.type] ?? Wrench;
           const coveragePct = Math.round((row.active / row.total) * 100);
           return (
             <div
-              key={row.id}
+              key={row.type}
               className="px-5 py-4 hover:bg-secondary/40 transition-colors duration-100 cursor-pointer group"
             >
               <div className="flex items-center justify-between mb-3">
@@ -110,19 +90,25 @@ export default function DashboardEntityStatus() {
             {
               id: "sum-active",
               label: "Total Active",
-              value: "664",
+              value: entityStatus
+                .reduce((s, r) => s + r.active, 0)
+                .toLocaleString(),
               color: "text-success",
             },
             {
               id: "sum-expiring",
               label: "Expiring",
-              value: "30",
+              value: entityStatus
+                .reduce((s, r) => s + r.expiring, 0)
+                .toLocaleString(),
               color: "text-warning",
             },
             {
               id: "sum-expired",
               label: "Expired",
-              value: "10",
+              value: entityStatus
+                .reduce((s, r) => s + r.expired, 0)
+                .toLocaleString(),
               color: "text-danger",
             },
           ].map((s) => (

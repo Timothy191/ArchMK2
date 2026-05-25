@@ -95,7 +95,9 @@
         "REDIS_URL",
         "NEXT_RUNTIME",
         "SENTRY_DSN",
-        "ALLOWED_SCANNER_SOURCES"
+        "ALLOWED_SCANNER_SOURCES",
+        "OPENAI_API_KEY",
+        "TOGETHER_API_KEY"
       ],
       "inputs": [
         "$TURBO_DEFAULT$",
@@ -120,12 +122,7 @@
     },
     "test": {
       "dependsOn": ["^build"],
-      "env": [
-        "NEXT_PUBLIC_*",
-        "SUPABASE_*",
-        "NEXT_RUNTIME",
-        "SENTRY_DSN"
-      ],
+      "env": ["NEXT_PUBLIC_*", "SUPABASE_*", "NEXT_RUNTIME", "SENTRY_DSN"],
       "passThroughEnv": ["TEST_DB_URL", "MOCK_SERVER_PORT"],
       "inputs": [
         "$TURBO_DEFAULT$",

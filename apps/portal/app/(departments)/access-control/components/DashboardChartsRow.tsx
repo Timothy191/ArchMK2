@@ -3,6 +3,7 @@
 import React from "react";
 import dynamic from "next/dynamic";
 import { Skeleton } from "@repo/ui/components/ui/skeleton";
+import type { HourlyAccessPoint, BadgeStatusDistribution } from "../actions";
 
 const HourlyAccessChart = dynamic(() => import("./HourlyAccessChart"), {
   ssr: false,
@@ -17,7 +18,17 @@ const QRStatusDistributionChart = dynamic(
   },
 );
 
-export default function DashboardChartsRow() {
+interface DashboardChartsRowProps {
+  hourlyStats: HourlyAccessPoint[];
+  distribution: BadgeStatusDistribution[];
+}
+
+export default function DashboardChartsRow({
+  hourlyStats,
+  distribution,
+}: DashboardChartsRowProps) {
+  const total = distribution.reduce((s, d) => s + d.value, 0);
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
       <div className="lg:col-span-2 bg-card rounded-xl border border-border shadow-card p-5">
@@ -34,7 +45,7 @@ export default function DashboardChartsRow() {
             Live
           </span>
         </div>
-        <HourlyAccessChart />
+        <HourlyAccessChart data={hourlyStats} />
       </div>
       <div className="lg:col-span-1 bg-card rounded-xl border border-border shadow-card p-5">
         <div className="mb-4">
@@ -42,10 +53,10 @@ export default function DashboardChartsRow() {
             QR Code Status Distribution
           </h2>
           <p className="text-xs text-muted-foreground mt-0.5">
-            All 1,421 registered QR codes
+            {total.toLocaleString()} registered QR codes
           </p>
         </div>
-        <QRStatusDistributionChart />
+        <QRStatusDistributionChart data={distribution} />
       </div>
     </div>
   );

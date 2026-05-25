@@ -11,32 +11,9 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const hourlyData = [
-  { hour: "00:00", granted: 2, denied: 0 },
-  { hour: "01:00", granted: 1, denied: 0 },
-  { hour: "02:00", granted: 0, denied: 0 },
-  { hour: "03:00", granted: 1, denied: 0 },
-  { hour: "04:00", granted: 3, denied: 0 },
-  { hour: "05:00", granted: 8, denied: 1 },
-  { hour: "06:00", granted: 24, denied: 2 },
-  { hour: "07:00", granted: 47, denied: 3 },
-  { hour: "08:00", granted: 68, denied: 1 },
-  { hour: "09:00", granted: 52, denied: 2 },
-  { hour: "10:00", granted: 41, denied: 1 },
-  { hour: "11:00", granted: 38, denied: 0 },
-  { hour: "12:00", granted: 29, denied: 2 },
-  { hour: "13:00", granted: 33, denied: 1 },
-  { hour: "14:00", granted: 44, denied: 0 },
-  { hour: "15:00", granted: 51, denied: 3 },
-  { hour: "16:00", granted: 46, denied: 2 },
-  { hour: "17:00", granted: 38, denied: 1 },
-  { hour: "18:00", granted: 19, denied: 0 },
-  { hour: "19:00", granted: 12, denied: 1 },
-  { hour: "20:00", granted: 8, denied: 0 },
-  { hour: "21:00", granted: 5, denied: 0 },
-  { hour: "22:00", granted: 3, denied: 0 },
-  { hour: "23:00", granted: 1, denied: 0 },
-];
+interface HourlyAccessChartProps {
+  data: Array<{ hour: string; granted: number; denied: number }>;
+}
 
 interface CustomTooltipProps {
   active?: boolean;
@@ -68,11 +45,11 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
   );
 }
 
-export default function HourlyAccessChart() {
+export default function HourlyAccessChart({ data }: HourlyAccessChartProps) {
   return (
     <ResponsiveContainer width="100%" height={220}>
       <AreaChart
-        data={hourlyData}
+        data={data}
         margin={{ top: 4, right: 8, left: -20, bottom: 0 }}
       >
         <defs>

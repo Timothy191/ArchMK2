@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useCallback, useMemo } from "react"
+import { useCallback, useMemo } from "react";
 import {
   ReactFlow,
   Background,
@@ -14,53 +14,78 @@ import {
   type Node,
   Handle,
   Position,
-} from "@xyflow/react"
-import "@xyflow/react/dist/style.css"
-import { DEPARTMENTS, NAVIGATION_GRAPH } from "@/lib/data"
+} from "@xyflow/react";
+import "@xyflow/react/dist/style.css";
+import { DEPARTMENTS } from "@/lib/data";
 
 // Custom node components
 function RootNode({ data }: { data: { label: string } }) {
   return (
     <div className="px-6 py-3 bg-[#171717] border-2 border-[#3ecf8e] rounded-xl shadow-lg">
       <div className="text-[#3ecf8e] font-semibold text-lg">{data.label}</div>
-      <Handle type="source" position={Position.Bottom} className="!bg-[#3ecf8e]" />
+      <Handle
+        type="source"
+        position={Position.Bottom}
+        className="!bg-[#3ecf8e]"
+      />
     </div>
-  )
+  );
 }
 
 function AuthNode({ data }: { data: { label: string } }) {
   return (
     <div className="px-5 py-2 bg-[#171717] border border-[#898989] rounded-lg">
       <div className="text-[#898989] font-medium">{data.label}</div>
-      <Handle type="source" position={Position.Right} className="!bg-[#898989]" />
+      <Handle
+        type="source"
+        position={Position.Right}
+        className="!bg-[#898989]"
+      />
     </div>
-  )
+  );
 }
 
 function AdminNode({ data }: { data: { label: string } }) {
   return (
     <div className="px-5 py-2 bg-[#171717] border border-[#ef4444] rounded-lg">
       <div className="text-[#ef4444] font-medium">{data.label}</div>
-      <Handle type="source" position={Position.Left} className="!bg-[#ef4444]" />
+      <Handle
+        type="source"
+        position={Position.Left}
+        className="!bg-[#ef4444]"
+      />
     </div>
-  )
+  );
 }
 
-function DepartmentNode({ data }: { data: { label: string; color: string; slug: string } }) {
-  const dept = DEPARTMENTS.find((d) => d.id === data.slug)
-  
+function DepartmentNode({
+  data,
+}: {
+  data: { label: string; color: string; slug: string };
+}) {
+  const dept = DEPARTMENTS.find((d) => d.id === data.slug);
+
   return (
-    <div className="w-48 bg-[#171717] border rounded-xl overflow-hidden shadow-lg" style={{ borderColor: data.color }}>
+    <div
+      className="w-48 bg-[#171717] border rounded-xl overflow-hidden shadow-lg"
+      style={{ borderColor: data.color }}
+    >
       <Handle type="target" position={Position.Top} className="!opacity-0" />
-      
+
       {/* Header */}
-      <div className="px-4 py-3 border-b border-[#363636]" style={{ borderBottomColor: data.color }}>
-        <div className="font-semibold text-[#fafafa]" style={{ color: data.color }}>
+      <div
+        className="px-4 py-3 border-b border-[#363636]"
+        style={{ borderBottomColor: data.color }}
+      >
+        <div
+          className="font-semibold text-[#fafafa]"
+          style={{ color: data.color }}
+        >
           {data.label}
         </div>
         <div className="text-xs text-[#898989] mt-1">{dept?.description}</div>
       </div>
-      
+
       {/* Routes */}
       <div className="p-2 space-y-1">
         {dept?.routes.map((route) => (
@@ -73,10 +98,10 @@ function DepartmentNode({ data }: { data: { label: string; color: string; slug: 
           </div>
         ))}
       </div>
-      
+
       <Handle type="source" position={Position.Bottom} className="!opacity-0" />
     </div>
-  )
+  );
 }
 
 const nodeTypes = {
@@ -84,7 +109,7 @@ const nodeTypes = {
   auth: AuthNode,
   admin: AdminNode,
   department: DepartmentNode,
-}
+};
 
 export default function SystemArchitecture() {
   const initialNodes: Node[] = useMemo(() => {
@@ -110,13 +135,13 @@ export default function SystemArchitecture() {
         position: { x: 1050, y: 50 },
         data: { label: "Admin" },
       },
-    ]
+    ];
 
     // Department nodes - arranged horizontally
-    const deptWidth = 200
-    const gap = 20
-    const startX = 50
-    const y = 250
+    const deptWidth = 200;
+    const gap = 20;
+    const startX = 50;
+    const y = 250;
 
     DEPARTMENTS.forEach((dept, index) => {
       nodes.push({
@@ -124,19 +149,31 @@ export default function SystemArchitecture() {
         type: "department",
         position: { x: startX + index * (deptWidth + gap), y },
         data: { label: dept.name, color: dept.color, slug: dept.id },
-      })
-    })
+      });
+    });
 
-    return nodes
-  }, [])
+    return nodes;
+  }, []);
 
   const initialEdges: Edge[] = useMemo(() => {
     const edges: Edge[] = [
       // Login -> Hub
-      { id: "e-login-hub", source: "login", target: "hub", animated: true, style: { stroke: "#898989" } },
+      {
+        id: "e-login-hub",
+        source: "login",
+        target: "hub",
+        animated: true,
+        style: { stroke: "#898989" },
+      },
       // Admin -> Hub
-      { id: "e-admin-hub", source: "admin", target: "hub", animated: true, style: { stroke: "#ef4444" } },
-    ]
+      {
+        id: "e-admin-hub",
+        source: "admin",
+        target: "hub",
+        animated: true,
+        style: { stroke: "#ef4444" },
+      },
+    ];
 
     // Hub -> each department
     DEPARTMENTS.forEach((dept) => {
@@ -146,19 +183,19 @@ export default function SystemArchitecture() {
         target: dept.id,
         animated: true,
         style: { stroke: dept.color },
-      })
-    })
+      });
+    });
 
-    return edges
-  }, [])
+    return edges;
+  }, []);
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes)
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
+  const [nodes, _setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
   const onConnect = useCallback(
     (params: Connection) => setEdges((eds) => addEdge(params, eds)),
-    [setEdges]
-  )
+    [setEdges],
+  );
 
   return (
     <div className="h-[calc(100vh-200px)] min-h-[600px] w-full">
@@ -179,15 +216,15 @@ export default function SystemArchitecture() {
         <MiniMap
           className="!bg-[#171717] !border-[#363636]"
           nodeColor={(node) => {
-            if (node.type === "root") return "#3ecf8e"
-            if (node.type === "auth") return "#898989"
-            if (node.type === "admin") return "#ef4444"
-            return (node.data.color as string) || "#3ecf8e"
+            if (node.type === "root") return "#3ecf8e";
+            if (node.type === "auth") return "#898989";
+            if (node.type === "admin") return "#ef4444";
+            return (node.data.color as string) || "#3ecf8e";
           }}
           maskColor="rgba(15, 15, 15, 0.7)"
         />
       </ReactFlow>
-      
+
       {/* Legend */}
       <div className="absolute bottom-4 left-4 bg-[#171717]/90 backdrop-blur-sm border border-[#363636] rounded-lg p-4 text-sm">
         <div className="text-[#fafafa] font-medium mb-2">Navigation Flow</div>
@@ -214,5 +251,5 @@ export default function SystemArchitecture() {
         </div>
       </div>
     </div>
-  )
+  );
 }
