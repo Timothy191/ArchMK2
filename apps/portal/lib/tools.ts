@@ -70,7 +70,10 @@ export async function getTools(): Promise<Tool[]> {
  * External tool configurations.
  * Override URLs via environment variables:
  *   N8N_URL=http://localhost:5678
- *   FLOWISE_URL=http://localhost:3000
+ *   FLOWISE_URL=http://localhost:3001
+ *
+ * (Flowise runs on port 3001 in docker-compose.tools.yml;
+ *  port 3000 is reserved for the Next.js dev server.)
  */
 export const EXTERNAL_TOOLS: ExternalTool[] = [
   {
@@ -85,7 +88,7 @@ export const EXTERNAL_TOOLS: ExternalTool[] = [
   {
     name: "flowise",
     displayName: "Flowise",
-    url: process.env.FLOWISE_URL ?? "http://localhost:3000",
+    url: process.env.FLOWISE_URL ?? "http://localhost:3001",
     description:
       "Visual AI workflow builder — drag-and-drop LangChain agents and LLM pipelines",
     icon: "Bot",

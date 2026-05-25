@@ -226,6 +226,11 @@
        ═══════════════════════════════════════════════════════════════ */
   --theme-transition-duration: 0ms;
 
+  /* Font variables used in Tailwind config preset */
+  --font-inter: "Inter", sans-serif;
+  --font-outfit: "Outfit", sans-serif;
+  --font-mono: ui-monospace, monospace;
+
   color-scheme: light;
 }
 

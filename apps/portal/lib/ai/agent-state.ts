@@ -5,8 +5,19 @@
  * This is the single source of truth for the agent's execution state.
  */
 
-import type { UIMessage } from "ai";
 import type { TokenUsage } from "./cost-tracker";
+
+/**
+ * Minimal UIMessage surface needed by the graph.
+ * Omits parts beyond role/content/parts used inside agent-graph.ts.
+ */
+export interface UIMessage {
+  id: string;
+  role: "user" | "assistant" | "system";
+  content: string;
+  parts?: Array<{ type: string; text?: string }>;
+}
+
 
 export interface LLMResponse {
   text: PromiseLike<string>;

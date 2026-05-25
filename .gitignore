@@ -107,3 +107,4 @@ template/
 .deploy.lock
 .tbls.yml
 deploy-*.log
+.aider*

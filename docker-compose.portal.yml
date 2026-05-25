@@ -1,7 +1,14 @@
 version: "3.8"
 
 # Portal stack with load balancer for production deployments
-# Usage: docker compose -f docker-compose.portal.yml up -d
+#
+# Preferred usage (wrapper handles BuildKit + env file):
+#   ./scripts/docker-compose-portal.sh up -d --build portal
+#
+# Manual (if wrapper unavailable):
+#   export DOCKER_BUILDKIT=1
+#   export COMPOSE_DOCKER_CLI_BUILD=1
+#   docker-compose --env-file apps/portal/.env.portal.compose -f docker-compose.portal.yml up -d --build portal
 
 services:
   nginx:
@@ -23,18 +30,41 @@ services:
     build:
       context: .
       dockerfile: apps/portal/Dockerfile
+      args:
+        # Build-time env vars — Next.js embeds these in the standalone output.
+        # For production, override with real values via docker-compose override
+        # or pass them in the CI pipeline with --build-arg.
+        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL:-http://host.docker.internal:54321}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY:-dummy-anon-key}
+        NEXT_PUBLIC_HIGHLIGHT_PROJECT_ID: ${NEXT_PUBLIC_HIGHLIGHT_PROJECT_ID:-}
+        NEXT_PUBLIC_FUXA_URL: ${NEXT_PUBLIC_FUXA_URL:-http://host.docker.internal:1881}
+        NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}
+        NEXT_PUBLIC_VERCEL_ENV: ${NEXT_PUBLIC_VERCEL_ENV:-production}
     container_name: arch-portal-app
     restart: unless-stopped
     environment:
       - NODE_ENV=production
       - PORT=3000
       - HOSTNAME=0.0.0.0
-    env_file:
-      - .env
+      # Runtime env vars (not bundled at build time)
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - REDIS_URL=${REDIS_URL}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - SENTRY_DSN=${SENTRY_DSN}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GROQ_API_KEY=${GROQ_API_KEY}
     expose:
       - "3000"
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "require('http').get('http://localhost:3000/api/health/live', r => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+        ]
       interval: 30s
       timeout: 10s
       retries: 3

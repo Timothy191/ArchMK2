@@ -12,6 +12,7 @@ import {
   TrendingDown,
   Minus,
 } from "lucide-react";
+import type { AccessControlMetrics } from "../actions";
 
 interface KPICardProps {
   id: string;

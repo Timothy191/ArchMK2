@@ -1,60 +1,16 @@
 import { getDepartmentContext } from "~/lib/dept-context";
 import { GlassCard } from "@repo/ui/GlassCard";
-import { createReadReplicaClient } from "@repo/supabase/read-replica";
 import nextDynamic from "next/dynamic";
 import { Skeleton } from "@repo/ui/components/ui/skeleton";
+import {
+  getAccessControlMetrics,
+  getRecentAccessActivity,
+  getEntityBadgeStatus,
+  getHourlyAccessStats,
+  getBadgeStatusDistribution,
+} from "./actions";
 
 export const dynamic = "force-dynamic";
-
-async function getAccessControlDashboardData(deptId: string, today: string) {
-  const db = await createReadReplicaClient();
-
-  const [
-    { data: todayLogs },
-    { count: activeBadges },
-    { data: todayVisitors },
-    { data: accessAlerts },
-  ] = await Promise.all([
-    db
-      .from("daily_logs")
-      .select("id, log_date, shift")
-      .eq("department_id", deptId)
-      .eq("log_date", today)
-      .order("shift"),
-    db
-      .from("access_badges")
-      .select("*", { count: "exact", head: true })
-      .eq("department_id", deptId)
-      .eq("status", "active"),
-    db
-      .from("visitors")
-      .select("id, full_name, status")
-      .eq("department_id", deptId)
-      .eq("visit_date", today),
-    db
-      .from("access_logs")
-      .select("id, event_type")
-      .eq("department_id", deptId)
-      .eq("event_date", today)
-      .in("event_type", ["unauthorized", "tailgating", "expired_badge"]),
-  ]);
-
-  const shiftCount = todayLogs?.length ?? 0;
-  const latestShift = todayLogs?.[todayLogs.length - 1]?.shift;
-
-  const activeVisitors =
-    todayVisitors?.filter((v) => v.status === "checked_in").length || 0;
-
-  const alertCount = accessAlerts?.length || 0;
-
-  return {
-    shiftCount,
-    latestShift,
-    activeBadges: activeBadges ?? 0,
-    activeVisitors,
-    alertCount,
-  };
-}
 
 const DashboardKPIGrid = nextDynamic(
   () => import("./components/DashboardKPIGrid"),
@@ -78,12 +34,18 @@ export default async function AccessControlDashboardPage() {
     department: "access-control",
   });
 
-  const { activeBadges, activeVisitors, alertCount } =
-    await getAccessControlDashboardData(deptId, today);
+  const [metrics, activity, entityStatus, hourlyStats, distribution] =
+    await Promise.all([
+      getAccessControlMetrics(deptId),
+      getRecentAccessActivity(deptId, 8),
+      getEntityBadgeStatus(deptId),
+      getHourlyAccessStats(today),
+      getBadgeStatusDistribution(),
+    ]);
 
   return (
     <div className="space-y-6">
-      {/* Top summary row bridging real DB data with template KPIs */}
+      {/* Top summary row with real DB data */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <GlassCard>
           <div className="flex items-center gap-3">
@@ -95,7 +57,7 @@ export default async function AccessControlDashboardPage() {
                 Active Badges
               </p>
               <p className="text-2xl font-bold text-[var(--text-heading)] mt-1">
-                {activeBadges}
+                {metrics.activeQrCodes}
               </p>
             </div>
           </div>
@@ -110,7 +72,7 @@ export default async function AccessControlDashboardPage() {
                 Active Visitors
               </p>
               <p className="text-2xl font-bold text-cyan-400 mt-1">
-                {activeVisitors}
+                {metrics.accessEventsToday}
               </p>
             </div>
           </div>
@@ -125,26 +87,29 @@ export default async function AccessControlDashboardPage() {
                 Alerts Today
               </p>
               <p className="text-2xl font-bold text-amber-400 mt-1">
-                {alertCount}
+                {metrics.deniedToday}
               </p>
             </div>
           </div>
         </GlassCard>
       </div>
 
-      {/* Template KPI Bento Grid */}
-      <DashboardKPIGrid />
+      {/* KPI Bento Grid with real data */}
+      <DashboardKPIGrid metrics={metrics} />
 
-      {/* Charts Row */}
-      <DashboardChartsRow />
+      {/* Charts Row with real data */}
+      <DashboardChartsRow
+        hourlyStats={hourlyStats}
+        distribution={distribution}
+      />
 
       {/* Bottom Row: Activity Feed + Entity Status */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
         <div className="xl:col-span-2">
-          <DashboardActivityFeed />
+          <DashboardActivityFeed activity={activity} />
         </div>
         <div className="xl:col-span-1">
-          <DashboardEntityStatus />
+          <DashboardEntityStatus entityStatus={entityStatus} />
         </div>
       </div>
     </div>

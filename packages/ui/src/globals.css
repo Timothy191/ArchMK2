@@ -1,8 +1,8 @@
+@import "@repo/theme/css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import "@repo/theme/css";
 
 @theme inline {
   --animate-shine: shine var(--duration) infinite linear;

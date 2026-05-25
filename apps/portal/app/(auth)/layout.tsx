@@ -12,6 +12,44 @@ export default function AuthLayout({
   const [showIntroLayer, setShowIntroLayer] = useState(true);
   const [isFadingOut, setIsFadingOut] = useState(false);
 
+  // Suppress specific Supabase refresh token errors
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      // eslint-disable-next-line no-console
+      const originalError = console.error;
+      // eslint-disable-next-line no-console
+      console.error = (...args) => {
+        // Suppress Supabase AuthApiError: Invalid Refresh Token: Refresh Token Not Found
+        if (args[0] && 
+            typeof args[0] === 'string' && 
+            args[0].includes('AuthApiError') && 
+            args[0].includes('Invalid Refresh Token') && 
+            args[0].includes('Refresh Token Not Found')) {
+          return; // Suppress this specific error
+        }
+        originalError.apply(console, args);
+      };
+      
+      return () => {
+        // eslint-disable-next-line no-console
+        console.error = originalError;
+      };
+    }
+  }, []);
+
+  // Fallback timeout to prevent stuck intro if video fails to load
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const timeoutId = setTimeout(() => {
+        if (!videoLoaded) {
+          setVideoLoaded(true);
+        }
+      }, 8000); // 8 second fallback
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [videoLoaded]);
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       const isE2E =
@@ -73,14 +111,12 @@ export default function AuthLayout({
           </video>
 
           {/* Skip Button */}
-          {videoLoaded && (
-            <button
-              onClick={handleIntroComplete}
-              className="absolute bottom-12 right-12 z-[101] px-6 py-2 rounded-full border border-[var(--border-emphasis)] bg-white/60 backdrop-blur-xl text-[var(--text-muted)] text-xs font-medium uppercase tracking-[0.2em] hover:bg-white/80 hover:text-[var(--text-heading)] transition-all shadow-diffusion-sm"
-            >
-              Skip Intro
-            </button>
-          )}
+          <button
+            onClick={handleIntroComplete}
+            className={`absolute bottom-12 right-12 z-[101] px-6 py-2 rounded-full border border-[var(--border-emphasis)] bg-white/60 backdrop-blur-xl text-[var(--text-muted)] text-xs font-medium uppercase tracking-[0.2em] hover:bg-white/80 hover:text-[var(--text-heading)] transition-all shadow-diffusion-sm ${!videoLoaded ? "opacity-0 pointer-events-none" : "opacity-100"}`}
+          >
+            Skip Intro
+          </button>
 
           {/* The video layer is now clean of loading text per user request */}
         </div>

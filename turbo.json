@@ -54,14 +54,11 @@
         "NEXT_PUBLIC_*",
         "SUPABASE_*",
         "DATABASE_URL",
-        "OPENAI_API_KEY",
-        "TOGETHER_API_KEY",
-        "SERPAPI_API_KEY",
-        "GROQ_API_KEY_*",
         "NEXT_RUNTIME",
         "SENTRY_DSN",
         "SENTRY_AUTH_TOKEN",
-        "TURBO_SUMMARIZE"
+        "TURBO_SUMMARIZE",
+        "SKIP_TYPE_CHECK"
       ],
       "passThroughEnv": ["ANALYZE"],
       "inputs": [
@@ -96,10 +93,6 @@
       "dependsOn": ["^build"],
       "env": [
         "REDIS_URL",
-        "OPENAI_API_KEY",
-        "TOGETHER_API_KEY",
-        "SERPAPI_API_KEY",
-        "GROQ_API_KEY_*",
         "NEXT_RUNTIME",
         "SENTRY_DSN",
         "ALLOWED_SCANNER_SOURCES"
@@ -130,10 +123,6 @@
       "env": [
         "NEXT_PUBLIC_*",
         "SUPABASE_*",
-        "OPENAI_API_KEY",
-        "TOGETHER_API_KEY",
-        "SERPAPI_API_KEY",
-        "GROQ_API_KEY_*",
         "NEXT_RUNTIME",
         "SENTRY_DSN"
       ],

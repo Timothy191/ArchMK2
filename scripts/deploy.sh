@@ -266,6 +266,15 @@ detect_compose_cmd() {
 
 COMPOSE_CMD=$(detect_compose_cmd)
 
+# Enforce BuildKit so Dockerfile RUN --mount=type=cache instructions work.
+# DOCKER_BUILDKIT=1 enables BuildKit. COMPOSE_DOCKER_CLI_BUILD=1 is required
+# for docker-compose (standalone binary) to pass BuildKit through to the
+# Docker CLI. COMPOSE_BAKE=true is the equivalent for the docker compose
+# (plugin) variant.
+export DOCKER_BUILDKIT=1
+export COMPOSE_DOCKER_CLI_BUILD=1
+export COMPOSE_BAKE=true
+
 # ── Service Status Checkers ─────────────────────────────
 is_supabase_running() {
   curl -fs "http://127.0.0.1:54321/rest/v1/" > /dev/null 2>&1
@@ -301,7 +310,33 @@ phase_validate() {
   log "Checking Docker..."
   if ! docker info > /dev/null 2>&1; then
     if [ "$DEPLOY_MODE" = "local" ]; then
-      fatal "Docker is required for local deployment"
+      warn "Docker is not running. Attempting to start docker..."
+      if [ "$DRY_RUN" = true ]; then
+        log "[DRY-RUN] Would start docker service via systemctl or open Docker Desktop"
+        success "Docker started successfully (dry-run)"
+      else
+        local started=false
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+          open -a Docker >/dev/null 2>&1 || true
+          for i in {1..15}; do
+            if docker info >/dev/null 2>&1; then
+              started=true
+              break
+            fi
+            sleep 1
+          done
+        elif [[ "$OSTYPE" == "linux-gnu"* ]] || [[ "$OSTYPE" == "linux"* ]]; then
+          if command -v systemctl >/dev/null 2>&1 && sudo systemctl start docker >/dev/null 2>&1; then
+            started=true
+          fi
+        fi
+        
+        if [ "$started" = "true" ] && docker info >/dev/null 2>&1; then
+          success "Docker started successfully"
+        else
+          fatal "Docker is required for local deployment and could not be started automatically. Please start Docker Desktop/Daemon manually."
+        fi
+      fi
     else
       warn "Docker not available"
     fi
@@ -314,6 +349,62 @@ phase_validate() {
     success "Terminal: $TERMINAL_TYPE"
   else
     warn "No compatible terminal found for monitoring"
+  fi
+
+  # Port Conflict Resolution (Local Only)
+  if [ "$DEPLOY_MODE" = "local" ]; then
+    log "Checking for colliding ports..."
+    check_and_fix_port() {
+      local port="$1" name="$2" service="$3"
+      if lsof -i :"$port" -t >/dev/null 2>&1; then
+        local pid
+        pid=$(lsof -i :"$port" -t | head -n1)
+        local proc
+        proc=$(ps -p "$pid" -o comm= 2>/dev/null || echo "unknown")
+        if [[ "$proc" == *"docker"* ]]; then
+          return 0
+        fi
+        warn "Port $port ($name) occupied by native $proc (PID $pid). Freeing..."
+        if [ "$DRY_RUN" = true ]; then
+          log "[DRY-RUN] Would attempt to stop native service '$service' or kill process PID $pid"
+          success "Freed port $port ($name) (dry-run)"
+          return 0
+        fi
+        
+        # Check if we should force or prompt
+        if [ "${FORCE_DEPLOY:-false}" = "true" ]; then
+          log "Force-clearing port $port ($name) PID $pid ($proc)..."
+        elif [ -t 0 ]; then
+          echo -n -e "  Port $port ($name) occupied by native $proc (PID $pid). Kill it? [y/N]: "
+          read -r response < /dev/tty || response="n"
+          if [[ ! "$response" =~ ^[Yy]$ ]]; then
+            fatal "Port $port ($name) occupied by native $proc (PID $pid). Clear it manually or run with --force."
+          fi
+        else
+          fatal "Port $port ($name) occupied by native $proc (PID $pid) in non-interactive environment — run with --force to clear"
+        fi
+
+        if [ -n "$service" ] && command -v systemctl >/dev/null 2>&1 && sudo systemctl stop "$service" >/dev/null 2>&1; then
+          sleep 1
+          if ! lsof -i :"$port" -t >/dev/null 2>&1; then
+            success "Freed port $port ($name) by stopping native service"
+            return 0
+          fi
+        fi
+        if sudo kill -9 "$pid" 2>/dev/null || kill -9 "$pid" 2>/dev/null; then
+          sleep 1
+          if ! lsof -i :"$port" -t >/dev/null 2>&1; then
+            success "Freed port $port ($name) by killing conflicting process"
+            return 0
+          fi
+        fi
+        fatal "Port $port ($name) is locked by PID $pid and could not be freed."
+      fi
+    }
+    check_and_fix_port 5432 "PostgreSQL" "postgresql"
+    check_and_fix_port 6379 "Redis" "redis-server"
+    check_and_fix_port 54321 "Supabase API" ""
+    check_and_fix_port 8000 "Kong Gateway" ""
   fi
   
   # Environment files
@@ -331,13 +422,37 @@ phase_validate() {
       ;;
     local)
       if [ ! -f "$PORTAL_DIR/.env" ] && [ ! -f "$PORTAL_DIR/.env.local" ]; then
-        warn "No .env found - using defaults"
+        if [ -f "$PORTAL_DIR/.env.example" ]; then
+          log "Apps portal .env missing. Copying from .env.example..."
+          run_if_not_dry cp "$PORTAL_DIR/.env.example" "$PORTAL_DIR/.env"
+          success "Created .env file from template"
+          if grep -q -E "your-|TODO|CHANGEME" "$PORTAL_DIR/.env" 2>/dev/null; then
+            warn "Created .env file contains placeholder secrets (e.g. your-...). Please verify keys in apps/portal/.env"
+          fi
+        else
+          warn "No .env found - using defaults"
+        fi
       else
         success "Local .env found"
       fi
       ;;
   esac
   
+  # Pre-launch Project-wide Cache Cleanup
+  log "Performing pre-launch project-wide cache cleanup..."
+  run_if_not_dry rm -rf "$REPO_ROOT"/.kilo "$REPO_ROOT"/.remember "$REPO_ROOT"/.turbo "$REPO_ROOT"/.venv "$REPO_ROOT"/.vercel "$REPO_ROOT"/.vscode "$REPO_ROOT"/skills-lock.json "$REPO_ROOT"/deployment-logs
+  run_if_not_dry rm -rf "$REPO_ROOT"/apps/portal/.next/cache "$REPO_ROOT"/apps/cms/.next/cache "$REPO_ROOT"/apps/overview/.next/cache "$REPO_ROOT"/packages/eval/.pytest_cache
+  run_if_not_dry find "$REPO_ROOT" -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+  
+  # Clean old logs and temporary status/monitor scripts, keeping the current DEPLOY_LOG
+  if [ -n "${DEPLOY_LOG:-}" ] && [ -f "$DEPLOY_LOG" ]; then
+    find "$REPO_ROOT" -maxdepth 1 -name "deploy-*.log" ! -name "$(basename "$DEPLOY_LOG")" -delete 2>/dev/null || true
+  else
+    find "$REPO_ROOT" -maxdepth 1 -name "deploy-*.log" -delete 2>/dev/null || true
+  fi
+  run_if_not_dry rm -f "$REPO_ROOT"/portal-*.log "$REPO_ROOT"/.dev-status-*.sh "$REPO_ROOT"/.monitor-*.sh "$REPO_ROOT"/.deploy-results-*.sh
+  
+  success "Untracked caches, logs, and temporary files cleaned"
   success "Environment validation complete"
 }
 

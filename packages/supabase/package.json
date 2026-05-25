@@ -9,7 +9,8 @@
     "./client": "./src/client.ts",
     "./middleware": "./src/middleware.ts",
     "./read-replica": "./src/read-replica.ts",
-    "./kysely": "./src/kysely.ts"
+    "./kysely": "./src/kysely.ts",
+    "./service-role": "./src/service-role.ts"
   },
   "scripts": {
     "build": "tsc",
@@ -30,7 +31,7 @@
   "devDependencies": {
     "@types/node": "catalog:",
     "@types/pg": "^8.11.10",
-    "next": "^15.5.18",
+    "next": "^16.2.6",
     "typescript": "catalog:"
   }
 }

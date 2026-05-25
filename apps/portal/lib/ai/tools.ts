@@ -1,8 +1,15 @@
-import { tool } from "ai";
 import { z } from "zod";
 import { createServerSupabaseClient } from "@repo/supabase/server";
 
-export const machineStatusTool = tool({
+/**
+ * Tool definitions shared by the agent-graph node system.
+ *
+ * Previously used by agent-graph.ts via the Vercel AI SDK (`ai.tool()`).
+ * Calls are now dispatched manually inside agent-graph.ts rather than being
+ * bound to an LLM provider as OpenAI-compatible function calls.
+ */
+
+export const machineStatusTool = {
   description: "Get current status and details of machines in a department",
   inputSchema: z.object({
     departmentName: z
@@ -16,19 +23,16 @@ export const machineStatusTool = tool({
       .select("id")
       .eq("name", departmentName)
       .single();
-
     if (!dept) return { error: "Department not found" };
-
     const { data: machines } = await supabase
       .from("machines")
       .select("id, name, machine_type, active")
       .eq("department_id", dept.id);
-
     return { machines: machines ?? [] };
   },
-});
+};
 
-export const shiftLogsTool = tool({
+export const shiftLogsTool = {
   description: "Get recent shift logs for a department",
   inputSchema: z.object({
     departmentName: z.string().describe("Department name"),
@@ -47,21 +51,18 @@ export const shiftLogsTool = tool({
       .select("id")
       .eq("name", departmentName)
       .single();
-
     if (!dept) return { error: "Department not found" };
-
     const targetDate = date ?? new Date().toISOString().split("T")[0];
     const { data: logs } = await supabase
       .from("daily_logs")
       .select("id, log_date, shift")
       .eq("department_id", dept.id)
       .eq("log_date", targetDate);
-
     return { logs: logs ?? [] };
   },
-});
+};
 
-export const delaysTool = tool({
+export const delaysTool = {
   description: "Get operational delays for a department on a given date",
   inputSchema: z.object({
     departmentName: z.string().describe("Department name"),
@@ -80,19 +81,16 @@ export const delaysTool = tool({
       .select("id")
       .eq("name", departmentName)
       .single();
-
     if (!dept) return { error: "Department not found" };
-
     const targetDate = date ?? new Date().toISOString().split("T")[0];
     const { data: delays } = await supabase
       .from("operational_delays")
       .select("delay_minutes, status, reason")
       .eq("department_id", dept.id)
       .eq("delay_date", targetDate);
-
     return { delays: delays ?? [] };
   },
-});
+};
 
 export const aiTools = {
   machineStatus: machineStatusTool,

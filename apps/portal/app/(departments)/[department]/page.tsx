@@ -96,10 +96,22 @@ export default async function DepartmentDashboard({
   params: Promise<{ department: string }>;
 }) {
   const { department: deptSlug } = await params;
-  const { deptId, supabase, today } = await getDepartmentContext({
+  const { dept, deptId, supabase, today } = await getDepartmentContext({
     department: deptSlug,
   });
 
+  // 1. Early returns for satellite and safety — skip shared queries entirely
+  if (dept.type === "satellite") {
+    return <SatelliteMonitoringDashboard />;
+  }
+
+  if (dept.type === "safety") {
+    return <SafetyDashboard deptId={deptId} />;
+  }
+
+  const isControlRoom = dept.type === "control_room";
+
+  // 2. Shared queries for all standard departments
   const { data: todayLogs } = await supabase
     .from("daily_logs")
     .select("id, log_date, shift")
@@ -116,47 +128,43 @@ export default async function DepartmentDashboard({
     .eq("department_id", deptId)
     .eq("active", true);
 
-  // Fetch Control Room specific data
-  const { data: todayOperations } = await supabase
-    .from("machine_operations")
-    .select("hours_worked, end_time")
-    .eq("department_id", deptId)
-    .eq("shift_date", today);
+  // 3. Control Room specific data — isolated in conditional + Promise.all
+  let totalHours = 0;
+  let activeOperations = 0;
+  let delayCount = 0;
+  let delayMinutes = 0;
+  let totalLoads = 0;
 
-  const totalHours =
-    todayOperations?.reduce((sum, op) => sum + (op.hours_worked || 0), 0) || 0;
-  const activeOperations =
-    todayOperations?.filter((op) => op.end_time === null).length || 0;
+  if (isControlRoom) {
+    const [todayOperations, todayDelays, todayLoads] = await Promise.all([
+      supabase
+        .from("machine_operations")
+        .select("hours_worked, end_time")
+        .eq("department_id", deptId)
+        .eq("shift_date", today),
+      supabase
+        .from("operational_delays")
+        .select("delay_minutes, status")
+        .eq("department_id", deptId)
+        .eq("delay_date", today),
+      supabase
+        .from("hourly_loads")
+        .select("total_loads")
+        .eq("department_id", deptId)
+        .eq("load_date", today),
+    ]);
 
-  const { data: todayDelays } = await supabase
-    .from("operational_delays")
-    .select("delay_minutes, status")
-    .eq("department_id", deptId)
-    .eq("delay_date", today);
+    totalHours =
+      todayOperations.data?.reduce((sum, op) => sum + (op.hours_worked || 0), 0) || 0;
+    activeOperations =
+      todayOperations.data?.filter((op) => op.end_time === null).length || 0;
 
-  const delayCount = todayDelays?.length || 0;
-  const delayMinutes =
-    todayDelays?.reduce((sum, d) => sum + (d.delay_minutes || 0), 0) || 0;
+    delayCount = todayDelays.data?.length || 0;
+    delayMinutes =
+      todayDelays.data?.reduce((sum, d) => sum + (d.delay_minutes || 0), 0) || 0;
 
-  const { data: todayLoads } = await supabase
-    .from("hourly_loads")
-    .select("total_loads")
-    .eq("department_id", deptId)
-    .eq("load_date", today);
-
-  const totalLoads =
-    todayLoads?.reduce((sum, l) => sum + (l.total_loads || 0), 0) || 0;
-
-  const isControlRoom = deptSlug === "control-room";
-  const isSatelliteMonitoring = deptSlug === "satellite-monitoring";
-  const isSafety = deptSlug === "safety";
-
-  if (isSatelliteMonitoring) {
-    return <SatelliteMonitoringDashboard />;
-  }
-
-  if (isSafety) {
-    return <SafetyDashboard deptId={deptId} />;
+    totalLoads =
+      todayLoads.data?.reduce((sum, l) => sum + (l.total_loads || 0), 0) || 0;
   }
 
   return (
@@ -297,11 +305,6 @@ export default async function DepartmentDashboard({
                   ? `${machineCount} machine${machineCount > 1 ? "s" : ""} active`
                   : "No machines online"}
               </p>
-              {delayCount > 0 && (
-                <p className="text-amber-400 text-xs mt-1">
-                  {delayCount} active delay{delayCount > 1 ? "s" : ""}
-                </p>
-              )}
             </GlassCard>
           </div>
         </>

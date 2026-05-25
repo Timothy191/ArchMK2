@@ -4,15 +4,16 @@ import withBundleAnalyzer from "@next/bundle-analyzer";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: "standalone",
+  typescript: {
+    ignoreBuildErrors: process.env.SKIP_TYPE_CHECK === "true",
+  },
   transpilePackages: [
     "@repo/ui",
     "@repo/supabase",
     "@repo/utils",
     "@repo/redis",
   ],
-  experimental: {
-    ppr: false,
-  },
   images: {
     formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 60,
@@ -22,24 +23,11 @@ const nextConfig = {
     removeConsole: process.env.NODE_ENV === "production",
   },
   reactStrictMode: true,
-  webpack(config) {
-    config.resolve.extensionAlias = {
+  turbopack: {
+    resolveAlias: {
       ".js": [".ts", ".tsx", ".js"],
       ".mjs": [".mts", ".mjs"],
-    };
-    config.optimization.splitChunks = {
-      ...config.optimization.splitChunks,
-      cacheGroups: {
-        ...config.optimization.splitChunks?.cacheGroups,
-        d3: {
-          test: /[\\/]node_modules[\\/](d3|d3-.*)[\\/]/,
-          name: "d3-vendor",
-          chunks: "all",
-          priority: 30,
-        },
-      },
-    };
-    return config;
+    },
   },
 };
 

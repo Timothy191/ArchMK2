@@ -73,18 +73,18 @@ const archTheme: Config = {
         "text-heading": "var(--text-heading)",
 
         // @deprecated Tier 3 aliases — kept for backward compat; migrate to canonical accent-*
-        "accent-cyan": "var(--accent-cyan)", // @deprecated → use accent-blue
-        "accent-indigo": "var(--accent-indigo)", // @deprecated → use accent-blue
-        "accent-violet": "var(--accent-violet)", // @deprecated → use accent-blue
-        "accent-alert": "var(--accent-alert)", // @deprecated → use accent-red
+        "accent-cyan": "var(--accent-blue)", // @deprecated → use accent-blue
+        "accent-indigo": "var(--accent-blue)", // @deprecated → use accent-blue
+        "accent-violet": "var(--accent-blue)", // @deprecated → use accent-blue
+        "accent-alert": "var(--accent-red)", // @deprecated → use accent-red
 
         // macOS system accent colors
         "accent-blue": "var(--accent-blue)",
         "accent-red": "var(--accent-red)",
         "accent-orange": "var(--accent-orange)",
         "accent-green": "var(--accent-green)",
-        "accent-amber": "var(--accent-amber)",
-        "accent-emerald": "var(--accent-emerald)",
+        "accent-amber": "var(--accent-orange)",
+        "accent-emerald": "var(--accent-green)",
 
         // macOS traffic light colors
         "mac-red": "var(--mac-red)",

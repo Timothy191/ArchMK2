@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useMemo } from "react";
-import { useChat, type UIMessage } from "@ai-sdk/react";
-import { DefaultChatTransport } from "ai";
+import { useChat, type Message } from "@ai-sdk/react";
 import { GlassCard } from "@repo/ui/GlassCard";
 import { cn } from "@repo/ui/lib/utils";
 import { ToolOutputRenderer } from "./ToolOutputRenderer";
@@ -79,7 +78,7 @@ export function AIAssistant({ context, className }: AIAssistantProps) {
     return id;
   }, []);
 
-  const initialMessages = useMemo<UIMessage[]>(
+  const initialMessages = useMemo<Message[]>(
     () => [
       {
         id: "welcome",
@@ -91,12 +90,10 @@ export function AIAssistant({ context, className }: AIAssistantProps) {
     [],
   );
 
-  const { messages, sendMessage, status, stop } = useChat({
-    transport: new DefaultChatTransport({
-      api: "/api/ai/chat",
-      body: { context, sessionId },
-    }),
-    messages: initialMessages,
+  const { messages, append, status, stop } = useChat({
+    api: "/api/ai/chat",
+    body: { context, sessionId },
+    initialMessages,
   });
 
   const isLoading = status === "streaming" || status === "submitted";
@@ -110,7 +107,7 @@ export function AIAssistant({ context, className }: AIAssistantProps) {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
-    sendMessage({ text: input });
+    append({ role: "user", content: input });
     setInput("");
   }
 
@@ -259,20 +256,14 @@ export function AIAssistant({ context, className }: AIAssistantProps) {
                           </p>
                         );
                       }
-                      // Render tool invocations generically
-                      if (
-                        part.type.startsWith("tool-") ||
-                        part.type === "dynamic-tool"
-                      ) {
-                        const toolPart = part as {
-                          toolName?: string;
-                          toolCallId: string;
-                          state: string;
-                          output?: unknown;
-                        };
-                        const toolName = toolPart.toolName ?? "unknown";
+                      if (part.type === "tool-invocation") {
+                        const invocation = part.toolInvocation;
+                        const toolName = invocation.toolName ?? "unknown";
                         const label =
                           TOOL_LABELS[toolName] ?? `Running ${toolName}...`;
+                        const hasResult =
+                          invocation.state === "result" &&
+                          invocation.result != null;
                         return (
                           <div
                             key={i}
@@ -281,15 +272,14 @@ export function AIAssistant({ context, className }: AIAssistantProps) {
                             <span className="text-arch-accent-blue">
                               {label}
                             </span>
-                            {toolPart.state === "output-available" &&
-                              toolPart.output != null && (
-                                <div className="mt-1">
-                                  <ToolOutputRenderer
-                                    toolName={toolName}
-                                    output={toolPart.output}
-                                  />
-                                </div>
-                              )}
+                            {hasResult && (
+                              <div className="mt-1">
+                                <ToolOutputRenderer
+                                  toolName={toolName}
+                                  output={invocation.result}
+                                />
+                              </div>
+                            )}
                           </div>
                         );
                       }

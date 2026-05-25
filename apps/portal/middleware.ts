@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { createMiddlewareClient } from "@repo/supabase/middleware";
 import { cacheGet, cacheSet } from "@repo/redis/cache";
 
+// DEPARTMENT_ROUTES intentionally excludes '/admin' because admin is a top-level
+// restricted route, not a sub-route under (departments). Admin access is handled
+// separately via its own auth check in RESTRICTED_ROUTES.
 const DEPARTMENT_ROUTES = [
   "drilling",
   "production",
@@ -57,9 +60,28 @@ export async function middleware(request: NextRequest) {
   }
 
   const { supabase, response } = await createMiddlewareClient(request);
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  let user = null;
+  try {
+    const result = await supabase.auth.getUser();
+    user = result.data.user;
+  } catch (error) {
+    // Handle refresh token errors - treat as not authenticated
+    // This can happen when the access token is expired and refresh token is invalid/missing
+    if (error && typeof error === 'object' && 'message' in error) {
+      const errorMessage = String(error.message);
+      if (errorMessage.includes('Invalid Refresh Token') || errorMessage.includes('Refresh Token Not Found')) {
+        // Clear invalid auth cookies to prevent repeated refresh attempts
+        await supabase.auth.signOut();
+        user = null;
+      } else {
+        // Unexpected error - treat as not authenticated
+        user = null;
+      }
+    } else {
+      // Unknown error type - treat as not authenticated
+      user = null;
+    }
+  }
 
   // Skip public files (images, fonts, etc. in /public folder)
   const PUBLIC_FILE_EXTENSIONS =

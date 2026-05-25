@@ -4,6 +4,7 @@ export interface Department {
   icon: string;
   description: string;
   color: string;
+  type: "standard" | "control_room" | "satellite" | "safety";
   status?: "active" | "maintenance" | "alert";
   gridSpan?: string;
   stats?: {
@@ -19,6 +20,7 @@ export const DEPARTMENTS: Department[] = [
     icon: "Drill",
     description: "Drill rig operations & bit depth telemetry",
     color: "amber",
+    type: "standard",
     status: "active",
     gridSpan: "md:col-span-2 xl:col-span-1",
     stats: { label: "Depth", value: "1,240m" },
@@ -29,6 +31,7 @@ export const DEPARTMENTS: Department[] = [
     icon: "Factory",
     description: "Coal yield, tonnage & extraction tracking",
     color: "emerald",
+    type: "standard",
     status: "active",
     gridSpan: "md:col-span-1 xl:col-span-2",
     stats: { label: "Yield", value: "85%" },
@@ -39,6 +42,7 @@ export const DEPARTMENTS: Department[] = [
     icon: "ShieldCheck",
     description: "Site access, badging & security",
     color: "blue",
+    type: "standard",
     status: "active",
     gridSpan: "md:col-span-1 xl:col-span-1",
     stats: { label: "On-site", value: "142" },
@@ -49,6 +53,7 @@ export const DEPARTMENTS: Department[] = [
     icon: "Wrench",
     description: "Equipment specs, maintenance & CAD",
     color: "violet",
+    type: "standard",
     status: "maintenance",
     gridSpan: "md:col-span-1 xl:col-span-1",
     stats: { label: "Pending", value: "12" },
@@ -59,6 +64,7 @@ export const DEPARTMENTS: Department[] = [
     icon: "Monitor",
     description: "SCADA systems & real-time monitoring",
     color: "red",
+    type: "control_room",
     status: "active",
     gridSpan: "md:col-span-2 xl:col-span-1",
     stats: { label: "Alerts", value: "0" },
@@ -69,6 +75,7 @@ export const DEPARTMENTS: Department[] = [
     icon: "HardHat",
     description: "Incident logs, compliance & inspections",
     color: "orange",
+    type: "safety",
     status: "active",
     gridSpan: "md:col-span-1 xl:col-span-1",
     stats: { label: "LTI-free", value: "450d" },
@@ -79,6 +86,7 @@ export const DEPARTMENTS: Department[] = [
     icon: "GraduationCap",
     description: "LMS, certifications & competency tracking",
     color: "cyan",
+    type: "standard",
     status: "active",
     gridSpan: "md:col-span-1 xl:col-span-1",
     stats: { label: "Courses", value: "8" },
@@ -89,6 +97,7 @@ export const DEPARTMENTS: Department[] = [
     icon: "Satellite",
     description: "SAR/InSAR, hyperspectral & high-resolution imagery",
     color: "indigo",
+    type: "satellite",
     status: "active",
     gridSpan: "md:col-span-2 xl:col-span-1",
     stats: { label: "Imagery", value: "Latest" },
@@ -99,6 +108,7 @@ export const DEPARTMENTS: Department[] = [
     icon: "Shield",
     description: "Personnel management, shift oversight & quotas",
     color: "violet",
+    type: "standard",
     status: "active",
     gridSpan: "md:col-span-1 xl:col-span-1",
     stats: { label: "Employees", value: "248" },

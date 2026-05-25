@@ -317,10 +317,10 @@ grep SUPABASE apps/portal/.env
 
 | Script                 | Purpose                                          |
 | ---------------------- | ------------------------------------------------ |
-| `deploy.sh`            | Unified deployment (all environments)            |
-| `deploy-local.sh`      | Legacy local deployment (kept for compatibility) |
-| `deploy-production.sh` | Legacy production deployment                     |
-| `update-production.sh` | Quick update without full rebuild                |
+| `dev.sh`               | Primary lightning local development (hot-reload) |
+| `deploy.sh`            | Unified deployment (local, staging, production)  |
+| `update-production.sh` | Quick production update without full rebuild     |
+| `shutdown.sh`          | Graceful lossless stack shutdown                 |
 
 ---
 

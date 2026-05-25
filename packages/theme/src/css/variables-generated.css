@@ -86,30 +86,17 @@
   --tremor-content-emphasis: 240 6% 23%;
   --tremor-content-strong: 240 6% 10%;
   --tremor-content-inverted: 0 0% 100%;
-  --shadow-card:
-    0 2px 12px -2px rgba(0, 0, 0, 0.1), 0 1px 0 0 rgba(255, 255, 255, 0.95),
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
-  --shadow-card-hover:
-    0 6px 24px -4px rgba(0, 0, 0, 0.14), 0 1px 0 0 rgba(255, 255, 255, 0.95);
-  --shadow-elevated:
-    0 12px 40px -8px rgba(0, 0, 0, 0.18), 0 2px 8px -4px rgba(0, 0, 0, 0.1);
-  --shadow-glow-blue:
-    0 0 20px rgba(0, 122, 255, 0.18), 0 0 60px rgba(0, 122, 255, 0.06);
-  --shadow-glow-primary:
-    0 0 20px rgba(0, 122, 255, 0.18), 0 0 60px rgba(0, 122, 255, 0.06);
-  --shadow-glow-electric:
-    0 0 24px rgba(0, 122, 255, 0.28), 0 0 80px rgba(0, 122, 255, 0.1);
-  --shadow-window:
-    0 20px 60px -10px rgba(0, 0, 0, 0.2), 0 8px 24px -8px rgba(0, 0, 0, 0.12),
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
-  --shadow-diffusion-sm:
-    0 2px 8px -2px rgba(0, 0, 0, 0.08), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
-  --shadow-diffusion-md:
-    0 4px 16px -4px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
-  --shadow-diffusion-lg:
-    0 8px 32px -8px rgba(0, 0, 0, 0.14), 0 4px 8px -4px rgba(0, 0, 0, 0.08);
-  --shadow-diffusion-xl:
-    0 16px 48px -12px rgba(0, 0, 0, 0.18), 0 8px 16px -8px rgba(0, 0, 0, 0.1);
+  --shadow-card: 0 2px 12px -2px rgba(0, 0, 0, 0.1), 0 1px 0 0 rgba(255, 255, 255, 0.95), inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
+  --shadow-card-hover: 0 6px 24px -4px rgba(0, 0, 0, 0.14), 0 1px 0 0 rgba(255, 255, 255, 0.95);
+  --shadow-elevated: 0 12px 40px -8px rgba(0, 0, 0, 0.18), 0 2px 8px -4px rgba(0, 0, 0, 0.1);
+  --shadow-glow-blue: 0 0 20px rgba(0, 122, 255, 0.18), 0 0 60px rgba(0, 122, 255, 0.06);
+  --shadow-glow-primary: 0 0 20px rgba(0, 122, 255, 0.18), 0 0 60px rgba(0, 122, 255, 0.06);
+  --shadow-glow-electric: 0 0 24px rgba(0, 122, 255, 0.28), 0 0 80px rgba(0, 122, 255, 0.1);
+  --shadow-window: 0 20px 60px -10px rgba(0, 0, 0, 0.2), 0 8px 24px -8px rgba(0, 0, 0, 0.12), inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
+  --shadow-diffusion-sm: 0 2px 8px -2px rgba(0, 0, 0, 0.08), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+  --shadow-diffusion-md: 0 4px 16px -4px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+  --shadow-diffusion-lg: 0 8px 32px -8px rgba(0, 0, 0, 0.14), 0 4px 8px -4px rgba(0, 0, 0, 0.08);
+  --shadow-diffusion-xl: 0 16px 48px -12px rgba(0, 0, 0, 0.18), 0 8px 16px -8px rgba(0, 0, 0, 0.1);
   --refraction-inner-border: inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
   --refraction-inner-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.02);
   --refraction-edge-light: inset 0 0 0 1px rgba(255, 255, 255, 0.6);

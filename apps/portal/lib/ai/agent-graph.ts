@@ -1,17 +1,14 @@
 /**
  * Agent Graph — Explicit state machine for AI chat orchestration.
  *
- * Nodes: authenticate → rateLimit → resolveContext → loadMemory → gatherContext → callLLM → executeTools → saveMemory → output
+ * Nodes: authenticate → rateLimit → resolveContext → loadMemory → gatherContext → callLLM → saveMemory → output
  * Conditional edges route based on state (tool pending? max iterations? error?)
  *
  * Each node is a pure function: (state) => partialStateUpdate.
  * The router runs nodes sequentially and handles the flow graph.
  */
 
-import { streamText, convertToModelMessages, stepCountIs } from "ai";
-import { models } from "./providers";
 import { systemPrompts } from "./prompts";
-import { aiTools } from "./tools";
 import { createServerSupabaseClient } from "@repo/supabase/server";
 import {
   storeMemory,
@@ -21,7 +18,7 @@ import {
 import { withSpan } from "@repo/supabase";
 import { logError } from "@/lib/errors/error-logger";
 import { checkRateLimit } from "./rate-limiter";
-import { trackUsage } from "./cost-tracker";
+import { ollamaChatStream, DEFAULT_MODEL, type OllamaMessage } from "./ollama";
 import type {
   AgentState,
   AgentNodeName,
@@ -105,7 +102,7 @@ function getMessageText(msg: AgentState["messages"][number]): string {
   if ("content" in msg && typeof msg.content === "string") {
     return msg.content;
   }
-  const textPart = msg.parts?.find((p) => p.type === "text");
+  const textPart = msg.parts?.find((p: { type: string }) => p.type === "text");
   return textPart?.text ?? "";
 }
 
@@ -181,41 +178,51 @@ async function gatherContextNode(
 }
 
 async function callLLMNode(state: AgentState): Promise<Partial<AgentState>> {
+  const systemPrompt = systemPrompts.chat(state.context ?? "", state.memoryContext ?? "");
+
+  const messages: OllamaMessage[] = [
+    { role: "system", content: systemPrompt },
+    ...state.messages
+      .filter(m => m.role === "user" || m.role === "assistant")
+      .map(m => ({ role: m.role as "user" | "assistant", content: getMessageText(m) })),
+  ];
+
   try {
-    const converted = await convertToModelMessages(
-      state.messages.map((m) => ({ ...m, parts: m.parts ?? [] })),
+    const streamGen = await ollamaChatStream(messages, {
+      model: DEFAULT_MODEL,
+      temperature: 0.7,
+      maxTokens: 4096,
+    });
+
+    // Collect stream into a single string and build a fake LLMResponse
+    let fullText = "";
+    for await (const chunk of streamGen) {
+      fullText += chunk;
+    }
+
+    // Build the response stream once (capture fullText in closure)
+    const streamResponse = new Response(
+      new ReadableStream({
+        start(controller) {
+          controller.enqueue(new TextEncoder().encode(`0: ${fullText}\n`));
+          controller.close();
+        },
+      }),
+      { headers: { "Content-Type": "text/event-stream" } },
     );
 
-    const model =
-      state.provider === "secondary" ? models.secondary : models.primary;
-
-    const system = systemPrompts.chat(state.context, state.memoryContext);
-
-    const result: LLMResponse = streamText({
-      model,
-      system,
-      messages: converted,
-      tools: aiTools,
-      stopWhen: stepCountIs(state.maxIterations),
-    });
-
-    return {
-      llmResponse: result,
-      convertedMessages: converted,
-      nextNode: "output",
+    const result: LLMResponse = {
+      text: Promise.resolve(fullText),
+      usage: Promise.resolve({ inputTokens: 0, outputTokens: 0, totalTokens: 0 }),
+      toUIMessageStreamResponse: () => streamResponse,
     };
+
+    return { llmResponse: result, nextNode: "output" };
+
   } catch (error) {
     logError(error instanceof Error ? error : new Error(String(error)), {
-      context: `agent_graph_call_llm_${state.provider}`,
+      context: "agent_graph_call_llm",
     });
-
-    if (state.provider === "primary") {
-      // Route to secondary provider
-      return {
-        provider: "secondary",
-        nextNode: "callLLM",
-      };
-    }
 
     return {
       error: "Failed to generate response",
@@ -233,17 +240,6 @@ async function saveMemoryNode(state: AgentState): Promise<Partial<AgentState>> {
 
   try {
     const text = await state.llmResponse.text;
-
-    // Track token usage (non-fatal; don't crash chat flow for logging failure)
-    try {
-      const usage = await state.llmResponse.usage;
-      await trackUsage(state.sessionId, state.userId, state.provider, usage, {
-        role: "assistant",
-        node: "saveMemory",
-      });
-    } catch {
-      /* ignore usage tracking errors */
-    }
 
     if (text.trim().length > 0) {
       await storeMemory({
@@ -320,7 +316,7 @@ const NODE_MAP: Record<
   loadMemory: wrapNode("loadMemory", loadMemoryNode),
   gatherContext: wrapNode("gatherContext", gatherContextNode),
   callLLM: wrapNode("callLLM", callLLMNode),
-  executeTools: null, // handled by streamText internally via Vercel AI SDK
+  executeTools: null, // not used; tool execution is a future feature
   saveMemory: wrapNode("saveMemory", saveMemoryNode),
   output: wrapNode("output", outputNode),
   END: null,

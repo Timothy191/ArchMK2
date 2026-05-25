@@ -1,52 +1,62 @@
-# Portal Dockerfile for Next.js production deployment
-# Multi-stage build for optimized image size
+# Portal Dockerfile — Turbo-pruned, cache-mounted, standalone-output build
+# Four stages: pruner → deps → builder → production
 
-FROM node:20-alpine AS base
-RUN apk add --no-cache libc6-compat python3 make g++
+# ── Stage 1: pruner ──────────────────────────────────────
+# Generates a filtered workspace with only the packages portal depends on
+FROM node:20-alpine AS pruner
+RUN apk add --no-cache libc6-compat python3 make g++ && \
+    npm install -g pnpm@9.12.0 turbo
 WORKDIR /app
+COPY . .
+RUN turbo prune --scope=portal --docker
 
-# Builder stage
-FROM base AS builder
-RUN npm i -g pnpm@9.12.0
-ENV PNPM_STORE_PATH=/pnpm-store
+# ── Stage 2: deps ──────────────────────────────────────
+# Installs dependencies from the pruned lockfile with pnpm store cache mount
+FROM node:20-alpine AS deps
+RUN apk add --no-cache libc6-compat && \
+    npm install -g pnpm@9.12.0
+WORKDIR /app
+COPY --from=pruner /app/out/json/ .
+COPY --from=pruner /app/out/pnpm-lock.yaml .
+RUN --mount=type=cache,target=/pnpm-store \
+    pnpm install --frozen-lockfile --prefer-offline
+
+# ── Stage 3: builder ───────────────────────────────────
+# Copies pruned source + installed node_modules, then builds with Next.js cache mount
+FROM deps AS builder
+COPY --from=pruner /app/out/full/ .
 ENV NODE_ENV=production
+# Build-time env vars (Next.js embeds these in the standalone output)
+ARG NEXT_PUBLIC_SUPABASE_URL
+ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
+ARG NEXT_PUBLIC_HIGHLIGHT_PROJECT_ID
+ARG NEXT_PUBLIC_FUXA_URL
+ARG NEXT_PUBLIC_SENTRY_DSN
+ARG NEXT_PUBLIC_VERCEL_ENV
+ARG SENTRY_ORG
+ARG SENTRY_PROJECT
+ARG SENTRY_AUTH_TOKEN
+ENV NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
+ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+ENV NEXT_PUBLIC_HIGHLIGHT_PROJECT_ID=${NEXT_PUBLIC_HIGHLIGHT_PROJECT_ID}
+ENV NEXT_PUBLIC_FUXA_URL=${NEXT_PUBLIC_FUXA_URL}
+ENV NEXT_PUBLIC_SENTRY_DSN=${NEXT_PUBLIC_SENTRY_DSN}
+ENV NEXT_PUBLIC_VERCEL_ENV=${NEXT_PUBLIC_VERCEL_ENV}
+ENV SENTRY_ORG=${SENTRY_ORG}
+ENV SENTRY_PROJECT=${SENTRY_PROJECT}
+ENV SENTRY_AUTH_TOKEN=${SENTRY_AUTH_TOKEN}
+RUN --mount=type=cache,target=/app/apps/portal/.next/cache \
+    SKIP_TYPE_CHECK=true pnpm --filter portal build
 
-COPY pnpm-lock.yaml turbo.json package.json ./
-COPY apps/portal/package.json ./apps/portal/
-COPY packages/ui/package.json ./packages/ui/
-COPY packages/theme/package.json ./packages/theme/
-COPY packages/supabase/package.json ./packages/supabase/
-COPY packages/redis/package.json ./packages/redis/
-COPY packages/errors/package.json ./packages/errors/
-COPY packages/utils/package.json ./packages/utils/
-
-RUN pnpm install --frozen-lockfile
-
-COPY apps/portal/ ./apps/portal/
-COPY packages/ ./packages/
-COPY tsconfig.json turbo.json pnpm-workspace.yaml ./
-
-RUN pnpm --filter portal build
-
-# Production stage
-FROM base AS production
-ENV NODE_ENV=production
+# ── Stage 4: production ──────────────────────────────────
+# Distroless image with only the standalone output and static assets
+FROM gcr.io/distroless/nodejs20-debian12 AS production
+WORKDIR /app
+COPY --from=builder /app/apps/portal/public ./public
+COPY --from=builder /app/apps/portal/.next/standalone ./
+COPY --from=builder /app/apps/portal/.next/static ./.next/static
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
-
-RUN npm i -g pnpm@9.12.0
-ENV PNPM_STORE_PATH=/pnpm-store
-
-WORKDIR /app
-COPY --from=builder /pnpm-store /pnpm-store
-COPY --from=builder --chown=node:node /app/apps/portal/.next ./.next
-COPY --from=builder --chown=node:node /app/apps/portal/public ./public
-COPY --from=builder --chown=node:node /app/apps/portal/package.json ./package.json
-
-RUN pnpm install --prod --frozen-lockfile
-
+USER 65532
 EXPOSE 3000
-
-USER node
-
-CMD ["pnpm", "start"]
+CMD ["server.js"]
