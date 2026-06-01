@@ -25,16 +25,7 @@ interface Department {
   created_at: string;
 }
 
-const COLORS = [
-  "amber",
-  "emerald",
-  "blue",
-  "violet",
-  "red",
-  "orange",
-  "cyan",
-  "indigo",
-];
+const COLORS = ["blue", "emerald", "blue", "violet", "red", "cyan", "indigo"];
 
 const ICONS = [
   "Drill",
@@ -222,7 +213,7 @@ export function DepartmentsTab() {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="text-red-400 hover:text-red-300"
+                          className="text-accent-red hover:text-accent-red/80"
                           onClick={() => handleDelete(dept.id)}
                         >
                           <Trash2 className="w-4 h-4" />

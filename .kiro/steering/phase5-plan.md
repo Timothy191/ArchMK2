@@ -124,27 +124,27 @@ Final deployment preparation.
 
 ### Phase 5 Success Metrics
 
-| Metric | Target |
-|--------|--------|
-| Multi-model routing accuracy | >95% task-to-model match |
-| Context reduction via canon | >70% fewer tokens per step |
-| Parallel agent throughput | 5x over sequential |
-| Zero-Trust audit coverage | 100% of tool calls |
-| Speculative pre-fetch hit rate | >40% |
-| Agent self-improvement cycles | 1 per 10 sessions |
-| Quality enforcement pass rate | >90% first-pass (no human review needed) |
+| Metric                         | Target                                   |
+| ------------------------------ | ---------------------------------------- |
+| Multi-model routing accuracy   | >95% task-to-model match                 |
+| Context reduction via canon    | >70% fewer tokens per step               |
+| Parallel agent throughput      | 5x over sequential                       |
+| Zero-Trust audit coverage      | 100% of tool calls                       |
+| Speculative pre-fetch hit rate | >40%                                     |
+| Agent self-improvement cycles  | 1 per 10 sessions                        |
+| Quality enforcement pass rate  | >90% first-pass (no human review needed) |
 
 ---
 
 ### Repository Reference
 
-| Repo | Use in Phase 5 |
-|------|----------------|
-| `opendev-to/opendev` | Reference for Plotter & Doer architecture |
-| `polylogicai/polycode` | Canon data model for context efficiency |
-| `JoshFT/correctless` | 5-stage quality pipeline pattern |
-| `Geoffe-Ga/specinit` | Specialized agent profile definitions |
-| `allenai/SERA` | Fine-tunable local code agent |
-| `moonshotai/Kimi-K2.6` | Swarm-scale parallel coordination |
-| `minishlab/potion-code-16M` | Fast code embedding model |
-| `ant-group/F2LLM-v2` | Multi-language embedding model |
+| Repo                        | Use in Phase 5                            |
+| --------------------------- | ----------------------------------------- |
+| `opendev-to/opendev`        | Reference for Plotter & Doer architecture |
+| `polylogicai/polycode`      | Canon data model for context efficiency   |
+| `JoshFT/correctless`        | 5-stage quality pipeline pattern          |
+| `Geoffe-Ga/specinit`        | Specialized agent profile definitions     |
+| `allenai/SERA`              | Fine-tunable local code agent             |
+| `moonshotai/Kimi-K2.6`      | Swarm-scale parallel coordination         |
+| `minishlab/potion-code-16M` | Fast code embedding model                 |
+| `ant-group/F2LLM-v2`        | Multi-language embedding model            |

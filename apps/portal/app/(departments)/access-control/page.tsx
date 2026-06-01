@@ -39,8 +39,8 @@ export default async function AccessControlDashboardPage() {
       getAccessControlMetrics(deptId),
       getRecentAccessActivity(deptId, 8),
       getEntityBadgeStatus(deptId),
-      getHourlyAccessStats(today),
-      getBadgeStatusDistribution(),
+      getHourlyAccessStats(deptId, today),
+      getBadgeStatusDistribution(deptId),
     ]);
 
   return (
@@ -49,8 +49,10 @@ export default async function AccessControlDashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <GlassCard>
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-emerald-500/10 rounded-lg">
-              <span className="text-emerald-400 font-bold text-sm">BADGES</span>
+            <div className="p-2 bg-accent-green/10 rounded-lg">
+              <span className="text-accent-green font-bold text-sm">
+                BADGES
+              </span>
             </div>
             <div>
               <p className="text-[var(--text-muted)] text-xs font-medium uppercase tracking-wider">
@@ -79,14 +81,14 @@ export default async function AccessControlDashboardPage() {
         </GlassCard>
         <GlassCard>
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-amber-400/10 rounded-lg">
-              <span className="text-amber-400 font-bold text-sm">ALERTS</span>
+            <div className="p-2 bg-accent-blue/10 rounded-lg">
+              <span className="text-accent-blue font-bold text-sm">ALERTS</span>
             </div>
             <div>
               <p className="text-[var(--text-muted)] text-xs font-medium uppercase tracking-wider">
                 Alerts Today
               </p>
-              <p className="text-2xl font-bold text-amber-400 mt-1">
+              <p className="text-2xl font-bold text-accent-blue mt-1">
                 {metrics.deniedToday}
               </p>
             </div>

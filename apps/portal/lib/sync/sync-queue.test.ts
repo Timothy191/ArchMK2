@@ -49,7 +49,10 @@ const fakeIDBDB: any = {
 };
 
 // jsdom does not provide IDBKeyRange
-(global as any).IDBKeyRange = { only: (v: unknown) => v, bound: (l: unknown, u: unknown) => ({ lower: l, upper: u }) };
+(global as any).IDBKeyRange = {
+  only: (v: unknown) => v,
+  bound: (l: unknown, u: unknown) => ({ lower: l, upper: u }),
+};
 
 // Install fake indexedDB globally BEFORE module is imported
 (global as any).indexedDB = {
@@ -81,7 +84,8 @@ Object.defineProperty(global, "crypto", {
 (global as any).fetch = jest.fn().mockResolvedValue({ ok: true });
 
 // Now import the module (singleton will be created with the fake IDB above)
-import { syncQueue, QueuedAction } from "./sync-queue";
+import type { QueuedAction } from "./sync-queue";
+const { syncQueue } = require("./sync-queue");
 
 // Helper to reset the singleton's isProcessing flag between tests
 function resetProcessing() {
@@ -126,9 +130,14 @@ describe("SyncQueue", () => {
 
     it("calls playback endpoint for a pending action", async () => {
       _db[1] = {
-        id: 1, idempotencyKey: "key-abc", actionType: "ADD_BREAKDOWN",
-        payload: { fleet_id: "EXC-01" }, departmentId: "dept-1",
-        status: "pending", retryCount: 0, createdAt: Date.now(),
+        id: 1,
+        idempotencyKey: "key-abc",
+        actionType: "ADD_BREAKDOWN",
+        payload: { fleet_id: "EXC-01" },
+        departmentId: "dept-1",
+        status: "pending",
+        retryCount: 0,
+        createdAt: Date.now(),
       };
       (syncQueue as any).db = fakeIDBDB;
 
@@ -143,12 +152,19 @@ describe("SyncQueue", () => {
 
     it("marks action as failed after 5 retries", async () => {
       _db[1] = {
-        id: 1, idempotencyKey: "key-retry", actionType: "ADD_DAILY_LOG",
-        payload: {}, departmentId: "dept-1",
-        status: "pending", retryCount: 4, createdAt: Date.now(),
+        id: 1,
+        idempotencyKey: "key-retry",
+        actionType: "ADD_DAILY_LOG",
+        payload: {},
+        departmentId: "dept-1",
+        status: "pending",
+        retryCount: 4,
+        createdAt: Date.now(),
       };
       (syncQueue as any).db = fakeIDBDB;
-      (global as any).fetch = jest.fn().mockResolvedValue({ ok: false, status: 500, statusText: "Error" });
+      (global as any).fetch = jest
+        .fn()
+        .mockResolvedValue({ ok: false, status: 500, statusText: "Error" });
 
       await syncQueue.processQueue();
       await new Promise((r) => setTimeout(r, 10));
@@ -159,12 +175,19 @@ describe("SyncQueue", () => {
 
     it("increments retryCount on failure when below max retries", async () => {
       _db[1] = {
-        id: 1, idempotencyKey: "key-retry2", actionType: "ADD_DAILY_LOG",
-        payload: {}, departmentId: "dept-1",
-        status: "pending", retryCount: 1, createdAt: Date.now(),
+        id: 1,
+        idempotencyKey: "key-retry2",
+        actionType: "ADD_DAILY_LOG",
+        payload: {},
+        departmentId: "dept-1",
+        status: "pending",
+        retryCount: 1,
+        createdAt: Date.now(),
       };
       (syncQueue as any).db = fakeIDBDB;
-      (global as any).fetch = jest.fn().mockResolvedValue({ ok: false, status: 500, statusText: "Error" });
+      (global as any).fetch = jest
+        .fn()
+        .mockResolvedValue({ ok: false, status: 500, statusText: "Error" });
 
       await syncQueue.processQueue();
       await new Promise((r) => setTimeout(r, 10));
@@ -193,7 +216,11 @@ describe("SyncQueue", () => {
   describe("enqueueAction", () => {
     it("enqueues an action and returns an idempotency key", async () => {
       (syncQueue as any).db = fakeIDBDB;
-      const key = await syncQueue.enqueueAction("ADD_DAILY_LOG", { note: "test" }, "dept-1");
+      const key = await syncQueue.enqueueAction(
+        "ADD_DAILY_LOG",
+        { note: "test" },
+        "dept-1",
+      );
       expect(typeof key).toBe("string");
       expect(key).toMatch(/^uuid-/);
     });
@@ -201,7 +228,11 @@ describe("SyncQueue", () => {
     it("enqueues and does not call fetch when offline", async () => {
       (syncQueue as any).db = fakeIDBDB;
       (global as any).navigator = { onLine: false };
-      const key = await syncQueue.enqueueAction("ADD_SAFETY_INCIDENT", { title: "slip" }, "dept-2");
+      const key = await syncQueue.enqueueAction(
+        "ADD_SAFETY_INCIDENT",
+        { title: "slip" },
+        "dept-2",
+      );
       expect(typeof key).toBe("string");
       // No fetch because navigator.onLine=false
       expect((global as any).fetch).not.toHaveBeenCalled();
@@ -211,7 +242,11 @@ describe("SyncQueue", () => {
       (syncQueue as any).db = fakeIDBDB;
       (global as any).navigator = { onLine: true };
       (global as any).fetch = jest.fn().mockResolvedValue({ ok: true });
-      await syncQueue.enqueueAction("RESOLVE_BREAKDOWN", { id: "b1" }, "dept-1");
+      await syncQueue.enqueueAction(
+        "RESOLVE_BREAKDOWN",
+        { id: "b1" },
+        "dept-1",
+      );
       // processQueue runs async — just confirm enqueue returns a key
       await new Promise((r) => setTimeout(r, 20));
       expect((global as any).fetch).toHaveBeenCalled();
@@ -221,9 +256,14 @@ describe("SyncQueue", () => {
   describe("processQueue – success path", () => {
     it("marks action as synced after successful playback", async () => {
       _db[1] = {
-        id: 1, idempotencyKey: "key-sync", actionType: "ADD_BREAKDOWN",
-        payload: { fleet_id: "EXC-99" }, departmentId: "dept-1",
-        status: "pending", retryCount: 0, createdAt: Date.now(),
+        id: 1,
+        idempotencyKey: "key-sync",
+        actionType: "ADD_BREAKDOWN",
+        payload: { fleet_id: "EXC-99" },
+        departmentId: "dept-1",
+        status: "pending",
+        retryCount: 0,
+        createdAt: Date.now(),
       };
       (syncQueue as any).db = fakeIDBDB;
       (global as any).fetch = jest.fn().mockResolvedValue({ ok: true });

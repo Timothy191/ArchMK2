@@ -9,6 +9,7 @@ Capture a lesson from this session into permanent memory.
    - What should happen instead?
 
 2. **Format the rule**
+
    ```
    [LEARN] Category: One-line rule
    ```

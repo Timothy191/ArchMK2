@@ -9,6 +9,7 @@ Report status across all active Claude Code sessions.
 ## Process
 
 1. **Detect active sessions:**
+
    ```bash
    pgrep -af "claude" | grep -v "$$" | head -10
    git worktree list 2>/dev/null
@@ -16,6 +17,7 @@ Report status across all active Claude Code sessions.
    ```
 
 2. **Report current session:**
+
    ```text
    SESSION: <project> | branch: <branch> | task: <current task>
    STATUS: COMPLETE | COMPLETE_WITH_NOTES | BLOCKED | NEEDS_INFO
@@ -31,12 +33,12 @@ Report status across all active Claude Code sessions.
 
 ## Status Definitions
 
-| Status | Meaning |
-|--------|---------|
-| `COMPLETE` | Done, ready to commit or merge |
-| `COMPLETE_WITH_NOTES` | Done, but flagging observations |
-| `BLOCKED` | Cannot proceed, needs input or external dep |
-| `NEEDS_INFO` | Missing context, asking before guessing |
+| Status                | Meaning                                     |
+| --------------------- | ------------------------------------------- |
+| `COMPLETE`            | Done, ready to commit or merge              |
+| `COMPLETE_WITH_NOTES` | Done, but flagging observations             |
+| `BLOCKED`             | Cannot proceed, needs input or external dep |
+| `NEEDS_INFO`          | Missing context, asking before guessing     |
 
 ## When to Use
 

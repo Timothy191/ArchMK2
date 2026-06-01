@@ -66,7 +66,9 @@ export function isRetryableError(error: string): boolean {
     "rate limit",
     "temporarily unavailable",
   ];
-  return retryablePatterns.some((pattern) => error.toLowerCase().includes(pattern));
+  return retryablePatterns.some((pattern) =>
+    error.toLowerCase().includes(pattern),
+  );
 }
 
 export type PluginActor = ActorRefFrom<any>;

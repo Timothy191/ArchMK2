@@ -19,6 +19,7 @@ Analyze permission patterns and recommend rule optimizations.
 ## Risk Categories
 
 ### Safe (auto-approve candidates)
+
 - All read-only tools: Read, Glob, Grep
 - Read-only git: `git status`, `git diff*`, `git log*`, `git branch`
 - Test/lint: `npm test*`, `npm run lint*`, `npm run typecheck*`
@@ -27,12 +28,14 @@ Analyze permission patterns and recommend rule optimizations.
 - Go: `go test*`, `go vet*`
 
 ### Medium (approve with awareness)
+
 - Edit, Write -- file modifications
 - `git add*` -- staging
 - `git commit*` -- committing
 - `npm install*` -- dependency changes
 
 ### Dangerous (never auto-approve)
+
 - `git push --force*`, `git reset --hard*`
 - `rm -rf*`, `rm -r*` on non-temp dirs
 - `DROP TABLE`, `DELETE FROM` without WHERE

@@ -1,5 +1,12 @@
 import { setPin, verifyPin, closeShift } from "./shift-closeout";
 
+jest.mock("./shift-completeness", () => ({
+  getShiftCompleteness: jest.fn(),
+}));
+
+import { getShiftCompleteness } from "./shift-completeness";
+const mockGetShiftCompleteness = getShiftCompleteness as jest.Mock;
+
 jest.mock("@repo/supabase/server", () => ({
   createServerSupabaseClient: jest.fn(),
 }));
@@ -18,7 +25,9 @@ jest.mock("./audit", () => ({
   logAuditEvent: jest.fn().mockResolvedValue(undefined),
 }));
 
-const { createServerSupabaseClient } = jest.requireMock("@repo/supabase/server");
+const { createServerSupabaseClient } = jest.requireMock(
+  "@repo/supabase/server",
+);
 const bcrypt = jest.requireMock("bcryptjs");
 
 function buildSupabaseMock(overrides: Record<string, unknown> = {}) {
@@ -127,6 +136,24 @@ describe("verifyPin", () => {
 describe("closeShift (validateOnly=true)", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockGetShiftCompleteness.mockResolvedValue({
+      complete: true,
+      totalRequired: 1,
+      totalCovered: 1,
+      statuses: [
+        {
+          machineId: "m-1",
+          machineName: "Drill Rig 1",
+          machineType: "Drill",
+          requiredForm: "machine-operations",
+          formLabel: "Machine Operations",
+          formPath: "/machine-operations",
+          hasEntry: true,
+          exempt: false,
+          hoursWorked: 8,
+        },
+      ],
+    });
   });
 
   it("returns errors when shift is already closed", async () => {
@@ -175,6 +202,13 @@ describe("closeShift (validateOnly=true)", () => {
   });
 
   it("returns errors when no active machines exist", async () => {
+    mockGetShiftCompleteness.mockResolvedValue({
+      complete: true,
+      totalRequired: 0,
+      totalCovered: 0,
+      statuses: [],
+    });
+
     buildSupabaseMock({
       from: jest.fn().mockImplementation((table: string) => {
         if (table === "shift_status") {
@@ -186,15 +220,6 @@ describe("closeShift (validateOnly=true)", () => {
                     single: jest.fn().mockResolvedValue({ data: null }),
                   }),
                 }),
-              }),
-            }),
-          };
-        }
-        if (table === "machines") {
-          return {
-            select: jest.fn().mockReturnValue({
-              eq: jest.fn().mockReturnValue({
-                eq: jest.fn().mockResolvedValue({ data: [] }),
               }),
             }),
           };
@@ -219,6 +244,24 @@ describe("closeShift (validateOnly=true)", () => {
   });
 
   it("returns errors for unreported machines", async () => {
+    mockGetShiftCompleteness.mockResolvedValue({
+      complete: false,
+      totalRequired: 1,
+      totalCovered: 0,
+      statuses: [
+        {
+          machineId: "m-1",
+          machineName: "Excavator A",
+          machineType: "Excavator",
+          requiredForm: "excavator-activity",
+          formLabel: "Excavator Activity",
+          formPath: "/excavator-activity",
+          hasEntry: false,
+          exempt: false,
+        },
+      ],
+    });
+
     buildSupabaseMock({
       from: jest.fn().mockImplementation((table: string) => {
         if (table === "shift_status") {
@@ -229,28 +272,6 @@ describe("closeShift (validateOnly=true)", () => {
                   eq: jest.fn().mockReturnValue({
                     single: jest.fn().mockResolvedValue({ data: null }),
                   }),
-                }),
-              }),
-            }),
-          };
-        }
-        if (table === "machines") {
-          return {
-            select: jest.fn().mockReturnValue({
-              eq: jest.fn().mockReturnValue({
-                eq: jest.fn().mockResolvedValue({
-                  data: [{ id: "m-1", name: "Excavator A" }],
-                }),
-              }),
-            }),
-          };
-        }
-        if (table === "machine_operations") {
-          return {
-            select: jest.fn().mockReturnValue({
-              eq: jest.fn().mockReturnValue({
-                eq: jest.fn().mockReturnValue({
-                  eq: jest.fn().mockResolvedValue({ data: [] }),
                 }),
               }),
             }),
@@ -275,6 +296,25 @@ describe("closeShift (validateOnly=true)", () => {
   });
 
   it("returns errors when machine hours exceed 12h", async () => {
+    mockGetShiftCompleteness.mockResolvedValue({
+      complete: true,
+      totalRequired: 1,
+      totalCovered: 1,
+      statuses: [
+        {
+          machineId: "m-1",
+          machineName: "Drill Rig 1",
+          machineType: "Drill",
+          requiredForm: "machine-operations",
+          formLabel: "Machine Operations",
+          formPath: "/machine-operations",
+          hasEntry: true,
+          exempt: false,
+          hoursWorked: 15,
+        },
+      ],
+    });
+
     buildSupabaseMock({
       from: jest.fn().mockImplementation((table: string) => {
         if (table === "shift_status") {
@@ -284,30 +324,6 @@ describe("closeShift (validateOnly=true)", () => {
                 eq: jest.fn().mockReturnValue({
                   eq: jest.fn().mockReturnValue({
                     single: jest.fn().mockResolvedValue({ data: null }),
-                  }),
-                }),
-              }),
-            }),
-          };
-        }
-        if (table === "machines") {
-          return {
-            select: jest.fn().mockReturnValue({
-              eq: jest.fn().mockReturnValue({
-                eq: jest.fn().mockResolvedValue({
-                  data: [{ id: "m-1", name: "Drill Rig 1" }],
-                }),
-              }),
-            }),
-          };
-        }
-        if (table === "machine_operations") {
-          return {
-            select: jest.fn().mockReturnValue({
-              eq: jest.fn().mockReturnValue({
-                eq: jest.fn().mockReturnValue({
-                  eq: jest.fn().mockResolvedValue({
-                    data: [{ machine_id: "m-1", hours_worked: 15 }],
                   }),
                 }),
               }),
@@ -328,7 +344,9 @@ describe("closeShift (validateOnly=true)", () => {
     );
 
     expect(result.success).toBe(false);
-    expect(result.errors?.some((e) => e.includes("15h exceeds 12h"))).toBe(true);
+    expect(result.errors?.some((e) => e.includes("15h exceeds 12h"))).toBe(
+      true,
+    );
   });
 
   it("returns success when all machines are reported within limits", async () => {
@@ -412,7 +430,9 @@ describe("setPin", () => {
       from: jest.fn().mockReturnValue({
         select: jest.fn().mockReturnValue({
           eq: jest.fn().mockReturnValue({
-            single: jest.fn().mockResolvedValue({ data: null, error: new Error("not found") }),
+            single: jest
+              .fn()
+              .mockResolvedValue({ data: null, error: new Error("not found") }),
           }),
         }),
       }),
@@ -452,7 +472,9 @@ describe("setPin", () => {
               }),
             }),
             update: jest.fn().mockReturnValue({
-              eq: jest.fn().mockResolvedValue({ error: { message: "DB error" } }),
+              eq: jest
+                .fn()
+                .mockResolvedValue({ error: { message: "DB error" } }),
             }),
           };
         }
@@ -491,7 +513,27 @@ describe("setPin", () => {
 });
 
 describe("closeShift (validateOnly=false)", () => {
-  beforeEach(() => jest.clearAllMocks());
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockGetShiftCompleteness.mockResolvedValue({
+      complete: true,
+      totalRequired: 1,
+      totalCovered: 1,
+      statuses: [
+        {
+          machineId: "m-1",
+          machineName: "Drill Rig 1",
+          machineType: "Drill",
+          requiredForm: "machine-operations",
+          formLabel: "Machine Operations",
+          formPath: "/machine-operations",
+          hasEntry: true,
+          exempt: false,
+          hoursWorked: 8,
+        },
+      ],
+    });
+  });
 
   it("returns error when authenticated user has no employee record", async () => {
     buildSupabaseMock({
@@ -597,7 +639,9 @@ describe("closeShift (validateOnly=false)", () => {
             return {
               select: jest.fn().mockReturnValue({
                 eq: jest.fn().mockReturnValue({
-                  single: jest.fn().mockResolvedValue({ data: { id: "emp-1" }, error: null }),
+                  single: jest
+                    .fn()
+                    .mockResolvedValue({ data: { id: "emp-1" }, error: null }),
                 }),
               }),
             };
@@ -607,7 +651,11 @@ describe("closeShift (validateOnly=false)", () => {
             select: jest.fn().mockReturnValue({
               eq: jest.fn().mockReturnValue({
                 single: jest.fn().mockResolvedValue({
-                  data: { id: "approver-1", pin_hash: null, full_name: "Approver" },
+                  data: {
+                    id: "approver-1",
+                    pin_hash: null,
+                    full_name: "Approver",
+                  },
                 }),
               }),
             }),
@@ -617,9 +665,17 @@ describe("closeShift (validateOnly=false)", () => {
       }),
     });
 
-    const result = await closeShift("dept-1", "2026-05-17", "day", "approver-1", "1234");
+    const result = await closeShift(
+      "dept-1",
+      "2026-05-17",
+      "day",
+      "approver-1",
+      "1234",
+    );
     expect(result.success).toBe(false);
-    expect(result.errors).toContain("Approving supervisor not found or has no PIN set");
+    expect(result.errors).toContain(
+      "Approving supervisor not found or has no PIN set",
+    );
   });
 
   it("returns error when supervisor PIN is wrong", async () => {
@@ -669,7 +725,9 @@ describe("closeShift (validateOnly=false)", () => {
             return {
               select: jest.fn().mockReturnValue({
                 eq: jest.fn().mockReturnValue({
-                  single: jest.fn().mockResolvedValue({ data: { id: "emp-1" }, error: null }),
+                  single: jest
+                    .fn()
+                    .mockResolvedValue({ data: { id: "emp-1" }, error: null }),
                 }),
               }),
             };
@@ -678,7 +736,11 @@ describe("closeShift (validateOnly=false)", () => {
             select: jest.fn().mockReturnValue({
               eq: jest.fn().mockReturnValue({
                 single: jest.fn().mockResolvedValue({
-                  data: { id: "approver-1", pin_hash: "$2b$hash", full_name: "Approver" },
+                  data: {
+                    id: "approver-1",
+                    pin_hash: "$2b$hash",
+                    full_name: "Approver",
+                  },
                 }),
               }),
             }),
@@ -690,7 +752,13 @@ describe("closeShift (validateOnly=false)", () => {
 
     bcrypt.compare.mockResolvedValue(false);
 
-    const result = await closeShift("dept-1", "2026-05-17", "day", "approver-1", "wrong");
+    const result = await closeShift(
+      "dept-1",
+      "2026-05-17",
+      "day",
+      "approver-1",
+      "wrong",
+    );
     expect(result.success).toBe(false);
     expect(result.errors).toContain("Invalid supervisor PIN");
   });
@@ -712,7 +780,10 @@ describe("closeShift (validateOnly=false)", () => {
             }),
             insert: jest.fn().mockReturnValue({
               select: jest.fn().mockReturnValue({
-                single: jest.fn().mockResolvedValue({ data: null, error: { message: "insert failed" } }),
+                single: jest.fn().mockResolvedValue({
+                  data: null,
+                  error: { message: "insert failed" },
+                }),
               }),
             }),
           };
@@ -747,7 +818,9 @@ describe("closeShift (validateOnly=false)", () => {
             return {
               select: jest.fn().mockReturnValue({
                 eq: jest.fn().mockReturnValue({
-                  single: jest.fn().mockResolvedValue({ data: { id: "emp-1" }, error: null }),
+                  single: jest
+                    .fn()
+                    .mockResolvedValue({ data: { id: "emp-1" }, error: null }),
                 }),
               }),
             };
@@ -756,7 +829,11 @@ describe("closeShift (validateOnly=false)", () => {
             select: jest.fn().mockReturnValue({
               eq: jest.fn().mockReturnValue({
                 single: jest.fn().mockResolvedValue({
-                  data: { id: "approver-1", pin_hash: "$2b$hash", full_name: "Approver" },
+                  data: {
+                    id: "approver-1",
+                    pin_hash: "$2b$hash",
+                    full_name: "Approver",
+                  },
                 }),
               }),
             }),
@@ -768,7 +845,13 @@ describe("closeShift (validateOnly=false)", () => {
 
     bcrypt.compare.mockResolvedValue(true);
 
-    const result = await closeShift("dept-1", "2026-05-17", "day", "approver-1", "1234");
+    const result = await closeShift(
+      "dept-1",
+      "2026-05-17",
+      "day",
+      "approver-1",
+      "1234",
+    );
     expect(result.success).toBe(false);
     expect(result.errors).toContain("Failed to close shift");
   });
@@ -843,7 +926,10 @@ describe("closeShift (validateOnly=false)", () => {
             }),
             insert: jest.fn().mockReturnValue({
               select: jest.fn().mockReturnValue({
-                single: jest.fn().mockResolvedValue({ data: { id: "status-99" }, error: null }),
+                single: jest.fn().mockResolvedValue({
+                  data: { id: "status-99" },
+                  error: null,
+                }),
               }),
             }),
           };
@@ -878,7 +964,9 @@ describe("closeShift (validateOnly=false)", () => {
             return {
               select: jest.fn().mockReturnValue({
                 eq: jest.fn().mockReturnValue({
-                  single: jest.fn().mockResolvedValue({ data: { id: "emp-1" }, error: null }),
+                  single: jest
+                    .fn()
+                    .mockResolvedValue({ data: { id: "emp-1" }, error: null }),
                 }),
               }),
             };
@@ -887,7 +975,11 @@ describe("closeShift (validateOnly=false)", () => {
             select: jest.fn().mockReturnValue({
               eq: jest.fn().mockReturnValue({
                 single: jest.fn().mockResolvedValue({
-                  data: { id: "approver-1", pin_hash: "$2b$hash", full_name: "Approver" },
+                  data: {
+                    id: "approver-1",
+                    pin_hash: "$2b$hash",
+                    full_name: "Approver",
+                  },
                 }),
               }),
             }),
@@ -899,11 +991,20 @@ describe("closeShift (validateOnly=false)", () => {
 
     bcrypt.compare.mockResolvedValue(true);
 
-    const result = await closeShift("dept-1", "2026-05-17", "day", "approver-1", "1234");
+    const result = await closeShift(
+      "dept-1",
+      "2026-05-17",
+      "day",
+      "approver-1",
+      "1234",
+    );
     expect(result.success).toBe(true);
     expect(result.shiftStatusId).toBe("status-99");
     expect(logAuditEvent).toHaveBeenCalledWith(
-      expect.objectContaining({ tableName: "shift_status", recordId: "status-99" }),
+      expect.objectContaining({
+        tableName: "shift_status",
+        recordId: "status-99",
+      }),
     );
   });
 });

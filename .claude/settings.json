@@ -38,7 +38,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"/home/timothy/Project/Arch-Mk2/.claude/hooks/scripts/learn-capture.js\""
+            "command": "node \"/home/timothy/Project/Arch-Mk2/.claude/hooks/scripts/learn-capture.cjs\""
           }
         ]
       }
@@ -49,7 +49,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"/home/timothy/Project/Arch-Mk2/.claude/hooks/scripts/session-start.js\""
+            "command": "node \"/home/timothy/Project/Arch-Mk2/.claude/hooks/scripts/session-start.cjs\""
           }
         ]
       }
@@ -60,7 +60,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"/home/timothy/Project/Arch-Mk2/.claude/hooks/scripts/pre-compact.js\""
+            "command": "node \"/home/timothy/Project/Arch-Mk2/.claude/hooks/scripts/pre-compact.cjs\""
           }
         ]
       }
@@ -71,18 +71,18 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"/home/timothy/Project/Arch-Mk2/.claude/hooks/scripts/post-compact.js\""
+            "command": "node \"/home/timothy/Project/Arch-Mk2/.claude/hooks/scripts/post-compact.cjs\""
           }
         ]
       }
     ],
     "FileChanged": [
       {
-        "matcher": ".env|.envrc|package.json|tsconfig.json|pyproject.toml",
+        "matcher": ".env|.envrc|package.json|tsconfig.json|pyproject.toml|pnpm-workspace.yaml|turbo.json|.syncpackrc.js|knip.json",
         "hooks": [
           {
             "type": "command",
-            "command": "node \"/home/timothy/Project/Arch-Mk2/.claude/hooks/scripts/file-changed.js\""
+            "command": "node \"/home/timothy/Project/Arch-Mk2/.claude/hooks/scripts/file-changed.cjs\""
           }
         ]
       }
@@ -110,5 +110,49 @@
   "autoCompactEnabled": true,
   "showTurnDuration": true,
   "terminalProgressBarEnabled": true,
-  "todoFeatureEnabled": true
+  "todoFeatureEnabled": true,
+  "permissions": {
+    "allow": [
+      "Bash(git status)",
+      "Bash(git log *)",
+      "Bash(git diff *)",
+      "Bash(git show *)",
+      "Bash(git branch)",
+      "Bash(git remote)",
+      "Bash(ls *)",
+      "Bash(pnpm quality)",
+      "Bash(pnpm lint)",
+      "Bash(pnpm type-check)",
+      "Bash(pnpm test)",
+      "Bash(pnpm test:e2e)",
+      "Bash(pnpm format:check)",
+      "Bash(pnpm format)",
+      "Bash(pnpm build)",
+      "Bash(pnpm --filter *)",
+      "Bash(pnpm dev)",
+      "Bash(pnpm knip)",
+      "Bash(pnpm knip:fix)",
+      "Bash(pnpm deps:check)",
+      "Bash(pnpm deps:fix)",
+      "Bash(pnpm deps:lint)",
+      "Bash(pnpm md:lint)",
+      "Bash(pnpm md:fix)",
+      "Bash(pnpm db:docs)",
+      "Bash(pnpm --filter @repo/database *)",
+      "Bash(pnpm deploy:local)",
+      "Bash(pnpm deploy:staging)",
+      "Bash(pnpm deploy:production)",
+      "Bash(pnpm deploy:rollback)",
+      "Bash(pnpm fresh-start)",
+      "Bash(pnpm shutdown)",
+      "Bash(pnpm monitor*)",
+      "Bash(./scripts/*)"
+    ],
+    "deny": [
+      "Bash(git push --force)",
+      "Bash(git reset --hard *)",
+      "Bash(git checkout .)",
+      "Bash(rm -rf *)"
+    ]
+  }
 }

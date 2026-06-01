@@ -12,11 +12,13 @@ confidence: high
 # ADR-003: Turborepo for Monorepo Management
 
 ## Status
+
 **Accepted** — Implemented May 2024
 
 ## Context
 
 We needed to organize a growing codebase with:
+
 - Main portal application (Next.js 15)
 - Shared UI component library
 - Shared utilities and types
@@ -59,16 +61,19 @@ We will use **Turborepo 2.1 with pnpm 9.12.0 workspaces**.
 ## Alternatives Considered
 
 ### Nx (REJECTED)
+
 - More powerful but overkill for our scale (3 apps, 8 packages)
 - Steeper learning curve
 - Angular-legacy perception (though framework-agnostic now)
 
 ### pnpm Workspaces Alone (REJECTED)
+
 - No build orchestration across dependency graph
 - No task caching (critical for CI speed)
 - Manual script management for builds
 
 ### npm/Yarn + Lerna (REJECTED)
+
 - Lerna in maintenance mode
 - npm/yarn slower than pnpm
 - Less monorepo-native features

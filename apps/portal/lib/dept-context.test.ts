@@ -1,5 +1,10 @@
 import { getDepartmentContext, requireDepartment } from "./dept-context";
 
+jest.mock("@repo/redis/cache", () => ({
+  cacheGet: jest.fn().mockResolvedValue(null),
+  cacheSet: jest.fn().mockResolvedValue(undefined),
+}));
+
 jest.mock("next/navigation", () => ({
   notFound: jest.fn(() => {
     throw new Error("NEXT_NOT_FOUND");

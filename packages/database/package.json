@@ -6,6 +6,8 @@
     "./migrations/*": "./migrations/*"
   },
   "scripts": {
+    "lint": "echo 'No lintable files in @repo/database'",
+    "clean": "rm -rf .turbo",
     "supabase:dev": "pnpx supabase start",
     "supabase:push": "pnpx supabase db push",
     "supabase:reset": "pnpx supabase db reset",
@@ -13,7 +15,6 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "rowguard": "^0.2.0",
     "supabase": "catalog:"
   }
 }

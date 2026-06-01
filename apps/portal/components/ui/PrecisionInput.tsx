@@ -10,7 +10,7 @@ import { ChevronUp, ChevronDown } from "lucide-react";
 
 const NumberInput = React.forwardRef(function CustomNumberInput(
   props: NumberInputProps,
-  ref: React.ForwardedRef<HTMLDivElement>
+  ref: React.ForwardedRef<HTMLDivElement>,
 ) {
   return (
     <BaseNumberInput
@@ -24,19 +24,22 @@ const NumberInput = React.forwardRef(function CustomNumberInput(
         root: {
           className: cn(
             "flex items-center rounded-lg border border-[var(--border-emphasis)] bg-[var(--bg-primary)] hover:border-[#424242] transition-all overflow-hidden focus-within:ring-1 focus-within:ring-[#3ecf8e] focus-within:border-[#3ecf8e]/50",
-            props.className
+            props.className,
           ),
         },
         input: {
-          className: "w-full bg-transparent px-3 py-2 text-sm text-[var(--text-heading)] outline-none placeholder-[var(--text-secondary)]",
+          className:
+            "w-full bg-transparent px-3 py-2 text-sm text-[var(--text-heading)] outline-none placeholder-[var(--text-secondary)]",
         },
         incrementButton: {
           children: <ChevronUp className="w-3 h-3" />,
-          className: "flex items-center justify-center p-1 hover:bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-[var(--text-heading)] border-l border-[var(--border-emphasis)] transition-colors",
+          className:
+            "flex items-center justify-center p-1 hover:bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-[var(--text-heading)] border-l border-[var(--border-emphasis)] transition-colors",
         },
         decrementButton: {
           children: <ChevronDown className="w-3 h-3" />,
-          className: "flex items-center justify-center p-1 hover:bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-[var(--text-heading)] border-l border-[var(--border-emphasis)] transition-colors",
+          className:
+            "flex items-center justify-center p-1 hover:bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-[var(--text-heading)] border-l border-[var(--border-emphasis)] transition-colors",
         },
       }}
       {...props}
@@ -50,7 +53,11 @@ interface PrecisionInputProps extends NumberInputProps {
   suffix?: string;
 }
 
-export function PrecisionInput({ label, suffix, ...props }: PrecisionInputProps) {
+export function PrecisionInput({
+  label,
+  suffix,
+  ...props
+}: PrecisionInputProps) {
   return (
     <div className="space-y-1.5">
       {label && (

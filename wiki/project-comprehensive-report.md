@@ -8,7 +8,7 @@
 
 ## Executive Summary
 
-Arch-Systems (Plantcor) is an **on-premises ready, multi-departmental mining operations portal** built as a full-stack Turborepo monorepo. Currently configured for **local development and testing** with Docker Compose. All 8 departments, AI orchestration, and monitoring stacks run locally via `./scripts/deploy-local.sh`. Production deployment via Cockpit is ready when needed.
+Arch-Systems (Plantcor) is an **on-premises ready, multi-departmental mining operations portal** built as a full-stack Turborepo monorepo. Currently configured for **local development and testing** with Docker Compose. All 8 departments, AI orchestration, and monitoring stacks run locally via `./scripts/deploy.sh local`. Production deployment via Cockpit is ready when needed.
 
 ### Project Health Dashboard
 
@@ -134,7 +134,7 @@ Arch-Systems (Plantcor) is an **on-premises ready, multi-departmental mining ope
 │  CURRENT SETUP (Development Machine)                                    │
 │  ─────────────────────────────────────                                  │
 │                                                                         │
-│  ✅ Run ./scripts/deploy-local.sh                                       │
+│  ✅ Run ./scripts/deploy.sh local                                       │
 │  ✅ All 8 departments operational                                         │
 │  ✅ AI chat with multi-provider failover                                  │
 │  ✅ Real-time monitoring (Prometheus + Grafana)                           │
@@ -153,7 +153,7 @@ Arch-Systems (Plantcor) is an **on-premises ready, multi-departmental mining ope
 │       │  │ :9091   │ │ :9090   │ │ :6379   │       │                     │
 │       │  └─────────┘ └─────────┘ └─────────┘       │                     │
 │       │                                             │                     │
-│       │  One command: ./scripts/deploy-local.sh   │                     │
+│       │  One command: ./scripts/deploy.sh local    │                     │
 │       └─────────────────────────────────────────────┘                     │
 │                                                                         │
 │  FUTURE: Production deployment via Cockpit when ready                     │
@@ -290,7 +290,7 @@ Phase 4: Real-time Distribution
 │  │    DRILLING      │    │    PRODUCTION      │    │  ACCESS CONTROL  ││
 │  │   ████████░░░░   │    │   ██████████░░░    │    │   ████████░░░░   ││
 │  │   Status: 80%    │    │   Status: 85%     │    │   Status: 80%    ││
-│  │   Amber-400      │    │   Emerald-400      │    │   Blue-400       ││
+│  │   Blue-400      │    │   Emerald-400      │    │   Blue-400       ││
 │  └──────────────────┘    └──────────────────┘    └──────────────────┘│
 │                                                                         │
 │  ┌──────────────────┐    ┌──────────────────┐    ┌──────────────────┐   │
@@ -304,7 +304,7 @@ Phase 4: Real-time Distribution
 │  │    TRAINING      │    │  SATELLITE MON   │                           │
 │  │   ████████░░░░   │    │  ████████████░░  │                         │
 │  │   Status: 80%    │    │   Status: 95%    │                          │
-│  │   Orange-400     │    │   Indigo-400     │                         │
+│  │   Blue-400     │    │   Indigo-400     │                         │
 │  └──────────────────┘    └──────────────────┘                           │
 │                                                                         │
 └─────────────────────────────────────────────────────────────────────────┘
@@ -794,10 +794,10 @@ Tier 3: Database (L3) - PostgreSQL
 │                                                                         │
 │  1. ON-PREMISES SERVER SETUP & COCKPIT    [PRIORITY: CRITICAL] ✅ CODE   │
 │     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━         │
-│     ✅ scripts/deploy-production.sh — server-adapted deploy script      │
+│     ✅ scripts/deploy.sh production — unified stable deploy script      │
 │         pre-flight .env check, systemd-aware, n8n webhook notification   │
-│     ✅ scripts/update-production.sh — zero-downtime git pull + restart  │
-│         rolling swap (alternate port → verify → kill old), auto-rollback │
+│     ✅ scripts/deploy.sh production --skip-build — quick update script   │
+│         skip rebuild phase when deploying simple configuration changes   │
 │     ✅ docker-compose.production.yml — production Docker overrides      │
 │         restart:always, resource limits, healthchecks, /opt/arch-systems │
 │     ✅ systemd/arch-systems.service — portal auto-start on server boot  │
@@ -807,7 +807,7 @@ Tier 3: Database (L3) - PostgreSQL
 │     ⬜ Provision physical server (Ubuntu 22.04 / RHEL 9)               │
 │     ⬜ Install Cockpit: sudo apt install cockpit + enable socket         │
 │     ⬜ Install systemd service: sudo cp systemd/arch-systems.service ... │
-│     ⬜ Run deploy-production.sh + validate all 8 departments            │
+│     ⬜ Run deploy.sh production + validate all 8 departments            │
 │     • Estimated: 1-2 days  ✅ Wiki docs: concepts/on-premises-deployment │
 │     Impact: ██████████████████████████████████████████████████  CRITICAL│
 │                                                                         │
@@ -855,7 +855,7 @@ Tier 3: Database (L3) - PostgreSQL
 │         manifest/appleWebApp/viewport metadata added to root layout      │
 │     ✅ Service worker — @ducanh2912/next-pwa, NetworkFirst strategy     │
 │         CacheFirst for static assets, disabled in dev                    │
-│     ✅ Offline banner — OfflineBanner component (amber/blue/green)      │
+│     ✅ Offline banner — OfflineBanner component (blue/blue/green)      │
 │         polls IndexedDB queue count, auto-dismisses on sync complete     │
 │     ✅ Mobile nav — BottomNav (6 items, hidden md+, active highlight)   │
 │         hub layout: pb-20 md:pb-8, px-4 sm:px-8 responsive padding      │
@@ -1022,4 +1022,4 @@ Webhook → External          ██████████████░░�
 **Status:** Production Ready  
 **Next Review:** Security penetration testing (OWASP ZAP) + Database Optimization (Step 3)
 
-*For detailed technical documentation, see the [Wiki Index](index.md)*
+_For detailed technical documentation, see the [Wiki Index](index.md)_

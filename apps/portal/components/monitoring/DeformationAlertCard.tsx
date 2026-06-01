@@ -17,19 +17,19 @@ const LEVEL_CONFIG = {
     label: "Stable",
   },
   minor: {
-    bg: "bg-accent-orange/10",
-    border: "border-accent-orange/30",
-    text: "text-accent-orange",
-    badge: "bg-accent-orange/20 text-accent-orange",
-    dot: "bg-accent-orange",
+    bg: "bg-accent-blue/10",
+    border: "border-accent-blue/30",
+    text: "text-accent-blue",
+    badge: "bg-accent-blue/20 text-accent-blue",
+    dot: "bg-accent-blue",
     label: "Minor Shift",
   },
   moderate: {
-    bg: "bg-accent-orange/10",
-    border: "border-accent-orange/30",
-    text: "text-accent-orange",
-    badge: "bg-accent-orange/20 text-accent-orange",
-    dot: "bg-accent-orange",
+    bg: "bg-accent-blue/10",
+    border: "border-accent-blue/30",
+    text: "text-accent-blue",
+    badge: "bg-accent-blue/20 text-accent-blue",
+    dot: "bg-accent-blue",
     label: "Moderate",
   },
   critical: {
@@ -55,10 +55,7 @@ const TREND_ICONS: Record<string, string> = {
   uplifting: "↑",
 };
 
-function DeformationAlertCard({
-  reading,
-  onClick,
-}: DeformationAlertCardProps) {
+function DeformationAlertCard({ reading, onClick }: DeformationAlertCardProps) {
   const cfg = LEVEL_CONFIG[reading.level];
 
   return (
@@ -87,10 +84,14 @@ function DeformationAlertCard({
             {reading.shiftMm.toFixed(1)} mm
             <span className="ml-1 text-base">{TREND_ICONS[reading.trend]}</span>
           </p>
-          <p className="text-xs text-[var(--text-secondary)] mt-0.5">{reading.sensor}</p>
+          <p className="text-xs text-[var(--text-secondary)] mt-0.5">
+            {reading.sensor}
+          </p>
         </div>
         <div className="text-right">
-          <p className="text-xs text-[var(--text-secondary)] capitalize">{reading.trend}</p>
+          <p className="text-xs text-[var(--text-secondary)] capitalize">
+            {reading.trend}
+          </p>
           <p className="text-xs text-[var(--text-secondary)] mt-0.5">
             {new Date(reading.lastUpdated).toLocaleDateString("en-ZA", {
               day: "2-digit",
@@ -126,7 +127,7 @@ export function DeformationSummary({
           className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm ${
             criticalCount > 0
               ? "bg-accent-red/10 border border-accent-red/30 text-accent-red"
-              : "bg-accent-orange/10 border border-accent-orange/30 text-accent-orange"
+              : "bg-accent-blue/10 border border-accent-blue/30 text-accent-blue"
           }`}
         >
           <span>⚠</span>

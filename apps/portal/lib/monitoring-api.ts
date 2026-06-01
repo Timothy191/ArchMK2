@@ -52,7 +52,11 @@ interface STACCollection {
   };
 }
 
-export type DeformationArea = "pit-wall" | "tailings-dam" | "haul-road" | "processing-plant";
+export type DeformationArea =
+  | "pit-wall"
+  | "tailings-dam"
+  | "haul-road"
+  | "processing-plant";
 
 export interface VelocityPoint {
   month: string;
@@ -79,22 +83,25 @@ export interface DeformationReading {
  * Alert thresholds per area type (mm/month velocity)
  * Based on industry geotechnical standards (SRK, Slope Stability Radar)
  */
-export const ALERT_THRESHOLDS: Record<DeformationArea, { minor: number; moderate: number; critical: number }> = {
-  "pit-wall":          { minor: 5,  moderate: 15, critical: 25 },
-  "tailings-dam":      { minor: 3,  moderate: 8,  critical: 15 },
-  "haul-road":         { minor: 8,  moderate: 20, critical: 35 },
-  "processing-plant":  { minor: 2,  moderate: 5,  critical: 10 },
+export const ALERT_THRESHOLDS: Record<
+  DeformationArea,
+  { minor: number; moderate: number; critical: number }
+> = {
+  "pit-wall": { minor: 5, moderate: 15, critical: 25 },
+  "tailings-dam": { minor: 3, moderate: 8, critical: 15 },
+  "haul-road": { minor: 8, moderate: 20, critical: 35 },
+  "processing-plant": { minor: 2, moderate: 5, critical: 10 },
 };
 
 export function classifyDeformationByVelocity(
   velocityMmPerMonth: number,
-  area: DeformationArea
+  area: DeformationArea,
 ): DeformationLevel {
   const t = ALERT_THRESHOLDS[area];
   const abs = Math.abs(velocityMmPerMonth);
   if (abs >= t.critical) return "critical";
   if (abs >= t.moderate) return "moderate";
-  if (abs >= t.minor)    return "minor";
+  if (abs >= t.minor) return "minor";
   return "stable";
 }
 
@@ -106,28 +113,62 @@ const COPERNICUS_STAC = "https://catalogue.dataspace.copernicus.eu/stac";
  * EOX terms: https://maps.eox.at/terms_of_service
  */
 export const MAP_TILE_URLS: Record<string, string> = {
-  optical:   "https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2024_3857/default/g/{z}/{y}/{x}.jpg",
-  terrain:   "https://tiles.maps.eox.at/wmts/1.0.0/terrain-light_3857/default/g/{z}/{y}/{x}.jpg",
-  osm:       "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+  optical:
+    "https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2024_3857/default/g/{z}/{y}/{x}.jpg",
+  terrain:
+    "https://tiles.maps.eox.at/wmts/1.0.0/terrain-light_3857/default/g/{z}/{y}/{x}.jpg",
+  osm: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
   // SAR pseudo-color: use terrain + overlay markers (no free public SAR XYZ tiles exist)
-  sar:       "https://tiles.maps.eox.at/wmts/1.0.0/terrain_3857/default/g/{z}/{y}/{x}.jpg",
+  sar: "https://tiles.maps.eox.at/wmts/1.0.0/terrain_3857/default/g/{z}/{y}/{x}.jpg",
   // NDVI/geology: use S2 cloudless as base (band composites require SH instance ID)
-  ndvi:      "https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2024_3857/default/g/{z}/{y}/{x}.jpg",
-  geology:   "https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2024_3857/default/g/{z}/{y}/{x}.jpg",
-  none:      "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+  ndvi: "https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2024_3857/default/g/{z}/{y}/{x}.jpg",
+  geology:
+    "https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2024_3857/default/g/{z}/{y}/{x}.jpg",
+  none: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
 };
 
 /**
  * Human-readable label + attribution per layer
  */
-export const LAYER_META: Record<string, { label: string; attribution: string; description: string }> = {
-  optical:  { label: "Sentinel-2 True Color",  attribution: "© EOX IT Services / ESA", description: "S2 cloudless 2024 mosaic, 10m GSD" },
-  terrain:  { label: "Terrain",                attribution: "© EOX IT Services",       description: "Hillshaded terrain model" },
-  sar:      { label: "SAR / Terrain",          attribution: "© EOX IT Services",       description: "Terrain base + SAR deformation overlay" },
-  ndvi:     { label: "NDVI Composite",         attribution: "© EOX IT Services / ESA", description: "Vegetation index overlay on S2" },
-  geology:  { label: "Geology Composite",      attribution: "© EOX IT Services / ESA", description: "SWIR-NIR-Blue mineral composite" },
-  osm:      { label: "OpenStreetMap",          attribution: "© OpenStreetMap contributors", description: "Road and infrastructure layer" },
-  none:     { label: "Street Map",             attribution: "© OpenStreetMap contributors", description: "Default basemap" },
+export const LAYER_META: Record<
+  string,
+  { label: string; attribution: string; description: string }
+> = {
+  optical: {
+    label: "Sentinel-2 True Color",
+    attribution: "© EOX IT Services / ESA",
+    description: "S2 cloudless 2024 mosaic, 10m GSD",
+  },
+  terrain: {
+    label: "Terrain",
+    attribution: "© EOX IT Services",
+    description: "Hillshaded terrain model",
+  },
+  sar: {
+    label: "SAR / Terrain",
+    attribution: "© EOX IT Services",
+    description: "Terrain base + SAR deformation overlay",
+  },
+  ndvi: {
+    label: "NDVI Composite",
+    attribution: "© EOX IT Services / ESA",
+    description: "Vegetation index overlay on S2",
+  },
+  geology: {
+    label: "Geology Composite",
+    attribution: "© EOX IT Services / ESA",
+    description: "SWIR-NIR-Blue mineral composite",
+  },
+  osm: {
+    label: "OpenStreetMap",
+    attribution: "© OpenStreetMap contributors",
+    description: "Road and infrastructure layer",
+  },
+  none: {
+    label: "Street Map",
+    attribution: "© OpenStreetMap contributors",
+    description: "Default basemap",
+  },
 };
 
 /**
@@ -135,7 +176,7 @@ export const LAYER_META: Record<string, { label: string; attribution: string; de
  */
 export async function fetchSentinel1Scenes(
   bbox: BoundingBox,
-  days: number = 7
+  days: number = 7,
 ): Promise<STACItem[]> {
   const dateEnd = new Date().toISOString();
   const dateStart = new Date(Date.now() - days * 86400000).toISOString();
@@ -161,7 +202,7 @@ export async function fetchSentinel1Scenes(
 export async function fetchSentinel2Scenes(
   bbox: BoundingBox,
   maxCloudCover: number = 30,
-  days: number = 14
+  days: number = 14,
 ): Promise<STACItem[]> {
   const dateEnd = new Date().toISOString();
   const dateStart = new Date(Date.now() - days * 86400000).toISOString();
@@ -177,7 +218,7 @@ export async function fetchSentinel2Scenes(
     const data: STACCollection = await res.json();
     const features = data.features ?? [];
     return features.filter(
-      (f) => (f.properties["eo:cloud_cover"] ?? 100) <= maxCloudCover
+      (f) => (f.properties["eo:cloud_cover"] ?? 100) <= maxCloudCover,
     );
   } catch {
     return [];
@@ -200,7 +241,10 @@ export function getSTACQuicklookUrl(item: STACItem): string | null {
 /**
  * Sentinel-1 12-day repeat cycle — generate next N acquisition dates from a start date
  */
-export function getSentinel1RevisitDates(startDate: Date, count: number = 6): Date[] {
+export function getSentinel1RevisitDates(
+  startDate: Date,
+  count: number = 6,
+): Date[] {
   return Array.from({ length: count }, (_, i) => {
     const d = new Date(startDate);
     d.setDate(d.getDate() + i * 12);
@@ -223,11 +267,17 @@ export function classifyDeformation(shiftMm: number): DeformationLevel {
  * Generate 6-month velocity history for a zone (mm/month)
  * In production: output from StaMPS / MintPy InSAR time-series processor
  */
-function generateHistory(baseVelocity: number, noiseScale: number = 1.5): VelocityPoint[] {
+function generateHistory(
+  baseVelocity: number,
+  noiseScale: number = 1.5,
+): VelocityPoint[] {
   const months = ["Nov", "Dec", "Jan", "Feb", "Mar", "Apr"];
   return months.map((month) => {
     const noise = (Math.random() - 0.5) * noiseScale;
-    return { month, velocityMmPerMonth: Math.round((baseVelocity + noise) * 10) / 10 };
+    return {
+      month,
+      velocityMmPerMonth: Math.round((baseVelocity + noise) * 10) / 10,
+    };
   });
 }
 
@@ -239,7 +289,7 @@ function generateHistory(baseVelocity: number, noiseScale: number = 1.5): Veloci
  */
 export function generateDeformationReadings(
   centerLat: number,
-  centerLon: number
+  centerLon: number,
 ): DeformationReading[] {
   const now = new Date().toISOString();
 

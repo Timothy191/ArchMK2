@@ -6,9 +6,9 @@
     "VERCEL_ENV",
     "CI",
     "TURBO_TELEMETRY_DISABLED",
-    "HIGHLIGHT_PROJECT_ID",
-    "NEXT_PUBLIC_HIGHLIGHT_PROJECT_ID",
     "OTEL_EXPORTER_OTLP_ENDPOINT",
+    "INNGEST_EVENT_KEY",
+    "NOVU_API_KEY",
     "OTEL_SERVICE_NAME"
   ],
   "globalPassThroughEnv": [
@@ -26,7 +26,12 @@
     "GITHUB_REF",
     "GITHUB_HEAD_REF"
   ],
-  "globalDependencies": [],
+  "globalDependencies": [
+    "turbo.json",
+    "tsconfig.json",
+    "pnpm-workspace.yaml",
+    ".npmrc"
+  ],
   "tasks": {
     "codegen": {
       "dependsOn": [],
@@ -57,8 +62,11 @@
         "NEXT_RUNTIME",
         "SENTRY_DSN",
         "SENTRY_AUTH_TOKEN",
+        "SENTRY_ORG",
+        "SENTRY_PROJECT",
         "TURBO_SUMMARIZE",
-        "SKIP_TYPE_CHECK"
+        "SKIP_TYPE_CHECK",
+        "ENABLE_HEAVY_PLUGINS"
       ],
       "passThroughEnv": ["ANALYZE"],
       "inputs": [
@@ -79,25 +87,30 @@
       "outputs": ["packages/supabase/migrations/**"]
     },
     "type-check": {
-      "dependsOn": ["^build"],
+      "dependsOn": [],
       "env": ["NEXT_PUBLIC_*"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "**/tsconfig.json",
         "!**/*.test.ts",
-        "!**/*.test.tsx"
+        "!**/*.test.tsx",
+        "!**/*.md",
+        "!**/*.stories.*"
       ],
+      "outputs": ["**/*.tsbuildinfo"],
       "outputLogs": "new-only"
     },
     "lint": {
-      "dependsOn": ["^build"],
+      "dependsOn": [],
       "env": [
         "REDIS_URL",
         "NEXT_RUNTIME",
         "SENTRY_DSN",
         "ALLOWED_SCANNER_SOURCES",
         "OPENAI_API_KEY",
-        "TOGETHER_API_KEY"
+        "TOGETHER_API_KEY",
+        "DATABASE_POOLER_URL",
+        "INTERNAL_API_SECRET"
       ],
       "inputs": [
         "$TURBO_DEFAULT$",
@@ -105,8 +118,12 @@
         ".eslintrc.*",
         "!pnpm-lock.yaml",
         "!**/*.test.ts",
-        "!**/*.test.tsx"
+        "!**/*.test.tsx",
+        "!**/*.md",
+        "!**/*.stories.*",
+        "!**/__fixtures__/**"
       ],
+      "outputs": ["node_modules/.cache/.eslintcache"],
       "outputLogs": "new-only"
     },
     "dev": {
@@ -128,7 +145,9 @@
         "$TURBO_DEFAULT$",
         "jest.config.*",
         "vitest.config.*",
-        "playwright.config.*"
+        "playwright.config.*",
+        "!**/*.md",
+        "!**/*.stories.*"
       ],
       "outputs": ["coverage/**/*"],
       "outputLogs": "new-only"
@@ -145,7 +164,8 @@
     },
     "//#quality": {
       "dependsOn": ["//#lint-root", "//#format-check"],
-      "cache": false,
+      "cache": true,
+      "outputs": [],
       "outputLogs": "new-only"
     },
     "//#syncpack": {
@@ -153,7 +173,7 @@
     },
     "//#knip": {
       "inputs": ["knip.json", "**/package.json", "**/tsconfig.json"],
-      "cache": false
+      "cache": true
     }
   }
 }

@@ -22,6 +22,7 @@ Automatically find and surface relevant learnings from your pro-workflow databas
 When the user runs `/replay <task description>`:
 
 1. **Search learnings database**:
+
    ```bash
    sqlite3 ~/.pro-workflow/data.db "
      SELECT l.category, l.rule, l.mistake, l.correction, l.times_applied
@@ -34,6 +35,7 @@ When the user runs `/replay <task description>`:
    ```
 
 2. **Check session history for similar work**:
+
    ```bash
    sqlite3 ~/.pro-workflow/data.db "
      SELECT project, corrections_count, edit_count,

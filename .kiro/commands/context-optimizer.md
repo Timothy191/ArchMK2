@@ -11,9 +11,11 @@ Diagnose and fix context window problems.
 2. **Run optimization checks:**
 
    **MCP audit:**
+
    ```bash
    /mcp
    ```
+
    - Keep <10 MCPs enabled, <80 tools total
    - Disable what you're not actively using
 
@@ -24,15 +26,16 @@ Diagnose and fix context window problems.
 
 3. **Apply fixes based on findings:**
 
-   | Problem | Fix |
-   |---------|-----|
-   | High context usage | `/compact` with focus on current task |
-   | Too many MCPs | Disable unused servers |
-   | Bloated CLAUDE.md | Split into modular files |
-   | Heavy exploration in main session | Delegate to subagents |
+   | Problem                              | Fix                                      |
+   | ------------------------------------ | ---------------------------------------- |
+   | High context usage                   | `/compact` with focus on current task    |
+   | Too many MCPs                        | Disable unused servers                   |
+   | Bloated CLAUDE.md                    | Split into modular files                 |
+   | Heavy exploration in main session    | Delegate to subagents                    |
    | Vague prompts causing broad searches | Scope prompts with paths and constraints |
 
 4. **Set proactive auto-compaction** if not already configured:
+
    ```json
    {
      "env": {
@@ -51,12 +54,12 @@ Diagnose and fix context window problems.
 
 ## Quick Fixes
 
-| Action | Saves | When |
-|--------|-------|------|
-| `/compact` | 30-50% context | Task boundaries |
-| Disable unused MCPs | ~5% per MCP | Switching domains |
-| Subagent delegation | Keeps main clean | Heavy search/read tasks |
-| Fresh session via `/resume` | 100% reset | Unrelated work |
+| Action                      | Saves            | When                    |
+| --------------------------- | ---------------- | ----------------------- |
+| `/compact`                  | 30-50% context   | Task boundaries         |
+| Disable unused MCPs         | ~5% per MCP      | Switching domains       |
+| Subagent delegation         | Keeps main clean | Heavy search/read tasks |
+| Fresh session via `/resume` | 100% reset       | Unrelated work          |
 
 ---
 

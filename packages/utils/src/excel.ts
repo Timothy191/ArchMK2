@@ -1,5 +1,6 @@
 import * as XLSX from "xlsx";
 import type { Fill, Font, Borders } from "exceljs";
+import { ValidationError } from "@repo/errors";
 
 type Primitive = string | number | boolean | Date | null | undefined;
 
@@ -171,7 +172,7 @@ export async function parseExcel(file: File): Promise<any[]> {
         const workbook = XLSX.read(data, { type: "array" });
         const firstSheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[firstSheetName!];
-        if (!worksheet) throw new Error("No worksheet found");
+        if (!worksheet) throw new ValidationError("No worksheet found");
         const jsonData = XLSX.utils.sheet_to_json(worksheet);
         resolve(jsonData);
       } catch (err) {

@@ -106,8 +106,8 @@ export function BookInForm({
           <div
             className={`mb-4 px-4 py-3 rounded-lg border text-sm ${
               message.type === "success"
-                ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
-                : "bg-red-500/10 border-red-500/20 text-red-400"
+                ? "bg-accent-green/10 border-accent-green/20 text-accent-green"
+                : "bg-accent-red/10 border-accent-red/20 text-accent-red"
             }`}
           >
             {message.text}

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { X, Send, Bot, User, Loader2, Sparkles } from "lucide-react";
+import { X, Send, Bot, User, Loader2 } from "lucide-react";
 
 import { logError } from "@/lib/errors/error-logger";
 
@@ -14,6 +14,7 @@ interface Message {
 export function AIAssistantSidebar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+  const [selectedModel, setSelectedModel] = useState("gemma4:latest");
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
@@ -39,7 +40,7 @@ export function AIAssistantSidebar() {
 
   const closeSidebar = () => {
     setIsVisible(false);
-    setTimeout(() => setIsOpen(false), 300);
+    setTimeout(() => setIsOpen(false), 250);
   };
 
   const handleSend = async () => {
@@ -51,85 +52,173 @@ export function AIAssistantSidebar() {
       timestamp: new Date(),
     };
 
-    setMessages((prev) => [...prev, userMessage]);
+    const currentMessages = [...messages, userMessage];
+    setMessages(currentMessages);
     setInput("");
     setIsLoading(true);
 
     try {
-      setTimeout(() => {
-        const botMessage: Message = {
-          role: "assistant",
-          content: `I've analyzed the request for "${input}". I'm currently processing operational data from the safety and engineering modules to provide a summary.`,
-          timestamp: new Date(),
-        };
-        setMessages((prev) => [...prev, botMessage]);
-        setIsLoading(false);
-      }, 1500);
+      const chatPayload = {
+        messages: currentMessages.map((m, idx) => ({
+          id: `msg-${idx}-${Date.now()}`,
+          role: m.role,
+          content: m.content,
+        })),
+        model: selectedModel,
+      };
+
+      const response = await fetch("/api/ai/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(chatPayload),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Chat API error: ${response.statusText}`);
+      }
+
+      const reader = response.body?.getReader();
+      if (!reader) {
+        throw new Error("No response body readable");
+      }
+
+      // Add a blank bot message to be updated as chunks stream in
+      const botMessageId = currentMessages.length;
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: "", timestamp: new Date() },
+      ]);
+
+      const decoder = new TextDecoder();
+      let accumulatedContent = "";
+      let activeStream = true;
+
+      while (activeStream) {
+        const { done, value } = await reader.read();
+        if (done) {
+          activeStream = false;
+          break;
+        }
+
+        const chunkText = decoder.decode(value, { stream: true });
+        // The server sends format: "0: <text>\n"
+        const lines = chunkText.split("\n");
+        for (const line of lines) {
+          if (line.startsWith("0: ")) {
+            accumulatedContent += line.substring(3);
+          } else if (line.trim() && !line.match(/^\d+:/)) {
+            // Fallback: if it doesn't match the "0: " prefix but contains text, append it directly
+            accumulatedContent += line;
+          }
+        }
+
+        // Update the assistant message in place
+        setMessages((prev) => {
+          const updated = [...prev];
+          if (updated[botMessageId]) {
+            updated[botMessageId] = {
+              ...updated[botMessageId],
+              content: accumulatedContent,
+            };
+          }
+          return updated;
+        });
+      }
     } catch (error) {
       logError(error instanceof Error ? error : new Error(String(error)), {
         context: "ai_assistant_sidebar",
       });
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content:
+            "Sorry, I encountered an error connecting to the local AI backend. Please verify that Ollama is running and the model is loaded.",
+          timestamp: new Date(),
+        },
+      ]);
+    } finally {
       setIsLoading(false);
     }
   };
 
+  useEffect(() => {
+    const handleOpenSidebar = () => openSidebar();
+    window.addEventListener("open-ai-assistant", handleOpenSidebar);
+    return () => {
+      window.removeEventListener("open-ai-assistant", handleOpenSidebar);
+    };
+  }, []);
+
   return (
     <>
-      {/* Trigger Button */}
-      <button
-        onClick={openSidebar}
-        aria-label="Open AI Assistant"
-        className="fixed bottom-6 right-6 z-50 p-4 rounded-full bg-accent-cyan text-bg-void border border-accent-cyan/30 flex items-center gap-2 group shadow-diffusion-md transition-[opacity,transform] duration-200 ease-out hover:scale-105 active:scale-95"
-      >
-        <Sparkles className="w-5 h-5" />
-        <span className="opacity-0 scale-x-0 origin-left overflow-hidden group-hover:opacity-100 group-hover:scale-x-100 transition-[opacity,transform] duration-500 font-medium whitespace-nowrap">
-          AI Assistant
-        </span>
-      </button>
-
       {/* Sidebar Overlay */}
       {isOpen && (
         <>
           <div
             onClick={closeSidebar}
-            className={`fixed inset-0 bg-[var(--arch11)]/60 backdrop-blur-sm z-[60] transition-opacity duration-300 ${
+            className={`fixed inset-0 bg-arch-surface-primary/60 backdrop-blur-sm z-[60] transition-opacity duration-250 ${
               isVisible ? "opacity-100" : "opacity-0 pointer-events-none"
             }`}
           />
           <div
-            className={`fixed top-0 right-0 h-screen w-full max-w-md bg-bg-primary border-l border-border-subtle z-[70] flex flex-col transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+            className={`fixed top-0 right-0 h-screen w-full max-w-md bg-arch-surface-secondary border-l border-arch-border-subtle z-[70] flex flex-col shadow-window transition-transform duration-250 ease-[cubic-bezier(0.16,1,0.3,1)] ${
               isVisible ? "translate-x-0" : "translate-x-full"
             }`}
           >
             {/* Header */}
-            <div className="p-6 border-b border-border-subtle flex items-center justify-between bg-bg-secondary">
+            <div className="p-6 border-b border-arch-border-subtle flex items-center justify-between bg-arch-surface-secondary/80 backdrop-blur-md sticky top-0 z-10">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-accent-cyan/10 text-accent-cyan">
+                <div className="p-2 rounded-lg bg-arch-accent-blue/10 text-arch-accent-blue">
                   <Bot className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="text-text-primary font-semibold">
+                  <h3 className="text-arch-text-primary font-semibold">
                     Operations Assistant
                   </h3>
-                  <p className="text-text-secondary text-xs flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-accent-cyan animate-pulse" />
+                  <p className="text-arch-text-tertiary text-xs flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-arch-accent-green animate-pulse" />
                     Online | AI Powered
                   </p>
                 </div>
               </div>
               <button
                 onClick={closeSidebar}
+                type="button"
                 aria-label="Close Assistant"
-                className="p-2 rounded-lg hover:bg-bg-tertiary text-text-secondary transition-colors"
+                className="p-2 rounded-lg hover:bg-arch-surface-tertiary text-arch-text-tertiary transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
+            {/* Model Selector Dropdown */}
+            <div className="px-6 py-3 border-b border-arch-border-subtle bg-arch-surface-primary/30 flex items-center justify-between gap-2 text-xs">
+              <span className="text-arch-text-secondary font-medium">
+                Local Model:
+              </span>
+              <select
+                value={selectedModel}
+                onChange={(e) => setSelectedModel(e.target.value)}
+                title="Select Local AI Model"
+                className="bg-arch-surface-secondary border border-arch-border-subtle rounded-lg px-2 py-1 text-arch-text-primary focus:outline-none focus:border-arch-accent-blue/50 text-xs cursor-pointer"
+              >
+                <option value="gemma4:latest">
+                  Gemma 4 (9.6GB - Assistant)
+                </option>
+                <option value="qwen2.5-coder:7b">
+                  Qwen Coder (4.7GB - Code/SQL)
+                </option>
+                <option value="huihui_ai/granite3.2-abliterated:2b">
+                  Granite 3.2 (1.5GB - Fast)
+                </option>
+              </select>
+            </div>
+
             {/* Messages Area */}
             <div
               ref={scrollRef}
-              className="flex-1 overflow-y-auto p-6 space-y-6 scroll-smooth"
+              className="flex-1 overflow-y-auto p-6 space-y-6 scroll-smooth bg-arch-surface-primary/10"
             >
               {messages.map((msg, idx) => (
                 <div
@@ -142,8 +231,8 @@ export function AIAssistantSidebar() {
                     <div
                       className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
                         msg.role === "user"
-                          ? "bg-accent-violet/10 text-accent-violet"
-                          : "bg-accent-cyan/10 text-accent-cyan"
+                          ? "bg-arch-accent-blue/10 text-arch-accent-blue"
+                          : "bg-arch-surface-tertiary text-arch-accent-blue"
                       }`}
                     >
                       {msg.role === "user" ? (
@@ -153,10 +242,10 @@ export function AIAssistantSidebar() {
                       )}
                     </div>
                     <div
-                      className={`p-3 rounded-2xl text-sm leading-relaxed ${
+                      className={`p-3 rounded-2xl text-sm leading-relaxed shadow-diffusion-sm ${
                         msg.role === "user"
-                          ? "bg-accent-violet text-bg-void rounded-tr-none"
-                          : "bg-bg-secondary text-text-body border border-border-subtle rounded-tl-none"
+                          ? "bg-arch-accent-blue text-white rounded-tr-none"
+                          : "bg-arch-surface-secondary text-arch-text-secondary border border-arch-border-subtle rounded-tl-none"
                       }`}
                     >
                       {msg.content}
@@ -167,14 +256,14 @@ export function AIAssistantSidebar() {
               {isLoading && (
                 <div className="flex justify-start">
                   <div className="flex gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-accent-cyan/10 text-accent-cyan flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-lg bg-arch-surface-tertiary text-arch-accent-blue flex items-center justify-center">
                       <Loader2 className="w-4 h-4 animate-spin" />
                     </div>
-                    <div className="bg-bg-secondary border border-border-subtle p-3 rounded-2xl rounded-tl-none">
+                    <div className="bg-arch-surface-secondary border border-arch-border-subtle p-3 rounded-2xl rounded-tl-none shadow-diffusion-sm">
                       <div className="flex gap-1">
-                        <span className="w-1.5 h-1.5 bg-accent-cyan/40 rounded-full animate-bounce [animation-delay:-0.3s]" />
-                        <span className="w-1.5 h-1.5 bg-accent-cyan/40 rounded-full animate-bounce [animation-delay:-0.15s]" />
-                        <span className="w-1.5 h-1.5 bg-accent-cyan/40 rounded-full animate-bounce" />
+                        <span className="w-1.5 h-1.5 bg-arch-accent-blue/40 rounded-full animate-bounce [animation-delay:-0.3s]" />
+                        <span className="w-1.5 h-1.5 bg-arch-accent-blue/40 rounded-full animate-bounce [animation-delay:-0.15s]" />
+                        <span className="w-1.5 h-1.5 bg-arch-accent-blue/40 rounded-full animate-bounce" />
                       </div>
                     </div>
                   </div>
@@ -183,7 +272,7 @@ export function AIAssistantSidebar() {
             </div>
 
             {/* Input Area */}
-            <div className="p-6 border-t border-border-subtle bg-bg-secondary">
+            <div className="p-6 border-t border-arch-border-subtle bg-arch-surface-secondary/80 backdrop-blur-md">
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -196,18 +285,18 @@ export function AIAssistantSidebar() {
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Ask about operations, safety, or breakdowns..."
                   aria-label="Ask a question"
-                  className="w-full bg-bg-void border border-border-subtle rounded-xl px-4 py-3 pr-12 text-text-primary text-sm focus:outline-none focus:border-accent-cyan/50 transition-colors"
+                  className="w-full bg-arch-surface-primary border border-arch-border-subtle rounded-xl px-4 py-3 pr-12 text-arch-text-primary text-sm focus:outline-none focus:border-arch-accent-blue/50 transition-all focus:shadow-diffusion-sm"
                 />
                 <button
                   type="submit"
                   disabled={!input.trim() || isLoading}
                   aria-label="Send Message"
-                  className="absolute right-2 top-1.5 p-2 rounded-lg bg-accent-cyan text-bg-void disabled:opacity-50 disabled:grayscale transition-colors"
+                  className="absolute right-2 top-1.5 p-2 rounded-lg bg-arch-accent-blue text-white disabled:opacity-50 disabled:grayscale transition-all active:scale-95"
                 >
                   <Send className="w-4 h-4" />
                 </button>
               </form>
-              <p className="mt-3 text-[10px] text-text-tertiary text-center">
+              <p className="mt-3 text-[10px] text-arch-text-tertiary text-center">
                 Integrated with n8n & Flowise for real-time operational
                 awareness.
               </p>

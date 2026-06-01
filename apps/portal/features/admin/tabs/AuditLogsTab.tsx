@@ -184,9 +184,9 @@ export function AuditLogsTab() {
                           log.action === "INSERT"
                             ? "bg-green-500/10 text-green-400 border-green-500/20"
                             : log.action === "UPDATE"
-                              ? "bg-amber-500/10 text-amber-400 border-amber-500/20"
+                              ? "bg-accent-blue/10 text-accent-blue border-accent-blue/20"
                               : log.action === "DELETE"
-                                ? "bg-red-500/10 text-red-400 border-red-500/20"
+                                ? "bg-accent-red/10 text-accent-red border-accent-red/20"
                                 : ""
                         }
                       >

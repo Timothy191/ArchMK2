@@ -4,9 +4,31 @@
 import { POST } from "./route";
 import { NextRequest } from "next/server";
 
-jest.mock("child_process", () => ({ execFile: jest.fn() }));
-jest.mock("util", () => ({ promisify: jest.fn((fn: unknown) => fn) }));
-jest.mock("fs", () => ({ existsSync: jest.fn() }));
+jest.mock("child_process", () => {
+  const actual = jest.requireActual("child_process");
+  return {
+    ...actual,
+    execFile: jest.fn(),
+  };
+});
+jest.mock("fs", () => {
+  const actual = jest.requireActual("fs");
+  return {
+    ...actual,
+    existsSync: jest.fn(),
+  };
+});
+
+jest.mock("@repo/supabase/server", () => ({
+  createServerSupabaseClient: jest.fn().mockResolvedValue({
+    auth: {
+      getUser: jest.fn().mockResolvedValue({
+        data: { user: { id: "test-user-id" } },
+        error: null,
+      }),
+    },
+  }),
+}));
 
 const { existsSync } = jest.requireMock("fs") as { existsSync: jest.Mock };
 
@@ -74,7 +96,9 @@ describe("POST /api/plugins/rust-telemetry", () => {
 
   describe("error handling", () => {
     it("returns fallback values and 200 on unexpected error", async () => {
-      existsSync.mockImplementation(() => { throw new Error("fs crash"); });
+      existsSync.mockImplementation(() => {
+        throw new Error("fs crash");
+      });
 
       const req = makeRequest({ hours: 100 });
       const res = await POST(req);

@@ -4,7 +4,8 @@ created: 2026-05-15
 updated: 2026-05-15
 type: comparison
 tags: [database, backend, architecture, decision]
-sources: [wiki/concepts/supabase-local-dev.md, wiki/concepts/rls-policy.md, CLAUDE.md]
+sources:
+  [wiki/concepts/supabase-local-dev.md, wiki/concepts/rls-policy.md, CLAUDE.md]
 confidence: high
 ---
 
@@ -16,18 +17,18 @@ Selection of backend-as-a-service platform for a mining operations portal requir
 
 ## Dimensions of Comparison
 
-| Dimension | Supabase | Firebase (GCP) | Self-Hosted PostgreSQL + Custom Auth |
-|-----------|----------|----------------|-------------------------------------|
-| **Database** | PostgreSQL (managed) | Firestore (NoSQL) | PostgreSQL (full control) |
-| **Real-time** | Native subscriptions | Firestore listeners | Custom WebSocket/SSE |
-| **Authentication** | Built-in (GoTrue) | Firebase Auth | Custom implementation |
-| **RLS/Security** | PostgreSQL RLS policies | Firestore rules | Manual authorization layer |
-| **Storage** | Built-in (S3-compatible) | Firebase Storage | MinIO/S3 integration |
-| **Edge Functions** | Deno-based | Cloud Functions | Custom serverless |
-| **Local Development** | CLI with Docker | Emulators | Full manual setup |
-| **Vendor Lock-in** | Moderate (open source core) | High (Google ecosystem) | None |
-| **Pricing** | Generous free tier | Pay-as-you-go | Infrastructure costs only |
-| **Data Residency** | Configurable | US-centric | Fully controllable |
+| Dimension             | Supabase                    | Firebase (GCP)          | Self-Hosted PostgreSQL + Custom Auth |
+| --------------------- | --------------------------- | ----------------------- | ------------------------------------ |
+| **Database**          | PostgreSQL (managed)        | Firestore (NoSQL)       | PostgreSQL (full control)            |
+| **Real-time**         | Native subscriptions        | Firestore listeners     | Custom WebSocket/SSE                 |
+| **Authentication**    | Built-in (GoTrue)           | Firebase Auth           | Custom implementation                |
+| **RLS/Security**      | PostgreSQL RLS policies     | Firestore rules         | Manual authorization layer           |
+| **Storage**           | Built-in (S3-compatible)    | Firebase Storage        | MinIO/S3 integration                 |
+| **Edge Functions**    | Deno-based                  | Cloud Functions         | Custom serverless                    |
+| **Local Development** | CLI with Docker             | Emulators               | Full manual setup                    |
+| **Vendor Lock-in**    | Moderate (open source core) | High (Google ecosystem) | None                                 |
+| **Pricing**           | Generous free tier          | Pay-as-you-go           | Infrastructure costs only            |
+| **Data Residency**    | Configurable                | US-centric              | Fully controllable                   |
 
 ## Project Implementation
 
@@ -61,6 +62,7 @@ USING (
 ## Why Not Firebase
 
 Firestore's NoSQL model would require:
+
 - Denormalized data for department/machine relationships
 - Complex client-side joins
 - Less mature TypeScript support
@@ -71,6 +73,7 @@ Mining operations data is inherently relational (machines belong to departments,
 ## Why Not Self-Hosted
 
 Self-hosting PostgreSQL + Keycloak/Auth0 would give full control but require:
+
 - DevOps overhead (backups, scaling, security patches)
 - Custom real-time implementation (WebSocket management)
 - Auth system maintenance

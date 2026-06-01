@@ -83,10 +83,10 @@ export function ScadaPanel({ departmentId }: ScadaPanelProps) {
           SCADA Overview
         </h2>
         <div className="flex items-center gap-3 text-sm">
-          <span className="px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+          <span className="px-2.5 py-1 rounded-full bg-accent-green/10 text-accent-green border border-accent-green/20">
             {activeCount} Online
           </span>
-          <span className="px-2.5 py-1 rounded-full bg-red-500/10 text-red-400 border border-red-500/20">
+          <span className="px-2.5 py-1 rounded-full bg-accent-red/10 text-accent-red border border-accent-red/20">
             {inactiveCount} Offline
           </span>
         </div>
@@ -98,7 +98,7 @@ export function ScadaPanel({ departmentId }: ScadaPanelProps) {
           onClick={() => setViewMode("list")}
           className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
             viewMode === "list"
-              ? "bg-[#3ecf8e] text-[var(--text-heading)]"
+              ? "bg-arch-accent-green text-white"
               : "text-[var(--text-secondary)] hover:text-[var(--text-heading)]"
           }`}
         >
@@ -109,7 +109,7 @@ export function ScadaPanel({ departmentId }: ScadaPanelProps) {
           onClick={() => setViewMode("scada")}
           className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
             viewMode === "scada"
-              ? "bg-[#3ecf8e] text-[var(--text-heading)]"
+              ? "bg-arch-accent-green text-white"
               : "text-[var(--text-secondary)] hover:text-[var(--text-heading)]"
           }`}
         >
@@ -145,8 +145,8 @@ export function ScadaPanel({ departmentId }: ScadaPanelProps) {
                   <span
                     className={`px-2.5 py-1 rounded-full text-xs font-medium ${
                       machine.active
-                        ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                        : "bg-red-500/10 text-red-400 border border-red-500/20"
+                        ? "bg-accent-green/10 text-accent-green border border-accent-green/20"
+                        : "bg-accent-red/10 text-accent-red border border-accent-red/20"
                     }`}
                   >
                     {machine.active ? "Online" : "Offline"}

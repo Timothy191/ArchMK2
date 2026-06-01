@@ -14,7 +14,7 @@ confidence: high
 
 ```bash
 □ pnpm lint              # Pass
-□ pnpm type-check        # Pass  
+□ pnpm type-check        # Pass
 □ pnpm test              # Pass
 □ pnpm build             # Pass
 □ Review migrations      # Applied?
@@ -51,6 +51,7 @@ cat migrations/$(ls -t migrations/*.sql | head -1)
 ```
 
 Check for:
+
 - [ ] RLS policies on new tables
 - [ ] Indexes for performance
 - [ ] No destructive operations (or planned)
@@ -134,6 +135,7 @@ BASE_URL=https://staging.arch-systems.com pnpm test:e2e
 ```
 
 **Verify on staging**:
+
 - [ ] Login works
 - [ ] All 8 departments load
 - [ ] Real-time updates work
@@ -175,6 +177,7 @@ curl https://portal.arch-systems.com/api/health
 ```
 
 **Manual checks**:
+
 - [ ] Homepage loads
 - [ ] Login works
 - [ ] Department dashboards render
@@ -221,11 +224,11 @@ cd packages/database && pnpm supabase:push
 
 ### Recommended Windows
 
-| Environment | Best Time | Avoid |
-|-------------|-----------|-------|
-| Staging | Anytime | — |
-| Production | 2-4 AM local time | Shift changes (6-8 AM, 6-8 PM) |
-| Hotfix | Immediate if P1 | — |
+| Environment | Best Time         | Avoid                          |
+| ----------- | ----------------- | ------------------------------ |
+| Staging     | Anytime           | —                              |
+| Production  | 2-4 AM local time | Shift changes (6-8 AM, 6-8 PM) |
+| Hotfix      | Immediate if P1   | —                              |
 
 ### Shift Change Times (Avoid)
 
@@ -245,6 +248,7 @@ cd packages/database && pnpm supabase:push
 **Cause**: Often environment variables not set.
 
 **Fix**:
+
 ```bash
 # Set env vars
 pnpm dlx vercel env add NEXT_PUBLIC_SUPABASE_URL
@@ -260,6 +264,7 @@ pnpm dlx vercel --prod
 **Cause**: Turborepo build order issue.
 
 **Fix**:
+
 ```bash
 # Build packages first
 pnpm --filter @repo/ui build
@@ -274,6 +279,7 @@ pnpm build
 **Cause**: IP not allowlisted or connection limit.
 
 **Fix**:
+
 - Check Supabase Dashboard → Database → Connection Pooling
 - Add Vercel IP ranges to allowlist
 - Check connection count: `SELECT count(*) FROM pg_stat_activity;`
@@ -283,6 +289,7 @@ pnpm build
 **Cause**: Tailwind purge removing dynamic classes.
 
 **Fix**:
+
 - Ensure classes are complete strings: `className="bg-" + color` ❌
 - Use full class names: `className={color === 'red' ? 'bg-red-500' : 'bg-blue-500'}` ✅
 
@@ -313,6 +320,7 @@ git push origin main
 ```
 
 **After hotfix**:
+
 - Document in incident log
 - Write post-mortem
 - Schedule proper fix for next sprint
@@ -323,7 +331,7 @@ git push origin main
 
 ### Watch These For 1 Hour After Deploy
 
-1. **Sentry**: https://sentry.io/organizations/arch-systems
+1. **Sentry**: <https://sentry.io/organizations/arch-systems>
    - New errors spiking?
    - Error rate > 1%?
 
@@ -331,7 +339,7 @@ git push origin main
    - Function error rate
    - Response times
 
-3. **Supabase Dashboard**: https://supabase.com/dashboard
+3. **Supabase Dashboard**: <https://supabase.com/dashboard>
    - Database connections
    - Query performance
    - Auth success rate
@@ -393,7 +401,7 @@ cp apps/portal/.env.example apps/portal/.env
 # Edit .env with production Supabase keys, AI provider keys
 
 # Launch full stack (identical to local dev)
-./scripts/deploy-local.sh
+./scripts/deploy.sh local
 ```
 
 ### Step 3: Verify

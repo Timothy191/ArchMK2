@@ -18,18 +18,18 @@ Interact with the n8n workflow engine running at `http://localhost:5678`.
 
 ## Available Workflows
 
-| # | Name | Webhook Path | Tags |
-|---|------|-------------|------|
-| 1 | Single-Shot Tool Batcher | `tool-batcher` | performance, tool-use |
-| 2 | Function-As-A-Workflow | `function-orchestrator` | orchestration |
-| 3 | Skills Loader | `skills-loader` | context, efficiency |
-| 4 | LTM Vector Memory | `vector-memory` | memory, ltm |
-| 5 | Hybrid Semantic Memory | `hybrid-memory` | memory, context |
-| 6 | Orchestrator-Worker | `orchestrator-worker` | multi-agent |
-| 7 | Evaluator-Optimizer | `eval-optimizer` | quality |
-| 8 | Parallel Executor | `parallel-executor` | parallel |
-| 9 | Observability Pipeline | `observability` | performance |
-| 10 | Guardrails | `guardrails` | safety |
+| #   | Name                     | Webhook Path            | Tags                  |
+| --- | ------------------------ | ----------------------- | --------------------- |
+| 1   | Single-Shot Tool Batcher | `tool-batcher`          | performance, tool-use |
+| 2   | Function-As-A-Workflow   | `function-orchestrator` | orchestration         |
+| 3   | Skills Loader            | `skills-loader`         | context, efficiency   |
+| 4   | LTM Vector Memory        | `vector-memory`         | memory, ltm           |
+| 5   | Hybrid Semantic Memory   | `hybrid-memory`         | memory, context       |
+| 6   | Orchestrator-Worker      | `orchestrator-worker`   | multi-agent           |
+| 7   | Evaluator-Optimizer      | `eval-optimizer`        | quality               |
+| 8   | Parallel Executor        | `parallel-executor`     | parallel              |
+| 9   | Observability Pipeline   | `observability`         | performance           |
+| 10  | Guardrails               | `guardrails`            | safety                |
 
 ## Examples
 

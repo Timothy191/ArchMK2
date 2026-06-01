@@ -9,19 +9,19 @@
 
 ## Core Frameworks & Libraries
 
-| Layer | Technology |
-|---|---|
-| Frontend framework | Next.js 15 (App Router), React 19 |
-| Styling | Tailwind CSS (shared config in `@repo/ui`), CSS variables for theming |
-| Animations | Framer Motion, tailwindcss-animate |
-| Database / Auth | Supabase (Postgres + RLS + Auth) |
-| Forms / Validation | Zod |
-| Maps / GIS | react-map-gl, maplibre-gl, deck.gl |
-| 3D | @react-three/fiber v8, @react-three/drei v9 |
-| Spreadsheet | Univer SDK (`@univerjs/preset-sheets-core`) |
-| Icons | Lucide React, Heroicons |
-| Charts | Tremor |
-| CMS | Payload CMS v3 (Postgres-backed) |
+| Layer              | Technology                                                            |
+| ------------------ | --------------------------------------------------------------------- |
+| Frontend framework | Next.js 15 (App Router), React 19                                     |
+| Styling            | Tailwind CSS (shared config in `@repo/ui`), CSS variables for theming |
+| Animations         | Framer Motion, tailwindcss-animate                                    |
+| Database / Auth    | Supabase (Postgres + RLS + Auth)                                      |
+| Forms / Validation | Zod                                                                   |
+| Maps / GIS         | react-map-gl, maplibre-gl, deck.gl                                    |
+| 3D                 | @react-three/fiber v8, @react-three/drei v9                           |
+| Spreadsheet        | Univer SDK (`@univerjs/preset-sheets-core`)                           |
+| Icons              | Lucide React, Heroicons                                               |
+| Charts             | Tremor                                                                |
+| CMS                | Payload CMS v3 (Postgres-backed)                                      |
 
 ## Testing
 

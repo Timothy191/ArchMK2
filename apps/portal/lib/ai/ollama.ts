@@ -3,6 +3,8 @@
  * No SDK wrapper; uses native fetch against /api/chat and /api/embed.
  */
 
+import { APIError } from "@repo/errors";
+
 // eslint-disable-next-line turbo/no-undeclared-env-vars
 export const OLLAMA_URL = process.env.OLLAMA_URL ?? "http://localhost:5243";
 
@@ -14,6 +16,7 @@ export type OllamaChatOptions = {
   temperature?: number;
   maxTokens?: number;
   stream?: boolean;
+  keepAlive?: string | number;
 };
 
 export type OllamaMessage = {
@@ -29,14 +32,20 @@ export async function ollamaChat(
   messages: OllamaMessage[],
   opts: OllamaChatOptions = {},
 ): Promise<string> {
-  const { model = DEFAULT_MODEL, system, temperature = 0.7, maxTokens = 4096 } =
-    opts;
+  const {
+    model = DEFAULT_MODEL,
+    system,
+    temperature = 0.7,
+    maxTokens = 4096,
+    keepAlive = "1h",
+  } = opts;
 
   const body: Record<string, unknown> = {
     model,
     messages,
     stream: false,
     options: { temperature, num_predict: maxTokens },
+    keep_alive: keepAlive,
   };
   if (system) {
     body.system = system;
@@ -50,7 +59,10 @@ export async function ollamaChat(
 
   if (!res.ok) {
     const errText = await res.text().catch(() => "");
-    throw new Error(`Ollama chat error ${res.status}: ${errText}`);
+    throw new APIError(`Ollama chat error ${res.status}: ${errText}`, {
+      statusCode: res.status,
+      endpoint: "/api/chat",
+    });
   }
 
   const data = await res.json();
@@ -65,14 +77,20 @@ export async function* ollamaChatStream(
   messages: OllamaMessage[],
   opts: OllamaChatOptions = {},
 ): AsyncIterable<string> {
-  const { model = DEFAULT_MODEL, system, temperature = 0.7, maxTokens = 4096 } =
-    opts;
+  const {
+    model = DEFAULT_MODEL,
+    system,
+    temperature = 0.7,
+    maxTokens = 4096,
+    keepAlive = "1h",
+  } = opts;
 
   const body: Record<string, unknown> = {
     model,
     messages,
     stream: true,
     options: { temperature, num_predict: maxTokens },
+    keep_alive: keepAlive,
   };
   if (system) {
     body.system = system;
@@ -86,11 +104,18 @@ export async function* ollamaChatStream(
 
   if (!res.ok) {
     const errText = await res.text().catch(() => "");
-    throw new Error(`Ollama stream error ${res.status}: ${errText}`);
+    throw new APIError(`Ollama stream error ${res.status}: ${errText}`, {
+      statusCode: res.status,
+      endpoint: "/api/chat",
+    });
   }
 
   const reader = res.body?.getReader();
-  if (!reader) throw new Error("Ollama: no response body");
+  if (!reader)
+    throw new APIError("Ollama: no response body", {
+      statusCode: 502,
+      endpoint: "/api/chat",
+    });
 
   const decoder = new TextDecoder();
   let buffer = "";
@@ -137,7 +162,10 @@ export async function ollamaEmbed(
 
   if (!res.ok) {
     const errText = await res.text().catch(() => "");
-    throw new Error(`Ollama embed error ${res.status}: ${errText}`);
+    throw new APIError(`Ollama embed error ${res.status}: ${errText}`, {
+      statusCode: res.status,
+      endpoint: "/api/embed",
+    });
   }
 
   const data = await res.json();

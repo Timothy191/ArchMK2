@@ -1,16 +1,18 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@repo/supabase/server";
+import { withRateLimit } from "@/lib/api/rate-limit-middleware";
 
 export const dynamic = "force-dynamic";
 
-// GET /api/webhooks/[id]/logs - Get delivery logs for a webhook
-export async function GET(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+async function handleGetLogs(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+): Promise<NextResponse> {
   const { id } = await params;
   const supabase = await createServerSupabaseClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -57,8 +59,19 @@ export async function GET(
     .limit(50);
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: "Database query failed" },
+      { status: 500 },
+    );
   }
 
   return NextResponse.json({ logs });
+}
+
+// GET /api/webhooks/[id]/logs - Get delivery logs for a webhook
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  return withRateLimit(request, () => handleGetLogs(request, { params }));
 }

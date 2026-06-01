@@ -97,9 +97,11 @@ export function AlertPanel({ departmentId }: AlertPanelProps) {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-medium text-[var(--text-heading)]">Alerts</h2>
+        <h2 className="text-xl font-medium text-[var(--text-heading)]">
+          Alerts
+        </h2>
         {unacknowledged.length > 0 && (
-          <span className="px-2.5 py-1 rounded-full bg-red-500/10 text-red-400 border border-red-500/20 text-xs font-medium">
+          <span className="px-2.5 py-1 rounded-full bg-accent-red/10 text-accent-red border border-accent-red/20 text-xs font-medium">
             {unacknowledged.length} unacknowledged
           </span>
         )}
@@ -124,12 +126,14 @@ export function AlertPanel({ departmentId }: AlertPanelProps) {
                 <span
                   className={`w-2 h-2 rounded-full ${
                     alert.severity === "critical"
-                      ? "bg-red-400"
-                      : "bg-amber-400"
+                      ? "bg-accent-red"
+                      : "bg-accent-blue"
                   }`}
                 />
                 <div>
-                  <p className="text-[var(--text-heading)] text-sm">{alert.message}</p>
+                  <p className="text-[var(--text-heading)] text-sm">
+                    {alert.message}
+                  </p>
                   <p className="text-[var(--text-secondary)] text-xs">
                     {new Date(alert.timestamp).toLocaleTimeString()}
                   </p>

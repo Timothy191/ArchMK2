@@ -16,22 +16,23 @@ Selection of a Notion-style block-based rich text editor for engineering notes, 
 
 ## Dimensions of Comparison
 
-| Dimension | Novel | Tiptap | Slate.js | Lexical (Meta) |
-|-----------|-------|--------|----------|----------------|
-| **Base Framework** | Tiptap + ProseMirror | ProseMirror | Custom | Custom |
-| **Notion-style** | Yes (built-in) | Requires configuration | Requires heavy customization | Requires configuration |
-| **React Integration** | Excellent | Excellent | Good | Good (Facebook origin) |
-| **TypeScript** | Full support | Full support | Good | Good |
-| **Bundle Size** | Larger (batteries included) | Moderate (modular) | Moderate | Moderate |
-| **Extensibility** | Via Tiptap extensions | Extensive extension ecosystem | Plugin-based | Plugin-based |
-| **Mobile Support** | Good | Good | Manual | Good |
-| **Collaboration** | Via Tiptap Cloud/Y-partykit | Hocuspocus/Tiptap Cloud | Manual (Operational Transform) | Manual |
-| **Markdown Export** | Built-in | Via extension | Manual | Via plugins |
-| **Active Maintenance** | Active (Vercel ecosystem) | Very active | Stable, slower | Active (Meta-backed) |
+| Dimension              | Novel                       | Tiptap                        | Slate.js                       | Lexical (Meta)         |
+| ---------------------- | --------------------------- | ----------------------------- | ------------------------------ | ---------------------- |
+| **Base Framework**     | Tiptap + ProseMirror        | ProseMirror                   | Custom                         | Custom                 |
+| **Notion-style**       | Yes (built-in)              | Requires configuration        | Requires heavy customization   | Requires configuration |
+| **React Integration**  | Excellent                   | Excellent                     | Good                           | Good (Facebook origin) |
+| **TypeScript**         | Full support                | Full support                  | Good                           | Good                   |
+| **Bundle Size**        | Larger (batteries included) | Moderate (modular)            | Moderate                       | Moderate               |
+| **Extensibility**      | Via Tiptap extensions       | Extensive extension ecosystem | Plugin-based                   | Plugin-based           |
+| **Mobile Support**     | Good                        | Good                          | Manual                         | Good                   |
+| **Collaboration**      | Via Tiptap Cloud/Y-partykit | Hocuspocus/Tiptap Cloud       | Manual (Operational Transform) | Manual                 |
+| **Markdown Export**    | Built-in                    | Via extension                 | Manual                         | Via plugins            |
+| **Active Maintenance** | Active (Vercel ecosystem)   | Very active                   | Stable, slower                 | Active (Meta-backed)   |
 
 ## Project Implementation
 
 The portal uses **Novel** for:
+
 - Engineering notes (control room tab)
 - Shift handoff documentation
 - Equipment manual annotations
@@ -57,6 +58,7 @@ import { Editor } from 'novel'
 ## Why Not Tiptap Directly
 
 Tiptap would require building:
+
 - Block menu UI
 - Slash command palette
 - AI completion integration
@@ -67,6 +69,7 @@ Novel packages these pre-built for a mining operations team's usability needs.
 ## Why Not Slate.js
 
 Slate's API is powerful but requires significant boilerplate for:
+
 - Block-based editing
 - Collaborative features
 - Mobile touch handling
@@ -76,6 +79,7 @@ Time-to-implement favored Novel for this operational tool.
 ## Why Not Lexical
 
 Lexical is Meta's framework (used in Facebook). While excellent:
+
 - Smaller ecosystem than Tiptap/ProseMirror
 - Requires more custom UI component building
 - Novel already solved the use case

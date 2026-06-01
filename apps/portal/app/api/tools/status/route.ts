@@ -1,4 +1,5 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { createServerSupabaseClient } from "@repo/supabase/server";
 import { EXTERNAL_TOOLS } from "~/lib/tools";
 import { cacheWrap } from "@repo/redis";
 
@@ -44,7 +45,15 @@ async function checkToolHealth(
   }
 }
 
-export async function GET() {
+export async function GET(_request: NextRequest) {
+  const supabase = await createServerSupabaseClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const statuses = await cacheWrap(
     "tools:status",
     async () => {

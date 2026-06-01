@@ -60,20 +60,18 @@ async function getDrillOperations(): Promise<{
 
   const today = new Date().toISOString().split("T")[0];
 
-  // Get all drill rigs for the department
-  const { data: drills } = await supabase
-    .from("machines")
-    .select("id, name, machine_type")
-    .eq("department_id", dept.id)
-    .eq("machine_type", "Drill Rig")
-    .eq("active", true)
-    .order("name");
-
-  // Get today's operations with machine and operator details
-  const { data: operations } = await supabase
-    .from("drill_operations")
-    .select(
-      `
+  // Parallel fetch of drill rigs and today's operations
+  const [{ data: drills }, { data: operations }] = await Promise.all([
+    supabase
+      .from("machines")
+      .select("id, name, machine_type")
+      .eq("machine_type", "Drill Rig")
+      .eq("active", true)
+      .order("name"),
+    supabase
+      .from("drill_operations")
+      .select(
+        `
       id,
       machine_id,
       operation_date,
@@ -82,8 +80,6 @@ async function getDrillOperations(): Promise<{
       total_hours,
       operator_name,
       block_drilled,
-      holes,
-      meters_drilled,
       holes,
       meters_drilled,
       delay_blasting,
@@ -100,10 +96,11 @@ async function getDrillOperations(): Promise<{
       status,
       machines!inner(name)
     `,
-    )
-    .eq("department_id", dept.id)
-    .eq("operation_date", today)
-    .order("created_at", { ascending: false });
+      )
+      .eq("department_id", dept.id)
+      .eq("operation_date", today)
+      .order("created_at", { ascending: false }),
+  ]);
 
   // Transform operations to include machine_name
   const transformedOperations: DrillOperation[] = (operations || []).map(
@@ -265,7 +262,7 @@ export default async function DrillingOperationsPage() {
           <p className="text-[var(--text-muted)] text-xs font-medium uppercase tracking-wider">
             Total Meters
           </p>
-          <p className="text-2xl font-bold text-emerald-500 mt-1">
+          <p className="text-2xl font-bold text-accent-green mt-1">
             {totalMeters.toFixed(1)}
           </p>
         </GlassCard>
@@ -278,26 +275,26 @@ export default async function DrillingOperationsPage() {
           </p>
         </GlassCard>
         <GlassCard>
-          <p className="text-[var(--text-muted)] text-xs font-medium uppercase tracking-wider text-red-400">
+          <p className="text-[var(--text-muted)] text-xs font-medium uppercase tracking-wider text-accent-red">
             Prod Delays
           </p>
-          <p className="text-2xl font-bold text-red-400 mt-1">
+          <p className="text-2xl font-bold text-accent-red mt-1">
             {formatDelay(totalProdDelays)}
           </p>
         </GlassCard>
         <GlassCard>
-          <p className="text-[var(--text-muted)] text-xs font-medium uppercase tracking-wider text-orange-400">
+          <p className="text-[var(--text-muted)] text-xs font-medium uppercase tracking-wider text-accent-blue">
             Non-Prod Delays
           </p>
-          <p className="text-2xl font-bold text-orange-400 mt-1">
+          <p className="text-2xl font-bold text-accent-blue mt-1">
             {formatDelay(totalNonProdDelays)}
           </p>
         </GlassCard>
         <GlassCard>
-          <p className="text-[var(--text-muted)] text-xs font-medium uppercase tracking-wider text-amber-400">
+          <p className="text-[var(--text-muted)] text-xs font-medium uppercase tracking-wider text-accent-blue">
             Eng Delays
           </p>
-          <p className="text-2xl font-bold text-amber-400 mt-1">
+          <p className="text-2xl font-bold text-accent-blue mt-1">
             {formatDelay(totalEngDelays)}
           </p>
         </GlassCard>
@@ -341,13 +338,13 @@ export default async function DrillingOperationsPage() {
                 <TableHead className="text-[var(--text-muted)] font-medium text-xs uppercase tracking-wider text-right">
                   Meters
                 </TableHead>
-                <TableHead className="text-[var(--text-muted)] font-medium text-xs uppercase tracking-wider text-right text-red-400">
+                <TableHead className="text-[var(--text-muted)] font-medium text-xs uppercase tracking-wider text-right text-accent-red">
                   Prod
                 </TableHead>
-                <TableHead className="text-[var(--text-muted)] font-medium text-xs uppercase tracking-wider text-right text-orange-400">
+                <TableHead className="text-[var(--text-muted)] font-medium text-xs uppercase tracking-wider text-right text-accent-blue">
                   Non-Prod
                 </TableHead>
-                <TableHead className="text-[var(--text-muted)] font-medium text-xs uppercase tracking-wider text-right text-amber-400">
+                <TableHead className="text-[var(--text-muted)] font-medium text-xs uppercase tracking-wider text-right text-accent-blue">
                   Eng
                 </TableHead>
                 <TableHead className="text-[var(--text-muted)] font-medium text-xs uppercase tracking-wider text-center">
@@ -396,22 +393,22 @@ export default async function DrillingOperationsPage() {
                     <TableCell className="text-right text-[var(--text-body)]">
                       {formatNumber(operation?.holes)}
                     </TableCell>
-                    <TableCell className="text-right font-medium text-emerald-500">
+                    <TableCell className="text-right font-medium text-accent-green">
                       {operation?.meters_drilled
                         ? operation.meters_drilled.toFixed(1)
                         : "—"}
                     </TableCell>
-                    <TableCell className="text-right text-red-400">
+                    <TableCell className="text-right text-accent-red">
                       {operation?.production_delays
                         ? formatDelay(operation.production_delays || 0)
                         : "—"}
                     </TableCell>
-                    <TableCell className="text-right text-orange-400">
+                    <TableCell className="text-right text-accent-blue">
                       {operation?.non_productional_delays
                         ? formatDelay(operation.non_productional_delays || 0)
                         : "—"}
                     </TableCell>
-                    <TableCell className="text-right text-amber-400">
+                    <TableCell className="text-right text-accent-blue">
                       {operation?.engineering_delays
                         ? formatDelay(operation.engineering_delays || 0)
                         : "—"}
@@ -421,10 +418,10 @@ export default async function DrillingOperationsPage() {
                         <span
                           className={`
                           inline-flex px-2 py-1 rounded-full text-xs font-medium
-                          ${operation.status === "active" ? "bg-emerald-500/10 text-emerald-500" : ""}
+                          ${operation.status === "active" ? "bg-accent-green/10 text-accent-green" : ""}
                           ${operation.status === "completed" ? "bg-[var(--accent-blue)]/10 text-[var(--accent-blue)]" : ""}
-                          ${operation.status === "maintenance" ? "bg-amber-500/10 text-amber-500" : ""}
-                          ${operation.status === "cancelled" ? "bg-red-500/10 text-red-500" : ""}
+                          ${operation.status === "maintenance" ? "bg-accent-blue/10 text-accent-blue" : ""}
+                          ${operation.status === "cancelled" ? "bg-accent-red/10 text-accent-red" : ""}
                         `}
                         >
                           {operation.status}

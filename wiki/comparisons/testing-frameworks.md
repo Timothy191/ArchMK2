@@ -16,21 +16,22 @@ Selection of unit testing framework for a Next.js 15 + React 19 application with
 
 ## Dimensions of Comparison
 
-| Dimension | Jest 30 | Vitest | Node.js Test Runner |
-|-----------|---------|--------|---------------------|
+| Dimension            | Jest 30                             | Vitest                         | Node.js Test Runner    |
+| -------------------- | ----------------------------------- | ------------------------------ | ---------------------- |
 | **React 19 Support** | Native via `jest-environment-jsdom` | Native via `happy-dom`/`jsdom` | Limited (experimental) |
-| **RSC Testing** | Via `@testing-library/react` | Via `@testing-library/react` | Not supported |
-| **Speed** | Good (parallel by default) | Excellent (Vite-powered) | Fastest (native) |
-| **ESM Support** | Improved in v30 | First-class | Native |
-| **Mocking** | Jest mocks (mature) | vi.fn() (Jest-compatible) | Native mock module |
-| **IDE Integration** | Excellent | Excellent | Limited |
-| **CI/CD** | Mature reporters | Growing support | Minimal |
-| **Snapshot Testing** | Mature | Compatible | Basic |
-| **TypeScript** | `ts-jest` required | Native | `tsx` loader needed |
+| **RSC Testing**      | Via `@testing-library/react`        | Via `@testing-library/react`   | Not supported          |
+| **Speed**            | Good (parallel by default)          | Excellent (Vite-powered)       | Fastest (native)       |
+| **ESM Support**      | Improved in v30                     | First-class                    | Native                 |
+| **Mocking**          | Jest mocks (mature)                 | vi.fn() (Jest-compatible)      | Native mock module     |
+| **IDE Integration**  | Excellent                           | Excellent                      | Limited                |
+| **CI/CD**            | Mature reporters                    | Growing support                | Minimal                |
+| **Snapshot Testing** | Mature                              | Compatible                     | Basic                  |
+| **TypeScript**       | `ts-jest` required                  | Native                         | `tsx` loader needed    |
 
 ## Project Context
 
 The codebase uses **Jest 30** with:
+
 - `jest-environment-jsdom` for component tests
 - `ts-jest` for TypeScript transformation
 - `@testing-library/react` for React component testing
@@ -47,6 +48,7 @@ The codebase uses **Jest 30** with:
 ## Why Not Vitest
 
 While Vitest offers superior speed and ESM-first design, the project prioritized:
+
 - Battle-tested React 19 compatibility
 - Existing team familiarity with Jest patterns
 - Mocks ecosystem (Jest's mock system is more mature)

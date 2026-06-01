@@ -19,6 +19,7 @@ Analyze token usage patterns and recommend cost optimizations.
 ## Analysis Areas
 
 ### Token Consumption by Category
+
 - File reads (large files without offset/limit)
 - Grep/search results (broad patterns returning many results)
 - Tool result overhead (MCP tools with verbose output)
@@ -26,12 +27,14 @@ Analyze token usage patterns and recommend cost optimizations.
 - Agent spawning (each agent gets fresh context)
 
 ### Cache Optimization
+
 - Stable system prompts improve cache hit rate
 - Changing CLAUDE.md mid-session breaks cache
 - Fork subagents share prompt cache (byte-identical)
 - Reusing agents via SendMessage saves context creation cost
 
 ### Model Selection Impact
+
 - Opus: highest quality, highest cost
 - Sonnet: good balance for most tasks
 - Haiku: fast and cheap for simple lookups

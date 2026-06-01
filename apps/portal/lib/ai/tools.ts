@@ -32,6 +32,59 @@ export const machineStatusTool = {
   },
 };
 
+const fleetStatusTool = {
+  description:
+    "Get real-time operational status of the vehicle fleet including active breakdowns.",
+  inputSchema: z.object({
+    fleetCode: z
+      .string()
+      .optional()
+      .describe(
+        "Specific fleet code to check (e.g. TR102). If omitted, returns overview of all active fleet.",
+      ),
+  }),
+  execute: async ({ fleetCode }: { fleetCode?: string }) => {
+    const supabase = await createServerSupabaseClient();
+
+    let query = supabase.from("fleet").select(`
+        id,
+        fleet_code,
+        vehicle_type,
+        status,
+        make,
+        model
+      `);
+
+    if (fleetCode) {
+      query = query.eq("fleet_code", fleetCode);
+    }
+
+    const { data: fleet, error: fleetError } = await query;
+    if (fleetError) return { error: fleetError.message };
+
+    // Get active breakdowns to overlay
+    const { data: breakdowns } = await supabase
+      .from("breakdowns")
+      .select("fleet_id, reason, date_in, time_in")
+      .eq("status", "active")
+      .is("deleted_at", null);
+
+    const breakdownMap = new Map(breakdowns?.map((b) => [b.fleet_id, b]));
+
+    const report = fleet.map((v) => ({
+      ...v,
+      is_down: breakdownMap.has(v.fleet_code),
+      breakdown_details: breakdownMap.get(v.fleet_code) || null,
+    }));
+
+    return {
+      timestamp: new Date().toISOString(),
+      count: report.length,
+      vehicles: report,
+    };
+  },
+};
+
 export const shiftLogsTool = {
   description: "Get recent shift logs for a department",
   inputSchema: z.object({
@@ -94,6 +147,7 @@ export const delaysTool = {
 
 export const aiTools = {
   machineStatus: machineStatusTool,
+  fleetStatus: fleetStatusTool,
   shiftLogs: shiftLogsTool,
   delays: delaysTool,
 } as const;

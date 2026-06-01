@@ -2,6 +2,13 @@
 
 This file provides guidance to Claude Code when working with code in this repository.
 
+## Related Documentation
+
+Authoritative docs at repository root that complement this file:
+
+- `DESIGN.md` — Color system (OKLCH), typography, spacing, elevation, component rules, animation constraints, and responsive breakpoints.
+- `PRODUCT.md` — User personas, product strategy, tone, anti-references, and surface mapping.
+
 ## Commands
 
 - `pnpm dev` — Start the portal dev server (Next.js on :3000). Requires `apps/portal/.env` (copy from `.env.example`) and a running Supabase local instance.
@@ -18,6 +25,9 @@ This file provides guidance to Claude Code when working with code in this reposi
 - `pnpm --filter @repo/database supabase:gen` — Regenerate TypeScript database types into `packages/types/src/database.types.ts`.
 - `pnpm db:docs` — Generate ER diagrams and Markdown schema docs via `tbls` into `docs/database/` (requires local Supabase running and `tbls` CLI installed).
 - `pnpm --filter <app> dev` — Run a specific app (portal, cms, overview).
+- `./scripts/clear-port.sh` — Free port 3000 before starting the dev server.
+- `pnpm --filter portal build:analyze` — Build the portal with `@next/bundle-analyzer` enabled.
+- `pnpm --filter @repo/theme tokens:watch` — Watch `tokens.json` and rebuild theme tokens on change.
 - `pnpm ui` — Open the shadcn/ui CLI for the `@repo/ui` package.
 - `pnpm knip` — Find unused exports/dependencies.
 - `pnpm knip:fix` — Remove unused exports/dependencies automatically.
@@ -27,6 +37,9 @@ This file provides guidance to Claude Code when working with code in this reposi
 - `pnpm format:check` — Prettier check (dry run).
 - `pnpm md:lint` / `pnpm md:fix` — Markdown lint / auto-fix.
 - `pnpm deploy:local` — Full local stack deploy (Supabase + build + start).
+- `pnpm deploy:staging` — Deploy to staging environment.
+- `pnpm deploy:production` — Deploy to production environment.
+- `pnpm deploy:rollback` — Rollback production deployment.
 - `pnpm fresh-start` — Clean redeploy the local stack.
 - `pnpm shutdown` — Graceful shutdown of local services.
 - `pnpm monitor` — Start the monitoring HUD (`scripts/monitor-hud.sh`).
@@ -44,6 +57,7 @@ This file provides guidance to Claude Code when working with code in this reposi
   - `apps/overview` — Standalone Next.js app for architectural visualization.
 - **Packages**:
   - `@repo/theme` — Design tokens, OKLCH color system, Tailwind preset (`src/tailwind/preset.ts`), and `ArchThemeProvider` React context. Single source of truth for visual design. Apps import globals via `import "@repo/ui/globals.css"` and wrap with `<ArchThemeProvider>` from `@repo/theme/react`.
+    - **Token pipeline**: `packages/theme/sd.config.mjs` (Style Dictionary) generates `src/tokens/generated.ts`. The `codegen` Turborepo task runs this before builds that depend on it.
   - `@repo/ui` — Shared React components (GlassCard, KPI, DepartmentLayout, etc.) built with Radix UI, shadcn/ui, and Framer Motion.
   - `@repo/supabase` — Shared Supabase clients (`createBrowserSupabaseClient`, `createMiddlewareClient`, `createServerSupabaseClient`, `createReadReplicaClient`).
   - `@repo/database` — SQL migrations in `migrations/`. This is the source of truth; `packages/supabase/supabase/migrations/` is a deploy-time copy.
@@ -52,10 +66,10 @@ This file provides guidance to Claude Code when working with code in this reposi
   - `@repo/utils` — Common utilities (excel export, n8n integration, class merging via `cn()`). Subpath exports: `@repo/utils/inngest` (background jobs), `@repo/utils/novu` (notification workflows).
   - `@repo/hooks` — Shared React hooks.
   - `@repo/types` — Common TypeScript interfaces (including auto-generated database types from `supabase:gen`).
-  - `@repo/eval` — Python/DeepEval evaluation suite for AI code generation compliance (design system, imports, RLS, department patterns).
+  - `@repo/eval` — Python/DeepEval evaluation suite for AI code generation compliance (design system, imports, RLS, department patterns). Runs independently via Poetry (`poetry run pytest` inside `packages/eval/`); not part of the Node.js `pnpm quality` gate.
   - `@repo/eslint-config`, `@repo/typescript-config` — Shared tooling configs.
 
-**Dependency versioning**: Packages use pnpm workspace `catalog:` and named catalog blocks (e.g., `catalog:react19`). Check `pnpm-workspace.yaml` for the catalog definition before bumping shared packages.
+**Dependency versioning**: Packages use pnpm workspace `catalog:` and named catalog blocks (e.g., `catalog:react19`). Check `pnpm-workspace.yaml` for the catalog definition before bumping shared packages. Bumping a catalog entry affects all consuming packages automatically.
 
 ## Database
 
@@ -63,9 +77,13 @@ This file provides guidance to Claude Code when working with code in this reposi
 
 ## Portal App Configuration
 
-- **Config file**: `apps/portal/next.config.mjs` (not `.ts`). Configures PWA (`@ducanh2912/next-pwa`), Sentry, and `transpilePackages: ["@repo/ui", "@repo/supabase", "@repo/utils", "@repo/redis"]`.
+- **Config file**: `apps/portal/next.config.mjs` (not `.ts`). Configures PWA (`@ducanh2912/next-pwa`), Sentry, and `transpilePackages: ["@repo/ui", "@repo/supabase", "@repo/utils", "@repo/redis", "@repo/theme"]`.
 - **Server Actions**: A root `app/actions.ts` (and `actions.test.ts`) co-locates shared Server Actions at the app level.
 - **Environment**: Copy `apps/portal/.env.example` to `apps/portal/.env` and populate Supabase credentials before running `pnpm dev`.
+- **Build behavior env vars**:
+  - `ENABLE_HEAVY_PLUGINS=true` — Enables PWA, Sentry source maps, and standalone output. Defaults off locally to save build time.
+  - `SKIP_TYPE_CHECK=true` — Bypasses TypeScript errors during Next.js build.
+  - `ANALYZE=true` — Enables bundle analyzer.
 
 ## Path Aliases (Portal App)
 
@@ -77,6 +95,7 @@ The `apps/portal/tsconfig.json` defines:
 Jest maps workspace packages explicitly (e.g. `@repo/ui/KPI`, `@repo/supabase`, `@repo/errors`).
 
 - **Adding new `@repo/*` imports**: Portal Jest uses explicit `moduleNameMapper` entries in `apps/portal/jest.config.js`. When importing a new workspace package or subpath in portal code, add the corresponding Jest mapping or tests will fail with module-not-found.
+- **Jest mappings are explicit**: `apps/portal/jest.config.js` uses explicit `moduleNameMapper` entries for many `@repo/ui` components (e.g. `@repo/ui/KPI`, `@repo/ui/GlassCard`). When adding a new workspace import, check whether an explicit mapping already exists or add one — wildcard patterns alone may not resolve correctly for all `@repo/ui` subpaths.
 
 ## Portal Route Groups
 
@@ -86,13 +105,14 @@ The portal App Router uses route groups to scope layouts and navigation:
 - `(departments)/[department]/` — Dynamic department dashboards (drilling, production, access-control, engineering, control-room, safety, training, satellite-monitoring) plus static routes (e.g. `drilling/drilling-operations/`, `engineering/tire-management/`).
   - **Static department sub-pages**: Routes like `drilling/drilling-operations/` must define their own `layout.tsx` that re-exports `DepartmentLayout`.
 - `(hub)/` — Central landing page and executive view.
-- `api/` — API routes (ai, c66, export, health, plugins, sync, tools, webhooks) and Server Actions co-located with features.
+- `api/` — API routes and Server Actions co-located with features. Categories: `ai/` (chat, predict), `c66/` (hardware, exempt from auth), `export/`, `health/`, `inngest/`, `plugins/`, `sync/`, `tools/`, `webhooks/`.
 - `admin/` — Admin panel.
 
 ## Auth & Authorization
 
 - **Middleware**: `apps/portal/middleware.ts` handles session refresh, department slug → UUID resolution (cached in Redis), and role-based route restrictions.
 - **Server Actions**: Import auth via `@repo/supabase/server` (`createServerSupabaseClient`). Always validate the user at the top of every Server Action.
+- **Server Components**: Use `getUserSafely()` from `@repo/supabase/server` instead of raw `supabase.auth.getUser()`. It catches refresh-token errors gracefully and returns `null` rather than throwing, preventing Server Component crashes on stale sessions.
 - **RLS**: Row-Level Security must be enabled on every new Supabase table.
 - **Restricted routes**: Roles like `control_room_operator`, `admin`, and `supervisor` gate access to specific routes. See `RESTRICTED_ROUTES` in `middleware.ts`.
 - **Auth resolution flow**: Supabase session → `employees` table lookup (`role`, `department_id`, `accessible_departments`) → role/department gating. The `employees` table is the source of truth for authorization, not Supabase Auth metadata.
@@ -126,7 +146,7 @@ The portal App Router uses route groups to scope layouts and navigation:
 ## Testing
 
 - **Unit**: Jest + ts-jest + jsdom + Testing Library. Config: `apps/portal/jest.config.js`.
-- **Coverage thresholds**: 40% lines, 30% branches, 35% functions, 40% statements.
+- **Coverage thresholds**: 70% lines, 70% branches, 70% functions, 70% statements.
 - **E2E**: Playwright. Config: `playwright.config.ts` at the repo root.
 - **Running tests**: E2E tests require the dev server running on port 3000. Unit tests do not.
 - **Eval**: Python/DeepEval suite in `packages/eval/` for AI code generation compliance.
@@ -134,6 +154,8 @@ The portal App Router uses route groups to scope layouts and navigation:
 ## CI Verification Order
 
 Lint → Type-check → Test → Build. Run `pnpm quality` locally before pushing (includes lint:tokens, lint:css, format-check, lint-root, deps:lint, and knip).
+
+CI also runs: `pnpm knip` (dead code), `pnpm md:lint` (markdown), `pnpm bundlesize` (bundle size), and `pnpm install --frozen-lockfile`.
 
 ## Global UI Shell
 
@@ -147,7 +169,7 @@ Lint → Type-check → Test → Build. Run `pnpm quality` locally before pushin
 - `.claude/SOUL.md` — Style rules.
 - `.claude/LEARNED.md` — Accumulated self-correction rules.
 - `.claude/STATE.md` — Current phase, active plans, and quality gate status.
-- `.claude/rules/` — Modular domain-specific supplements (verification, testing, development-practices, code-review, task-workflow).
+- `.claude/rules/` — Modular domain-specific supplements (verification, testing, development-practices, code-review, task-workflow). Loaded automatically every session.
 
 ### Self-Correction Protocol
 

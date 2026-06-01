@@ -252,15 +252,15 @@ module.exports = {
   },
   arch13: {
     key: "{arch13}",
-    value: "#ff9f0a",
+    value: "#007aff",
     type: "color",
-    description: "orange — warning",
+    description: "blue — replaced blue",
     filePath: "tokens.json",
     isSource: true,
     original: {
-      value: "#ff9f0a",
+      value: "#007aff",
       type: "color",
-      description: "orange — warning",
+      description: "blue — replaced blue",
       key: "{arch13}",
     },
     name: "Arch13",
@@ -625,22 +625,22 @@ module.exports = {
     },
     path: ["accent-red"],
   },
-  "accent-orange": {
-    key: "{accent-orange}",
-    value: "#ff9f0a",
+  "accent-blue": {
+    key: "{accent-blue}",
+    value: "#007aff",
     type: "color",
     filePath: "tokens.json",
     isSource: true,
     original: {
-      value: "{arch13}",
+      value: "{arch15}",
       type: "color",
-      key: "{accent-orange}",
+      key: "{accent-blue}",
     },
-    name: "AccentOrange",
+    name: "AccentBlue",
     attributes: {
-      category: "accent-orange",
+      category: "accent-blue",
     },
-    path: ["accent-orange"],
+    path: ["accent-blue"],
   },
   "accent-green": {
     key: "{accent-green}",
@@ -659,23 +659,6 @@ module.exports = {
     },
     path: ["accent-green"],
   },
-  "accent-blue": {
-    key: "{accent-blue}",
-    value: "#007aff",
-    type: "color",
-    filePath: "tokens.json",
-    isSource: true,
-    original: {
-      value: "{arch15}",
-      type: "color",
-      key: "{accent-blue}",
-    },
-    name: "AccentBlue",
-    attributes: {
-      category: "accent-blue",
-    },
-    path: ["accent-blue"],
-  },
   "accent-alert": {
     key: "{accent-alert}",
     value: "#ff3b30",
@@ -692,23 +675,6 @@ module.exports = {
       category: "accent-alert",
     },
     path: ["accent-alert"],
-  },
-  "accent-amber": {
-    key: "{accent-amber}",
-    value: "#ff9f0a",
-    type: "color",
-    filePath: "tokens.json",
-    isSource: true,
-    original: {
-      value: "{arch13}",
-      type: "color",
-      key: "{accent-amber}",
-    },
-    name: "AccentAmber",
-    attributes: {
-      category: "accent-amber",
-    },
-    path: ["accent-amber"],
   },
   "accent-cyan": {
     key: "{accent-cyan}",
@@ -814,12 +780,12 @@ module.exports = {
   },
   warning: {
     key: "{warning}",
-    value: "#ff9f0a",
+    value: "#007aff",
     type: "color",
     filePath: "tokens.json",
     isSource: true,
     original: {
-      value: "#ff9f0a",
+      value: "#007aff",
       type: "color",
       key: "{warning}",
     },
@@ -1493,12 +1459,12 @@ module.exports = {
   },
   "chart-3": {
     key: "{chart-3}",
-    value: "37 100% 50%",
+    value: "199 89% 48%",
     type: "color",
     filePath: "tokens.json",
     isSource: true,
     original: {
-      value: "37 100% 50%",
+      value: "199 89% 48%",
       type: "color",
       key: "{chart-3}",
     },
@@ -1970,8 +1936,8 @@ module.exports = {
     },
     path: ["shadow-glow-primary"],
   },
-  "shadow-glow-electric": {
-    key: "{shadow-glow-electric}",
+  "shadow-glow-electric: ": {
+    key: "{shadow-glow-electric: }",
     value: "0 0 24px rgba(0, 122, 255, 0.28), 0 0 80px rgba(0, 122, 255, 0.1)",
     type: "shadow",
     filePath: "tokens.json",
@@ -1980,13 +1946,13 @@ module.exports = {
       value:
         "0 0 24px rgba(0, 122, 255, 0.28), 0 0 80px rgba(0, 122, 255, 0.1)",
       type: "shadow",
-      key: "{shadow-glow-electric}",
+      key: "{shadow-glow-electric: }",
     },
     name: "ShadowGlowElectric",
     attributes: {
-      category: "shadow-glow-electric",
+      category: "shadow-glow-electric: ",
     },
-    path: ["shadow-glow-electric"],
+    path: ["shadow-glow-electric: "],
   },
   "shadow-window": {
     key: "{shadow-window}",

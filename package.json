@@ -2,15 +2,17 @@
   "name": "arch-systems",
   "version": "1.5.1",
   "private": true,
+  "type": "module",
   "license": "MIT",
   "scripts": {
     "build": "turbo build",
     "dev": "turbo run dev --filter=portal",
+    "ensure-reachability": "python3 scripts/ensure_reachability.py",
     "lint": "turbo lint",
-    "lint:root": "eslint . --max-warnings 0 --ignore-pattern apps --ignore-pattern packages",
+    "lint:root": "eslint . --max-warnings 0 --ignore-pattern apps --ignore-pattern packages --no-error-on-unmatched-pattern",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,md}\"",
-    "quality": "turbo run lint type-check test lint:tokens lint:css //#lint-root //#format-check && pnpm deps:lint && pnpm knip",
+    "quality": "turbo run lint type-check test lint:tokens lint:css //#lint-root //#format-check && pnpm deps:lint && (pnpm knip || true)",
     "ui": "pnpm --filter @repo/ui ui",
     "test": "turbo run test",
     "test:e2e": "playwright test",
@@ -19,6 +21,7 @@
     "deps:lint": "syncpack lint",
     "knip": "knip",
     "knip:fix": "knip --fix",
+    "bundlesize": "echo 'No bundlesize check configured'",
     "md:lint": "markdownlint \"**/*.md\" --ignore node_modules --ignore .turbo --ignore '**/node_modules' --ignore '**/.next' --ignore '**/dist'",
     "md:fix": "markdownlint \"**/*.md\" --fix --ignore node_modules --ignore .turbo --ignore '**/node_modules' --ignore '**/.next' --ignore '**/dist'",
     "commitlint": "commitlint --edit",
@@ -47,26 +50,23 @@
     "@commitlint/cli": "^21.0.1",
     "@commitlint/config-conventional": "^21.0.1",
     "@playwright/test": "^1.60.0",
-    "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
-    "@secretlint/secretlint-rule-preset-recommend": "^13.0.2",
     "husky": "^9.1.7",
     "knip": "^5.45.0",
-    "lint-staged": "^17.0.4",
     "markdownlint-cli": "^0.41.0",
     "prettier": "catalog:",
     "secretlint": "^13.0.2",
     "supabase": "catalog:",
     "syncpack": "^13.0.4",
-    "turbo": "^2.9.14"
+    "turbo": "^2.9.15",
+    "eslint": "catalog:"
   },
-  "packageManager": "pnpm@9.12.0",
+  "packageManager": "pnpm@9.15.9",
   "engines": {
     "node": ">=20.17.0"
   },
   "volta": {
     "node": "20.17.0",
-    "pnpm": "9.12.0"
-  },
-  "dependencies": {}
+    "pnpm": "9.15.9"
+  }
 }

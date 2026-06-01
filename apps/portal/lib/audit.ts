@@ -1,5 +1,6 @@
 "use server";
 
+import { cacheInvalidateTags } from "@repo/redis";
 import { createServerSupabaseClient } from "@repo/supabase/server";
 
 type AuditAction = "insert" | "update" | "delete";
@@ -24,7 +25,7 @@ export async function logAuditEvent(input: AuditLogInput) {
     .from("employees")
     .select("id")
     .eq("auth_id", user?.id)
-    .single();
+    .maybeSingle();
 
   await supabase.from("audit_logs").insert({
     action: input.action,
@@ -35,4 +36,8 @@ export async function logAuditEvent(input: AuditLogInput) {
     performed_by: employee?.id ?? null,
     department_id: input.departmentId ?? null,
   });
+
+  if (input.tableName) {
+    cacheInvalidateTags([`table:${input.tableName}`]).catch(() => {});
+  }
 }

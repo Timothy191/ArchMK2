@@ -64,7 +64,7 @@ export default function HourlyAccessChart({ data }: HourlyAccessChartProps) {
         </defs>
         <CartesianGrid
           strokeDasharray="3 3"
-          stroke="hsl(var(--border))"
+          stroke="var(--border-subtle)"
           vertical={false}
         />
         <XAxis

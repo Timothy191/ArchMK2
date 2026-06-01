@@ -4,26 +4,26 @@ Build, query, and maintain long-lived knowledge bases. Each wiki = markdown fold
 
 ## Subcommands
 
-| Subcommand | Action |
-|------------|--------|
-| `/wiki init <slug> --title "X" [--flavor research] [--scope global\|project]` | Scaffold + register a new wiki |
-| `/wiki list [--scope global\|project]` | List registered wikis |
-| `/wiki info <slug>` | Show wiki metadata + page count |
-| `/wiki page <slug> <rel-path> [--title "X"] [--type concept\|paper\|...]` | Upsert a markdown page into the FTS index |
-| `/wiki reindex <slug>` | Walk `wiki/` and re-index all `*.md` |
-| `/wiki ask "<query>" [--wiki <slug>] [--limit N]` | BM25 search over wiki pages |
-| `/wiki related <slug> <rel-path>` | Find adjacent pages by reusing title+summary as query |
-| `/wiki show <slug> <rel-path>` | Print a page from the index |
-| `/wiki seed <slug> "<query>" [--depth 0]` | Enqueue a research seed |
-| `/wiki research <slug> [--max-pages 5] [--budget-usd 0.50] [--fetchers web,arxiv,github]` | Run the auto-research loop |
-| `/wiki seeds <slug> [--status pending\|active\|done\|failed]` | List queued seeds |
-| `/wiki cancel <slug>` | Mark all pending/active seeds as failed |
-| `/wiki status` | Cross-wiki seed counts + kill-switch state |
-| `/wiki embed [<slug>] [--limit N]` | Compute embeddings for indexed pages (needs `OPENAI_API_KEY` or `VOYAGE_API_KEY`) |
-| `/wiki hybrid "<query>" [--wiki <slug>]` | Hybrid retrieval: BM25 + vector + RRF |
-| `/wiki council "<query>" --wiki <slug>` | Run llm-council; persist transcript as a wiki page |
-| `/wiki survey --bundle <path> --wiki <slug>` | Generate literature survey from a research_bundle.json |
-| `/wiki view <slug> [--out path] [--theme dark\|light]` | Render a single-file HTML viewer for the wiki (pages + sources + seeds + link graph + search) |
+| Subcommand                                                                                | Action                                                                                        |
+| ----------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `/wiki init <slug> --title "X" [--flavor research] [--scope global\|project]`             | Scaffold + register a new wiki                                                                |
+| `/wiki list [--scope global\|project]`                                                    | List registered wikis                                                                         |
+| `/wiki info <slug>`                                                                       | Show wiki metadata + page count                                                               |
+| `/wiki page <slug> <rel-path> [--title "X"] [--type concept\|paper\|...]`                 | Upsert a markdown page into the FTS index                                                     |
+| `/wiki reindex <slug>`                                                                    | Walk `wiki/` and re-index all `*.md`                                                          |
+| `/wiki ask "<query>" [--wiki <slug>] [--limit N]`                                         | BM25 search over wiki pages                                                                   |
+| `/wiki related <slug> <rel-path>`                                                         | Find adjacent pages by reusing title+summary as query                                         |
+| `/wiki show <slug> <rel-path>`                                                            | Print a page from the index                                                                   |
+| `/wiki seed <slug> "<query>" [--depth 0]`                                                 | Enqueue a research seed                                                                       |
+| `/wiki research <slug> [--max-pages 5] [--budget-usd 0.50] [--fetchers web,arxiv,github]` | Run the auto-research loop                                                                    |
+| `/wiki seeds <slug> [--status pending\|active\|done\|failed]`                             | List queued seeds                                                                             |
+| `/wiki cancel <slug>`                                                                     | Mark all pending/active seeds as failed                                                       |
+| `/wiki status`                                                                            | Cross-wiki seed counts + kill-switch state                                                    |
+| `/wiki embed [<slug>] [--limit N]`                                                        | Compute embeddings for indexed pages (needs `OPENAI_API_KEY` or `VOYAGE_API_KEY`)             |
+| `/wiki hybrid "<query>" [--wiki <slug>]`                                                  | Hybrid retrieval: BM25 + vector + RRF                                                         |
+| `/wiki council "<query>" --wiki <slug>`                                                   | Run llm-council; persist transcript as a wiki page                                            |
+| `/wiki survey --bundle <path> --wiki <slug>`                                              | Generate literature survey from a research_bundle.json                                        |
+| `/wiki view <slug> [--out path] [--theme dark\|light]`                                    | Render a single-file HTML viewer for the wiki (pages + sources + seeds + link graph + search) |
 
 ## Routes to skills
 

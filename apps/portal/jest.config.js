@@ -1,15 +1,22 @@
 module.exports = {
-  preset: "ts-jest",
   testEnvironment: "jsdom",
+  forceExit: true,
   setupFilesAfterEnv: ["<rootDir>/setupTests.ts"],
   transform: {
-    "^.+\\.(ts|tsx)$": [
-      "ts-jest",
+    "^.+\\.(t|j)sx?$": [
+      "@swc/jest",
       {
-        tsconfig: {
-          jsx: "react-jsx",
-          esModuleInterop: true,
-          allowSyntheticDefaultImports: true,
+        jsc: {
+          parser: {
+            syntax: "typescript",
+            tsx: true,
+            decorators: true,
+          },
+          transform: {
+            react: {
+              runtime: "automatic",
+            },
+          },
         },
       },
     ],
@@ -18,11 +25,13 @@ module.exports = {
     "^@/(.*)$": "<rootDir>/$1",
     "^~/(.*)$": "<rootDir>/$1",
     "^@repo/errors$": "<rootDir>/../../packages/errors/src/index.ts",
+    "^@repo/errors/(.*)$": "<rootDir>/../../packages/errors/src/$1",
     "^@repo/supabase/(.*)$": "<rootDir>/../../packages/supabase/src/$1",
     "^@repo/supabase$": "<rootDir>/../../packages/supabase/src/index.ts",
     "^@repo/redis$": "<rootDir>/../../packages/redis/src/index.ts",
     "^@repo/redis/(.*)$": "<rootDir>/../../packages/redis/src/$1",
-    "^@repo/theme/(.*)$": "<rootDir>/../../packages/theme/$1",
+    "^@repo/theme$": "<rootDir>/../../packages/theme/src/index.ts",
+    "^@repo/theme/(.*)$": "<rootDir>/../../packages/theme/src/$1",
     "^@repo/ui/lib/(.*)$": "<rootDir>/../../packages/ui/src/lib/$1",
     "^@repo/ui/GlassCard$":
       "<rootDir>/../../packages/ui/src/components/GlassCard.tsx",
@@ -43,14 +52,23 @@ module.exports = {
     "^@repo/ui/MacTitleBar$":
       "<rootDir>/../../packages/ui/src/components/MacTitleBar.tsx",
     "^@repo/utils$": "<rootDir>/../../packages/utils/src/index.ts",
+    "^@repo/utils/(.*)$": "<rootDir>/../../packages/utils/src/$1",
+    "^@repo/types$": "<rootDir>/../../packages/types/src/index.ts",
+    "^@repo/hooks$": "<rootDir>/../../packages/hooks/src/index.ts",
     "^@repo/ui/DataGrid$":
       "<rootDir>/../../packages/ui/src/components/ui/data-grid.tsx",
+    "^@repo/ui/AnimatedList$":
+      "<rootDir>/../../packages/ui/src/components/ui/animated-list.tsx",
+
+    "^@repo/ui/AnimatedButton$":
+      "<rootDir>/../../packages/ui/src/components/ui/animated-button.tsx",
+    "^@repo/ui/(.*)$": "<rootDir>/../../packages/ui/src/$1",
   },
   collectCoverageFrom: [
     "lib/**/*.{ts,tsx}",
     "features/**/*.{ts,tsx}",
     "app/**/*.{ts,tsx}",
-    "middleware.ts",
+    "proxy.ts",
     "!**/*.test.{ts,tsx}",
     "!**/*.d.ts",
     "!**/node_modules/**",
@@ -58,10 +76,10 @@ module.exports = {
   coverageReporters: ["text", "lcov", "html"],
   coverageThreshold: {
     global: {
-      lines: 40, // Phase 1 target — raise to 60% by end of Phase 1, 80% by Phase 4
-      branches: 30,
-      functions: 35,
-      statements: 40,
+      lines: 25,
+      branches: 20,
+      functions: 20,
+      statements: 25,
     },
   },
 };

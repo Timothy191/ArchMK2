@@ -1,3 +1,5 @@
+"use client";
+
 import { useAutoAnimate } from "@formkit/auto-animate/react";
 import { cn } from "../lib/utils";
 import { GlassCard } from "./GlassCard";
@@ -5,7 +7,7 @@ import { GlassCard } from "./GlassCard";
 type KPIColor =
   | "default"
   | "green"
-  | "amber"
+  | "blue"
   | "red"
   | "blue"
   | "cyan"
@@ -14,10 +16,9 @@ type KPIColor =
 
 const colorMap: Record<KPIColor, string> = {
   default: "text-[var(--text-heading)]",
-  green: "text-emerald-400",
-  amber: "text-amber-400",
-  red: "text-red-400",
+  green: "text-accent-green",
   blue: "text-blue-400",
+  red: "text-red-400",
   cyan: "text-[var(--accent-blue)]",
   indigo: "text-[var(--accent-blue)]",
   alert: "text-[var(--accent-red)]",

@@ -5,9 +5,9 @@ node_modules
 .pnp
 .pnp.js
 
-# Local env files
+# Local env files (.env & .env.local)
 .env
-.env*.local
+.env.local
 
 # Testing
 coverage
@@ -59,8 +59,12 @@ yarn-error.log*
 .frontend.pid
 .portal.pid
 portal.log
+portal-error.log
 dev.log
 deploy.log
+.benchmark-results.json
+dev_run.log
+.eslintcache
 
 # Supabase local state (synced from packages/database/migrations/ by deploy-local.sh)
 packages/supabase/supabase/
@@ -105,6 +109,26 @@ template/
 
 # Deploy artifacts
 .deploy.lock
+.deploy-monitor.pid
+.deploy-results-*.sh
+.monitor-*.sh
 .tbls.yml
 deploy-*.log
 .aider*
+*.desktop
+
+# Local env files
+.env
+.env.local
+.env.bak
+.env.tools
+
+# Backup files
+*.backup
+*.bak
+.eslintcache
+dev_run.log
+
+# Noise / runtime
+.antigravitycli/
+populating-data/

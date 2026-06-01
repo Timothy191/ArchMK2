@@ -9,6 +9,7 @@ Automatically detect your project type and set up pro-workflow quality gates.
 ## Quick Start
 
 Run in any project to:
+
 1. Detect project type (Node.js, Python, Rust, Go)
 2. Configure lint/typecheck/test commands
 3. Set up safe permission rules

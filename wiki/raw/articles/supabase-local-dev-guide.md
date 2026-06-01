@@ -18,7 +18,7 @@ A Supabase account with an existing project (for linking remote DB).
 1. Install dependencies: `pnpm install`.
 2. Initialize Supabase config: `pnpm run supabase:link`.
 3. Start local Supabase: `pnpm run supabase:dev`.
-4. Access Supabase Studio: Open http://127.0.0.1:54323
+4. Access Supabase Studio: Open <http://127.0.0.1:54323>
 
 ### Environment Variables
 

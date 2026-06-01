@@ -8,10 +8,14 @@ jest.mock("@repo/supabase/server", () => ({
 }));
 
 jest.mock("next/navigation", () => ({
-  redirect: jest.fn().mockImplementation(() => { throw new Error("NEXT_REDIRECT"); }),
+  redirect: jest.fn().mockImplementation(() => {
+    throw new Error("NEXT_REDIRECT");
+  }),
 }));
 
-const { createServerSupabaseClient } = jest.requireMock("@repo/supabase/server");
+const { createServerSupabaseClient } = jest.requireMock(
+  "@repo/supabase/server",
+);
 
 describe("logout", () => {
   beforeEach(() => jest.clearAllMocks());

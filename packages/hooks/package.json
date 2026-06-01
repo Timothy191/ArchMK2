@@ -8,8 +8,14 @@
   "dependencies": {
     "react": "catalog:react19"
   },
+  "scripts": {
+    "lint": "eslint . --cache --cache-location node_modules/.cache/.eslintcache --max-warnings 0",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf .turbo"
+  },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
+    "@types/react": "catalog:react19",
     "typescript": "catalog:"
   }
 }

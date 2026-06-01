@@ -19,6 +19,7 @@ export default async function ShiftCoveragePage({
   return (
     <ShiftCoverageClient
       departmentId={deptId}
+      departmentSlug={deptSlug}
       initialDate={today}
       initialShift={initialShift}
     />

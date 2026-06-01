@@ -2,7 +2,7 @@
 
 interface ShiftToggleProps {
   value: "day" | "night";
-  onChange: (_shift: "day" | "night") => void;
+  onChange: (value: "day" | "night") => void;
   name?: string;
 }
 
@@ -14,12 +14,12 @@ export function ShiftToggle({ value, onChange, name }: ShiftToggleProps) {
           key={shift}
           type="button"
           role="radio"
-          aria-checked={value === shift}
+          aria-checked={value === shift ? "true" : "false"}
           name={name}
           onClick={() => onChange(shift)}
           className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
             value === shift
-              ? "bg-[var(--accent-cyan)] text-[var(--bg-secondary)]"
+              ? "bg-[var(--accent-blue)] text-[var(--bg-secondary)]"
               : "bg-[var(--card)] border border-[var(--border-default)] text-[var(--text-muted)] hover:text-[var(--text-heading)]"
           }`}
         >

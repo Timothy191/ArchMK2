@@ -4,7 +4,14 @@ import { createServerSupabaseClient } from "@repo/supabase/server";
 import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
 import { logAuditEvent } from "./audit";
-import { AuthError, NotFoundError, ForbiddenError, DatabaseError } from "@repo/errors";
+import {
+  AuthError,
+  NotFoundError,
+  ForbiddenError,
+  DatabaseError,
+} from "@repo/errors";
+
+import { getShiftCompleteness } from "./shift-completeness";
 
 type SupabaseClient = Awaited<ReturnType<typeof createServerSupabaseClient>>;
 
@@ -26,37 +33,35 @@ async function validateShiftData(
     return ["Shift is already closed"];
   }
 
-  const { data: machines } = await supabase
-    .from("machines")
-    .select("id, name")
-    .eq("department_id", departmentId)
-    .eq("active", true);
-
-  if (!machines || machines.length === 0) {
-    return ["No active machines found for this department"];
-  }
-
-  const { data: operations } = await supabase
-    .from("machine_operations")
-    .select("machine_id, hours_worked")
-    .eq("department_id", departmentId)
-    .eq("shift_date", date)
-    .eq("shift_type", shiftType);
+  const completeness = await getShiftCompleteness(
+    supabase,
+    departmentId,
+    null,
+    date,
+    shiftType,
+  );
 
   const errors: string[] = [];
-  const reportedMachineIds = new Set((operations || []).map((o) => o.machine_id));
-  const machineMap = new Map(machines.map((m) => [m.id, m.name]));
 
-  for (const machine of machines) {
-    if (!reportedMachineIds.has(machine.id)) {
-      errors.push(`Machine '${machine.name}': not reported`);
+  if (completeness.statuses.length === 0) {
+    errors.push("No active machines found for this department");
+  }
+
+  for (const status of completeness.statuses) {
+    if (!status.exempt && !status.hasEntry) {
+      errors.push(`Machine '${status.machineName}': not reported`);
     }
   }
 
-  for (const op of operations || []) {
-    if (op.hours_worked !== null && Number(op.hours_worked) > 12) {
-      const name = machineMap.get(op.machine_id) || "Unknown";
-      errors.push(`Machine '${name}': ${Number(op.hours_worked)}h exceeds 12h maximum`);
+  for (const status of completeness.statuses) {
+    if (
+      status.hoursWorked !== undefined &&
+      status.hoursWorked !== null &&
+      Number(status.hoursWorked) > 12
+    ) {
+      errors.push(
+        `Machine '${status.machineName}': ${Number(status.hoursWorked)}h exceeds 12h maximum`,
+      );
     }
   }
 
@@ -85,7 +90,10 @@ export async function setPin(employeeCode: string, pin: string) {
 
   if (employee.role !== "supervisor" && employee.role !== "admin") {
     throw new ForbiddenError("Only supervisors and admins can set PINs", {
-      context: { requiredRoles: ["supervisor", "admin"], actualRole: employee.role },
+      context: {
+        requiredRoles: ["supervisor", "admin"],
+        actualRole: employee.role,
+      },
     });
   }
 
@@ -136,10 +144,16 @@ export async function closeShift(
   approvedById: string,
   pin: string,
   validateOnly: boolean = false,
+  departmentSlug?: string,
 ) {
   const supabase = await createServerSupabaseClient();
 
-  const errors = await validateShiftData(supabase, departmentId, date, shiftType);
+  const errors = await validateShiftData(
+    supabase,
+    departmentId,
+    date,
+    shiftType,
+  );
   if (errors.length > 0) {
     return { success: false, errors };
   }
@@ -152,7 +166,9 @@ export async function closeShift(
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
-    throw new AuthError("Not authenticated", { context: { action: "closeShift" } });
+    throw new AuthError("Not authenticated", {
+      context: { action: "closeShift" },
+    });
   }
 
   const { data: closedBy } = await supabase
@@ -172,7 +188,10 @@ export async function closeShift(
     .single();
 
   if (!approver || !approver.pin_hash) {
-    return { success: false, errors: ["Approving supervisor not found or has no PIN set"] };
+    return {
+      success: false,
+      errors: ["Approving supervisor not found or has no PIN set"],
+    };
   }
 
   const pinValid = await bcrypt.compare(pin, approver.pin_hash);
@@ -205,7 +224,10 @@ export async function closeShift(
     departmentId,
   });
 
-  revalidatePath(`/departments/${departmentId}`);
+  if (departmentSlug) {
+    revalidatePath(`/${departmentSlug}`);
+    revalidatePath(`/${departmentSlug}/shift-coverage`);
+  }
 
   return { success: true, shiftStatusId: inserted.id };
 }

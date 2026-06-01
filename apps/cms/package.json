@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint . --max-warnings 0",
+    "lint": "eslint . --cache --cache-location node_modules/.cache/.eslintcache --max-warnings 0",
+    "type-check": "tsc --noEmit",
     "payload": "payload"
   },
   "dependencies": {
@@ -16,8 +17,7 @@
     "next": "^16.2.6",
     "payload": "^3.84.1",
     "react": "catalog:react19",
-    "react-dom": "catalog:react19",
-    "sharp": "^0.33.5"
+    "react-dom": "catalog:react19"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",

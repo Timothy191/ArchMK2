@@ -20,7 +20,9 @@ export function FormInput({
     <div className="space-y-2">
       <label className="block text-sm text-[var(--text-secondary)]">
         {label}
-        {optional && <span className="text-[var(--text-muted)]"> (Optional)</span>}
+        {optional && (
+          <span className="text-[var(--text-muted)]"> (Optional)</span>
+        )}
         {!optional && props.required && (
           <span className="text-red-400"> *</span>
         )}
@@ -53,7 +55,9 @@ export function FormSelect({
     <div className="space-y-2">
       <label className="block text-sm text-[var(--text-secondary)]">
         {label}
-        {optional && <span className="text-[var(--text-muted)]"> (Optional)</span>}
+        {optional && (
+          <span className="text-[var(--text-muted)]"> (Optional)</span>
+        )}
       </label>
       <select className={cn(inputStyles, className)} {...props}>
         <option value="">{placeholder}</option>
@@ -86,7 +90,9 @@ export function FormTextarea({
     <div className="space-y-2">
       <label className="block text-sm text-[var(--text-secondary)]">
         {label}
-        {optional && <span className="text-[var(--text-muted)]"> (Optional)</span>}
+        {optional && (
+          <span className="text-[var(--text-muted)]"> (Optional)</span>
+        )}
       </label>
       <textarea
         className={cn(inputStyles, "resize-none", className)}

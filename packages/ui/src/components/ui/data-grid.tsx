@@ -19,6 +19,7 @@ export interface DataGridProps {
   sorting?: boolean | SortingConfig;
   canFocus?: boolean;
   onAfterEdit?: (event: any) => void;
+  stretch?: boolean | string;
 }
 
 /**
@@ -39,6 +40,7 @@ export function DataGrid({
   sorting = false,
   canFocus = true,
   onAfterEdit,
+  stretch,
 }: DataGridProps) {
   const gridRef = React.useRef<any>(null);
 
@@ -70,6 +72,7 @@ export function DataGrid({
           onAfteredit={onAfterEdit}
           theme="compact"
           rowClass="arch-revo-row"
+          stretch={stretch}
         />
       </div>
     </GlassCard>

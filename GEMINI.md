@@ -1,0 +1,62 @@
+# Arch-Systems (Plantcor) Mining Operations Portal
+
+Industrial operations portal built for high-scale vigilance and operational precision.
+
+## 🏗️ Architecture & Tech Stack
+
+- **Monorepo**: Turborepo + pnpm 9.12.0.
+- **Frontend**: Next.js 15+ (App Router), React 19, Tailwind (OKLCH).
+- **Backend**: Supabase (PostgreSQL, Auth, RLS), Payload CMS v3.
+- **Quality**: Strict TypeScript, Jest, Playwright, DeepEval.
+
+## 🚀 Key Commands
+
+- `pnpm quality`: Full quality gate (lint, type-check, test, format-check).
+- `pnpm build`: Build all workspace projects.
+- `pnpm test`: Run all unit tests.
+- `pnpm test:e2e`: Run Playwright E2E tests.
+
+## 🛠️ Global Development Conventions
+
+### Data Safety & Confirmation
+
+- **Data is Sacred**: All operations must prioritize data integrity and security.
+- **Confirmation Required**: For any data-related change, I must halt execution, explain the potential impact on data, and ask for your explicit confirmation before proceeding. This applies to:
+  - Database schema migrations (`packages/database`).
+  - Data mutation logic (Server Actions, API routes).
+  - Changes to authentication or authorization rules (RLS).
+
+### Production Readiness & Recovery
+
+- **Production Readiness**: All changes must pass the full quality gate (`pnpm quality`) and live verification to ensure the system remains deployable at all times.
+- **Automated Rollback**: If any change breaks the build, tests, or critical functionality, I must automatically revert the responsible code change and re-evaluate my approach.
+
+### Verification Discipline
+
+- **Tests pass ≠ program working.** Fresh runs are mandatory.
+- **Frontend changes require live verification.** Start `pnpm dev`, navigate to the page, and interact with the UI.
+- **Evidence before claims.** Never say "it works" without concrete proof (test output, browser check).
+
+### Systematic Debugging
+
+1. **Root Cause**: Reproduce consistently, check diffs, instrument boundaries.
+2. **Hypothesis**: Specific and falsifiable. Test one variable at a time.
+3. **Defense-in-Depth**: Make bugs structurally impossible. Validate at entry points, logic, and environment layers.
+4. **Bail-out**: 3+ failed fixes indicate an architectural problem. Stop and rethink.
+
+### Change Discipline
+
+- **Lineage Test**: Every changed line must trace to a specific requirement.
+- **Orphan Cleanup**: Remove imports/vars/functions your changes made unused.
+- **Never Invent Values**: Authoritatively confirm paths, env vars, and IDs before using them.
+
+## 📖 Subdirectory Instructions
+
+- [apps/portal/GEMINI.md](./apps/portal/GEMINI.md) — Portal specific rules & AI orchestration.
+- [packages/theme/GEMINI.md](./packages/theme/GEMINI.md) — Design system & token pipeline.
+
+## 📚 Authoritative Docs
+
+- [CLAUDE.md](./CLAUDE.md) — Technical guide & command list.
+- [DESIGN.md](./DESIGN.md) — Color system & visual rules.
+- [PRODUCT.md](./PRODUCT.md) — User personas & strategy.

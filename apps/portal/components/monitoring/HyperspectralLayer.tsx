@@ -77,14 +77,14 @@ const MINERAL_SIGNATURES = [
   },
   {
     mineral: "Jarosite",
-    color: "#f97316",
+    color: "#007aff",
     bands: "B11/B12 ratio",
     concern: "Active sulfide oxidation zone",
     risk: "high",
   },
   {
     mineral: "Kaolinite / Clay",
-    color: "#f59e0b",
+    color: "#007aff",
     bands: "B12/B11 ratio",
     concern: "Tailings mineralogy, slimes dam stability",
     risk: "medium",
@@ -113,9 +113,9 @@ const MINERAL_SIGNATURES = [
 ];
 
 const RISK_COLORS: Record<string, string> = {
-  high: "text-red-400",
-  medium: "text-amber-400",
-  low: "text-emerald-400",
+  high: "text-accent-red",
+  medium: "text-accent-blue",
+  low: "text-accent-green",
 };
 
 function sceneAgeDays(datetime: string): number {
@@ -125,7 +125,7 @@ function sceneAgeDays(datetime: string): number {
 function getActiveClass(composite: SpectralComposite, color: string) {
   const map: Record<string, string> = {
     sky: "bg-sky-500/10 border-sky-500/40",
-    emerald: "bg-emerald-500/10 border-emerald-500/40",
+    emerald: "bg-accent-green/10 border-accent-green/40",
     lime: "bg-lime-500/10 border-lime-500/40",
     violet: "bg-violet-500/10 border-violet-500/40",
   };
@@ -135,7 +135,7 @@ function getActiveClass(composite: SpectralComposite, color: string) {
 function getActiveLabelClass(composite: SpectralComposite, color: string) {
   const map: Record<string, string> = {
     sky: "text-sky-400",
-    emerald: "text-emerald-400",
+    emerald: "text-accent-green",
     lime: "text-lime-400",
     violet: "text-violet-400",
   };
@@ -216,8 +216,8 @@ export function HyperspectralLayer({
       </div>
 
       {/* AMD Risk Panel */}
-      <div className="p-4 rounded-xl bg-red-500/5 border border-red-500/20">
-        <p className="text-xs font-semibold text-red-400 uppercase tracking-wider mb-1">
+      <div className="p-4 rounded-xl bg-accent-red/5 border border-accent-red/20">
+        <p className="text-xs font-semibold text-accent-red uppercase tracking-wider mb-1">
           AMD Risk — Spectral Indicators
         </p>
         <p className="text-[10px] text-[var(--text-secondary)] mb-3">
@@ -299,8 +299,8 @@ export function HyperspectralLayer({
                               cloud < 10
                                 ? "bg-[#3ecf8e]/20 text-[#3ecf8e]"
                                 : cloud < 25
-                                  ? "bg-amber-500/20 text-amber-400"
-                                  : "bg-red-500/20 text-red-400"
+                                  ? "bg-accent-blue/20 text-accent-blue"
+                                  : "bg-accent-red/20 text-accent-red"
                             }`}
                           >
                             ☁ {cloud.toFixed(0)}%
@@ -315,7 +315,7 @@ export function HyperspectralLayer({
                       <span>{formatSceneDate(scene.properties.datetime)}</span>
                       <span
                         className={
-                          ageDays > 14 ? "text-amber-400" : "text-[#3ecf8e]"
+                          ageDays > 14 ? "text-accent-blue" : "text-[#3ecf8e]"
                         }
                       >
                         {ageDays}d ago

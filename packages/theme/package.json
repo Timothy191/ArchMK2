@@ -2,11 +2,16 @@
   "name": "@repo/theme",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "codegen": "node sd.config.mjs",
-    "build": "node sd.config.mjs",
+    "codegen": "node sd.config.mjs && node scripts/generate-tokens.mjs",
+    "build": "pnpm codegen",
+    "dev": "node sd.config.mjs --watch",
+    "lint": "eslint . --cache --cache-location node_modules/.cache/.eslintcache --max-warnings 0",
     "lint:tokens": "node scripts/validate-tokens.mjs",
     "lint:css": "stylelint 'src/css/**/*.css'",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf dist .turbo",
     "tokens:watch": "chokidar 'tokens.json' -c 'pnpm build'"
   },
   "exports": {
@@ -23,7 +28,7 @@
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
-    "@tokens-studio/sd-transforms": "^2.0.3",
+    "@types/node": "catalog:",
     "@types/react": "catalog:react19",
     "chokidar-cli": "^3.0.0",
     "react": "catalog:react19",

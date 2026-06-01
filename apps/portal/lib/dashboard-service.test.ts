@@ -8,7 +8,9 @@ jest.mock("@repo/redis", () => ({
   cacheWrap: jest.fn(),
 }));
 
-const { createServerSupabaseClient } = jest.requireMock("@repo/supabase/server");
+const { createServerSupabaseClient } = jest.requireMock(
+  "@repo/supabase/server",
+);
 const { cacheWrap } = jest.requireMock("@repo/redis");
 
 const MOCK_PAYLOAD = {
@@ -34,9 +36,13 @@ describe("getMonolithizedDashboard", () => {
   });
 
   it("calls cacheWrap with correct cache key and 15s TTL", async () => {
-    cacheWrap.mockImplementation(async (_key: string, fn: () => Promise<unknown>) => fn());
+    cacheWrap.mockImplementation(
+      async (_key: string, fn: () => Promise<unknown>) => fn(),
+    );
 
-    const mockRpc = jest.fn().mockResolvedValue({ data: MOCK_PAYLOAD, error: null });
+    const mockRpc = jest
+      .fn()
+      .mockResolvedValue({ data: MOCK_PAYLOAD, error: null });
     createServerSupabaseClient.mockResolvedValue({ rpc: mockRpc });
 
     await getMonolithizedDashboard("dept-drilling");
@@ -58,9 +64,13 @@ describe("getMonolithizedDashboard", () => {
   });
 
   it("calls the Supabase RPC with correct dept_id on cache miss", async () => {
-    cacheWrap.mockImplementation(async (_key: string, fn: () => Promise<unknown>) => fn());
+    cacheWrap.mockImplementation(
+      async (_key: string, fn: () => Promise<unknown>) => fn(),
+    );
 
-    const mockRpc = jest.fn().mockResolvedValue({ data: MOCK_PAYLOAD, error: null });
+    const mockRpc = jest
+      .fn()
+      .mockResolvedValue({ data: MOCK_PAYLOAD, error: null });
     createServerSupabaseClient.mockResolvedValue({ rpc: mockRpc });
 
     const result = await getMonolithizedDashboard("dept-drilling");
@@ -73,7 +83,9 @@ describe("getMonolithizedDashboard", () => {
   });
 
   it("throws when Supabase RPC returns an error", async () => {
-    cacheWrap.mockImplementation(async (_key: string, fn: () => Promise<unknown>) => fn());
+    cacheWrap.mockImplementation(
+      async (_key: string, fn: () => Promise<unknown>) => fn(),
+    );
 
     const mockRpc = jest.fn().mockResolvedValue({
       data: null,
@@ -81,17 +93,23 @@ describe("getMonolithizedDashboard", () => {
     });
     createServerSupabaseClient.mockResolvedValue({ rpc: mockRpc });
 
-    await expect(getMonolithizedDashboard("dept-bad")).rejects.toThrow("Failed to query dashboard data");
+    await expect(getMonolithizedDashboard("dept-bad")).rejects.toThrow(
+      "Failed to query dashboard data",
+    );
   });
 
   it("uses department-specific cache key for each department", async () => {
     const keys: string[] = [];
-    cacheWrap.mockImplementation(async (key: string, fn: () => Promise<unknown>) => {
-      keys.push(key);
-      return fn();
-    });
+    cacheWrap.mockImplementation(
+      async (key: string, fn: () => Promise<unknown>) => {
+        keys.push(key);
+        return fn();
+      },
+    );
 
-    const mockRpc = jest.fn().mockResolvedValue({ data: MOCK_PAYLOAD, error: null });
+    const mockRpc = jest
+      .fn()
+      .mockResolvedValue({ data: MOCK_PAYLOAD, error: null });
     createServerSupabaseClient.mockResolvedValue({ rpc: mockRpc });
 
     await getMonolithizedDashboard("dept-drilling");

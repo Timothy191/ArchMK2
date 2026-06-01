@@ -16,17 +16,17 @@ Selection of state management approach for a Next.js 15 App Router application w
 
 ## Dimensions of Comparison
 
-| Dimension | Zustand 5 | Redux Toolkit | React Context + useReducer |
-|-----------|-----------|---------------|---------------------------|
-| **Bundle Size** | ~1KB | ~11KB | 0KB (built-in) |
-| **Boilerplate** | Minimal | Moderate | Minimal to moderate |
-| **DevTools** | Basic Redux DevTools support | Excellent DevTools | Browser React DevTools |
-| **RSC Compatibility** | Client components only | Client components only | Can work in RSC (pass via props) |
-| **SSR/Next.js** | Requires `'use client'` | Requires `'use client'` | Works in both |
-| **Persistence** | Middleware available | Redux Persist | Manual implementation |
-| **Selectors** | Manual or computed | Reselect integration | Manual |
-| **Async Logic** | In actions or thunks | RTK Query / thunks | useEffect + dispatch |
-| **TypeScript** | Excellent | Excellent | Good |
+| Dimension             | Zustand 5                    | Redux Toolkit           | React Context + useReducer       |
+| --------------------- | ---------------------------- | ----------------------- | -------------------------------- |
+| **Bundle Size**       | ~1KB                         | ~11KB                   | 0KB (built-in)                   |
+| **Boilerplate**       | Minimal                      | Moderate                | Minimal to moderate              |
+| **DevTools**          | Basic Redux DevTools support | Excellent DevTools      | Browser React DevTools           |
+| **RSC Compatibility** | Client components only       | Client components only  | Can work in RSC (pass via props) |
+| **SSR/Next.js**       | Requires `'use client'`      | Requires `'use client'` | Works in both                    |
+| **Persistence**       | Middleware available         | Redux Persist           | Manual implementation            |
+| **Selectors**         | Manual or computed           | Reselect integration    | Manual                           |
+| **Async Logic**       | In actions or thunks         | RTK Query / thunks      | useEffect + dispatch             |
+| **TypeScript**        | Excellent                    | Excellent               | Good                             |
 
 ## Project Implementation
 
@@ -34,18 +34,18 @@ The portal uses **Zustand 5** selectively:
 
 ```typescript
 // Client components with complex state
-'use client'
-import { create } from 'zustand'
+"use client";
+import { create } from "zustand";
 
 interface AppState {
-  sidebarOpen: boolean
-  toggleSidebar: () => void
+  sidebarOpen: boolean;
+  toggleSidebar: () => void;
 }
 
 export const useAppStore = create<AppState>((set) => ({
   sidebarOpen: false,
   toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
-}))
+}));
 ```
 
 ## Why Zustand Was Chosen
@@ -59,6 +59,7 @@ export const useAppStore = create<AppState>((set) => ({
 ## Why Not Redux Toolkit
 
 Redux Toolkit is excellent for complex client-side state, but the portal's architecture:
+
 - Uses Server Components for data fetching (no client state needed)
 - Defers to Supabase real-time subscriptions for live data
 - Has minimal shared client state (mostly UI chrome)
@@ -66,6 +67,7 @@ Redux Toolkit is excellent for complex client-side state, but the portal's archi
 ## Why Not React Context
 
 Context is used sparingly for:
+
 - Theme injection (but `@repo/theme` handles most)
 - Supabase client context (but `@repo/supabase` abstracts this)
 

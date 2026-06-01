@@ -16,11 +16,11 @@ The portal embeds external workflow automation and AI tools via iframe cards, wi
 
 Tools are defined in `apps/portal/lib/tools.ts` as the `EXTERNAL_TOOLS` array:
 
-| Tool    | Default URL             | Description                                |
-| ------- | ----------------------- | ------------------------------------------ |
-| n8n     | `http://localhost:5678` | Workflow automation with 400+ integrations |
-| Flowise | `http://localhost:3000` | Visual AI workflow builder (LangChain)     |
-| Svix    | Dashboard API           | Webhook service for reliable event delivery|
+| Tool    | Default URL             | Description                                 |
+| ------- | ----------------------- | ------------------------------------------- |
+| n8n     | `http://localhost:5678` | Workflow automation with 400+ integrations  |
+| Flowise | `http://localhost:3000` | Visual AI workflow builder (LangChain)      |
+| Svix    | Dashboard API           | Webhook service for reliable event delivery |
 
 Environment overrides:
 
@@ -73,24 +73,28 @@ Svix provides reliable webhook delivery for the Arch-Systems platform, enabling 
 ### Improvements Provided
 
 **Reliable Event Delivery**
+
 - Automatic retry logic with exponential backoff for failed webhook deliveries
 - Idempotent event processing to prevent duplicate notifications
 - Event queuing and guaranteed delivery ordering
 - Built-in monitoring and delivery status tracking
 
 **Security & Compliance**
+
 - HMAC signature verification for webhook authenticity
 - TLS encryption for all webhook transmissions
 - IP whitelisting support for enhanced security
 - Audit logging of all webhook delivery attempts
 
 **Operational Benefits**
+
 - Real-time notifications for critical operational events (equipment breakdowns, safety incidents, production alerts)
 - Integration with external monitoring systems (Sentry, PagerDuty, custom dashboards)
 - Event replay capabilities for missed notifications
 - Rate limiting and throttling to prevent downstream system overload
 
 **Use Cases in Arch-Systems**
+
 - **Safety Incidents**: Immediate alerts to safety officers and management when incidents are logged
 - **Equipment Breakdowns**: Notify engineering teams when breakdowns are reported in the engineering department
 - **Production Milestones**: Real-time production metric updates to external reporting systems

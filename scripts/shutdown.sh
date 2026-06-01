@@ -74,6 +74,15 @@ if [ -n "$PIDS" ]; then
   echo "$PIDS" | xargs kill -15 2>/dev/null || true
 fi
 
+# Restore local env from backup if present (from live local network deployment)
+ENV_FILE="$REPO_ROOT/apps/portal/.env"
+ENV_BAK="$REPO_ROOT/apps/portal/.env.bak"
+if [ -f "$ENV_BAK" ]; then
+  log "Restoring local development environment configuration (.env.bak)..."
+  mv "$ENV_BAK" "$ENV_FILE"
+  log "Environment configuration restored."
+fi
+
 # ── Step 2: Stop Observability Stack ──────────────────────
 if [ -f "$MONITOR_COMPOSE" ]; then
   log "Stopping Prometheus, Grafana, and cAdvisor (preserving volumes)..."

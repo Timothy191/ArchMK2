@@ -9,6 +9,7 @@ Audit your MCP servers and reduce token overhead.
 ## Quick Start
 
 Run to see:
+
 - Active MCP servers and their tool counts
 - Estimated token overhead per request
 - Servers you haven't used recently

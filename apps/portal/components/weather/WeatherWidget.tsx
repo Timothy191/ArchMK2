@@ -1,12 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import * as Popover from "@radix-ui/react-popover";
 import {
   fetchWeather,
   getWeatherAlert,
+  getWindDirection,
   type WeatherData,
 } from "@/lib/weather-api";
 import { GlassCard } from "@repo/ui/GlassCard";
+import { cn } from "@repo/ui/lib/utils";
 
 interface WeatherWidgetProps {
   lat?: number;
@@ -63,29 +66,105 @@ export function WeatherWidget({
 
   const alert = getWeatherAlert(weather);
 
-  // Header variant - minimal
+  // Header variant - minimal with interactive Popover
   if (variant === "header") {
     return (
-      <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-arch-surface-secondary/70 backdrop-blur-md border border-arch-border-subtle">
-        <span className="text-lg">{weather.icon}</span>
-        <span className="text-sm text-arch-text-primary">
-          {weather.temperature}°C
-        </span>
-        <span className="text-xs text-arch-text-tertiary hidden sm:inline">
-          {weather.description}
-        </span>
-        {alert.level !== "none" && (
-          <span
-            className={`w-2 h-2 rounded-full ${
-              alert.level === "critical"
-                ? "bg-accent-red animate-pulse"
-                : alert.level === "warning"
-                  ? "bg-accent-orange"
-                  : "bg-accent-blue"
-            }`}
-          />
-        )}
-      </div>
+      <Popover.Root>
+        <Popover.Trigger asChild>
+          <button
+            aria-label="Weather details"
+            title="Weather details"
+            className="relative flex items-center justify-center w-[26px] h-[26px] rounded-full hover:bg-black/10 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--accent-blue)] cursor-default outline-none after:absolute after:inset-[-9px] after:content-['']"
+          >
+            <span className="text-lg leading-none">{weather.icon}</span>
+            {alert.level !== "none" && (
+              <span
+                className={`absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full ${
+                  alert.level === "critical"
+                    ? "bg-accent-red animate-pulse"
+                    : alert.level === "warning"
+                      ? "bg-accent-blue"
+                      : "bg-accent-blue"
+                }`}
+              />
+            )}
+          </button>
+        </Popover.Trigger>
+        <Popover.Portal>
+          <Popover.Content
+            align="end"
+            sideOffset={6}
+            className="w-64 bg-white/95 backdrop-blur-2xl border border-black/[0.08] shadow-window rounded-xl p-4 z-[120] focus:outline-none select-none"
+          >
+            <div className="space-y-3">
+              {/* Header */}
+              <div className="flex items-center justify-between pb-1.5 border-b border-black/[0.05]">
+                <span
+                  className="text-[10px] font-bold text-[var(--text-muted)] tracking-wider uppercase truncate max-w-[130px]"
+                  title={weather.location.name || locationName}
+                >
+                  {weather.location.name || locationName}
+                </span>
+                <span className="text-[9px] text-[var(--text-muted)] shrink-0">
+                  Updated{" "}
+                  {new Date(weather.timestamp).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </span>
+              </div>
+
+              {/* Temp / Current Icon */}
+              <div className="flex items-center gap-3">
+                <span className="text-4xl">{weather.icon}</span>
+                <div>
+                  <p className="text-2xl font-semibold text-[var(--text-heading)]">
+                    {weather.temperature}°C
+                  </p>
+                  <p className="text-xs text-[var(--text-secondary)]">
+                    {weather.description} (Feels: {weather.feelsLike}°C)
+                  </p>
+                </div>
+              </div>
+
+              {/* Details (Wind/Humidity) */}
+              <div className="grid grid-cols-2 gap-2 pt-1 text-xs text-[var(--text-secondary)]">
+                <div className="bg-black/[0.02] p-2 rounded-lg border border-black/[0.04] min-w-0">
+                  <p className="text-[9px] text-[var(--text-muted)] uppercase tracking-wider">
+                    Wind
+                  </p>
+                  <p className="font-semibold text-[var(--text-heading)] truncate">
+                    💨 {weather.windSpeed} km/h{" "}
+                    {getWindDirection(weather.windDirection)}
+                  </p>
+                </div>
+                <div className="bg-black/[0.02] p-2 rounded-lg border border-black/[0.04] min-w-0">
+                  <p className="text-[9px] text-[var(--text-muted)] uppercase tracking-wider">
+                    Humidity
+                  </p>
+                  <p className="font-semibold text-[var(--text-heading)] truncate">
+                    💧 {weather.humidity}%
+                  </p>
+                </div>
+              </div>
+
+              {/* Operations alert */}
+              {alert.level !== "none" && (
+                <div
+                  className={cn(
+                    "p-2.5 rounded-lg text-xs font-medium border",
+                    alert.level === "critical"
+                      ? "bg-accent-red/10 text-accent-red border-accent-red/20 animate-pulse"
+                      : "bg-accent-blue/10 text-accent-blue border-accent-blue/20",
+                  )}
+                >
+                  {alert.message}
+                </div>
+              )}
+            </div>
+          </Popover.Content>
+        </Popover.Portal>
+      </Popover.Root>
     );
   }
 
@@ -116,7 +195,7 @@ export function WeatherWidget({
               alert.level === "critical"
                 ? "bg-accent-red/10 text-accent-red border border-accent-red/20"
                 : alert.level === "warning"
-                  ? "bg-accent-orange/10 text-accent-orange border border-accent-orange/20"
+                  ? "bg-accent-blue/10 text-accent-blue border border-accent-blue/20"
                   : "bg-accent-blue/10 text-accent-blue border border-accent-blue/20"
             }`}
           >
@@ -183,7 +262,7 @@ export function WeatherWidget({
             alert.level === "critical"
               ? "bg-accent-red/10 border border-accent-red/30"
               : alert.level === "warning"
-                ? "bg-accent-orange/10 border border-accent-orange/30"
+                ? "bg-accent-blue/10 border border-accent-blue/30"
                 : "bg-accent-blue/10 border border-accent-blue/30"
           }`}
         >
@@ -192,7 +271,7 @@ export function WeatherWidget({
               alert.level === "critical"
                 ? "text-accent-red"
                 : alert.level === "warning"
-                  ? "text-accent-orange"
+                  ? "text-accent-blue"
                   : "text-accent-blue"
             }`}
           >

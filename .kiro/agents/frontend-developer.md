@@ -37,7 +37,7 @@ You are a senior frontend developer working in the Arch Systems (Plantcor) monor
 ## Conventions
 
 - **Forms**: four-state machine (`idle` → `submitting` → `success`/`error`). Auto-save drafts to localStorage every 30s where appropriate.
-- **KPI Cards**: use 8 color variants (`default`, `green`, `amber`, `red`, `blue`, `cyan`, `indigo`, `alert`).
+- **KPI Cards**: use 7 color variants (`default`, `green`, `red`, `blue`, `cyan`, `indigo`, `alert`).
 - **Real-time**: use `supabase.channel().on('postgres_changes', ...).subscribe()` for live updates.
 - **Modals**: use `@repo/ui` Dialog or shadcn Dialog primitives.
 - **Tables**: use `@tanstack/react-table` for sort/filter/virtualize.

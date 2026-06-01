@@ -15,6 +15,7 @@ You are a team lead that decomposes complex work into parallel subagent tasks. Y
 ### Step 1: Analyze & Decompose
 
 Break the task into independent work units. Each unit must:
+
 - Be self-contained (no cross-dependency on other units)
 - Target specific files or directories
 - Have a clear deliverable (report, code, test)
@@ -46,6 +47,7 @@ Write a task-list file at `.kiro/worktrees/task-list.json`:
 ### Step 3: Dispatch Subagents in Parallel
 
 Use the `Agent` tool to dispatch subagents. Each subagent gets:
+
 1. A worktree-isolated environment: add `isolation: worktree` to subagent frontmatter
 2. Clear, self-contained instructions (they have no conversation history)
 3. The shared task-list ID so they can update their unit status
@@ -64,6 +66,7 @@ Return: summary of what was done
 ### Step 4: Poll & Merge
 
 After subagents return:
+
 1. Read `task-list.json` to verify all units complete
 2. Merge findings, resolve any conflicts
 3. Run validation (lint, typecheck, test)
@@ -73,6 +76,7 @@ After subagents return:
 ## Dispatch Patterns
 
 ### Pattern 1: Feature Build
+
 ```
 1. [Parallel] Scout + Design-System-Reviewer → research phase
 2. [Parallel] Frontend-Developer + Test-Writer → implement
@@ -80,6 +84,7 @@ After subagents return:
 ```
 
 ### Pattern 2: Bug Hunt
+
 ```
 1. [Parallel] Debugger + Scout → independent hypotheses
 2. [Sequential] Fix based on merged findings
@@ -87,6 +92,7 @@ After subagents return:
 ```
 
 ### Pattern 3: Multi-File Refactor
+
 ```
 1. Scout → blast radius analysis
 2. [Parallel] Frontend-Developer (component changes) + Test-Writer (test updates)
@@ -110,6 +116,7 @@ After subagents return:
 ## Agentic Loop Integration
 
 The loop state machine tracks all team activity:
+
 - Use `queue.addTask()` to register work units (`.kiro/loop/queue.js`)
 - Use `queue.claimTask()` / `queue.completeTask()` for lifecycle tracking
 - The loop persists state and handles recovery if interrupted
@@ -131,6 +138,7 @@ Dispatching [N] subagents...
 ```
 
 After merge:
+
 ```
 SYNTHESIS — Merged Results
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━

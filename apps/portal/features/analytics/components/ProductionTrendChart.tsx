@@ -64,11 +64,11 @@ export function ProductionTrendChart({
     <div className="space-y-2">
       <div className="flex items-center gap-4 text-xs text-[var(--text-muted)]">
         <span className="flex items-center gap-1.5">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
+          <span className="w-2 h-2 rounded-full bg-accent-green inline-block" />
           Coal Removed
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="w-2 h-2 rounded-full bg-amber-500 inline-block" />
+          <span className="w-2 h-2 rounded-full bg-accent-blue inline-block" />
           Waste Removed
         </span>
         {forecast.length > 0 && (
@@ -83,7 +83,7 @@ export function ProductionTrendChart({
         data={chartData}
         index="date"
         categories={categories as unknown as string[]}
-        colors={["emerald", "amber", "indigo"]}
+        colors={["emerald", "blue", "indigo"]}
         showLegend={false}
         showGridLines={false}
         curveType="monotone"

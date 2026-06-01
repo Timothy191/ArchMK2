@@ -1,0 +1,43 @@
+# Portal Application (Next.js)
+
+The main mining operations portal built with Next.js 15+ (App Router) and React 19.
+
+## 🚀 Key Commands
+
+- `pnpm dev`: Start the portal dev server on `:3000`.
+- `pnpm test`: Run Jest unit tests for the portal.
+- `pnpm test:e2e`: Run Playwright E2E tests.
+- `pnpm type-check`: Run TypeScript checks for the portal.
+
+## 🛠️ Development Conventions
+
+### Route Groups
+
+The portal uses route groups to scope layouts:
+
+- `(auth)/`: Login and password management.
+- `(departments)/[department]/`: Dynamic department dashboards.
+- `(hub)/`: Central landing page and executive view.
+- `api/`: API routes (AI, export, sync, tools).
+
+### Auth & Authorization
+
+- **Server Components**: Use `getUserSafely()` from `@repo/supabase/server` to prevent crashes on stale sessions.
+- **Middleware**: `middleware.ts` handles session refresh and role-based route restrictions.
+- **Authorization**: The `employees` table is the source of truth for roles and department access.
+
+### AI Orchestration
+
+- **Agent Graph**: LangGraph-based state machine in `lib/ai/agent-graph.ts`.
+- **Modular Subsystem**: `lib/ai/` contains modules for chunking, embeddings, memory, and tools.
+
+### Path Aliases
+
+- `~/*` or `@/*` → `apps/portal/*`
+- `@/app/*`, `@/features/*`, `@/components/*`, `@/lib/*`, `@/hooks/*` are mapped to their respective subdirectories.
+
+### Testing
+
+- **Unit**: Jest + Testing Library.
+- **Coverage thresholds**: 40% lines, 30% branches.
+- **E2E**: Playwright (requires `pnpm dev` running).

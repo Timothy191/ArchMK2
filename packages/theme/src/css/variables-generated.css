@@ -16,7 +16,7 @@
   --arch10: #3a3a3c;
   --arch11: #1d1d1f;
   --arch12: #ff3b30;
-  --arch13: #ff9f0a;
+  --arch13: #007aff;
   --arch14: #34c759;
   --arch15: #007aff;
   --mac-red: #ff5f56;
@@ -27,7 +27,7 @@
   --accent: 240 5% 91%;
   --success: #34c759;
   --success-foreground: 0 0% 100%;
-  --warning: #ff9f0a;
+  --warning: #007aff;
   --warning-foreground: 0 0% 100%;
   --danger: #ff3b30;
   --danger-foreground: 0 0% 100%;
@@ -66,7 +66,7 @@
   --radius: 0.75rem;
   --chart-1: 211 100% 50%;
   --chart-2: 142 71% 45%;
-  --chart-3: 37 100% 50%;
+  --chart-3: 199 89% 48%;
   --chart-4: 4 86% 58%;
   --chart-5: 270 60% 55%;
   --tremor-brand-faint: 211 100% 97%;
@@ -135,11 +135,9 @@
   --text-primary: var(--arch10);
   --text-heading: var(--arch11);
   --accent-red: var(--arch12);
-  --accent-orange: var(--arch13);
-  --accent-green: var(--arch14);
   --accent-blue: var(--arch15);
+  --accent-green: var(--arch14);
   --accent-alert: var(--arch12);
-  --accent-amber: var(--arch13);
   --accent-cyan: var(--arch15);
   --accent-emerald: var(--arch14);
   --accent-indigo: var(--arch15);

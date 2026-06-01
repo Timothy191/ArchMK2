@@ -12,11 +12,13 @@ confidence: high
 # ADR-006: Multi-Provider AI with Failover
 
 ## Status
+
 **Accepted** — Implemented May 2024
 
 ## Context
 
 We needed an AI service for:
+
 - Predictive maintenance insights
 - Shift handoff summaries
 - Safety compliance checking
@@ -24,6 +26,7 @@ We needed an AI service for:
 - Translation for international sites
 
 Requirements:
+
 - High availability (mining operations can't wait)
 - Cost efficiency
 - Access to multiple model capabilities
@@ -79,27 +82,31 @@ Response to User
 ```typescript
 // apps/portal/lib/ai/ai-service.ts
 const providers = [
-  { name: 'groq', client: groqClient, timeout: 5000 },
-  { name: 'openrouter', client: openRouterClient, timeout: 10000 },
-  { name: 'together', client: togetherClient, timeout: 15000 },
-]
+  { name: "groq", client: groqClient, timeout: 5000 },
+  { name: "openrouter", client: openRouterClient, timeout: 10000 },
+  { name: "together", client: togetherClient, timeout: 15000 },
+];
 
 export async function generateWithFailover(prompt: string) {
   for (const provider of providers) {
     try {
-      return await withTimeout(provider.client.generate(prompt), provider.timeout)
+      return await withTimeout(
+        provider.client.generate(prompt),
+        provider.timeout,
+      );
     } catch (err) {
-      console.warn(`${provider.name} failed, trying next...`)
-      continue
+      console.warn(`${provider.name} failed, trying next...`);
+      continue;
     }
   }
-  throw new Error('All AI providers failed')
+  throw new Error("All AI providers failed");
 }
 ```
 
 ### Prompt Templates
 
 Standardized prompts for operational contexts:
+
 - `predictiveMaintenance` — Equipment health predictions
 - `shiftHandoff` — Shift change summaries
 - `safetyCompliance` — Regulation checking
@@ -109,18 +116,21 @@ Standardized prompts for operational contexts:
 ## Alternatives Considered
 
 ### Single Provider (OpenAI GPT-4) (REJECTED)
+
 - Single point of failure
 - Rate limits would block operations
 - No failover if outage occurs
 - Higher cost at scale
 
 ### Self-Hosted LLM (Llama via vLLM) (REJECTED)
+
 - High infrastructure cost
 - DevOps burden for GPU management
 - Slower than API providers
 - Would consider for air-gapped environments
 
 ### Azure OpenAI (REJECTED)
+
 - Good enterprise option but
 - Higher latency than Groq
 - Less model variety than OpenRouter
@@ -129,6 +139,7 @@ Standardized prompts for operational contexts:
 ## Monitoring
 
 Track per-provider:
+
 - Request count
 - Success/failure rate
 - Average response time

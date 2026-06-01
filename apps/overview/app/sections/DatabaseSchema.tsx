@@ -59,7 +59,7 @@ export default function DatabaseSchema() {
                     className="flex items-center gap-2 px-2 py-1.5 rounded bg-[#242424] text-xs"
                   >
                     {column.includes("PK") && (
-                      <Key className="w-3 h-3 text-[#f59e0b]" />
+                      <Key className="w-3 h-3 text-[#007aff]" />
                     )}
                     {column.includes("FK") && (
                       <ArrowRight className="w-3 h-3 text-[#60a5fa]" />
@@ -146,7 +146,7 @@ export default function DatabaseSchema() {
 
         <div className="glass-card p-4 rounded-xl">
           <div className="flex items-center gap-2 mb-2">
-            <Key className="w-5 h-5 text-[#f59e0b]" />
+            <Key className="w-5 h-5 text-[#007aff]" />
             <span className="text-sm font-medium text-[#fafafa]">
               Auth Integration
             </span>

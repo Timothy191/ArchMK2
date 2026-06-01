@@ -4,7 +4,12 @@ created: 2026-05-15
 updated: 2026-05-15
 type: query
 tags: [how-to, department, onboarding, quick-reference]
-sources: [wiki/concepts/department-features.md, wiki/concepts/database-schema.md, wiki/concepts/turborepo-monorepo.md]
+sources:
+  [
+    wiki/concepts/department-features.md,
+    wiki/concepts/database-schema.md,
+    wiki/concepts/turborepo-monorepo.md,
+  ]
 confidence: high
 ---
 
@@ -20,13 +25,13 @@ Edit `apps/portal/lib/departments.ts`:
 export const DEPARTMENTS: Department[] = [
   // ... existing departments
   {
-    slug: 'environmental',
-    displayName: 'Environmental',
-    icon: 'Leaf',  // from lucide-react
-    color: 'emerald',
-    description: 'Environmental monitoring and compliance tracking',
+    slug: "environmental",
+    displayName: "Environmental",
+    icon: "Leaf", // from lucide-react
+    color: "emerald",
+    description: "Environmental monitoring and compliance tracking",
   },
-]
+];
 ```
 
 ### 2. Add Tab Configuration
@@ -37,13 +42,13 @@ In the same file, add to `DEPARTMENT_TABS`:
 export const DEPARTMENT_TABS: Record<string, TabConfig[]> = {
   // ... existing departments
   environmental: [
-    { slug: 'dashboard', label: 'Dashboard', icon: 'LayoutDashboard' },
-    { slug: 'monitoring', label: 'Monitoring', icon: 'Activity' },
-    { slug: 'compliance', label: 'Compliance', icon: 'Shield' },
-    { slug: 'reports', label: 'Reports', icon: 'FileText' },
-    { slug: 'tools', label: 'Tools', icon: 'Wrench' },
+    { slug: "dashboard", label: "Dashboard", icon: "LayoutDashboard" },
+    { slug: "monitoring", label: "Monitoring", icon: "Activity" },
+    { slug: "compliance", label: "Compliance", icon: "Shield" },
+    { slug: "reports", label: "Reports", icon: "FileText" },
+    { slug: "tools", label: "Tools", icon: "Wrench" },
   ],
-}
+};
 ```
 
 ### 3. Create Route Folder
@@ -67,12 +72,12 @@ import { PageHeader } from '@repo/ui/PageHeader'
 
 export default async function EnvironmentalDashboard({ params }: { params: { department: string } }) {
   const { dept, supabase } = await getDepartmentContext(params)
-  
+
   const { data: metrics } = await supabase
     .from('environmental_metrics')
     .select('*')
     .eq('department_id', dept.id)
-  
+
   return (
     <div>
       <PageHeader title={`${dept.displayName} Dashboard`} />
@@ -118,6 +123,7 @@ USING (department_id = auth.user_department_id() OR auth.is_admin());
 ```
 
 Deploy:
+
 ```bash
 cd packages/database && pnpm supabase:push
 ```
@@ -134,17 +140,18 @@ cd packages/database && pnpm supabase:push
 
 ### Tab Configuration Options
 
-| Option | Type | Description |
-|--------|------|-------------|
-| `slug` | string | URL segment (e.g., 'dashboard') |
-| `label` | string | Display name in sidebar |
-| `icon` | string | Lucide icon name |
-| `href` | string | (optional) External link |
+| Option       | Type    | Description                          |
+| ------------ | ------- | ------------------------------------ |
+| `slug`       | string  | URL segment (e.g., 'dashboard')      |
+| `label`      | string  | Display name in sidebar              |
+| `icon`       | string  | Lucide icon name                     |
+| `href`       | string  | (optional) External link             |
 | `restricted` | boolean | (optional) Requires admin/supervisor |
 
 ### Icons Available
 
 Any icon from `lucide-react` — use PascalCase name:
+
 - `LayoutDashboard`, `Activity`, `Shield`, `FileText`, `Wrench`
 - `Settings`, `Users`, `BarChart3`, `AlertTriangle`, `CheckCircle`
 
@@ -153,8 +160,9 @@ See [Lucide Icons](https://lucide.dev/icons/)
 ### Colors Available
 
 Must match Tailwind color palette:
+
 - `slate`, `gray`, `zinc`, `neutral`, `stone`
-- `red`, `orange`, `amber`, `yellow`, `lime`, `green`, `emerald`
+- `red`, `blue`, `blue`, `yellow`, `lime`, `green`, `emerald`
 - `teal`, `cyan`, `sky`, `blue`, `indigo`, `violet`, `purple`
 - `fuchsia`, `pink`, `rose`
 
@@ -170,7 +178,7 @@ ALTER TABLE your_table ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can view their department data"
 ON your_table FOR SELECT
 USING (
-  department_id = auth.user_department_id() 
+  department_id = auth.user_department_id()
   OR auth.is_admin()
   OR department_id = ANY(auth.has_department_access())
 );
@@ -196,18 +204,22 @@ WITH CHECK (
 ## Common Mistakes
 
 ### 1. Forgot Database Migration
+
 **Symptom**: Department shows in UI but queries fail
 **Fix**: Run `pnpm supabase:push`
 
 ### 2. RLS Not Enabled
+
 **Symptom**: Empty data arrays, no errors
 **Fix**: `ALTER TABLE ... ENABLE ROW LEVEL SECURITY`
 
 ### 3. Mismatched Slug
+
 **Symptom**: 404 errors, not found
 **Fix**: Ensure `slug` in `departments.ts` matches folder name
 
 ### 4. Missing Icon Import
+
 **Symptom**: Icon doesn't render
 **Fix**: Use valid Lucide icon name (PascalCase)
 

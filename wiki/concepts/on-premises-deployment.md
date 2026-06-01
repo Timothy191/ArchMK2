@@ -10,7 +10,7 @@
 
 ## Overview
 
-The portal currently runs fully in local development via `./scripts/deploy-local.sh`. The production deployment target is an **on-premises Linux server** at the mining site — not a cloud provider. This is intentional for network isolation, data sovereignty, and offline resilience in remote mine environments.
+The portal currently runs fully in local development via `./scripts/deploy.sh local`. The production deployment target is an **on-premises Linux server** at the mining site — not a cloud provider. This is intentional for network isolation, data sovereignty, and offline resilience in remote mine environments.
 
 The deployment script is already production-identical. Moving to production is a matter of provisioning the server, installing prerequisites, and running the same script.
 
@@ -41,13 +41,13 @@ Server management via Cockpit → :9090
 
 ### Server Requirements
 
-| Component | Minimum | Recommended |
-|-----------|---------|-------------|
-| OS | Ubuntu 22.04 LTS | RHEL 9 / Ubuntu 24.04 LTS |
-| CPU | 4 cores | 8+ cores |
-| RAM | 8 GB | 16–32 GB |
-| Disk | 100 GB SSD | 500 GB SSD |
-| Network | LAN only | LAN + VPN |
+| Component | Minimum          | Recommended               |
+| --------- | ---------------- | ------------------------- |
+| OS        | Ubuntu 22.04 LTS | RHEL 9 / Ubuntu 24.04 LTS |
+| CPU       | 4 cores          | 8+ cores                  |
+| RAM       | 8 GB             | 16–32 GB                  |
+| Disk      | 100 GB SSD       | 500 GB SSD                |
+| Network   | LAN only         | LAN + VPN                 |
 
 ### Software
 
@@ -104,7 +104,7 @@ cp apps/portal/.env.production.example apps/portal/.env
 # Edit .env: fill in server IP, Supabase keys, AI keys, Redis password
 
 # Deploy
-./scripts/deploy-production.sh
+./scripts/deploy.sh production
 ```
 
 - [ ] Verify all containers start: `docker compose ps`
@@ -140,17 +140,19 @@ cp apps/portal/.env.production.example apps/portal/.env
 Developer Machine                  Production Server
 ─────────────────                  ─────────────────
   git push                   →       git pull
-  (or manual copy)                   ./scripts/deploy-local.sh
+  (or manual copy)                   ./scripts/deploy.sh local
                                      docker compose up -d
                                      → All services restart
 ```
 
-For zero-downtime updates (git pull + rolling restart):
+For quick production updates (git pull + restart without rebuilding):
+
 ```bash
-./scripts/update-production.sh main
+./scripts/deploy.sh production --skip-build
 ```
 
 Install as a systemd service for auto-start on boot:
+
 ```bash
 sudo cp systemd/arch-systems.service /etc/systemd/system/
 sudo systemctl daemon-reload

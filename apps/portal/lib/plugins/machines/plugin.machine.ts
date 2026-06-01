@@ -2,6 +2,7 @@ import { setup, assign, fromPromise } from "xstate";
 import { ArchPlugin } from "../types";
 import { PluginContext, PluginEvent, isRetryableError } from "./types";
 import { logError } from "@/lib/errors/error-logger";
+import { ValidationError } from "@repo/errors";
 
 // =============================================================================
 // Async Load Function
@@ -12,7 +13,10 @@ async function loadPluginModule(pluginName: string): Promise<ArchPlugin> {
   const plugin: ArchPlugin = module.default;
 
   if (!plugin || !plugin.metadata || !plugin.metadata.id) {
-    throw new Error(`Plugin ${pluginName} is missing valid metadata contract`);
+    throw new ValidationError(
+      `Plugin ${pluginName} is missing valid metadata contract`,
+      { field: "metadata", value: pluginName },
+    );
   }
 
   return plugin;
@@ -67,9 +71,11 @@ export const pluginMachine = setup({
     }),
   },
   actors: {
-    loadPlugin: fromPromise(async ({ input }: { input: { pluginName: string } }) => {
-      return loadPluginModule(input.pluginName);
-    }),
+    loadPlugin: fromPromise(
+      async ({ input }: { input: { pluginName: string } }) => {
+        return loadPluginModule(input.pluginName);
+      },
+    ),
   },
   guards: {
     canRetry: ({ context }) => context.retryCount < context.maxRetries,
@@ -87,11 +93,13 @@ export const pluginMachine = setup({
   id: "plugin",
   initial: "idle",
   context: ({ input }) => ({
-    pluginName: (input as { pluginName: string; maxRetries?: number }).pluginName,
+    pluginName: (input as { pluginName: string; maxRetries?: number })
+      .pluginName,
     plugin: undefined,
     error: undefined,
     retryCount: 0,
-    maxRetries: (input as { pluginName: string; maxRetries?: number }).maxRetries ?? 3,
+    maxRetries:
+      (input as { pluginName: string; maxRetries?: number }).maxRetries ?? 3,
     lastLoadedAt: undefined,
   }),
   states: {
@@ -116,7 +124,9 @@ export const pluginMachine = setup({
           target: "failed",
           actions: assign({
             error: ({ event }) =>
-              event.error instanceof Error ? event.error.message : String(event.error),
+              event.error instanceof Error
+                ? event.error.message
+                : String(event.error),
           }),
         },
       },
@@ -163,4 +173,3 @@ export const pluginMachine = setup({
     },
   },
 });
-

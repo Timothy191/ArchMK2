@@ -5,6 +5,7 @@ Strip AI-generated slop from the current branch.
 ## Process
 
 1. **Diff the branch against main:**
+
    ```bash
    git fetch origin main
    git diff origin/main...HEAD --stat
@@ -25,6 +26,7 @@ Strip AI-generated slop from the current branch.
 3. **Apply minimal edits** to remove each slop instance.
 
 4. **Verify behavior unchanged:**
+
    ```bash
    git diff origin/main...HEAD
    npm test -- --changed --passWithNoTests 2>&1 | tail -10

@@ -16,18 +16,18 @@ Selection of styling architecture for a multi-departmental portal with a strict 
 
 ## Dimensions of Comparison
 
-| Dimension | Tailwind CSS 3.4 | CSS-in-JS (styled-components/emotion) | CSS Modules |
-|-----------|------------------|--------------------------------------|-------------|
-| **Bundle Size** | ~0 (purge unused) | Runtime overhead (10-15KB) | Moderate (per-component CSS) |
-| **Build Speed** | Fast (JIT compiler) | Slower (runtime parsing) | Fast |
-| **SSR/Next.js** | Full support | Complex (critical CSS extraction) | Full support |
-| **Theming** | CSS variables + class strategy | ThemeProvider context | CSS variables |
-| **Design Tokens** | Config + plugin system | Theme object | Manual variables |
-| **Component Libs** | @repo/theme shared preset | Style duplication risk | Scoped styles |
-| **Dev Experience** | Utility classes (learning curve) | Familiar CSS-in-JS | Scoped CSS |
-| **RSC Support** | Full | Requires 'use client' | Full |
-| **Dark Mode** | class-based strategy | ThemeProvider switching | Manual media queries |
-| **Monorepo Share** | Tailwind preset in @repo/theme | Theme context per app | Import CSS files |
+| Dimension          | Tailwind CSS 3.4                 | CSS-in-JS (styled-components/emotion) | CSS Modules                  |
+| ------------------ | -------------------------------- | ------------------------------------- | ---------------------------- |
+| **Bundle Size**    | ~0 (purge unused)                | Runtime overhead (10-15KB)            | Moderate (per-component CSS) |
+| **Build Speed**    | Fast (JIT compiler)              | Slower (runtime parsing)              | Fast                         |
+| **SSR/Next.js**    | Full support                     | Complex (critical CSS extraction)     | Full support                 |
+| **Theming**        | CSS variables + class strategy   | ThemeProvider context                 | CSS variables                |
+| **Design Tokens**  | Config + plugin system           | Theme object                          | Manual variables             |
+| **Component Libs** | @repo/theme shared preset        | Style duplication risk                | Scoped styles                |
+| **Dev Experience** | Utility classes (learning curve) | Familiar CSS-in-JS                    | Scoped CSS                   |
+| **RSC Support**    | Full                             | Requires 'use client'                 | Full                         |
+| **Dark Mode**      | class-based strategy             | ThemeProvider switching               | Manual media queries         |
+| **Monorepo Share** | Tailwind preset in @repo/theme   | Theme context per app                 | Import CSS files             |
 
 ## Project Implementation
 
@@ -39,15 +39,15 @@ export const themePreset = {
   theme: {
     extend: {
       colors: {
-        void: 'hsl(var(--bg-void))',
-        primary: 'hsl(var(--bg-primary))',
-        card: 'hsl(var(--bg-card))',
-        border: 'hsl(var(--border))',
-        accent: '#3ecf8e',
-      }
-    }
-  }
-}
+        void: "hsl(var(--bg-void))",
+        primary: "hsl(var(--bg-primary))",
+        card: "hsl(var(--bg-card))",
+        border: "hsl(var(--border))",
+        accent: "#3ecf8e",
+      },
+    },
+  },
+};
 ```
 
 Usage in components:
@@ -61,6 +61,7 @@ Usage in components:
 ```
 
 Design system enforcement via DeepEval metrics:
+
 - `DesignSystemComplianceMetric` checks for forbidden classes
 - Pre-commit hooks validate Tailwind usage
 
@@ -76,6 +77,7 @@ Design system enforcement via DeepEval metrics:
 ## Why Not CSS-in-JS
 
 styled-components/emotion would require:
+
 - `'use client'` directive (breaks RSC optimization)
 - Runtime JavaScript overhead
 - ThemeProvider cascade complexity
@@ -86,6 +88,7 @@ For a Next.js 15 App Router application, CSS-in-JS is an anti-pattern.
 ## Why Not CSS Modules
 
 CSS Modules are excellent for component isolation but:
+
 - Design token sharing requires manual CSS variable management
 - No built-in utility composition
 - More files to maintain (`.module.css` alongside each component)

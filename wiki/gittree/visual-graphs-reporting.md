@@ -13,6 +13,7 @@ Visual graphs translate raw project data into actionable insights. They enable s
 **Purpose:** Comparing categorical values across different dimensions
 
 **Applications:**
+
 - Number of bugs per developer
 - Lines of code per project
 - Test coverage percentages per module
@@ -20,11 +21,13 @@ Visual graphs translate raw project data into actionable insights. They enable s
 - Performance metrics by environment (dev/staging/prod)
 
 **Advantages:**
+
 - Quick visual comparison
 - Easy to identify outliers
 - Supports multiple series (grouped or stacked)
 
 **Example Metrics:**
+
 ```
 Bugs per Developer:
 ┌─────────────────────────┐
@@ -40,6 +43,7 @@ Bugs per Developer:
 **Purpose:** Illustrating trends over time
 
 **Applications:**
+
 - Daily deployment frequency
 - Crash rates across multiple builds
 - Website uptime percentage
@@ -48,12 +52,14 @@ Bugs per Developer:
 - Memory/CPU utilization over time
 
 **Advantages:**
+
 - Shows trajectory and momentum
 - Identifies inflection points
 - Supports multiple series for comparison
 - Highlights seasonality and patterns
 
 **Example Metrics:**
+
 ```
 Deployment Frequency (Past 30 Days):
 20 ┤     ╱╲
@@ -69,6 +75,7 @@ Deployment Frequency (Past 30 Days):
 **Purpose:** Project timeline and dependency visualization
 
 **Applications:**
+
 - Sprint progress tracking
 - Feature delivery roadmap
 - Task dependencies and critical path
@@ -76,12 +83,14 @@ Deployment Frequency (Past 30 Days):
 - Deployment windows and release schedules
 
 **Advantages:**
+
 - Shows project phases sequentially
 - Identifies bottlenecks and dependencies
 - Communicates deadlines clearly
 - Useful for stakeholder alignment
 
 **Example:**
+
 ```
 Task Timeline (Current Sprint):
 ┌────────────────────────────────────────────────┐
@@ -98,6 +107,7 @@ Task Timeline (Current Sprint):
 **Purpose:** Analyzing relationships between two continuous variables
 
 **Applications:**
+
 - Code complexity vs. production bug frequency
 - File size vs. cyclomatic complexity
 - Test coverage vs. defect density
@@ -105,12 +115,14 @@ Task Timeline (Current Sprint):
 - Developer experience (LOC) vs. code quality
 
 **Advantages:**
+
 - Reveals correlations and outliers
 - Identifies unusual patterns
 - Supports trend line analysis
 - Effective for finding root causes
 
 **Example:**
+
 ```
 Code Complexity vs. Bug Frequency:
 Bugs │     •
@@ -131,6 +143,7 @@ Bugs │     •
 **Purpose:** Highlighting density, intensity, or frequency patterns
 
 **Applications:**
+
 - Commit frequency by time of day / day of week
 - Code churn hotspots in the codebase
 - Error rate distribution across modules
@@ -139,12 +152,14 @@ Bugs │     •
 - Developer activity patterns
 
 **Advantages:**
+
 - Quickly identifies hotspots
 - Reveals patterns not obvious in raw data
 - Supports continuous color gradients
 - Great for large datasets
 
 **Example (Commit Activity Heatmap):**
+
 ```
           Mon   Tue   Wed   Thu   Fri
 09:00  ░░░░  ▒▒▒▒  ▒▒▒▒  ░░░░  ▒▒▒▒
@@ -195,6 +210,7 @@ Legend: `░` = Low, `▒` = Medium, `▓` = High, `█` = Very High
 ### For Arch-Mk2 Architecture
 
 Given the React 19 + Next.js 15 stack:
+
 - **Primary:** Recharts (React-native, lightweight)
 - **Advanced:** D3.js (via Skill: d3-viz) for custom reports
 - **Real-time:** Recharts with WebSocket/live data

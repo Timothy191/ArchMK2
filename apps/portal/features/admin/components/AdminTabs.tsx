@@ -1,11 +1,21 @@
 "use client";
 
 import { Tabs, TabsList, TabsTrigger } from "@repo/ui/components/ui/tabs";
-import { Users, Building2, Webhook, FileText, Settings } from "lucide-react";
+import {
+  Users,
+  Building2,
+  Webhook,
+  FileText,
+  Settings,
+  Truck,
+  MapPin,
+} from "lucide-react";
 
 const TABS = [
   { value: "users", label: "Users", icon: Users },
   { value: "departments", label: "Departments", icon: Building2 },
+  { value: "fleet", label: "Fleet", icon: Truck },
+  { value: "sites", label: "Sites", icon: MapPin },
   { value: "webhooks", label: "Webhooks", icon: Webhook },
   { value: "audit-logs", label: "Audit Logs", icon: FileText },
   { value: "settings", label: "Settings", icon: Settings },
@@ -17,9 +27,17 @@ interface AdminTabsProps {
   children: React.ReactNode;
 }
 
-export function AdminTabs({ defaultValue, onValueChange, children }: AdminTabsProps) {
+export function AdminTabs({
+  defaultValue,
+  onValueChange,
+  children,
+}: AdminTabsProps) {
   return (
-    <Tabs defaultValue={defaultValue} onValueChange={onValueChange} className="w-full">
+    <Tabs
+      defaultValue={defaultValue}
+      onValueChange={onValueChange}
+      className="w-full"
+    >
       <TabsList className="w-full justify-start bg-[var(--bg-secondary)] border border-[var(--border-default)]">
         {TABS.map((tab) => (
           <TabsTrigger

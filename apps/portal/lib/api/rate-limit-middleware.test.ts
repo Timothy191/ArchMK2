@@ -1,0 +1,147 @@
+/**
+ * @jest-environment node
+ */
+
+import { withRateLimit, skipForInternal } from "./rate-limit-middleware";
+import { NextRequest, NextResponse } from "next/server";
+
+const mockCache = new Map<string, unknown>();
+
+jest.mock("@repo/redis/cache", () => ({
+  cacheGet: jest.fn(async (key: string) => mockCache.get(key) ?? null),
+  cacheSet: jest.fn(async (key: string, value: unknown) => {
+    mockCache.set(key, value);
+  }),
+}));
+
+function makeRequest(
+  url: string,
+  headers?: Record<string, string>,
+): NextRequest {
+  return new NextRequest(url, { headers });
+}
+
+const handler = jest.fn(async () => NextResponse.json({ ok: true }));
+
+describe("withRateLimit", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockCache.clear();
+    handler.mockResolvedValue(NextResponse.json({ ok: true }));
+  });
+
+  it("allows the first request and adds rate limit headers", async () => {
+    const req = makeRequest("http://localhost/api/export/machines");
+    const res = await withRateLimit(req, handler);
+
+    expect(res.status).toBe(200);
+    expect(res.headers.get("X-RateLimit-Limit")).toBeTruthy();
+    expect(res.headers.get("X-RateLimit-Remaining")).toBeTruthy();
+    expect(handler).toHaveBeenCalledTimes(1);
+  });
+
+  it("blocks requests when limit is exceeded and does not call handler", async () => {
+    const req = makeRequest("http://localhost/api/ai/chat", {
+      "x-forwarded-for": "10.0.0.1",
+    });
+
+    // Exhaust the AI limit (30 req/min)
+    for (let i = 0; i < 30; i++) {
+      await withRateLimit(
+        makeRequest("http://localhost/api/ai/chat", {
+          "x-forwarded-for": "10.0.0.1",
+        }),
+        handler,
+      );
+    }
+
+    handler.mockClear();
+    const blockedRes = await withRateLimit(req, handler);
+
+    expect(blockedRes.status).toBe(429);
+    expect(handler).not.toHaveBeenCalled();
+    const body = await blockedRes.json();
+    expect(body.error).toBe("Rate limit exceeded");
+    expect(blockedRes.headers.get("Retry-After")).toBeTruthy();
+  });
+
+  it("returns 429 headers without calling handler when rate limited", async () => {
+    const customLimit = { windowMs: 60_000, maxRequests: 1 };
+    const req = makeRequest("http://localhost/api/test", {
+      "x-forwarded-for": "10.0.0.2",
+    });
+
+    await withRateLimit(req, handler, { customLimit });
+    handler.mockClear();
+
+    const res = await withRateLimit(
+      makeRequest("http://localhost/api/test", {
+        "x-forwarded-for": "10.0.0.2",
+      }),
+      handler,
+      { customLimit },
+    );
+
+    expect(res.status).toBe(429);
+    expect(handler).not.toHaveBeenCalled();
+    expect(res.headers.get("X-RateLimit-Remaining")).toBe("0");
+  });
+
+  it("skips rate limiting when skipIf returns true", async () => {
+    const customLimit = { windowMs: 60_000, maxRequests: 0 };
+    const req = makeRequest("http://localhost/api/test");
+
+    const res = await withRateLimit(req, handler, {
+      customLimit,
+      skipIf: () => true,
+    });
+
+    expect(res.status).toBe(200);
+    expect(handler).toHaveBeenCalledTimes(1);
+  });
+
+  it("uses user ID as identifier when x-user-id header is set", async () => {
+    const req1 = makeRequest("http://localhost/api/ai/chat", {
+      "x-user-id": "user-abc",
+    });
+    const req2 = makeRequest("http://localhost/api/ai/chat", {
+      "x-user-id": "user-xyz",
+    });
+
+    const customLimit = { windowMs: 60_000, maxRequests: 1 };
+
+    await withRateLimit(req1, handler, { customLimit });
+    handler.mockClear();
+
+    // Different user should not be blocked
+    const res = await withRateLimit(req2, handler, { customLimit });
+    expect(res.status).toBe(200);
+    expect(handler).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("skipForInternal", () => {
+  const originalEnv = process.env.INTERNAL_API_SECRET;
+
+  beforeAll(() => {
+    process.env.INTERNAL_API_SECRET = "test-secret-123";
+  });
+
+  afterAll(() => {
+    process.env.INTERNAL_API_SECRET = originalEnv;
+  });
+
+  it("returns true when secret matches", () => {
+    const req = makeRequest("http://localhost/api/sync/playback", {
+      "x-internal-secret": "test-secret-123",
+    });
+    expect(skipForInternal(req)).toBe(true);
+  });
+
+  it("returns false when secret does not match", () => {
+    const req = makeRequest("http://localhost/api/sync/playback", {
+      "x-internal-secret": "wrong-secret",
+    });
+    expect(skipForInternal(req)).toBe(false);
+  });
+});

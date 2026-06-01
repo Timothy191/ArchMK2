@@ -6,12 +6,11 @@
 /** @type {import('stylelint').Config} */
 export default {
   extends: ["stylelint-config-standard"],
-  ignoreFiles: [
-    "node_modules/**",
-    "dist/**",
-    "coverage/**",
-  ],
+  ignoreFiles: ["node_modules/**", "dist/**", "coverage/**"],
   rules: {
+    // Allow any CSS class pattern (Tailwind arbitrary values use brackets, backslashes, etc.)
+    "selector-class-pattern": null,
+
     // Allow CSS custom properties
     "custom-property-pattern": null,
 

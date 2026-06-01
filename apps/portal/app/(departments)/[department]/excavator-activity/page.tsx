@@ -18,58 +18,53 @@ export default async function ExcavatorActivityPage({
     department: deptSlug,
   });
 
-  // Fetch excavators for the department
-  const { data: excavators } = await supabase
-    .from("machines")
-    .select("id, name, machine_type, serial_number, active")
-    .eq("department_id", deptId)
-    .eq("active", true)
-    .ilike("machine_type", "%excavator%")
-    .order("name");
-
-  // Fetch dumper-type machines with bin_factor and site assignment
-  const { data: dumpers } = await supabase
-    .from("machines")
-    .select(
-      "id, name, machine_type, serial_number, active, bin_factor, site_id",
-    )
-    .eq("department_id", deptId)
-    .eq("active", true)
-    .or(
-      "machine_type.ilike.%dumper%,machine_type.ilike.%dump truck%,machine_type.ilike.%hauler%",
-    )
-    .order("name");
-
-  // Fetch operators
-  const { data: operators } = await supabase
-    .from("operators")
-    .select("id, full_name, employee_code")
-    .eq("active", true)
-    .order("full_name");
-
-  // Fetch sites
-  const { data: sites } = await supabase
-    .from("sites")
-    .select("id, name, site_code, active")
-    .eq("active", true)
-    .order("name");
-
-  // Fetch mine blocks with site relation
-  const { data: mineBlocks } = await supabase
-    .from("mine_blocks")
-    .select("id, name, code, site_id, active")
-    .eq("active", true)
-    .order("name");
-
-  // Fetch today's excavator activity with joins
-  const { data: todayActivity } = await supabase
-    .from("excavator_activity")
-    .select(
-      "*, machine:machines(name), operator:operators(full_name), site:sites(name), block_mined:mine_blocks(name, code)",
-    )
-    .eq("department_id", deptId)
-    .eq("activity_date", today)
-    .order("created_at", { ascending: false });
+  // Parallel fetch of independent reference data and today's activity
+  const [
+    { data: excavators },
+    { data: dumpers },
+    { data: operators },
+    { data: sites },
+    { data: mineBlocks },
+    { data: todayActivity },
+  ] = await Promise.all([
+    supabase
+      .from("machines")
+      .select("id, name, machine_type, serial_number, active")
+      .eq("machine_type", "Excavator")
+      .eq("active", true)
+      .order("name"),
+    supabase
+      .from("machines")
+      .select(
+        "id, name, machine_type, serial_number, active, bin_factor, site_id",
+      )
+      .eq("machine_type", "Dump Truck")
+      .eq("active", true)
+      .order("name"),
+    supabase
+      .from("operators")
+      .select("id, full_name, employee_code")
+      .eq("active", true)
+      .order("full_name"),
+    supabase
+      .from("sites")
+      .select("id, name, site_code, active")
+      .eq("active", true)
+      .order("name"),
+    supabase
+      .from("mine_blocks")
+      .select("id, name, code, site_id, active")
+      .eq("active", true)
+      .order("name"),
+    supabase
+      .from("excavator_activity")
+      .select(
+        "*, machine:machines(name), operator:operators(full_name), site:sites(name), block_mined:mine_blocks(name, code)",
+      )
+      .eq("department_id", deptId)
+      .eq("activity_date", today)
+      .order("created_at", { ascending: false }),
+  ]);
 
   // Fetch today's dumper assignments via excavator_activity IDs
   const activityIds = todayActivity?.map((a) => a.id) || [];
@@ -88,22 +83,23 @@ export default async function ExcavatorActivityPage({
     } | null;
   }> = [];
 
-  if (activityIds.length > 0) {
-    const { data: assignments } = await supabase
-      .from("excavator_dumper_assignments")
-      .select(
-        "*, dumper:machines!dumper_machine_id(name, bin_factor, machine_type)",
-      )
-      .in("excavator_activity_id", activityIds);
-    todayAssignments = assignments || [];
-  }
-
-  // Fetch today's hourly loads for BCM auto-calculation
-  const { data: todayLoads } = await supabase
-    .from("hourly_loads")
-    .select("machine_id, shift_type, total_loads")
-    .eq("department_id", deptId)
-    .eq("load_date", today);
+  // Fetch assignments and hourly loads in parallel (loads don't depend on assignments)
+  const [{ data: assignments }, { data: todayLoads }] = await Promise.all([
+    activityIds.length > 0
+      ? supabase
+          .from("excavator_dumper_assignments")
+          .select(
+            "*, dumper:machines!dumper_machine_id(name, bin_factor, machine_type)",
+          )
+          .in("excavator_activity_id", activityIds)
+      : Promise.resolve({ data: [] }),
+    supabase
+      .from("hourly_loads")
+      .select("machine_id, shift_type, total_loads")
+      .eq("department_id", deptId)
+      .eq("load_date", today),
+  ]);
+  todayAssignments = assignments || [];
 
   // Compute KPIs
   const totalLoads =

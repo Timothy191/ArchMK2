@@ -12,11 +12,13 @@ confidence: medium
 # ADR-007: React 19 Adoption Strategy
 
 ## Status
+
 **Accepted** — Implemented May 2024
 
 ## Context
 
 React 19 was released with Next.js 15, offering:
+
 - React Server Components (stable)
 - Actions (form mutations simplified)
 - use() hook for promises
@@ -24,6 +26,7 @@ React 19 was released with Next.js 15, offering:
 - Document metadata API
 
 However, the ecosystem was still adapting. We needed to decide:
+
 - Adopt React 19 early or stay on 18?
 - How to handle package compatibility?
 - What to do about `apps/overview` (React 18)?
@@ -64,16 +67,17 @@ We will **adopt React 19 for the main portal and shared packages**, with **apps/
 
 ### Package Compatibility Issues
 
-| Package | Version Used | Status |
-|---------|--------------|--------|
-| `@react-three/fiber` | v8.x | Works with React 19 |
-| `@react-three/drei` | v9.x | Works with React 19 |
-| `@tremor/react` | v3.18.7 | Monitor for issues |
-| `framer-motion` | v12.x | Fully compatible |
+| Package              | Version Used | Status              |
+| -------------------- | ------------ | ------------------- |
+| `@react-three/fiber` | v8.x         | Works with React 19 |
+| `@react-three/drei`  | v9.x         | Works with React 19 |
+| `@tremor/react`      | v3.18.7      | Monitor for issues  |
+| `framer-motion`      | v12.x        | Fully compatible    |
 
 ### Backup Plan
 
 If critical issues arise:
+
 1. Pin to React 18 temporarily
 2. Use `overrides` in package.json for specific packages
 3. Fork and patch incompatible packages
@@ -82,6 +86,7 @@ If critical issues arise:
 ## apps/overview Isolation
 
 `apps/overview` uses React 18 intentionally:
+
 - Static visualization dashboard
 - No interactivity requirements
 - Uses older D3-based charts
@@ -90,20 +95,22 @@ If critical issues arise:
 ```typescript
 // DANGER: Never do this
 // apps/overview/components/chart.tsx
-export { Chart } from '../../overview/components/chart'  // React 18!
+export { Chart } from "../../overview/components/chart"; // React 18!
 
 // SAFE: Always do this
-import { Chart } from '@repo/ui'  // React 19 compatible
+import { Chart } from "@repo/ui"; // React 19 compatible
 ```
 
 ## Migration Path
 
 ### Complete (2024)
+
 - Portal migrated to React 19
 - All shared packages on React 19
 - Tests passing with Jest 30
 
 ### Future (2025)
+
 - Upgrade `@react-three/fiber` to v9 when released
 - Upgrade `apps/overview` to React 19 when chart library supports
 - Remove React 18 from monorepo entirely
@@ -111,11 +118,13 @@ import { Chart } from '@repo/ui'  // React 19 compatible
 ## Alternatives Considered
 
 ### Stay on React 18 (REJECTED)
+
 - Would miss Next.js 15 optimizations
 - RSC not fully stable in React 18
 - Technical debt accumulation
 
 ### Upgrade Everything to React 19 (REJECTED)
+
 - `apps/overview` chart library incompatible
 - Forcing upgrade would break visualizations
 - Isolated approach safer

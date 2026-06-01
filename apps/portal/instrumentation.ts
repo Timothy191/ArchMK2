@@ -1,17 +1,6 @@
 import * as Sentry from "@sentry/nextjs";
-import { H } from "@highlight-run/next/server";
 
 export async function register() {
-  // Highlight server-side init
-  if (process.env.HIGHLIGHT_PROJECT_ID) {
-    H.init({
-      projectID: process.env.HIGHLIGHT_PROJECT_ID,
-      serviceName: process.env.OTEL_SERVICE_NAME || "arch-portal",
-      environment:
-        process.env.VERCEL_ENV || process.env.NODE_ENV || "development",
-    });
-  }
-
   // OpenTelemetry NodeSDK — dynamic import to prevent webpack from bundling native gRPC modules
   if (
     process.env.NEXT_RUNTIME === "nodejs" &&

@@ -45,16 +45,16 @@ The Engineering department in Arch-Systems handles equipment specifications, mai
 
 ## Completeness Status (Phase 3)
 
-| Feature | Status |
-|---------|--------|
-| Dashboard | 90% |
-| Forms (breakdowns) | 85% |
-| Tables (machines, history) | 95% |
-| Charts | 80% |
-| Real-time updates | 75% |
-| AI Assistant | 85% |
-| Mobile responsiveness | 70% |
-| **Overall** | **83%** |
+| Feature                    | Status  |
+| -------------------------- | ------- |
+| Dashboard                  | 90%     |
+| Forms (breakdowns)         | 85%     |
+| Tables (machines, history) | 95%     |
+| Charts                     | 80%     |
+| Real-time updates          | 75%     |
+| AI Assistant               | 85%     |
+| Mobile responsiveness      | 70%     |
+| **Overall**                | **83%** |
 
 **Mobile:** Breakdown book-in/book-out is filed by mechanics in the field. Touch-optimized fleet ID lookup and repair notes entry are key improvements. See [[mobile-pwa]].
 

@@ -13,7 +13,10 @@ interface EngineeringNote {
   requires_follow_up: boolean;
   status: "open" | "in_progress" | "resolved" | "closed";
   created_at: string;
-  machine?: { name: string } | null;
+  machine?: {
+    name: string;
+    sites?: { name: string }[] | { name: string } | null;
+  } | null;
 }
 
 interface EngineeringNotesListProps {
@@ -21,7 +24,7 @@ interface EngineeringNotesListProps {
 }
 
 const ISSUE_TYPE_COLORS: Record<string, string> = {
-  mechanical: "#f59e0b",
+  mechanical: "#007aff",
   electrical: "#3b82f6",
   structural: "#8b5cf6",
   hydraulic: "#06b6d4",
@@ -30,13 +33,13 @@ const ISSUE_TYPE_COLORS: Record<string, string> = {
 
 const SEVERITY_COLORS: Record<string, string> = {
   low: "#10b981",
-  medium: "#f59e0b",
+  medium: "#007aff",
   high: "#ef4444",
   critical: "#dc2626",
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  open: "#f59e0b",
+  open: "#007aff",
   in_progress: "#3b82f6",
   resolved: "#10b981",
   closed: "#6b7280",
@@ -68,8 +71,8 @@ export function EngineeringNotesList({ notes }: EngineeringNotesListProps) {
     <div className="space-y-4">
       {dayNotes.length > 0 && (
         <div className="space-y-2">
-          <h4 className="text-sm font-medium text-amber-400 flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-amber-400"></span>
+          <h4 className="text-sm font-medium text-accent-blue flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-accent-blue"></span>
             Day Shift
           </h4>
           <div className="space-y-2">
@@ -82,8 +85,8 @@ export function EngineeringNotesList({ notes }: EngineeringNotesListProps) {
 
       {nightNotes.length > 0 && (
         <div className="space-y-2">
-          <h4 className="text-sm font-medium text-blue-400 flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-blue-400"></span>
+          <h4 className="text-sm font-medium text-accent-blue flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-accent-blue"></span>
             Night Shift
           </h4>
           <div className="space-y-2">
@@ -104,7 +107,7 @@ function NoteCard({ note }: { note: EngineeringNote }) {
 
   return (
     <GlassCard
-      className={`py-3 ${note.severity === "critical" ? "border-red-500/30" : ""}`}
+      className={`py-3 ${note.severity === "critical" ? "border-accent-red/30" : ""}`}
     >
       <div className="space-y-3">
         {/* Header */}
@@ -141,12 +144,27 @@ function NoteCard({ note }: { note: EngineeringNote }) {
             {note.status.replace("_", " ").toUpperCase()}
           </span>
 
-          {/* Machine */}
-          {note.machine && (
-            <span className="text-[var(--text-muted)] text-xs">
-              {note.machine.name}
-            </span>
-          )}
+          {/* Machine & Site */}
+          {note.machine &&
+            (() => {
+              const siteName = Array.isArray(note.machine!.sites)
+                ? note.machine!.sites[0]?.name
+                : (note.machine!.sites as { name: string } | null | undefined)
+                    ?.name;
+              return (
+                <span className="text-[var(--text-muted)] text-xs flex items-center gap-1.5">
+                  {note.machine!.name}
+                  {siteName && (
+                    <>
+                      <span className="text-[var(--border-emphasis)]">·</span>
+                      <span className="text-[var(--accent-cyan)]">
+                        {siteName}
+                      </span>
+                    </>
+                  )}
+                </span>
+              );
+            })()}
 
           {/* Time */}
           <span className="text-[var(--text-muted)] text-xs ml-auto">
@@ -170,8 +188,8 @@ function NoteCard({ note }: { note: EngineeringNote }) {
         {/* Follow-up Flag */}
         {note.requires_follow_up && (
           <div className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
-            <span className="text-blue-400 text-xs">Follow-up required</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-accent-blue"></span>
+            <span className="text-accent-blue text-xs">Follow-up required</span>
           </div>
         )}
       </div>

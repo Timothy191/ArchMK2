@@ -2,43 +2,57 @@
 
 import { Title, AreaChart, Text } from "@tremor/react";
 
-const chartdata = [
-  { date: "08:00", Drilling: 2890, Production: 2338, Engineering: 1200 },
-  { date: "09:00", Drilling: 2756, Production: 2103, Engineering: 1400 },
-  { date: "10:00", Drilling: 3322, Production: 2194, Engineering: 1100 },
-  { date: "11:00", Drilling: 3470, Production: 2108, Engineering: 1600 },
-  { date: "12:00", Drilling: 3475, Production: 1812, Engineering: 1300 },
-  { date: "13:00", Drilling: 3129, Production: 1726, Engineering: 1500 },
-];
+export interface TrendDataPoint {
+  date: string;
+  Drilling: number;
+  Production: number;
+  Engineering: number;
+}
 
-export function ProductionTrend() {
+interface ProductionTrendProps {
+  data: TrendDataPoint[];
+}
+
+export function ProductionTrend({ data }: ProductionTrendProps) {
+  if (data.length === 0) return null;
+
   return (
     <div className="mt-8">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <Title className="text-arch-text-primary">Site Production Trend</Title>
-          <Text className="text-arch-text-tertiary">Real-time output across core departments</Text>
+          <Title className="text-arch-text-primary">
+            Site Production Trend
+          </Title>
+          <Text className="text-arch-text-tertiary">
+            Real-time output across core departments
+          </Text>
         </div>
         <div className="flex gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-amber-500" />
+            <div className="w-2 h-2 rounded-full bg-accent-blue" />
             <span className="text-xs text-arch-text-tertiary">Drilling</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-emerald-500" />
+            <div className="w-2 h-2 rounded-full bg-accent-green" />
             <span className="text-xs text-arch-text-tertiary">Production</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-violet-500" />
+            <span className="text-xs text-arch-text-tertiary">Engineering</span>
           </div>
         </div>
       </div>
       <AreaChart
         className="h-72 mt-4"
-        data={chartdata}
+        data={data}
         index="date"
-        categories={["Drilling", "Production"]}
-        colors={["amber", "emerald"]}
+        categories={["Drilling", "Production", "Engineering"]}
+        colors={["blue", "emerald", "violet"]}
         showLegend={false}
-        showYAxis={false}
-        showGridLines={false}
+        showYAxis={true}
+        yAxisWidth={48}
+        showGridLines={true}
+        showXAxis={true}
         curveType="monotone"
       />
     </div>

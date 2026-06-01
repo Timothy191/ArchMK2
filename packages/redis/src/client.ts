@@ -31,11 +31,3 @@ export async function closeRedis(): Promise<void> {
     client = null;
   }
 }
-
-process.on("SIGINT", async () => {
-  await closeRedis();
-});
-
-process.on("SIGTERM", async () => {
-  await closeRedis();
-});

@@ -19,6 +19,7 @@ Explore the codebase to assess feasibility:
 4. Score confidence across 5 dimensions (0-100)
 
 **Scoring:**
+
 - Scope clarity (0-20): Know exactly what files change?
 - Pattern familiarity (0-20): Similar patterns exist in codebase?
 - Dependency awareness (0-20): Know what depends on changed code?
@@ -26,6 +27,7 @@ Explore the codebase to assess feasibility:
 - Test strategy (0-20): Know how to verify changes?
 
 **Decision:**
+
 - Score >= 70 → Present findings and move to Phase 2
 - Score < 70 → Gather more context, re-score. If < 70 after 2 rounds, ask user.
 

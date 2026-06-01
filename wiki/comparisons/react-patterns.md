@@ -16,18 +16,18 @@ Selection of React application architecture for a data-heavy operational portal 
 
 ## Dimensions of Comparison
 
-| Dimension | Next.js 15 App Router (RSC) | Next.js Pages Router | Traditional SPA (Vite/CRA) |
-|-----------|----------------------------|---------------------|--------------------------|
-| **Default Rendering** | Server Components (RSC) | Client-side (CSR) | Client-side (CSR) |
-| **Data Fetching** | Server (zero JS payload) | getServerSideProps/getStaticProps | useEffect + fetch |
-| **Bundle Size** | Minimal (server-rendered) | Larger (hydration required) | Largest (full app bundle) |
-| **SEO** | Excellent | Good | Requires prerendering |
-| **Real-time** | Client components with subscriptions | Full app subscriptions | Native WebSocket |
-| **Authentication** | Middleware + RSC validation | getServerSideProps validation | Client-side guards |
-| **Performance** | Streaming, partial hydration | Full page hydration | Full app hydration |
-| **Learning Curve** | Steeper (new patterns) | Moderate | Lower (familiar) |
-| **State Management** | Server state via props, client state minimal | Global state needed | Global state essential |
-| **Deployment** | Vercel-optimized, Node runtime | Vercel-optimized | Static/CDN or custom |
+| Dimension             | Next.js 15 App Router (RSC)                  | Next.js Pages Router              | Traditional SPA (Vite/CRA) |
+| --------------------- | -------------------------------------------- | --------------------------------- | -------------------------- |
+| **Default Rendering** | Server Components (RSC)                      | Client-side (CSR)                 | Client-side (CSR)          |
+| **Data Fetching**     | Server (zero JS payload)                     | getServerSideProps/getStaticProps | useEffect + fetch          |
+| **Bundle Size**       | Minimal (server-rendered)                    | Larger (hydration required)       | Largest (full app bundle)  |
+| **SEO**               | Excellent                                    | Good                              | Requires prerendering      |
+| **Real-time**         | Client components with subscriptions         | Full app subscriptions            | Native WebSocket           |
+| **Authentication**    | Middleware + RSC validation                  | getServerSideProps validation     | Client-side guards         |
+| **Performance**       | Streaming, partial hydration                 | Full page hydration               | Full app hydration         |
+| **Learning Curve**    | Steeper (new patterns)                       | Moderate                          | Lower (familiar)           |
+| **State Management**  | Server state via props, client state minimal | Global state needed               | Global state essential     |
+| **Deployment**        | Vercel-optimized, Node runtime               | Vercel-optimized                  | Static/CDN or custom       |
 
 ## Project Implementation
 
@@ -79,6 +79,7 @@ export function AlertPanel() {
 ## Why Not Pages Router
 
 Pages Router would require:
+
 - `getServerSideProps` for every page (no component-level server logic)
 - Full page hydration for interactivity
 - Manual layout composition
@@ -89,6 +90,7 @@ App Router's nested layouts and RSC model are superior for this dashboard-heavy 
 ## Why Not Traditional SPA
 
 A Vite + React SPA would:
+
 - Require custom routing (React Router)
 - Need API layer for all data (no direct RSC → Supabase)
 - Lose Next.js optimizations (image, font, script)

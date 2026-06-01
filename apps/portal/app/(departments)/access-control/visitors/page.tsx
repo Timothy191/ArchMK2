@@ -1,3 +1,4 @@
+import { getDepartmentContext } from "~/lib/dept-context";
 import { createServerSupabaseClient } from "@repo/supabase/server";
 import { GlassCard } from "@repo/ui/GlassCard";
 import { Button } from "@repo/ui/components/ui/button";
@@ -11,45 +12,30 @@ import {
   TableRow,
 } from "@repo/ui/components/ui/table";
 import { Users, Plus, Clock, ShieldCheck } from "lucide-react";
+import { getVisitorsForDepartment } from "../actions";
 
 export const dynamic = "force-dynamic";
 
-const MOCK_VISITORS = [
-  {
-    id: "v1",
-    name: "Alex Mercer",
-    company: "Caterpillar",
-    purpose: "Excavator Maintenance",
-    host: "David Miller",
-    check_in_time: "08:15",
-    status: "Checked In",
-  },
-  {
-    id: "v2",
-    name: "Jessica Wong",
-    company: "Eskom",
-    purpose: "Grid Audit",
-    host: "Sarah Jenkins",
-    check_in_time: "09:30",
-    status: "Checked In",
-  },
-  {
-    id: "v3",
-    name: "Robert Klein",
-    company: "Local Govt",
-    purpose: "Site Inspection",
-    host: "Site Admin",
-    check_in_time: "10:00",
-    status: "Checked Out",
-  },
-];
-
 export default async function VisitorsPage() {
-  await createServerSupabaseClient();
+  const { deptId } = await getDepartmentContext({
+    department: "access-control",
+  });
 
-  // Future: Fetch from visitors table
-  // const { data: visitors } = await supabase.from('visitors').select('*, host:personnel(first_name, surname)');
-  const visitors = MOCK_VISITORS;
+  const supabase = await createServerSupabaseClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return (
+      <div className="space-y-6">
+        <p className="text-[var(--text-muted)]">
+          Please log in to view visitors.
+        </p>
+      </div>
+    );
+  }
+
+  const visitors = await getVisitorsForDepartment(deptId);
 
   return (
     <div className="space-y-6">
@@ -81,14 +67,28 @@ export default async function VisitorsPage() {
             <form className="space-y-4">
               <div className="space-y-2">
                 <label
-                  htmlFor="name"
+                  htmlFor="first_name"
                   className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider block"
                 >
-                  Full Name
+                  First Name
                 </label>
                 <Input
-                  id="name"
-                  placeholder="John Doe"
+                  id="first_name"
+                  placeholder="John"
+                  className="bg-[var(--bg-tertiary)] border-[var(--border-default)]"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label
+                  htmlFor="surname"
+                  className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider block"
+                >
+                  Surname
+                </label>
+                <Input
+                  id="surname"
+                  placeholder="Doe"
                   className="bg-[var(--bg-tertiary)] border-[var(--border-default)]"
                 />
               </div>
@@ -109,27 +109,13 @@ export default async function VisitorsPage() {
 
               <div className="space-y-2">
                 <label
-                  htmlFor="host"
+                  htmlFor="reason"
                   className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider block"
                 >
-                  Host Personnel ID
+                  Reason for Visit
                 </label>
                 <Input
-                  id="host"
-                  placeholder="EMP-..."
-                  className="bg-[var(--bg-tertiary)] border-[var(--border-default)]"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label
-                  htmlFor="purpose"
-                  className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider block"
-                >
-                  Purpose of Visit
-                </label>
-                <Input
-                  id="purpose"
+                  id="reason"
                   placeholder="Maintenance, Audit, etc."
                   className="bg-[var(--bg-tertiary)] border-[var(--border-default)]"
                 />
@@ -151,7 +137,7 @@ export default async function VisitorsPage() {
             <div className="p-4 border-b border-[var(--border-default)] bg-[var(--bg-secondary)]/50 flex justify-between items-center">
               <h3 className="font-medium text-[var(--text-heading)] flex items-center">
                 <Clock className="w-4 h-4 mr-2 text-[var(--text-muted)]" />
-                Today's Visitors
+                Today&apos;s Visitors
               </h3>
             </div>
             <Table>
@@ -164,7 +150,7 @@ export default async function VisitorsPage() {
                     Company
                   </TableHead>
                   <TableHead className="text-[var(--text-muted)]">
-                    Host
+                    Reason
                   </TableHead>
                   <TableHead className="text-[var(--text-muted)]">
                     Check-In
@@ -175,32 +161,51 @@ export default async function VisitorsPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {visitors.map((visitor) => (
+                {visitors.length === 0 && (
+                  <TableRow>
+                    <TableCell
+                      colSpan={5}
+                      className="text-center py-8 text-[var(--text-muted)]"
+                    >
+                      No visitors found for this department.
+                    </TableCell>
+                  </TableRow>
+                )}
+                {visitors.map((visitor: any) => (
                   <TableRow
                     key={visitor.id}
                     className="border-b border-[var(--border-default)]/50 hover:bg-[var(--bg-tertiary)] transition-colors"
                   >
                     <TableCell className="font-medium text-[var(--text-heading)]">
-                      {visitor.name}
+                      {visitor.first_name} {visitor.surname}
                     </TableCell>
                     <TableCell className="text-[var(--text-secondary)]">
-                      {visitor.company}
+                      {visitor.company || "—"}
                     </TableCell>
                     <TableCell className="text-[var(--text-secondary)]">
-                      {visitor.host}
+                      {visitor.reason_for_entry || "—"}
                     </TableCell>
                     <TableCell className="font-mono text-sm text-[var(--text-secondary)]">
-                      {visitor.check_in_time}
+                      {visitor.check_in_time
+                        ? new Date(visitor.check_in_time).toLocaleTimeString(
+                            "en-US",
+                            {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              hour12: false,
+                            },
+                          )
+                        : "—"}
                     </TableCell>
                     <TableCell className="text-right">
                       {visitor.status === "Checked In" ? (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-accent-green/10 text-accent-green border border-accent-green/20">
                           <ShieldCheck className="w-3 h-3 mr-1" />
                           Checked In
                         </span>
                       ) : (
                         <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-[var(--bg-tertiary)] text-[var(--text-muted)] border border-[var(--border-default)]">
-                          Checked Out
+                          {visitor.status || "—"}
                         </span>
                       )}
                     </TableCell>

@@ -17,6 +17,7 @@ Surface patterns from your pro-workflow learnings and session history.
 ### Session Summary
 
 Current session stats:
+
 ```
 Session Insights
   Duration: 47 min
@@ -29,6 +30,7 @@ Session Insights
 ### Learning Analytics
 
 Query the learnings database for patterns:
+
 ```
 Learning Insights (42 total)
 
@@ -58,6 +60,7 @@ Stale learnings (never applied):
 ### Correction Patterns
 
 Show what types of mistakes are recurring:
+
 ```
 Correction Patterns
 
@@ -77,6 +80,7 @@ Suggestions:
 ### Correction Heatmap
 
 Show which files and patterns get corrected most across all sessions:
+
 ```
 Correction Heatmap
 
@@ -128,6 +132,7 @@ Productivity (last 10 sessions)
 Run these SQLite queries against `~/.pro-workflow/data.db`:
 
 **Heatmap by category:**
+
 ```sql
 SELECT category, COUNT(*) as count
 FROM learnings
@@ -137,6 +142,7 @@ ORDER BY count DESC
 ```
 
 **Correction rate by project:**
+
 ```sql
 SELECT project,
   SUM(corrections_count) as total_corrections,
@@ -149,6 +155,7 @@ ORDER BY rate DESC
 ```
 
 **Hot learnings (most corrected patterns):**
+
 ```sql
 SELECT category, rule, times_applied,
   (SELECT COUNT(*) FROM sessions WHERE corrections_count > 0) as correction_sessions

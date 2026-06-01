@@ -87,7 +87,10 @@ export function MachineOperationsForm({
   useEffect(() => {
     const interval = setInterval(() => {
       if (formData.machineId || formData.operatorId) {
-        localStorage.setItem(getAutoSaveKey(departmentId), JSON.stringify(formData));
+        localStorage.setItem(
+          getAutoSaveKey(departmentId),
+          JSON.stringify(formData),
+        );
         setLastSaved(new Date());
       }
     }, 30000);
@@ -101,7 +104,7 @@ export function MachineOperationsForm({
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        setFormData(prev => ({ ...prev, ...parsed }));
+        setFormData((prev) => ({ ...prev, ...parsed }));
       } catch {
         // ignore parse errors
       }
@@ -114,7 +117,7 @@ export function MachineOperationsForm({
       // Use the most recent operator as default
       const lastOp = todayOperations[0];
       if (lastOp?.operator_id) {
-        setFormData(prev => ({ ...prev, operatorId: lastOp.operator_id! }));
+        setFormData((prev) => ({ ...prev, operatorId: lastOp.operator_id! }));
       }
     }
   }, [todayOperations, formData.operatorId]);
@@ -122,12 +125,12 @@ export function MachineOperationsForm({
   // Calculate hours worked
   const calculateHours = useCallback(() => {
     if (!formData.startTime || !formData.endTime) return null;
-    
+
     const start = new Date(`2000-01-01T${formData.startTime}`);
     const end = new Date(`2000-01-01T${formData.endTime}`);
-    
+
     if (end <= start) return null;
-    
+
     const diffMs = end.getTime() - start.getTime();
     return diffMs / (1000 * 60 * 60);
   }, [formData.startTime, formData.endTime]);
@@ -228,7 +231,7 @@ export function MachineOperationsForm({
           {/* Machine Dropdown */}
           <div className="space-y-2">
             <label className="text-[var(--text-secondary)] text-sm block">
-              Machine <span className="text-red-400">*</span>
+              Machine <span className="text-accent-red">*</span>
             </label>
             <select
               value={formData.machineId}
@@ -245,14 +248,14 @@ export function MachineOperationsForm({
               ))}
             </select>
             {errors.machineId && (
-              <p className="text-red-400 text-xs">{errors.machineId}</p>
+              <p className="text-accent-red text-xs">{errors.machineId}</p>
             )}
           </div>
 
           {/* Operator Dropdown */}
           <div className="space-y-2">
             <label className="text-[var(--text-secondary)] text-sm block">
-              Operator <span className="text-red-400">*</span>
+              Operator <span className="text-accent-red">*</span>
             </label>
             <select
               value={formData.operatorId}
@@ -269,14 +272,14 @@ export function MachineOperationsForm({
               ))}
             </select>
             {errors.operatorId && (
-              <p className="text-red-400 text-xs">{errors.operatorId}</p>
+              <p className="text-accent-red text-xs">{errors.operatorId}</p>
             )}
           </div>
 
           {/* Site Dropdown */}
           <div className="space-y-2">
             <label className="text-[var(--text-secondary)] text-sm block">
-              Site/Location <span className="text-red-400">*</span>
+              Site/Location <span className="text-accent-red">*</span>
             </label>
             <select
               value={formData.siteId}
@@ -293,14 +296,14 @@ export function MachineOperationsForm({
               ))}
             </select>
             {errors.siteId && (
-              <p className="text-red-400 text-xs">{errors.siteId}</p>
+              <p className="text-accent-red text-xs">{errors.siteId}</p>
             )}
           </div>
 
           {/* Shift Type */}
           <div className="space-y-2">
             <label className="text-[var(--text-secondary)] text-sm block">
-              Shift <span className="text-red-400">*</span>
+              Shift <span className="text-accent-red">*</span>
             </label>
             <div className="flex gap-2">
               {["day", "night"].map((shift) => (
@@ -328,7 +331,7 @@ export function MachineOperationsForm({
           {/* Start Time */}
           <div className="space-y-2">
             <label className="text-[var(--text-secondary)] text-sm block">
-              Start Time <span className="text-red-400">*</span>
+              Start Time <span className="text-accent-red">*</span>
             </label>
             <input
               type="time"
@@ -339,13 +342,15 @@ export function MachineOperationsForm({
               className="w-full bg-[var(--bg-secondary)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-blue)] transition-colors"
             />
             {errors.startTime && (
-              <p className="text-red-400 text-xs">{errors.startTime}</p>
+              <p className="text-accent-red text-xs">{errors.startTime}</p>
             )}
           </div>
 
           {/* End Time */}
           <div className="space-y-2">
-            <label className="text-[var(--text-secondary)] text-sm block">End Time</label>
+            <label className="text-[var(--text-secondary)] text-sm block">
+              End Time
+            </label>
             <input
               type="time"
               value={formData.endTime}
@@ -355,7 +360,7 @@ export function MachineOperationsForm({
               className="w-full bg-[var(--bg-secondary)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-blue)] transition-colors"
             />
             {errors.endTime && (
-              <p className="text-red-400 text-xs">{errors.endTime}</p>
+              <p className="text-accent-red text-xs">{errors.endTime}</p>
             )}
           </div>
         </div>
@@ -363,11 +368,15 @@ export function MachineOperationsForm({
         {/* Hours Worked Display */}
         {hoursWorked !== null && (
           <div className="flex items-center gap-4 p-3 bg-[var(--bg-secondary)] rounded-lg border border-[var(--border-default)]">
-            <span className="text-[var(--text-muted)] text-sm">Hours Worked:</span>
+            <span className="text-[var(--text-muted)] text-sm">
+              Hours Worked:
+            </span>
             <span className="text-2xl font-medium text-[var(--accent-cyan)]">
               {hoursWorked.toFixed(2)}h
             </span>
-            <span className="text-[var(--text-muted)] text-xs">(auto-calculated)</span>
+            <span className="text-[var(--text-muted)] text-xs">
+              (auto-calculated)
+            </span>
           </div>
         )}
 
@@ -382,14 +391,15 @@ export function MachineOperationsForm({
           </button>
 
           {errors.submit && (
-            <p className="text-red-400 text-sm">{errors.submit}</p>
+            <p className="text-accent-red text-sm">{errors.submit}</p>
           )}
         </div>
 
         {/* Help Text */}
         <p className="text-[var(--text-muted)] text-xs">
-          <span className="text-[var(--accent-cyan)]">Tip:</span> End time is optional. You can
-          come back and add it later. Hours are calculated automatically.
+          <span className="text-[var(--accent-cyan)]">Tip:</span> End time is
+          optional. You can come back and add it later. Hours are calculated
+          automatically.
         </p>
       </form>
     </GlassCard>

@@ -9,7 +9,7 @@ You are a test generation specialist for Arch Systems. Create Jest unit tests an
 
 ## Test Patterns
 
-### Jest Unit Tests (*.test.tsx)
+### Jest Unit Tests (\*.test.tsx)
 
 ```typescript
 import { render, screen } from '@testing-library/react'
@@ -23,15 +23,15 @@ describe('Component', () => {
 })
 ```
 
-### Playwright E2E Tests (*.spec.ts)
+### Playwright E2E Tests (\*.spec.ts)
 
 ```typescript
-import { test, expect } from '@playwright/test'
+import { test, expect } from "@playwright/test";
 
-test('description', async ({ page }) => {
-  await page.goto('/route')
-  await expect(page.locator('...')).toBeVisible()
-})
+test("description", async ({ page }) => {
+  await page.goto("/route");
+  await expect(page.locator("...")).toBeVisible();
+});
 ```
 
 ## Priority Targets
@@ -51,6 +51,7 @@ test('description', async ({ page }) => {
 ## Output
 
 Generate test files in the same directory as the source:
+
 - `Component.tsx` → `Component.test.tsx`
 - `action.ts` → `action.test.ts`
 - E2E tests go in `e2e/*.spec.ts`

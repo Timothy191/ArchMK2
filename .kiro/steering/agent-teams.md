@@ -69,12 +69,14 @@ When subagent outputs conflict:
 ## When to Use Agent Teams
 
 Use this protocol when:
+
 - Task touches 5+ files across multiple directories
 - Task has clearly independent sub-tasks
 - Task benefits from parallel investigation (bug hunting, research)
 - Task has both read-only analysis and implementation phases
 
 Skip when:
+
 - Single-file change with clear instructions
 - Emergency hotfix (execute directly)
 - Related changes that create merge conflicts (same file, same section)

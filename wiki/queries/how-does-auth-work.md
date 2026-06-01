@@ -4,7 +4,12 @@ created: 2026-05-15
 updated: 2026-05-15
 type: query
 tags: [how-to, auth, security, quick-reference]
-sources: [wiki/concepts/auth-middleware.md, wiki/concepts/rls-policy.md, wiki/concepts/supabase-local-dev.md]
+sources:
+  [
+    wiki/concepts/auth-middleware.md,
+    wiki/concepts/rls-policy.md,
+    wiki/concepts/supabase-local-dev.md,
+  ]
 confidence: high
 ---
 
@@ -69,27 +74,31 @@ RLS policies (JWT → user ID)
 
 Always import from `@repo/supabase`, never directly:
 
-| Context | Import | Use In | Purpose |
-|---------|--------|--------|---------|
-| **Browser** | `@repo/supabase/client` | `'use client'` components, hooks | Real-time subscriptions, auth state |
-| **Server** | `@repo/supabase/server` | `page.tsx`, Server Actions | Data fetching, mutations |
-| **Middleware** | `@repo/supabase/middleware` | `middleware.ts` only | Route protection, JWT refresh |
+| Context        | Import                      | Use In                           | Purpose                             |
+| -------------- | --------------------------- | -------------------------------- | ----------------------------------- |
+| **Browser**    | `@repo/supabase/client`     | `'use client'` components, hooks | Real-time subscriptions, auth state |
+| **Server**     | `@repo/supabase/server`     | `page.tsx`, Server Actions       | Data fetching, mutations            |
+| **Middleware** | `@repo/supabase/middleware` | `middleware.ts` only             | Route protection, JWT refresh       |
 
 ### Browser Client Example
 
 ```typescript
-'use client'
-import { createClient } from '@repo/supabase/client'
+"use client";
+import { createClient } from "@repo/supabase/client";
 
 export function AlertPanel() {
-  const supabase = createClient()
-  
+  const supabase = createClient();
+
   useEffect(() => {
     const channel = supabase
-      .channel('alerts')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'alerts' }, callback)
-      .subscribe()
-  }, [])
+      .channel("alerts")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "alerts" },
+        callback,
+      )
+      .subscribe();
+  }, []);
 }
 ```
 
@@ -97,16 +106,18 @@ export function AlertPanel() {
 
 ```typescript
 // page.tsx (Server Component)
-import { createServerSupabaseClient } from '@repo/supabase/server'
+import { createServerSupabaseClient } from "@repo/supabase/server";
 
 export default async function Page() {
-  const supabase = createServerSupabaseClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  
+  const supabase = createServerSupabaseClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   const { data: machines } = await supabase
-    .from('machines')
-    .select('*')
-    .eq('department_id', employee.department_id)
+    .from("machines")
+    .select("*")
+    .eq("department_id", employee.department_id);
 }
 ```
 
@@ -114,14 +125,16 @@ export default async function Page() {
 
 ```typescript
 // middleware.ts
-import { createMiddlewareClient } from '@repo/supabase/middleware'
+import { createMiddlewareClient } from "@repo/supabase/middleware";
 
 export async function middleware(req: NextRequest) {
-  const supabase = createMiddlewareClient({ req, res })
-  const { data: { user } } = await supabase.auth.getUser()
-  
+  const supabase = createMiddlewareClient({ req, res });
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   if (!user && !isPublicRoute(req.nextUrl.pathname)) {
-    return NextResponse.redirect(new URL('/login', req.url))
+    return NextResponse.redirect(new URL("/login", req.url));
   }
 }
 ```
@@ -172,22 +185,22 @@ auth.has_department_access(target_dept UUID) → BOOLEAN
 
 ### Roles Hierarchy
 
-| Role | Description |
-|------|-------------|
-| `operator` | Standard user, can view and create logs |
-| `supervisor` | Can manage operators, access tools tab |
+| Role                    | Description                              |
+| ----------------------- | ---------------------------------------- |
+| `operator`              | Standard user, can view and create logs  |
+| `supervisor`            | Can manage operators, access tools tab   |
 | `control_room_operator` | Access to control-room restricted routes |
-| `admin` | Full access, can manage all departments |
+| `admin`                 | Full access, can manage all departments  |
 
 ### Restricted Routes
 
 ```typescript
 // middleware.ts
 const RESTRICTED_ROUTES = {
-  'control-room': ['control_room_operator', 'admin'],
-  'tools': ['admin', 'supervisor'],
-  'admin': ['admin'],
-}
+  "control-room": ["control_room_operator", "admin"],
+  tools: ["admin", "supervisor"],
+  admin: ["admin"],
+};
 ```
 
 ---
@@ -216,16 +229,18 @@ Now user can view engineering and safety data while remaining in their primary d
 
 ```typescript
 // In browser console
-const { data: { user } } = await supabase.auth.getUser()
-console.log('User:', user)
+const {
+  data: { user },
+} = await supabase.auth.getUser();
+console.log("User:", user);
 
 // Check employee record
 const { data: employee } = await supabase
-  .from('employees')
-  .select('*')
-  .eq('auth_id', user.id)
-  .single()
-console.log('Employee:', employee)
+  .from("employees")
+  .select("*")
+  .eq("auth_id", user.id)
+  .single();
+console.log("Employee:", employee);
 ```
 
 ### Check Department Access
@@ -238,12 +253,12 @@ SELECT auth.is_admin();             -- Should return true/false
 
 ### Common Issues
 
-| Symptom | Cause | Fix |
-|---------|-------|-----|
-| Infinite redirects | Middleware loop | Check `handle_new_user()` trigger exists |
-| Empty data | RLS blocking | Check `employees` row exists for user |
-| 403 Forbidden | Wrong role | Update `employees.role` in database |
-| Wrong department | Department cache | Restart dev server (60s cache) |
+| Symptom            | Cause            | Fix                                      |
+| ------------------ | ---------------- | ---------------------------------------- |
+| Infinite redirects | Middleware loop  | Check `handle_new_user()` trigger exists |
+| Empty data         | RLS blocking     | Check `employees` row exists for user    |
+| 403 Forbidden      | Wrong role       | Update `employees.role` in database      |
+| Wrong department   | Department cache | Restart dev server (60s cache)           |
 
 ---
 

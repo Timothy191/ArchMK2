@@ -6,6 +6,7 @@ import {
   SATELLITE_MONITORING_TABS,
   DRILLING_TABS,
   ACCESS_CONTROL_TABS,
+  TRAINING_TABS,
   PRODUCTIVITY_TOOLS,
   getDepartmentTabs,
 } from "./departments";
@@ -80,8 +81,12 @@ describe("getDepartmentTabs", () => {
     expect(getDepartmentTabs("access-control")).toBe(ACCESS_CONTROL_TABS);
   });
 
+  it("returns TRAINING_TABS for training", () => {
+    expect(getDepartmentTabs("training")).toBe(TRAINING_TABS);
+  });
+
   it("returns standard DEPARTMENT_TABS for all other departments", () => {
-    const standardDepts = ["production", "safety", "training", "admin"];
+    const standardDepts = ["production", "safety", "admin"];
     for (const slug of standardDepts) {
       expect(getDepartmentTabs(slug)).toBe(DEPARTMENT_TABS);
     }
@@ -99,6 +104,14 @@ describe("getDepartmentTabs", () => {
 describe("Tab shapes", () => {
   it("DEPARTMENT_TABS all have name, label, icon", () => {
     for (const tab of DEPARTMENT_TABS) {
+      expect(tab.name).toBeTruthy();
+      expect(tab.label).toBeTruthy();
+      expect(tab.icon).toBeTruthy();
+    }
+  });
+
+  it("TRAINING_TABS all have name, label, icon", () => {
+    for (const tab of TRAINING_TABS) {
       expect(tab.name).toBeTruthy();
       expect(tab.label).toBeTruthy();
       expect(tab.icon).toBeTruthy();

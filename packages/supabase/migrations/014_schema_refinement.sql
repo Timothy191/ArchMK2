@@ -410,7 +410,7 @@ COMMENT ON TABLE departments IS 'Mining operational departments (Drilling, Produ
 COMMENT ON COLUMN departments.name IS 'URL-safe unique slug for routing';
 COMMENT ON COLUMN departments.display_name IS 'Human-readable department name';
 COMMENT ON COLUMN departments.icon IS 'Lucide icon identifier';
-COMMENT ON COLUMN departments.color IS 'Theme color key (amber, emerald, blue, etc.)';
+COMMENT ON COLUMN departments.color IS 'Theme color key (blue, emerald, blue, etc.)';
 COMMENT ON COLUMN departments.deleted_at IS 'Soft delete timestamp';
 
 COMMENT ON TABLE employees IS 'Application users linked to auth.users with role-based access';

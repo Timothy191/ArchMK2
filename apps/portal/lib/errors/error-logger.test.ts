@@ -8,14 +8,28 @@ import {
   withServerActionLogging,
 } from "./error-logger";
 
+const mockCaptureException = jest.fn();
+jest.mock("@sentry/nextjs", () => ({
+  captureException: (...args: unknown[]) => mockCaptureException(...args),
+}));
+
 describe("logError", () => {
-  beforeEach(() => jest.spyOn(console, "error").mockImplementation(() => {}));
+  beforeEach(() => {
+    jest.spyOn(console, "error").mockImplementation(() => {});
+    mockCaptureException.mockClear();
+  });
   afterEach(() => jest.restoreAllMocks());
 
   it("logs a generic error without throwing", async () => {
     const err = new Error("something broke");
     await expect(logError(err)).resolves.toBeUndefined();
     expect(console.error).toHaveBeenCalled();
+  });
+
+  it("forwards generic errors (no statusCode) to Sentry", async () => {
+    const err = new Error("generic 500");
+    await logError(err);
+    expect(mockCaptureException).toHaveBeenCalledTimes(1);
   });
 
   it("logs with optional context (url, method)", async () => {
@@ -39,6 +53,36 @@ describe("logError", () => {
     const err = new AuthError("Unauthorized");
     await logError(err);
     warnSpy.mockRestore();
+  });
+
+  it("does NOT forward 4xx AppErrors to Sentry", async () => {
+    const warnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
+    const { AuthError, ValidationError } = await import("@repo/errors");
+    await logError(new AuthError("Unauthorized"));
+    await logError(new ValidationError("bad input"));
+    expect(mockCaptureException).not.toHaveBeenCalled();
+    warnSpy.mockRestore();
+  });
+
+  it("forwards 5xx AppErrors to Sentry with extra context", async () => {
+    const { DatabaseError } = await import("@repo/errors");
+    const err = new DatabaseError("DB write failed", {
+      operation: "insert",
+      table: "machines",
+    });
+    await logError(err, { url: "/api/machines", method: "POST" });
+    expect(mockCaptureException).toHaveBeenCalledTimes(1);
+    expect(mockCaptureException).toHaveBeenCalledWith(
+      expect.any(Error),
+      expect.objectContaining({
+        extra: expect.objectContaining({
+          code: "DATABASE_ERROR",
+          statusCode: 500,
+          url: "/api/machines",
+          method: "POST",
+        }),
+      }),
+    );
   });
 });
 

@@ -29,7 +29,9 @@ describe("detectContentType", () => {
   });
 
   it("detects document for longer prose", () => {
-    const doc = Array(10).fill("This is a sentence about mining operations.").join(" ");
+    const doc = Array(10)
+      .fill("This is a sentence about mining operations.")
+      .join(" ");
     expect(detectContentType(doc)).toBe("document");
   });
 });
@@ -80,29 +82,44 @@ describe("chunkText – conversation", () => {
 describe("chunkText – document", () => {
   it("returns a single chunk when text fits in maxChunkSize", () => {
     const text = "Short document text.";
-    const result = chunkText(text, { contentType: "document", maxChunkSize: 512 });
+    const result = chunkText(text, {
+      contentType: "document",
+      maxChunkSize: 512,
+    });
     expect(result).toHaveLength(1);
     expect(result[0]!.text).toBe(text);
   });
 
   it("splits long document into multiple chunks", () => {
-    const sentence = "The mining site reported elevated deformation readings today. ";
+    const sentence =
+      "The mining site reported elevated deformation readings today. ";
     const longDoc = sentence.repeat(200); // ~12400 chars >> 512 tokens (2048 chars)
-    const result = chunkText(longDoc, { contentType: "document", maxChunkSize: 128 });
+    const result = chunkText(longDoc, {
+      contentType: "document",
+      maxChunkSize: 128,
+    });
     expect(result.length).toBeGreaterThan(1);
   });
 
   it("every chunk has tokenEstimate > 0", () => {
-    const sentence = "Each sentence carries important safety data for the shift. ";
+    const sentence =
+      "Each sentence carries important safety data for the shift. ";
     const doc = sentence.repeat(50);
-    const result = chunkText(doc, { contentType: "document", maxChunkSize: 64 });
+    const result = chunkText(doc, {
+      contentType: "document",
+      maxChunkSize: 64,
+    });
     result.forEach((c) => expect(c.tokenEstimate).toBeGreaterThan(0));
   });
 
   it("chunk indices are sequential", () => {
-    const sentence = "Repeated content line for boundary testing purposes here. ";
+    const sentence =
+      "Repeated content line for boundary testing purposes here. ";
     const doc = sentence.repeat(100);
-    const result = chunkText(doc, { contentType: "document", maxChunkSize: 64 });
+    const result = chunkText(doc, {
+      contentType: "document",
+      maxChunkSize: 64,
+    });
     result.forEach((c, i) => expect(c.index).toBe(i));
   });
 });
@@ -188,7 +205,10 @@ describe("chunkForEmbedding", () => {
 
   it("merges small chunks after chunking", () => {
     const text = "A\n\nB\n\nC\n\nD";
-    const result = chunkForEmbedding(text, { contentType: "conversation", maxChunkSize: 512 });
+    const result = chunkForEmbedding(text, {
+      contentType: "conversation",
+      maxChunkSize: 512,
+    });
     // All four messages are tiny → should be merged into one chunk
     expect(result.length).toBeLessThan(4);
   });
@@ -201,7 +221,10 @@ describe("chunkText – conversation with long message", () => {
     // Create a message that exceeds the small maxChunkSize (4 chars per token * 16 = 64 chars)
     const sentence = "This sentence is quite long and detailed. ";
     const longMsg = sentence.repeat(10); // ~420 chars >> 64 chars
-    const result = chunkText(longMsg, { contentType: "conversation", maxChunkSize: 16 });
+    const result = chunkText(longMsg, {
+      contentType: "conversation",
+      maxChunkSize: 16,
+    });
     expect(result.length).toBeGreaterThan(1);
     result.forEach((c) => expect(c.tokenEstimate).toBeGreaterThan(0));
   });
@@ -209,7 +232,10 @@ describe("chunkText – conversation with long message", () => {
   it("hard-splits a sentence that alone exceeds maxChunkSize", () => {
     // A single sentence longer than maxChars so hard-split triggers
     const hugeSentence = "x".repeat(300) + ". The end";
-    const result = chunkText(hugeSentence, { contentType: "conversation", maxChunkSize: 16 });
+    const result = chunkText(hugeSentence, {
+      contentType: "conversation",
+      maxChunkSize: 16,
+    });
     expect(result.length).toBeGreaterThan(1);
   });
 
@@ -239,7 +265,8 @@ describe("chunkText – document without boundary preservation", () => {
 describe("chunkText – document sentence boundary", () => {
   it("breaks at sentence boundary when no paragraph break is found", () => {
     // No double-newlines so sentence boundary logic fires
-    const prose = "The machine reported high vibration levels. Maintenance was scheduled. " +
+    const prose =
+      "The machine reported high vibration levels. Maintenance was scheduled. " +
       "Operators were notified promptly. Safety checks were performed. " +
       "The drill resumed normal operation after inspection. ";
     const longProse = prose.repeat(8); // ~2800 chars
@@ -257,7 +284,8 @@ describe("chunkText – document sentence boundary", () => {
 describe("chunkText – code with large function", () => {
   it("uses splitByLines when a code block exceeds maxChars", () => {
     // Build code with multiple function boundaries but each is huge
-    const bigFn = `export function bigFunc() {\n` + "  const x = 1;\n".repeat(50) + `}\n\n`;
+    const bigFn =
+      `export function bigFunc() {\n` + "  const x = 1;\n".repeat(50) + `}\n\n`;
     const code = bigFn.repeat(3);
     const result = chunkText(code, { contentType: "code", maxChunkSize: 16 });
     expect(result.length).toBeGreaterThan(1);
@@ -266,14 +294,20 @@ describe("chunkText – code with large function", () => {
   it("uses line-based fallback when no function boundaries found", () => {
     // No function signatures → falls back to splitByLines directly
     const codeBlock = "x = 1;\n".repeat(200);
-    const result = chunkText(codeBlock, { contentType: "code", maxChunkSize: 16 });
+    const result = chunkText(codeBlock, {
+      contentType: "code",
+      maxChunkSize: 16,
+    });
     expect(result.length).toBeGreaterThan(1);
   });
 
   it("handles a single line longer than maxChars via hard-split", () => {
     // Single very long line so the while loop in splitByLines triggers
     const veryLongLine = "a".repeat(500) + " = 1;";
-    const result = chunkText(veryLongLine, { contentType: "code", maxChunkSize: 16 });
+    const result = chunkText(veryLongLine, {
+      contentType: "code",
+      maxChunkSize: 16,
+    });
     expect(result.length).toBeGreaterThan(1);
   });
 });

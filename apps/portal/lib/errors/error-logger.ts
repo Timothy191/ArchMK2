@@ -5,6 +5,7 @@
  * and generic errors. Integrates with monitoring systems.
  */
 
+import * as Sentry from "@sentry/nextjs";
 import { isAppError } from "@repo/errors";
 
 /**
@@ -88,31 +89,12 @@ function createErrorLog(
 /**
  * Send error to monitoring service
  *
- * Wired to Highlight for session replay + error tracking.
- * Falls back to console logging.
+ * Sends structured error to console (dev) and Sentry (via global init).
  */
 async function sendToMonitoring(entry: ErrorLogEntry): Promise<void> {
   const error = new Error(entry.message);
   if (entry.stack) {
     error.stack = entry.stack;
-  }
-
-  if (typeof window === "undefined") {
-    try {
-      const { H } = await import("@highlight-run/next/server");
-      H.consumeError(error, undefined, undefined, {
-        ...entry.context,
-        severity: entry.severity,
-        code: entry.code,
-        statusCode: entry.statusCode,
-        url: entry.url,
-        method: entry.method,
-        userId: entry.userId,
-        sessionId: entry.sessionId,
-      });
-    } catch {
-      // Highlight not available; fall through to console logging
-    }
   }
 
   // Keep console output for local debugging
@@ -132,6 +114,21 @@ async function sendToMonitoring(entry: ErrorLogEntry): Promise<void> {
       method: entry.method,
     },
   );
+
+  // Forward server-side errors to Sentry — warn/info are expected control-flow (4xx) and not captured
+  if (entry.severity === "error" || entry.severity === "fatal") {
+    Sentry.captureException(error, {
+      extra: {
+        code: entry.code,
+        statusCode: entry.statusCode,
+        context: entry.context,
+        url: entry.url,
+        method: entry.method,
+        userId: entry.userId,
+        sessionId: entry.sessionId,
+      },
+    });
+  }
 }
 
 /**

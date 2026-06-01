@@ -13,8 +13,10 @@ export default async function AccessControlLayout({
   const tabs = getDepartmentTabs("access-control");
 
   return (
-    <DepartmentLayout department={dept} tabs={tabs}>
-      {children}
-    </DepartmentLayout>
+    <>
+      <DepartmentLayout department={dept} tabs={tabs}>
+        {children}
+      </DepartmentLayout>
+    </>
   );
 }

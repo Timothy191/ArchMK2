@@ -133,8 +133,8 @@ export function BookOutForm({
         <div
           className={`mb-4 px-4 py-3 rounded-lg border text-sm ${
             message.type === "success"
-              ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
-              : "bg-red-500/10 border-red-500/20 text-red-400"
+              ? "bg-accent-green/10 border-accent-green/20 text-accent-green"
+              : "bg-accent-red/10 border-accent-red/20 text-accent-red"
           }`}
         >
           {message.text}
@@ -159,7 +159,7 @@ export function BookOutForm({
             </span>
             <p className="text-[var(--text-secondary)] text-xs mt-0.5">
               Record will be flagged as{" "}
-              <span className="text-amber-400 font-medium">
+              <span className="text-accent-blue font-medium">
                 Missing Book-In
               </span>{" "}
               in all reports.
@@ -299,15 +299,15 @@ export function BookOutForm({
         </div>
       ) : (
         /* Direct Checkout */
-        <div className="rounded-xl border border-amber-500/20 bg-[var(--bg-tertiary)] p-6">
+        <div className="rounded-xl border border-accent-blue/20 bg-[var(--bg-tertiary)] p-6">
           <div className="flex items-center gap-2 mb-4">
-            <AlertTriangle className="w-5 h-5 text-amber-400" />
-            <h4 className="text-amber-400 font-medium">
+            <AlertTriangle className="w-5 h-5 text-accent-blue" />
+            <h4 className="text-accent-blue font-medium">
               Direct Checkout — Missing Book-In
             </h4>
           </div>
 
-          <div className="mb-4 px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs">
+          <div className="mb-4 px-3 py-2 rounded-lg bg-accent-blue/10 border border-accent-blue/20 text-accent-blue text-xs">
             <strong>Audit Notice:</strong> This record will be flagged as
             "Missing Book-In" in all reports.
           </div>
@@ -324,7 +324,7 @@ export function BookOutForm({
                 onChange={(e) =>
                   setDirect({ ...direct, fleet_id: e.target.value })
                 }
-                className="w-full px-3 py-2 rounded-lg bg-[var(--bg-primary)] border border-[var(--border-emphasis)] text-[var(--text-heading)] text-sm placeholder:text-[#555] focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/20 transition-colors"
+                className="w-full px-3 py-2 rounded-lg bg-[var(--bg-primary)] border border-[var(--border-emphasis)] text-[var(--text-heading)] text-sm placeholder:text-[#555] focus:outline-none focus:border-accent-blue/50 focus:ring-1 focus:ring-accent-blue/20 transition-colors"
               />
             </div>
 
@@ -338,7 +338,7 @@ export function BookOutForm({
                 onChange={(e) =>
                   setDirect({ ...direct, machine_type: e.target.value })
                 }
-                className="w-full px-3 py-2 rounded-lg bg-[var(--bg-primary)] border border-[var(--border-emphasis)] text-[var(--text-heading)] text-sm focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/20 transition-colors"
+                className="w-full px-3 py-2 rounded-lg bg-[var(--bg-primary)] border border-[var(--border-emphasis)] text-[var(--text-heading)] text-sm focus:outline-none focus:border-accent-blue/50 focus:ring-1 focus:ring-accent-blue/20 transition-colors"
               >
                 <option value="">Select Type</option>
                 {MACHINE_TYPES.map((type) => (
@@ -361,7 +361,7 @@ export function BookOutForm({
                 onChange={(e) =>
                   setDirect({ ...direct, reason: e.target.value })
                 }
-                className="w-full px-3 py-2 rounded-lg bg-[var(--bg-primary)] border border-[var(--border-emphasis)] text-[var(--text-heading)] text-sm placeholder:text-[#555] focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/20 transition-colors resize-none"
+                className="w-full px-3 py-2 rounded-lg bg-[var(--bg-primary)] border border-[var(--border-emphasis)] text-[var(--text-heading)] text-sm placeholder:text-[#555] focus:outline-none focus:border-accent-blue/50 focus:ring-1 focus:ring-accent-blue/20 transition-colors resize-none"
               />
             </div>
 
@@ -377,7 +377,7 @@ export function BookOutForm({
                   onChange={(e) =>
                     setDirect({ ...direct, date_out: e.target.value })
                   }
-                  className="w-full px-3 py-2 rounded-lg bg-[var(--bg-primary)] border border-[var(--border-emphasis)] text-[var(--text-heading)] text-sm focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/20 transition-colors"
+                  className="w-full px-3 py-2 rounded-lg bg-[var(--bg-primary)] border border-[var(--border-emphasis)] text-[var(--text-heading)] text-sm focus:outline-none focus:border-accent-blue/50 focus:ring-1 focus:ring-accent-blue/20 transition-colors"
                 />
               </div>
               <div>
@@ -391,7 +391,7 @@ export function BookOutForm({
                   onChange={(e) =>
                     setDirect({ ...direct, time_out: e.target.value })
                   }
-                  className="w-full px-3 py-2 rounded-lg bg-[var(--bg-primary)] border border-[var(--border-emphasis)] text-[var(--text-heading)] text-sm focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/20 transition-colors"
+                  className="w-full px-3 py-2 rounded-lg bg-[var(--bg-primary)] border border-[var(--border-emphasis)] text-[var(--text-heading)] text-sm focus:outline-none focus:border-accent-blue/50 focus:ring-1 focus:ring-accent-blue/20 transition-colors"
                 />
               </div>
             </div>
@@ -407,22 +407,22 @@ export function BookOutForm({
                 onChange={(e) =>
                   setDirect({ ...direct, repair_notes: e.target.value })
                 }
-                className="w-full px-3 py-2 rounded-lg bg-[var(--bg-primary)] border border-[var(--border-emphasis)] text-[var(--text-heading)] text-sm placeholder:text-[#555] focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/20 transition-colors resize-none"
+                className="w-full px-3 py-2 rounded-lg bg-[var(--bg-primary)] border border-[var(--border-emphasis)] text-[var(--text-heading)] text-sm placeholder:text-[#555] focus:outline-none focus:border-accent-blue/50 focus:ring-1 focus:ring-accent-blue/20 transition-colors resize-none"
               />
             </div>
 
             <button
               type="submit"
               disabled={isPending}
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-medium text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-accent-blue hover:bg-[var(--accent-electric-blue)] text-white font-medium text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <AlertTriangle className="w-4 h-4" />
               {isPending ? "Recording..." : "Record Direct Checkout"}
             </button>
           </form>
 
-          <div className="mt-4 flex items-start gap-2 px-3 py-2 rounded-lg bg-blue-500/10 border border-blue-500/20">
-            <Info className="w-4 h-4 text-blue-400 mt-0.5 shrink-0" />
+          <div className="mt-4 flex items-start gap-2 px-3 py-2 rounded-lg bg-accent-blue/10 border border-accent-blue/20">
+            <Info className="w-4 h-4 text-accent-blue mt-0.5 shrink-0" />
             <p className="text-[var(--text-secondary)] text-xs">
               Book-in date/time will be recorded as same as book-out since it is
               unknown. Duration will show as{" "}

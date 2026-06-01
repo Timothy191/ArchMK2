@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceRoleClient } from "@repo/supabase/service-role";
 import { createServerSupabaseClient } from "@repo/supabase/server";
+import { withRateLimit } from "@/lib/api/rate-limit-middleware";
 
 const OPERATIONAL_TABLES = new Set([
   "machines",
@@ -40,7 +41,9 @@ const OPERATIONAL_TABLES = new Set([
 
 async function assertAdmin() {
   const supabase = await createServerSupabaseClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) {
     return { error: "Unauthorized", status: 401 } as const;
   }
@@ -55,7 +58,7 @@ async function assertAdmin() {
   return { employee, user };
 }
 
-export async function GET(
+async function handleGetRequest(
   _request: NextRequest,
   { params }: { params: Promise<{ table: string }> },
 ) {
@@ -86,13 +89,23 @@ export async function GET(
   const { data, error, count } = await query;
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: "Database query failed" },
+      { status: 500 },
+    );
   }
 
   return NextResponse.json({ data, count, limit, offset });
 }
 
-export async function PUT(
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ table: string }> },
+) {
+  return withRateLimit(request, () => handleGetRequest(request, { params }));
+}
+
+async function handlePutRequest(
   request: NextRequest,
   { params }: { params: Promise<{ table: string }> },
 ) {
@@ -111,10 +124,7 @@ export async function PUT(
   const { id, ...data } = body;
 
   if (!id) {
-    return NextResponse.json(
-      { error: "Missing record id" },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: "Missing record id" }, { status: 400 });
   }
 
   const serviceRole = createServiceRoleClient();
@@ -125,13 +135,10 @@ export async function PUT(
     .eq("id", id)
     .single();
 
-  const { error } = await serviceRole
-    .from(table)
-    .update(data)
-    .eq("id", id);
+  const { error } = await serviceRole.from(table).update(data).eq("id", id);
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: "Update failed" }, { status: 500 });
   }
 
   await serviceRole.from("audit_logs").insert({
@@ -146,7 +153,14 @@ export async function PUT(
   return NextResponse.json({ success: true });
 }
 
-export async function DELETE(
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ table: string }> },
+) {
+  return withRateLimit(request, () => handlePutRequest(request, { params }));
+}
+
+async function handleDeleteRequest(
   request: NextRequest,
   { params }: { params: Promise<{ table: string }> },
 ) {
@@ -181,7 +195,7 @@ export async function DELETE(
   const { error } = await serviceRole.from(table).delete().eq("id", id);
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: "Delete failed" }, { status: 500 });
   }
 
   await serviceRole.from("audit_logs").insert({
@@ -193,4 +207,11 @@ export async function DELETE(
   });
 
   return NextResponse.json({ success: true });
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ table: string }> },
+) {
+  return withRateLimit(request, () => handleDeleteRequest(request, { params }));
 }

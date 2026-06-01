@@ -32,14 +32,14 @@
 
 ### Active Linting Stack
 
-| Tool | Purpose | Integration | Status |
-|------|---------|-------------|--------|
-| ESLint | TypeScript + React rules | CI + Reviewdog PR comments | ✅ 0 errors |
-| Prettier | Code formatting | CI + lint-staged pre-commit | ✅ Active |
-| markdownlint | Wiki + docs quality | CI + Reviewdog | ✅ Active |
-| knip | Dead code detection | CI (blocks merge) | ✅ Active |
-| syncpack | Dependency version consistency | CI (blocks merge) | ✅ Active |
-| bundlesize | Bundle regression guard | Configured | ⚠️ Manual only |
+| Tool         | Purpose                        | Integration                 | Status         |
+| ------------ | ------------------------------ | --------------------------- | -------------- |
+| ESLint       | TypeScript + React rules       | CI + Reviewdog PR comments  | ✅ 0 errors    |
+| Prettier     | Code formatting                | CI + lint-staged pre-commit | ✅ Active      |
+| markdownlint | Wiki + docs quality            | CI + Reviewdog              | ✅ Active      |
+| knip         | Dead code detection            | CI (blocks merge)           | ✅ Active      |
+| syncpack     | Dependency version consistency | CI (blocks merge)           | ✅ Active      |
+| bundlesize   | Bundle regression guard        | Configured                  | ⚠️ Manual only |
 
 ### Error Handling
 
@@ -57,23 +57,23 @@
 
 ### Code Health Metrics (Portal — actual counts)
 
-| Metric | Count | Context |
-|--------|-------|---------|
-| TypeScript files | 157 source + 37 test = **194 total** | Apps/portal only |
-| Lint errors | **0** | CI enforced |
-| Type errors | **0** | CI enforced |
-| `console.log/error/warn` calls | **76 across 26 files** | Mostly AI service modules |
-| TODO/FIXME (portal TS/TSX only) | **1** | Effectively clean |
-| Generic `Error` throws | **2** | Intentional test plugin only |
+| Metric                          | Count                                | Context                      |
+| ------------------------------- | ------------------------------------ | ---------------------------- |
+| TypeScript files                | 157 source + 37 test = **194 total** | Apps/portal only             |
+| Lint errors                     | **0**                                | CI enforced                  |
+| Type errors                     | **0**                                | CI enforced                  |
+| `console.log/error/warn` calls  | **76 across 26 files**               | Mostly AI service modules    |
+| TODO/FIXME (portal TS/TSX only) | **1**                                | Effectively clean            |
+| Generic `Error` throws          | **2**                                | Intentional test plugin only |
 
 ### Bundle Size
 
-| Bundle | Size | Status |
-|--------|------|--------|
-| Main bundle | 245 KB | 🟢 Under 300 KB limit |
-| Vendor bundle | 890 KB | 🟡 Watch — no CI gate yet |
-| Dynamic imports | 120 KB | 🟢 Good |
-| CSS bundle | 45 KB | 🟢 Good |
+| Bundle          | Size   | Status                    |
+| --------------- | ------ | ------------------------- |
+| Main bundle     | 245 KB | 🟢 Under 300 KB limit     |
+| Vendor bundle   | 890 KB | 🟡 Watch — no CI gate yet |
+| Dynamic imports | 120 KB | 🟢 Good                   |
+| CSS bundle      | 45 KB  | 🟢 Good                   |
 
 Config: `.bundlesize.json` — thresholds defined, CI integration pending.
 
@@ -105,47 +105,47 @@ Config: `.bundlesize.json` — thresholds defined, CI integration pending.
 
 ## Action Plan
 
-| Priority | Action | Status | Impact |
-|----------|--------|--------|--------|
-| � P2 | Set up Storybook for `@repo/ui` | ⬜ Pending | Visual component docs |
-| ✅ Done | Add bundlesize to CI build step | ✅ Complete | Prevents bundle regression |
-| ✅ Done | Replace console.log in AI service modules with error-logger | ✅ Complete | Cleaner production logs |
-| ✅ Done | Replace console.log in sync/memory modules | ✅ Complete | Cleaner production logs |
-| ✅ Done | Add `no-console` rule to ESLint (base config) | ✅ Complete | Enforces cleanup going forward |
-| ✅ Done | ESLint + Prettier in CI | ✅ Complete | 0 lint errors |
-| ✅ Done | knip dead code detection | ✅ Complete | CI gate |
-| ✅ Done | syncpack version enforcement | ✅ Complete | CI gate |
-| ✅ Done | @repo/errors — 51/53 errors migrated | ✅ Complete | Structured errors |
-| ✅ Done | Error logging middleware | ✅ Complete | Production observability |
-| ✅ Done | markdownlint + Reviewdog | ✅ Complete | PR inline feedback |
+| Priority | Action                                                      | Status      | Impact                         |
+| -------- | ----------------------------------------------------------- | ----------- | ------------------------------ |
+| � P2     | Set up Storybook for `@repo/ui`                             | ⬜ Pending  | Visual component docs          |
+| ✅ Done  | Add bundlesize to CI build step                             | ✅ Complete | Prevents bundle regression     |
+| ✅ Done  | Replace console.log in AI service modules with error-logger | ✅ Complete | Cleaner production logs        |
+| ✅ Done  | Replace console.log in sync/memory modules                  | ✅ Complete | Cleaner production logs        |
+| ✅ Done  | Add `no-console` rule to ESLint (base config)               | ✅ Complete | Enforces cleanup going forward |
+| ✅ Done  | ESLint + Prettier in CI                                     | ✅ Complete | 0 lint errors                  |
+| ✅ Done  | knip dead code detection                                    | ✅ Complete | CI gate                        |
+| ✅ Done  | syncpack version enforcement                                | ✅ Complete | CI gate                        |
+| ✅ Done  | @repo/errors — 51/53 errors migrated                        | ✅ Complete | Structured errors              |
+| ✅ Done  | Error logging middleware                                    | ✅ Complete | Production observability       |
+| ✅ Done  | markdownlint + Reviewdog                                    | ✅ Complete | PR inline feedback             |
 
 ---
 
 ## Industry Comparison
 
-| Aspect | Arch Systems | Industry Avg | Grade |
-|--------|-------------|--------------|-------|
-| Linting stack | ESLint + Prettier + knip + syncpack + markdownlint | ESLint only | 🟢 A+ |
-| Type coverage | 94% | 70-80% | 🟢 A+ |
-| Error standardisation | @repo/errors, 96% migrated | Ad-hoc | 🟢 A |
-| Console hygiene | ~10 intentional calls | ~50-100 | � A |
-| Bundle monitoring | Configured, CI-gated | Often absent | � A |
-| Component docs | None (Storybook) | ~40% have it | 🟡 C |
+| Aspect                | Arch Systems                                       | Industry Avg | Grade |
+| --------------------- | -------------------------------------------------- | ------------ | ----- |
+| Linting stack         | ESLint + Prettier + knip + syncpack + markdownlint | ESLint only  | 🟢 A+ |
+| Type coverage         | 94%                                                | 70-80%       | 🟢 A+ |
+| Error standardisation | @repo/errors, 96% migrated                         | Ad-hoc       | 🟢 A  |
+| Console hygiene       | ~10 intentional calls                              | ~50-100      | � A   |
+| Bundle monitoring     | Configured, CI-gated                               | Often absent | � A   |
+| Component docs        | None (Storybook)                                   | ~40% have it | 🟡 C  |
 
 ---
 
 ## Score Breakdown
 
-| Sub-metric | Score | Rationale |
-|-----------|-------|-----------|
-| Linting & formatting | 10/10 | 0 errors, 5-tool stack, PR-level feedback |
-| Type safety | 9/10 | 94% coverage, strict mode, 0 `any` in prod |
-| Error handling | 9.6/10 | 96% migrated, typed boundaries, logging |
-| Dead code | 8/10 | knip active, some unchecked legacy paths |
-| Console hygiene | 9/10 | All hotspot modules cleaned — only intentional calls remain |
-| Bundle size | 9/10 | Defined limits, CI-gated via `pnpm bundlesize` |
-| TODO/FIXME debt | 9.5/10 | 1 in portal TS/TSX (effectively 0) |
-| **Overall** | **9.0/10** | Excellent tooling, console hygiene clean, bundle CI-gated |
+| Sub-metric           | Score      | Rationale                                                   |
+| -------------------- | ---------- | ----------------------------------------------------------- |
+| Linting & formatting | 10/10      | 0 errors, 5-tool stack, PR-level feedback                   |
+| Type safety          | 9/10       | 94% coverage, strict mode, 0 `any` in prod                  |
+| Error handling       | 9.6/10     | 96% migrated, typed boundaries, logging                     |
+| Dead code            | 8/10       | knip active, some unchecked legacy paths                    |
+| Console hygiene      | 9/10       | All hotspot modules cleaned — only intentional calls remain |
+| Bundle size          | 9/10       | Defined limits, CI-gated via `pnpm bundlesize`              |
+| TODO/FIXME debt      | 9.5/10     | 1 in portal TS/TSX (effectively 0)                          |
+| **Overall**          | **9.0/10** | Excellent tooling, console hygiene clean, bundle CI-gated   |
 
 ---
 

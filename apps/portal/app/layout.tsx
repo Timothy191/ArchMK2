@@ -1,16 +1,26 @@
 import "@repo/ui/globals.css";
 import { ArchThemeProvider } from "@repo/theme/react";
 import type { Metadata, Viewport } from "next";
-import { Inter, Outfit, JetBrains_Mono } from "next/font/google";
-import { HighlightInit } from "@highlight-run/next/client";
+import { Plus_Jakarta_Sans, Outfit, JetBrains_Mono } from "next/font/google";
+import ClientProviders from "./ClientProviders";
 import { OfflineBanner } from "@/components/OfflineBanner";
-import { AnimatedWavesBackgroundWrapper } from "@/components/AnimatedWavesBackgroundWrapper";
+import { FocusModeProvider } from "@/components/FocusModeProvider";
+import { CommandBar } from "@/components/CommandBar";
 import { AIAssistantSidebarWrapper } from "@/features/shared/components/ai/AIAssistantSidebarWrapper";
-import { SmoothScrollProvider } from "@/components/SmoothScrollProvider";
+import { BottomWidgetBar } from "@/components/BottomWidgetBar";
+import { RouteBackground } from "@/components/RouteBackground";
+import { WeatherWidget } from "@/components/weather/WeatherWidget";
+import { SystemClock } from "@/components/clock/SystemClock";
+import { ServicesDropdown } from "@/components/nav/ServicesDropdown";
+import { FocusModeToggle } from "@/components/FocusModeToggle";
+import { SystemTrayPill } from "@/components/system/SystemTray";
+import { MacMenuBar } from "@repo/ui/MacMenuBar";
+import { SplitWindowLayout } from "@/components/system/SplitWindowLayout";
 
-const inter = Inter({
+const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  variable: "--font-inter",
+  variable: "--font-sans",
+  weight: ["300", "400", "500", "600", "700", "800"],
   display: "swap",
 });
 
@@ -27,7 +37,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Arch-Systems | Plantcor OS",
+  title: "Arch-Systems | Arch OS",
   description: "Multi-departmental industrial operations portal",
   manifest: "/manifest.json",
   appleWebApp: {
@@ -58,11 +68,11 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      data-theme="light"
       suppressHydrationWarning
-      className={`${inter.variable} ${outfit.variable} ${jetbrainsMono.variable}`}
+      className={`${plusJakartaSans.variable} ${outfit.variable} ${jetbrainsMono.variable}`}
     >
       <head>
-        <meta name="theme-color" content="#f5f5f7" />
         <link
           rel="preconnect"
           href={process.env.NEXT_PUBLIC_SUPABASE_URL || "https://*.supabase.co"}
@@ -71,28 +81,40 @@ export default function RootLayout({
           rel="dns-prefetch"
           href={process.env.NEXT_PUBLIC_SUPABASE_URL || "https://*.supabase.co"}
         />
-        <HighlightInit
-          projectId={process.env.NEXT_PUBLIC_HIGHLIGHT_PROJECT_ID}
-          serviceName="arch-portal"
-          tracingOrigins
-          networkRecording
-        />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `document.documentElement.setAttribute('data-theme', 'light');`,
-          }}
-        />
+        {/* Preload background video — starts fetch before React hydrates RouteBackground */}
+        <link rel="preload" href="/arch-bg.mp4" as="video" type="video/mp4" />
       </head>
       <body className="text-[var(--text-heading)] min-h-screen font-sans antialiased selection:bg-[var(--accent-blue)]/30 selection:text-[var(--accent-blue)] relative overflow-x-hidden bg-[var(--bg-primary)]">
+        <RouteBackground />
         <ArchThemeProvider>
-          <SmoothScrollProvider>
-            <OfflineBanner />
-            <AnimatedWavesBackgroundWrapper />
-            <AIAssistantSidebarWrapper />
+          <ClientProviders>
+            <FocusModeProvider>
+              <OfflineBanner />
+              <AIAssistantSidebarWrapper />
+              <BottomWidgetBar dockPosition="left-center" />
 
-            {/* Content wrapper */}
-            <div className="relative z-10">{children}</div>
-          </SmoothScrollProvider>
+              {/* Global Navigation Header */}
+              <MacMenuBar
+                rightSlot={
+                  <div className="flex items-center gap-1.5">
+                    <FocusModeToggle variant="icon" />
+                    <SystemTrayPill />
+                    <div className="bg-black/[0.03] hover:bg-black/[0.06] border border-black/[0.05] rounded-full w-8 h-8 flex items-center justify-center transition-colors">
+                      <WeatherWidget variant="header" />
+                    </div>
+                    <SystemClock />
+                    <ServicesDropdown />
+                  </div>
+                }
+              />
+
+              {/* Content wrapper */}
+              <div className="relative z-10 pt-16">
+                <SplitWindowLayout>{children}</SplitWindowLayout>
+              </div>
+              <CommandBar />
+            </FocusModeProvider>
+          </ClientProviders>
         </ArchThemeProvider>
       </body>
     </html>

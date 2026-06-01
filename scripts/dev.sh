@@ -69,6 +69,18 @@ wait_for() {
   return 1
 }
 
+detect_compose_cmd() {
+  if docker compose version > /dev/null 2>&1; then
+    echo "docker compose"
+  elif command -v docker-compose > /dev/null 2>&1; then
+    echo "docker-compose"
+  else
+    echo "docker compose"
+  fi
+}
+
+COMPOSE_CMD=$(detect_compose_cmd)
+
 banner() {
   clear
   echo
@@ -215,9 +227,11 @@ clean_dir_cache() {
 # ══════════════════════════════════════════════════════════
 
 FORCE_KILL=false
+START_TOOLS=false
 while [ $# -gt 0 ]; do
   case "$1" in
     --force|-f) FORCE_KILL=true; shift ;;
+    --tools|-t) START_TOOLS=true; shift ;;
     *) shift ;;
   esac
 done
@@ -460,6 +474,36 @@ if curl -fs "http://127.0.0.1:54321/rest/v1/" -o /dev/null -w "%{http_code}" 2>/
   check "Database" "pass" "Postgres responding"
 else
   check "Database" "warn" "API up but unexpected response"
+fi
+
+# 2b. Optional Tools
+if [ "$START_TOOLS" = "true" ]; then
+  if [ -f "$REPO_ROOT/docker-compose.tools.yml" ]; then
+    echo -e "  ${INFO} Starting Docker Tools..."
+    $COMPOSE_CMD -f "$REPO_ROOT/docker-compose.tools.yml" up -d > /dev/null 2>&1
+    
+    local services=("plantcor-redis" "plantcor-n8n" "plantcor-flowise" "plantcor-langfuse-db" "plantcor-langfuse" "plantcor-qdrant")
+    for service in "${services[@]}"; do
+      printf "  ${CYAN}⏳${NC} Gating on $service health... "
+      local attempts=0
+      while [ $attempts -lt 30 ]; do
+        local status
+        status=$(docker inspect --format='{{.State.Health.Status}}' "$service" 2>/dev/null || echo "starting")
+        if [ "$status" = "healthy" ]; then
+          echo -e "${GREEN}healthy${NC}"
+          break
+        fi
+        sleep 2
+        ((attempts++))
+      done
+      if [ $attempts -eq 30 ]; then
+        echo -e "${YELLOW}timeout (continuing)${NC}"
+      fi
+    done
+    check "Docker Tools" "pass" "booted"
+  else
+    check "Docker Tools" "skip" "compose file missing"
+  fi
 fi
 
 # Studio check

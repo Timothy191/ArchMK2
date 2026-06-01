@@ -214,7 +214,7 @@ export default async function ExecutiveDashboardPage() {
           <KPICard
             label="Waste Removed"
             value={`${totalWasteMtd.toFixed(0)} t`}
-            color="amber"
+            color="blue"
           />
           <KPICard
             label="Fuel Efficiency"
@@ -233,7 +233,7 @@ export default async function ExecutiveDashboardPage() {
           <KPICard
             label="Fleet Availability"
             value={`${fleetPct}%`}
-            color={fleetPct >= 80 ? "green" : fleetPct >= 60 ? "amber" : "red"}
+            color={fleetPct >= 80 ? "green" : fleetPct >= 60 ? "blue" : "red"}
             sub={`${activeMachines ?? 0} / ${totalMachines ?? 0} machines`}
           />
           <KPICard
@@ -245,11 +245,7 @@ export default async function ExecutiveDashboardPage() {
             label="Active Breakdowns"
             value={openBreakdowns}
             color={
-              openBreakdowns > 5
-                ? "red"
-                : openBreakdowns > 2
-                  ? "amber"
-                  : "green"
+              openBreakdowns > 5 ? "red" : openBreakdowns > 2 ? "blue" : "green"
             }
           />
           <KPICard
@@ -274,7 +270,7 @@ export default async function ExecutiveDashboardPage() {
           <KPICard
             label="Diesel Consumed (MTD)"
             value={`${totalFuelMtd.toFixed(0)} L`}
-            color="amber"
+            color="blue"
           />
           <KPICard
             label="Breakdowns (MTD)"

@@ -36,61 +36,61 @@
 
 The `wiki/` directory is the primary source of project knowledge.
 
-| Section | Files | Content |
-|---------|-------|---------|
-| `concepts/` | 28 | Architecture guides, ADRs, how-tos |
-| `comparisons/` | 10 | Technology decision comparison docs |
-| `entities/` | 9 | Department-level entity descriptions |
-| `gittree/` | 4 | Code graph visualisations |
-| `raw/articles/` | 4 | Source articles and overviews |
-| `raw/codebase/` | 7 | Codebase snapshot docs |
-| `breakdown/` | 4 | This folder — metric deep dives |
-| Root wiki docs | 12 | Status, schema, update summaries, report |
+| Section         | Files | Content                                  |
+| --------------- | ----- | ---------------------------------------- |
+| `concepts/`     | 28    | Architecture guides, ADRs, how-tos       |
+| `comparisons/`  | 10    | Technology decision comparison docs      |
+| `entities/`     | 9     | Department-level entity descriptions     |
+| `gittree/`      | 4     | Code graph visualisations                |
+| `raw/articles/` | 4     | Source articles and overviews            |
+| `raw/codebase/` | 7     | Codebase snapshot docs                   |
+| `breakdown/`    | 4     | This folder — metric deep dives          |
+| Root wiki docs  | 12    | Status, schema, update summaries, report |
 
 **Total**: 78 markdown files (excluding `_archive/`)
 
 ### Architecture Decision Records — 7 ADRs
 
-| ADR | Decision | Status |
-|-----|----------|--------|
-| `adr-001` | Next.js App Router | ✅ Ratified |
-| `adr-002` | Supabase as backend | ✅ Ratified |
-| `adr-003` | Turborepo monorepo | ✅ Ratified |
-| `adr-004` | Tailwind design system | ✅ Ratified |
-| `adr-005` | Zustand state management | ✅ Ratified |
+| ADR       | Decision                   | Status      |
+| --------- | -------------------------- | ----------- |
+| `adr-001` | Next.js App Router         | ✅ Ratified |
+| `adr-002` | Supabase as backend        | ✅ Ratified |
+| `adr-003` | Turborepo monorepo         | ✅ Ratified |
+| `adr-004` | Tailwind design system     | ✅ Ratified |
+| `adr-005` | Zustand state management   | ✅ Ratified |
 | `adr-006` | Multi-provider AI strategy | ✅ Ratified |
-| `adr-007` | React 19 adoption | ✅ Ratified |
+| `adr-007` | React 19 adoption          | ✅ Ratified |
 
 ### Root Project Docs
 
-| File | Purpose | Quality |
-|------|---------|---------|
-| `AGENTS.md` | Dev quickstart, commands, conventions | ✅ Excellent — single source of truth |
-| `DESIGN.md` | Design system, tokens, glass pattern | ✅ Comprehensive (12KB) |
-| `PRODUCT.md` | Product vision & requirements | ✅ Clear (4KB) |
-| `README.md` | Project overview & setup | ✅ Functional |
+| File         | Purpose                               | Quality                               |
+| ------------ | ------------------------------------- | ------------------------------------- |
+| `AGENTS.md`  | Dev quickstart, commands, conventions | ✅ Excellent — single source of truth |
+| `DESIGN.md`  | Design system, tokens, glass pattern  | ✅ Comprehensive (12KB)               |
+| `PRODUCT.md` | Product vision & requirements         | ✅ Clear (4KB)                        |
+| `README.md`  | Project overview & setup              | ✅ Functional                         |
 
 ### Concept Guide Coverage
 
-| Guide | Topic | Length |
-|-------|-------|--------|
-| `portal-app-architecture.md` | Full app architecture deep dive | 8KB |
-| `database-schema.md` | Complete schema with relationships | 17KB |
-| `ai-service.md` | AI orchestration + providers | 7KB |
-| `auth-middleware.md` | Auth flow, JWT, session management | 5KB |
-| `deployment.md` | Docker Compose, production deploy | 8KB |
-| `on-premises-deployment.md` | Linux server + Cockpit guide | 6KB |
-| `testing-qa-strategy.md` | Full test coverage strategy | 5KB |
-| `database-optimization.md` | Partitioning, indexes, pooling | 7KB |
-| `mobile-pwa.md` | PWA manifest, service worker | 7KB |
-| `analytics-reporting.md` | Exec dashboard, export APIs | 6KB |
-| `monitoring-error-tracking.md` | Error tracking, logging | 7KB |
-| `incident-response.md` | Production incident playbook | 7KB |
-| `department-features.md` | All 8 departments documented | 8KB |
-| `rls-policy.md` | Row Level Security patterns | 4KB |
-| `onboarding.md` | New dev onboarding guide | 7KB |
-| `troubleshooting.md` | Common issues + solutions | 7KB |
-| + 12 more | design-system, external-tools, etc. | varies |
+| Guide                          | Topic                               | Length |
+| ------------------------------ | ----------------------------------- | ------ |
+| `portal-app-architecture.md`   | Full app architecture deep dive     | 8KB    |
+| `database-schema.md`           | Complete schema with relationships  | 17KB   |
+| `ai-service.md`                | AI orchestration + providers        | 7KB    |
+| `auth-middleware.md`           | Auth flow, JWT, session management  | 5KB    |
+| `deployment.md`                | Docker Compose, production deploy   | 8KB    |
+| `on-premises-deployment.md`    | Linux server + Cockpit guide        | 6KB    |
+| `testing-qa-strategy.md`       | Full test coverage strategy         | 5KB    |
+| `database-optimization.md`     | Partitioning, indexes, pooling      | 7KB    |
+| `mobile-pwa.md`                | PWA manifest, service worker        | 7KB    |
+| `analytics-reporting.md`       | Exec dashboard, export APIs         | 6KB    |
+| `monitoring-error-tracking.md` | Error tracking, logging             | 7KB    |
+| `incident-response.md`         | Production incident playbook        | 7KB    |
+| `department-features.md`       | All 8 departments documented        | 8KB    |
+| `rls-policy.md`                | Row Level Security patterns         | 4KB    |
+| `onboarding.md`                | New dev onboarding guide            | 7KB    |
+| `troubleshooting.md`           | Common issues + solutions           | 7KB    |
+| + 12 more                      | design-system, external-tools, etc. | varies |
 
 ### Comprehensive Project Report
 
@@ -145,53 +145,53 @@ The remaining **157 source files** have zero JSDoc. For a project this size, inl
 
 ## Action Plan
 
-| Priority | Action | Status | Impact |
-|----------|--------|--------|--------|
-| 🟡 P1 | Add JSDoc to all public `lib/` functions | ⬜ Pending | Discoverability |
-| 🟡 P1 | Add JSDoc to all server action exports | ⬜ Pending | Discoverability |
-| 🟡 P1 | Document API routes — inline or README per route group | ⬜ Pending | API clarity |
-| 🟢 P2 | Set up Storybook for `@repo/ui` with stories per component | ⬜ Pending | Component catalogue |
-| 🟢 P2 | Generate OpenAPI spec from route types | ⬜ Pending | API docs |
-| 🟢 P2 | Add ADR-008 for error handling standardisation | ⬜ Pending | Decision record |
-| 🟢 P3 | Add frontend coding standards wiki page | ⬜ Pending | Onboarding |
-| ✅ Done | 78-page wiki | ✅ Complete | Full project knowledge base |
-| ✅ Done | 7 ADRs documenting all major decisions | ✅ Complete | Decision history |
-| ✅ Done | AGENTS.md onboarding quickstart | ✅ Complete | Dev setup in <5 min |
-| ✅ Done | DESIGN.md design system reference | ✅ Complete | UI consistency |
-| ✅ Done | `project-comprehensive-report.md` v2.5.0 | ✅ Complete | Exec-level overview |
-| ✅ Done | All 8 departments documented in entities/ | ✅ Complete | Domain knowledge |
-| ✅ Done | Concept guides for every major system | ✅ Complete | Deep dives available |
-| ✅ Done | Comparison docs for 10 technology decisions | ✅ Complete | Decision rationale |
-| ✅ Done | Breakdown docs (this folder) | ✅ Complete | Metric deep dives |
+| Priority | Action                                                     | Status      | Impact                      |
+| -------- | ---------------------------------------------------------- | ----------- | --------------------------- |
+| 🟡 P1    | Add JSDoc to all public `lib/` functions                   | ⬜ Pending  | Discoverability             |
+| 🟡 P1    | Add JSDoc to all server action exports                     | ⬜ Pending  | Discoverability             |
+| 🟡 P1    | Document API routes — inline or README per route group     | ⬜ Pending  | API clarity                 |
+| 🟢 P2    | Set up Storybook for `@repo/ui` with stories per component | ⬜ Pending  | Component catalogue         |
+| 🟢 P2    | Generate OpenAPI spec from route types                     | ⬜ Pending  | API docs                    |
+| 🟢 P2    | Add ADR-008 for error handling standardisation             | ⬜ Pending  | Decision record             |
+| 🟢 P3    | Add frontend coding standards wiki page                    | ⬜ Pending  | Onboarding                  |
+| ✅ Done  | 78-page wiki                                               | ✅ Complete | Full project knowledge base |
+| ✅ Done  | 7 ADRs documenting all major decisions                     | ✅ Complete | Decision history            |
+| ✅ Done  | AGENTS.md onboarding quickstart                            | ✅ Complete | Dev setup in <5 min         |
+| ✅ Done  | DESIGN.md design system reference                          | ✅ Complete | UI consistency              |
+| ✅ Done  | `project-comprehensive-report.md` v2.5.0                   | ✅ Complete | Exec-level overview         |
+| ✅ Done  | All 8 departments documented in entities/                  | ✅ Complete | Domain knowledge            |
+| ✅ Done  | Concept guides for every major system                      | ✅ Complete | Deep dives available        |
+| ✅ Done  | Comparison docs for 10 technology decisions                | ✅ Complete | Decision rationale          |
+| ✅ Done  | Breakdown docs (this folder)                               | ✅ Complete | Metric deep dives           |
 
 ---
 
 ## Industry Comparison
 
-| Aspect | Arch Systems | Industry Avg | Grade |
-|--------|-------------|--------------|-------|
-| Project wiki | 78 pages, 28 concept guides | Often <10 pages | 🟢 A+ |
-| ADRs | 7, all major decisions covered | Often absent | 🟢 A+ |
-| Dev onboarding doc | AGENTS.md — <5 min setup | Often absent | 🟢 A+ |
-| Design system docs | DESIGN.md — comprehensive | Often scattered | 🟢 A+ |
-| Inline code comments | 4 JSDoc in 157 files | ~20-30% | 🔴 F |
-| API documentation | None (types only) | 30-40% have spec | 🟡 C |
-| Component docs | None (no Storybook) | ~40% have it | 🔴 F |
+| Aspect               | Arch Systems                   | Industry Avg     | Grade |
+| -------------------- | ------------------------------ | ---------------- | ----- |
+| Project wiki         | 78 pages, 28 concept guides    | Often <10 pages  | 🟢 A+ |
+| ADRs                 | 7, all major decisions covered | Often absent     | 🟢 A+ |
+| Dev onboarding doc   | AGENTS.md — <5 min setup       | Often absent     | 🟢 A+ |
+| Design system docs   | DESIGN.md — comprehensive      | Often scattered  | 🟢 A+ |
+| Inline code comments | 4 JSDoc in 157 files           | ~20-30%          | 🔴 F  |
+| API documentation    | None (types only)              | 30-40% have spec | 🟡 C  |
+| Component docs       | None (no Storybook)            | ~40% have it     | 🔴 F  |
 
 ---
 
 ## Score Breakdown
 
-| Sub-metric | Score | Rationale |
-|-----------|-------|-----------|
-| Wiki coverage | 10/10 | 78 pages, all major systems covered |
-| ADRs | 10/10 | 7 decisions documented with rationale |
-| Project docs | 10/10 | AGENTS.md, DESIGN.md, PRODUCT.md, README |
-| Concept guides | 10/10 | 28 detailed guides across all systems |
-| Inline code comments | 2/10 | 4 JSDoc in 157 source files |
-| API docs | 6/10 | TypeScript types but no spec/route docs |
-| Component docs | 0/10 | No Storybook or component catalogue |
-| **Overall** | **9.5/10** | Exceptional wiki; code-level docs the only gap |
+| Sub-metric           | Score      | Rationale                                      |
+| -------------------- | ---------- | ---------------------------------------------- |
+| Wiki coverage        | 10/10      | 78 pages, all major systems covered            |
+| ADRs                 | 10/10      | 7 decisions documented with rationale          |
+| Project docs         | 10/10      | AGENTS.md, DESIGN.md, PRODUCT.md, README       |
+| Concept guides       | 10/10      | 28 detailed guides across all systems          |
+| Inline code comments | 2/10       | 4 JSDoc in 157 source files                    |
+| API docs             | 6/10       | TypeScript types but no spec/route docs        |
+| Component docs       | 0/10       | No Storybook or component catalogue            |
+| **Overall**          | **9.5/10** | Exceptional wiki; code-level docs the only gap |
 
 ---
 

@@ -16,11 +16,10 @@ export default async function OperationalDelaysPage({
     department,
   });
 
-  // Fetch machines for dropdown
+  // Fetch machines for dropdown (centralised fleet)
   const { data: machines } = await supabase
     .from("machines")
-    .select("id, name")
-    .eq("department_id", deptId)
+    .select("id, name, site_id, sites(name)")
     .eq("active", true)
     .order("name");
 
@@ -34,7 +33,7 @@ export default async function OperationalDelaysPage({
   const { data: todayDelays } = await supabase
     .from("operational_delays")
     .select(
-      "*, category:delay_categories(name, color, icon), machine:machines(name)",
+      "*, category:delay_categories(name, color, icon), machine:machines(name, sites(name))",
     )
     .eq("department_id", deptId)
     .eq("delay_date", today)
@@ -54,7 +53,7 @@ export default async function OperationalDelaysPage({
 
       <KPIGrid cols={4}>
         <KPICard label="Total Delays" value={todayDelays?.length ?? 0} />
-        <KPICard label="Active" value={activeCount} color="amber" />
+        <KPICard label="Active" value={activeCount} color="blue" />
         <KPICard label="Recovered" value={recoveredCount} color="green" />
         <KPICard label="Total Minutes" value={totalDelayMinutes} color="red" />
       </KPIGrid>

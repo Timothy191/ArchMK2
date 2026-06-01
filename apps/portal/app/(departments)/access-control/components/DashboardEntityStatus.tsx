@@ -35,7 +35,8 @@ export default function DashboardEntityStatus({
       <div className="divide-y divide-border">
         {entityStatus.map((row) => {
           const Icon = typeToIcon[row.type] ?? Wrench;
-          const coveragePct = Math.round((row.active / row.total) * 100);
+          const coveragePct =
+            row.total > 0 ? Math.round((row.active / row.total) * 100) : 0;
           return (
             <div
               key={row.type}

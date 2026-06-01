@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import Image from "next/image";
 import { SecondaryButton } from "@repo/ui/SecondaryButton";
 import {
   isAppError,
@@ -68,6 +69,16 @@ export default function RootError({ error, reset }: RootErrorProps) {
   return (
     <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center p-4">
       <div className="max-w-md w-full text-center space-y-6">
+        <div className="flex justify-center">
+          <Image
+            src="/404-error.png"
+            alt="Error Graphic"
+            width={120}
+            height={120}
+            priority
+            className="opacity-80 hover:opacity-100 transition-opacity duration-200"
+          />
+        </div>
         <div className="space-y-2">
           <h1 className="text-3xl font-medium text-[var(--text-heading)]">
             {title}

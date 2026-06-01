@@ -1,7 +1,7 @@
 /**
  * Agent Graph — Explicit state machine for AI chat orchestration.
  *
- * Nodes: authenticate → rateLimit → resolveContext → loadMemory → gatherContext → callLLM → saveMemory → output
+ * Nodes: authenticate → rateLimit → resolveContext → loadMemory → gatherContext → executeTools → callLLM → saveMemory → output
  * Conditional edges route based on state (tool pending? max iterations? error?)
  *
  * Each node is a pure function: (state) => partialStateUpdate.
@@ -19,6 +19,7 @@ import { withSpan } from "@repo/supabase";
 import { logError } from "@/lib/errors/error-logger";
 import { checkRateLimit } from "./rate-limiter";
 import { ollamaChatStream, DEFAULT_MODEL, type OllamaMessage } from "./ollama";
+import { aiTools } from "./tools";
 import type {
   AgentState,
   AgentNodeName,
@@ -170,26 +171,103 @@ async function loadMemoryNode(state: AgentState): Promise<Partial<AgentState>> {
 }
 
 async function gatherContextNode(
-  _state: AgentState,
+  state: AgentState,
 ): Promise<Partial<AgentState>> {
-  // Optional: web search augmentation could be triggered here based on routing logic.
-  // For now, this node is a no-op passthrough. Future: integrate SerpApi.
+  const latestUserMessage = [...state.messages]
+    .reverse()
+    .find((m) => m.role === "user");
+
+  if (!latestUserMessage) {
+    return { nextNode: "callLLM" };
+  }
+
+  const text = getMessageText(latestUserMessage).toLowerCase();
+
+  // Keyword-based intent detection for tools
+  const needsFleet =
+    /\bfleet\b|\btruck\b|\bvehicle\b|\bdown\b|\bbreakdown\b/.test(text);
+  const needsShift = /\bshift\b|\blog\b|\bhandover\b/.test(text);
+  const needsDelays = /\bdelay\b|\bwait\b|\bslow\b/.test(text);
+
+  if (needsFleet || needsShift || needsDelays) {
+    return {
+      toolCalls: [
+        ...(needsFleet ? [{ tool: "fleetStatus", args: {} }] : []),
+        ...(needsShift
+          ? [
+              {
+                tool: "shiftLogs",
+                args: { departmentName: state.agentContext.departmentName },
+              },
+            ]
+          : []),
+        ...(needsDelays
+          ? [
+              {
+                tool: "delays",
+                args: { departmentName: state.agentContext.departmentName },
+              },
+            ]
+          : []),
+      ],
+      nextNode: "executeTools",
+    };
+  }
+
   return { nextNode: "callLLM" };
 }
 
+async function executeToolsNode(
+  state: AgentState,
+): Promise<Partial<AgentState>> {
+  if (!state.toolCalls || state.toolCalls.length === 0) {
+    return { nextNode: "callLLM" };
+  }
+
+  const results: unknown[] = [];
+  let toolContext = "Operational Data Summary:\n";
+
+  for (const call of state.toolCalls as any[]) {
+    try {
+      const tool = aiTools[call.tool as keyof typeof aiTools];
+      if (tool) {
+        const result = await tool.execute(call.args);
+        results.push({ tool: call.tool, result });
+        toolContext += `\n[Tool: ${call.tool}]\n${JSON.stringify(result, null, 2)}\n`;
+      }
+    } catch (err) {
+      logError(err instanceof Error ? err : new Error(String(err)), {
+        context: `agent_tool_exec_${call.tool}`,
+      });
+    }
+  }
+
+  return {
+    toolResults: results,
+    context: (state.context ?? "") + "\n\n" + toolContext,
+    nextNode: "callLLM",
+  };
+}
+
 async function callLLMNode(state: AgentState): Promise<Partial<AgentState>> {
-  const systemPrompt = systemPrompts.chat(state.context ?? "", state.memoryContext ?? "");
+  const systemPrompt = systemPrompts.chat(
+    state.context ?? "",
+    state.memoryContext ?? "",
+  );
 
   const messages: OllamaMessage[] = [
     { role: "system", content: systemPrompt },
     ...state.messages
-      .filter(m => m.role === "user" || m.role === "assistant")
-      .map(m => ({ role: m.role as "user" | "assistant", content: getMessageText(m) })),
+      .filter((m) => m.role === "user" || m.role === "assistant")
+      .map((m) => ({
+        role: m.role as "user" | "assistant",
+        content: getMessageText(m),
+      })),
   ];
 
   try {
     const streamGen = await ollamaChatStream(messages, {
-      model: DEFAULT_MODEL,
+      model: state.selectedModel ?? DEFAULT_MODEL,
       temperature: 0.7,
       maxTokens: 4096,
     });
@@ -213,12 +291,15 @@ async function callLLMNode(state: AgentState): Promise<Partial<AgentState>> {
 
     const result: LLMResponse = {
       text: Promise.resolve(fullText),
-      usage: Promise.resolve({ inputTokens: 0, outputTokens: 0, totalTokens: 0 }),
+      usage: Promise.resolve({
+        inputTokens: 0,
+        outputTokens: 0,
+        totalTokens: 0,
+      }),
       toUIMessageStreamResponse: () => streamResponse,
     };
 
     return { llmResponse: result, nextNode: "output" };
-
   } catch (error) {
     logError(error instanceof Error ? error : new Error(String(error)), {
       context: "agent_graph_call_llm",
@@ -316,7 +397,7 @@ const NODE_MAP: Record<
   loadMemory: wrapNode("loadMemory", loadMemoryNode),
   gatherContext: wrapNode("gatherContext", gatherContextNode),
   callLLM: wrapNode("callLLM", callLLMNode),
-  executeTools: null, // not used; tool execution is a future feature
+  executeTools: wrapNode("executeTools", executeToolsNode),
   saveMemory: wrapNode("saveMemory", saveMemoryNode),
   output: wrapNode("output", outputNode),
   END: null,

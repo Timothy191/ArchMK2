@@ -26,21 +26,25 @@ Use when sessions feel slow, compaction fires too often, token budget seems wast
 ## Audit Checklist
 
 ### CLAUDE.md Size
+
 - Root CLAUDE.md: ideal < 60 lines, maximum < 150 lines
 - Total across all CLAUDE.md files: flag if > 500 lines
 - Check for stale entries, duplicate info, verbose examples
 
 ### Skill Overhead
+
 - Each skill description consumes ~50-200 tokens in the slash menu
 - Flag skills that haven't been invoked in 30+ days
 - Identify skills that overlap in purpose
 
 ### MCP Servers
+
 - Each server adds tool descriptions to context
 - Count total tools across all servers
 - Flag servers with 20+ tools (consider tool filtering)
 
 ### Agent Preloaded Skills
+
 - Skills in agent frontmatter load fully into agent context
 - Flag agents with 3+ preloaded skills
 - Suggest moving rarely-needed knowledge to on-demand skills

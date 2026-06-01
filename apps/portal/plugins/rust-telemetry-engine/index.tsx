@@ -78,9 +78,9 @@ function RustTelemetryWidget({
   const isWarning = data?.status === "warning";
 
   const statusColor = isCritical
-    ? "text-red-400 border-red-500/20 bg-red-500/10"
+    ? "text-accent-red border-accent-red/20 bg-accent-red/10"
     : isWarning
-      ? "text-amber-400 border-amber-500/20 bg-amber-500/10"
+      ? "text-accent-blue border-accent-blue/20 bg-accent-blue/10"
       : "text-[#3ecf8e] border-[#3ecf8e]/20 bg-[#3ecf8e]/10";
 
   return (
@@ -144,7 +144,7 @@ function RustTelemetryWidget({
             {data?.isNative ? "Rust binary (compiled)" : "JS fallback"}
           </span>
           {data?.error && (
-            <span className="text-red-400 italic text-[9px]">
+            <span className="text-accent-red italic text-[9px]">
               Sensor read timeout
             </span>
           )}

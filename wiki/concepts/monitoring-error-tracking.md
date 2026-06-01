@@ -179,12 +179,12 @@ The Docker Compose stack includes a full metrics collection and visualization la
 
 ### Services
 
-| Service | Port | Purpose |
-|---------|------|---------|
+| Service    | Port   | Purpose                       |
+| ---------- | ------ | ----------------------------- |
 | Prometheus | `9090` | Metrics scraping and alerting |
-| Grafana | `9091` | Dashboard visualization |
+| Grafana    | `9091` | Dashboard visualization       |
 
-Both are started automatically via `./scripts/deploy-local.sh`.
+Both are started automatically via `./scripts/deploy.sh local`.
 
 ### Prometheus Configuration
 
@@ -194,34 +194,35 @@ Both are started automatically via `./scripts/deploy-local.sh`.
 scrape_configs:
   - job_name: portal
     static_configs:
-      - targets: ['portal:3000']
+      - targets: ["portal:3000"]
     metrics_path: /api/metrics
 
   - job_name: redis
     static_configs:
-      - targets: ['redis-exporter:9121']
+      - targets: ["redis-exporter:9121"]
 
   - job_name: postgres
     static_configs:
-      - targets: ['postgres-exporter:9187']
+      - targets: ["postgres-exporter:9187"]
 ```
 
 ### Key Metrics Tracked
 
-| Metric | Type | Description |
-|--------|------|-------------|
-| `http_request_duration_seconds` | Histogram | API route latency |
-| `ai_provider_requests_total` | Counter | Requests per AI provider |
-| `ai_provider_errors_total` | Counter | Failover events |
-| `ai_cache_hit_ratio` | Gauge | Redis cache hit rate for AI responses |
-| `db_query_duration_seconds` | Histogram | PostgreSQL query latency |
-| `active_websocket_connections` | Gauge | Live real-time subscribers |
+| Metric                          | Type      | Description                           |
+| ------------------------------- | --------- | ------------------------------------- |
+| `http_request_duration_seconds` | Histogram | API route latency                     |
+| `ai_provider_requests_total`    | Counter   | Requests per AI provider              |
+| `ai_provider_errors_total`      | Counter   | Failover events                       |
+| `ai_cache_hit_ratio`            | Gauge     | Redis cache hit rate for AI responses |
+| `db_query_duration_seconds`     | Histogram | PostgreSQL query latency              |
+| `active_websocket_connections`  | Gauge     | Live real-time subscribers            |
 
 ### Grafana Dashboards
 
 Access at `http://localhost:9091` (admin / admin on first run).
 
 Pre-configured dashboards:
+
 - **Portal Overview** — request rates, error rates, response time p50/p95/p99
 - **AI Service** — provider usage, failover frequency, cache hit rate
 - **Database** — query latency, connection pool usage, slow queries
@@ -231,13 +232,13 @@ Pre-configured dashboards:
 
 Prometheus alert thresholds defined in `monitoring/prometheus.yml`:
 
-| Alert | Condition | Severity |
-|-------|-----------|----------|
-| `HighErrorRate` | HTTP 5xx rate > 5% for 5min | critical |
-| `SlowAPIResponse` | p95 latency > 2s for 5min | warning |
-| `AIProviderFailover` | Failover events > 3 in 1min | warning |
-| `DBSlowQuery` | p99 query > 200ms for 10min | warning |
-| `RedisCacheMiss` | Cache hit rate < 60% for 15min | info |
+| Alert                | Condition                      | Severity |
+| -------------------- | ------------------------------ | -------- |
+| `HighErrorRate`      | HTTP 5xx rate > 5% for 5min    | critical |
+| `SlowAPIResponse`    | p95 latency > 2s for 5min      | warning  |
+| `AIProviderFailover` | Failover events > 3 in 1min    | warning  |
+| `DBSlowQuery`        | p99 query > 200ms for 10min    | warning  |
+| `RedisCacheMiss`     | Cache hit rate < 60% for 15min | info     |
 
 See [[on-premises-deployment]] for production monitoring setup and alert routing.
 

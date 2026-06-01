@@ -26,11 +26,10 @@ export default async function BreakdownsPage({
     .order("created_at", { ascending: false })
     .limit(200);
 
-  // Fetch active machines for the department
+  // Fetch active machines (centralised fleet)
   const { data: machines } = await supabase
     .from("machines")
     .select("id, name, machine_type, serial_number, active")
-    .eq("department_id", deptId)
     .eq("active", true)
     .order("name");
 

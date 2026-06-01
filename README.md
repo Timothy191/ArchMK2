@@ -7,11 +7,13 @@ A high-performance, multi-departmental mining operations portal built as a monor
 This project is organized as a **Turborepo** monorepo using **pnpm** for workspace management.
 
 ### Applications (`apps/`)
+
 - **`portal`**: The main Next.js 15+ (App Router) application. High-density dashboards, real-time monitoring, and data entry forms.
 - **`cms`**: Payload CMS v3 (headless) for managing system content and documentation.
 - **`overview`**: A standalone Next.js application for architectural visualization and system-wide monitoring.
 
 ### Packages (`packages/`)
+
 - **`theme`**: Design tokens, OKLCH color system, and Tailwind CSS configuration (Single Source of Truth).
 - **`ui`**: Shared React components (GlassCard, KPI, DepartmentLayout, etc.) built with Radix UI and shadcn/ui.
 - **`supabase`**: Shared Supabase clients (browser, server, middleware) and auth utilities.
@@ -23,10 +25,12 @@ This project is organized as a **Turborepo** monorepo using **pnpm** for workspa
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - **Node.js**: `>=20.17.0`
 - **pnpm**: `9.12.0`
 
 ### Setup
+
 1. **Install dependencies**:
    ```bash
    pnpm install
@@ -38,11 +42,16 @@ This project is organized as a **Turborepo** monorepo using **pnpm** for workspa
    cd packages/database && pnpm supabase:dev
    ```
 4. **Development Mode**:
+
    ```bash
-   pnpm dev
+   # Optional: clear port 3000 if it might be occupied
+   ./scripts/clear-port.sh
    ```
 
+   **Note**: The script will free port 3000 before launching the dev server. If you prefer to run the server directly, ensure no other process is listening on that port.
+
 ## 🛠️ Key Commands
+
 - `pnpm dev`: Start the portal development server.
 - `pnpm build`: Build all applications and packages.
 - `pnpm lint`: Run linting across the entire monorepo.
@@ -50,9 +59,11 @@ This project is organized as a **Turborepo** monorepo using **pnpm** for workspa
 - `pnpm deploy:local`: Full stack deployment (Supabase + build + start).
 
 ## 📖 Documentation
+
 - [CLAUDE.md](CLAUDE.md): Authoritative technical guide and conventions.
 - [DESIGN.md](DESIGN.md): Detailed design system, color palette (OKLCH), and component rules.
 - [PRODUCT.md](PRODUCT.md): Product strategy, user personas, and core mission.
 
 ---
-*Built for industrial-scale vigilance and operational precision.*
+
+_Built for industrial-scale vigilance and operational precision._

@@ -91,7 +91,11 @@ class TogetherProvider implements EmbeddingProvider {
       const errorText = await response.text();
       throw new APIError(`Together embedding failed: ${errorText}`, {
         statusCode: response.status,
-        context: { provider: "together", endpoint: "embeddings", statusText: response.statusText },
+        context: {
+          provider: "together",
+          endpoint: "embeddings",
+          statusText: response.statusText,
+        },
       });
     }
 
@@ -116,7 +120,11 @@ class TogetherProvider implements EmbeddingProvider {
       const errorText = await response.text();
       throw new APIError(`Together embedding failed: ${errorText}`, {
         statusCode: response.status,
-        context: { provider: "together", endpoint: "embeddings", statusText: response.statusText },
+        context: {
+          provider: "together",
+          endpoint: "embeddings",
+          statusText: response.statusText,
+        },
       });
     }
 
@@ -142,7 +150,7 @@ function getPrimaryProvider(): EmbeddingProvider {
       {
         statusCode: 503,
         context: { reason: "no_provider_available" },
-      }
+      },
     );
   }
   return primaryProvider;
@@ -167,7 +175,9 @@ export async function generateEmbedding(text: string): Promise<number[]> {
   try {
     return await getPrimaryProvider().generate(text);
   } catch (err) {
-    logError(err instanceof Error ? err : new Error(String(err)), { context: "embedding_primary_failed" });
+    logError(err instanceof Error ? err : new Error(String(err)), {
+      context: "embedding_primary_failed",
+    });
     const fallback = getFallbackProvider();
     if (fallback) {
       return await fallback.generate(text);
@@ -188,13 +198,20 @@ export async function batchGenerateEmbeddings(
   try {
     return await getPrimaryProvider().batchGenerate(texts);
   } catch (err) {
-    logError(err instanceof Error ? err : new Error(String(err)), { context: "embedding_batch_primary_failed" });
+    logError(err instanceof Error ? err : new Error(String(err)), {
+      context: "embedding_batch_primary_failed",
+    });
     const fallback = getFallbackProvider();
     if (fallback) {
       try {
         return await fallback.batchGenerate(texts);
       } catch (fallbackErr) {
-        logError(fallbackErr instanceof Error ? fallbackErr : new Error(String(fallbackErr)), { context: "embedding_batch_fallback_failed" });
+        logError(
+          fallbackErr instanceof Error
+            ? fallbackErr
+            : new Error(String(fallbackErr)),
+          { context: "embedding_batch_fallback_failed" },
+        );
       }
     }
     // Fallback: generate individually

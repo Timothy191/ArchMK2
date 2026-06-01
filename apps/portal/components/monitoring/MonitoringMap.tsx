@@ -32,8 +32,8 @@ interface MonitoringMapProps {
 
 const LEVEL_COLORS: Record<string, string> = {
   stable: "#3ecf8e",
-  minor: "#f59e0b",
-  moderate: "#f97316",
+  minor: "#007aff",
+  moderate: "#007aff",
   critical: "#ef4444",
 };
 
@@ -180,7 +180,9 @@ export function MonitoringMap({
               className="w-2.5 h-2.5 rounded-full inline-block"
               style={{ background: LEVEL_COLORS[lvl] }}
             />
-            <span className="text-[10px] text-[var(--text-secondary)] capitalize">{lvl}</span>
+            <span className="text-[10px] text-[var(--text-secondary)] capitalize">
+              {lvl}
+            </span>
           </div>
         ))}
       </div>

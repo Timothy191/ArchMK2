@@ -7,10 +7,21 @@ import { createBrowserSupabaseClient } from "@repo/supabase/client";
 import { Input } from "@repo/ui/Input";
 import { AnimatedButton } from "@repo/ui/AnimatedButton";
 import { Eye, EyeOff } from "lucide-react";
+import { IconLock } from "@tabler/icons-react";
 
 function isInternalRedirect(path: string): boolean {
   return (
     path.startsWith("/") && !path.startsWith("//") && !path.startsWith("/\\")
+  );
+}
+
+/** Filter out non-page paths (assets, manifests, etc.) that should never be redirect targets */
+function isValidPageRedirect(path: string): boolean {
+  return (
+    isInternalRedirect(path) &&
+    !/\.(json|ico|png|jpg|jpeg|svg|xml|txt|webmanifest|css|js|woff|woff2)$/.test(
+      path,
+    )
   );
 }
 
@@ -35,7 +46,7 @@ export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const rawRedirect = searchParams.get("redirect") || "/";
-  const redirectTo = isInternalRedirect(rawRedirect) ? rawRedirect : "/";
+  const redirectTo = isValidPageRedirect(rawRedirect) ? rawRedirect : "/";
 
   const [employeeId, setEmployeeId] = useState("");
   const [password, setPassword] = useState("");
@@ -43,6 +54,8 @@ export function LoginForm() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [failedAttempts, setFailedAttempts] = useState(0);
+  const [rememberMe, setRememberMe] = useState(true);
+  const [capsLock, setCapsLock] = useState(false);
 
   // Pre-fill email from query params (password pre-fill intentionally omitted — credential exposure risk)
   useEffect(() => {
@@ -50,6 +63,10 @@ export function LoginForm() {
       searchParams.get("email") || searchParams.get("employeeId");
     if (emailParam) setEmployeeId(emailParam);
   }, [searchParams]);
+
+  function handleCapsLockKey(e: React.KeyboardEvent) {
+    setCapsLock(e.getModifierState("CapsLock"));
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -76,6 +93,24 @@ export function LoginForm() {
       return;
     }
 
+    // If "Remember Me" is unchecked, move Supabase tokens to sessionStorage
+    // so the session clears when the browser is closed.
+    if (!rememberMe) {
+      try {
+        Object.keys(localStorage).forEach((key) => {
+          if (key.startsWith("sb-")) {
+            const value = localStorage.getItem(key);
+            if (value) {
+              sessionStorage.setItem(key, value);
+              localStorage.removeItem(key);
+            }
+          }
+        });
+      } catch {
+        // Storage access may fail in private browsing — ignore
+      }
+    }
+
     setFailedAttempts(0);
     setLoading(false);
     router.push(redirectTo);
@@ -86,7 +121,7 @@ export function LoginForm() {
     <form
       data-testid="login-form"
       onSubmit={handleSubmit}
-      className="space-y-4 rounded-2xl border border-[var(--border-default)] bg-white/70 backdrop-blur-xl p-6 transition-[opacity,transform] duration-300 hover:bg-white/80"
+      className="space-y-4"
     >
       <div className="space-y-2">
         <label
@@ -105,7 +140,7 @@ export function LoginForm() {
           onChange={(e) => setEmployeeId(e.target.value)}
           variant="login"
           className="px-4 py-2.5 transition-all duration-200 focus:scale-[1.01]"
-          placeholder="e.g., admin@plantcor.os"
+          placeholder="e.g., admin@arch.os"
           aria-label="Employee ID / Email"
           autoComplete="username"
           aria-describedby={error ? "login-error" : undefined}
@@ -129,6 +164,8 @@ export function LoginForm() {
             disabled={loading}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            onKeyDown={handleCapsLockKey}
+            onKeyUp={handleCapsLockKey}
             variant="login"
             className="px-4 py-2.5 pr-10 transition-all duration-200 focus:scale-[1.01]"
             placeholder="Enter your password"
@@ -150,12 +187,22 @@ export function LoginForm() {
             )}
           </button>
         </div>
+        {/* Caps Lock warning */}
+        {capsLock && (
+          <div
+            className="flex items-center gap-1.5 text-[11px] text-arch-accent-amber animate-fade-up"
+            role="alert"
+          >
+            <IconLock className="w-3 h-3" stroke={1.5} />
+            <span>Caps Lock is on</span>
+          </div>
+        )}
       </div>
 
       {error && (
         <p
           id="login-error"
-          className="text-sm text-red-400 text-left animate-fade-up"
+          className="text-sm text-accent-red text-left animate-fade-up"
           role="alert"
           aria-live="polite"
         >
@@ -179,46 +226,48 @@ export function LoginForm() {
         {loading ? "Signing in..." : "Sign In"}
       </AnimatedButton>
 
-      {/* Demo Credentials Helper - Dev Only */}
-      {process.env.NODE_ENV === "development" && (
-        <div className="rounded-xl bg-amber-500/5 border border-amber-500/10 p-3.5 text-left space-y-1.5 transition-all duration-200 hover:bg-amber-500/[0.08] hover:border-amber-500/20">
-          <div className="flex justify-between items-center">
-            <span className="text-[10px] text-amber-400/90 uppercase tracking-wider">
-              Demo Credentials
-            </span>
-            <button
-              type="button"
-              onClick={() => {
-                setEmployeeId("admin@plantcor.os");
-                setPassword("Yugioh@123#");
-              }}
-              className="text-[10px] text-amber-400 hover:text-amber-300 transition-all duration-150 flex items-center gap-1 active:scale-95 transform"
+      {/* Remember Me + Forgot Password row */}
+      <div className="flex items-center justify-between pt-1">
+        <label
+          htmlFor="remember-me"
+          className="flex items-center gap-2 cursor-pointer select-none group"
+        >
+          <div className="relative">
+            <input
+              id="remember-me"
+              type="checkbox"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+              className="sr-only"
+            />
+            <div
+              className={`w-3.5 h-3.5 rounded-sm border transition-all duration-150 flex items-center justify-center ${
+                rememberMe
+                  ? "bg-arch-accent-blue border-arch-accent-blue"
+                  : "border-arch-border-primary bg-transparent"
+              }`}
             >
-              <span>⚡</span> Autofill
-            </button>
-          </div>
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            <div>
-              <span className="text-[10px] text-[var(--text-muted)] block">
-                Email/ID
-              </span>
-              <code className="text-amber-200/90 font-mono text-[11px] selection:bg-amber-500/30">
-                admin@plantcor.os
-              </code>
-            </div>
-            <div>
-              <span className="text-[10px] text-[var(--text-muted)] block">
-                Password
-              </span>
-              <code className="text-amber-200/90 font-mono text-[11px] selection:bg-amber-500/30">
-                Yugioh@123#
-              </code>
+              {rememberMe && (
+                <svg
+                  className="w-2.5 h-2.5 text-white"
+                  viewBox="0 0 10 10"
+                  fill="none"
+                >
+                  <path
+                    d="M1.5 5L4 7.5L8.5 2.5"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              )}
             </div>
           </div>
-        </div>
-      )}
-
-      <div className="text-left flex justify-between items-center pt-1">
+          <span className="text-xs text-[var(--text-muted)] group-hover:text-[var(--text-secondary)] transition-colors">
+            Remember me
+          </span>
+        </label>
         <Link
           href="/reset-password"
           className="text-xs text-[var(--text-muted)] hover:text-[var(--accent-cyan)] transition-colors duration-200"

@@ -37,28 +37,28 @@ The Production department in Arch-Systems handles coal yield, tonnage, and extra
 
 ## Database Tables
 
-| Table | Purpose | Key Columns |
-|-------|---------|-------------|
-| `daily_logs` | Shift-level production log | `department_id`, `log_date`, `shift`, `total_tonnage`, `waste_tonnes` |
-| `machines` | Production equipment registry | `name`, `machine_type`, `serial_number`, `active` |
-| `machine_hours` | Equipment utilization per shift | `machine_id`, `shift_date`, `hours_worked` |
-| `fuel_logs` | Fuel consumption per machine | `machine_id`, `shift`, `litres_used` |
-| `production_logs` | Detailed extraction records | `department_id`, `coal_tonnes`, `waste_tonnes`, `shift` |
+| Table             | Purpose                         | Key Columns                                                           |
+| ----------------- | ------------------------------- | --------------------------------------------------------------------- |
+| `daily_logs`      | Shift-level production log      | `department_id`, `log_date`, `shift`, `total_tonnage`, `waste_tonnes` |
+| `machines`        | Production equipment registry   | `name`, `machine_type`, `serial_number`, `active`                     |
+| `machine_hours`   | Equipment utilization per shift | `machine_id`, `shift_date`, `hours_worked`                            |
+| `fuel_logs`       | Fuel consumption per machine    | `machine_id`, `shift`, `litres_used`                                  |
+| `production_logs` | Detailed extraction records     | `department_id`, `coal_tonnes`, `waste_tonnes`, `shift`               |
 
 All tables use `department_id`-scoped RLS. Strip ratio (`waste_tonnes / coal_tonnes`) is typically computed at query time.
 
 ## Completeness Status (Phase 3)
 
-| Feature | Status |
-|---------|--------|
-| Dashboard | 85% |
-| Forms (daily-log) | 80% |
-| Tables (machines, history) | 90% |
-| Charts | 75% |
-| Real-time updates | 65% |
-| AI Assistant | 80% |
-| Mobile responsiveness | 65% |
-| **Overall** | **77%** |
+| Feature                    | Status  |
+| -------------------------- | ------- |
+| Dashboard                  | 85%     |
+| Forms (daily-log)          | 80%     |
+| Tables (machines, history) | 90%     |
+| Charts                     | 75%     |
+| Real-time updates          | 65%     |
+| AI Assistant               | 80%     |
+| Mobile responsiveness      | 65%     |
+| **Overall**                | **77%** |
 
 **Mobile:** Tonnage entry forms need larger numeric inputs and touch-friendly step controls for field use. See [[mobile-pwa]].
 

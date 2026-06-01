@@ -32,26 +32,26 @@
 
 ### Layer 1 — Authentication (Supabase Auth)
 
-| Feature | Implementation | Status |
-|---------|---------------|--------|
-| JWT tokens | Supabase Auth with PKCE flow | ✅ Active |
-| Session management | Supabase server-side sessions via `@repo/supabase` | ✅ Active |
-| Session refresh | Automatic token refresh with `createServerSupabaseClient()` | ✅ Active |
-| Auth middleware | `apps/portal/middleware.ts` — protects all routes | ✅ Active |
-| Login page | Video background, secure form, no credential logging | ✅ Active |
-| MFA (TOTP) | Supabase supports it — not yet enabled in UI | ⚠️ Partial (50%) |
+| Feature            | Implementation                                              | Status           |
+| ------------------ | ----------------------------------------------------------- | ---------------- |
+| JWT tokens         | Supabase Auth with PKCE flow                                | ✅ Active        |
+| Session management | Supabase server-side sessions via `@repo/supabase`          | ✅ Active        |
+| Session refresh    | Automatic token refresh with `createServerSupabaseClient()` | ✅ Active        |
+| Auth middleware    | `apps/portal/middleware.ts` — protects all routes           | ✅ Active        |
+| Login page         | Video background, secure form, no credential logging        | ✅ Active        |
+| MFA (TOTP)         | Supabase supports it — not yet enabled in UI                | ⚠️ Partial (50%) |
 
 **Middleware protection**: Every request to `/(hub)/*` and `/(departments)/*` passes through `middleware.ts` which calls `createServerSupabaseClient()` and validates the session. Unauthenticated requests are redirected to `/login`.
 
 ### Layer 2 — Authorization (RLS)
 
-| Metric | Value | Status |
-|--------|-------|--------|
-| Tables with RLS enabled | **33/37** (all application tables) | ✅ 100% coverage |
-| `CREATE POLICY` statements | **118** across 23 migrations | ✅ Comprehensive |
-| RLS helper functions | 4 (`is_admin`, `user_department_id`, `has_department_access`, `is_active`) | ✅ Active |
-| Role hierarchy | superadmin → admin → manager → operator → viewer | ✅ 5 levels |
-| Department isolation | Users can only read/write their own department | ✅ Enforced at DB |
+| Metric                     | Value                                                                      | Status            |
+| -------------------------- | -------------------------------------------------------------------------- | ----------------- |
+| Tables with RLS enabled    | **33/37** (all application tables)                                         | ✅ 100% coverage  |
+| `CREATE POLICY` statements | **118** across 23 migrations                                               | ✅ Comprehensive  |
+| RLS helper functions       | 4 (`is_admin`, `user_department_id`, `has_department_access`, `is_active`) | ✅ Active         |
+| Role hierarchy             | superadmin → admin → manager → operator → viewer                           | ✅ 5 levels       |
+| Department isolation       | Users can only read/write their own department                             | ✅ Enforced at DB |
 
 **Policy coverage per table** (from `012_rls_refinement.sql` + `014_schema_refinement.sql`):
 
@@ -78,59 +78,59 @@ is_active(record) → boolean
 
 ### Layer 3 — Data Protection
 
-| Aspect | Status | Notes |
-|--------|--------|-------|
-| Encryption at rest | ✅ Supabase managed | PostgreSQL data encryption |
-| TLS in transit | ✅ TLS 1.3 | All Supabase connections |
-| Audit logs | ✅ Full trail | `audit_logs` table + DB triggers |
-| Audit triggers | ✅ Automated | Triggers on webhooks, shifts, critical tables |
-| Soft deletes | ✅ Implemented | `is_active` flag — no hard deletes in app |
-| Backup strategy | ⚠️ 60% | Supabase auto-backup; no manual backup script yet |
+| Aspect             | Status              | Notes                                             |
+| ------------------ | ------------------- | ------------------------------------------------- |
+| Encryption at rest | ✅ Supabase managed | PostgreSQL data encryption                        |
+| TLS in transit     | ✅ TLS 1.3          | All Supabase connections                          |
+| Audit logs         | ✅ Full trail       | `audit_logs` table + DB triggers                  |
+| Audit triggers     | ✅ Automated        | Triggers on webhooks, shifts, critical tables     |
+| Soft deletes       | ✅ Implemented      | `is_active` flag — no hard deletes in app         |
+| Backup strategy    | ⚠️ 60%              | Supabase auto-backup; no manual backup script yet |
 
 **Audit trail detail**: `007_audit_logs.sql` creates the `audit_logs` table. `011_automated_auditing.sql` adds triggers on key tables. `017_webhooks.sql` adds webhook-specific audit triggers. All critical data mutations (shifts, webhooks, breakdowns) are logged with timestamp, user ID, and operation type.
 
 ### Layer 4 — Input Security
 
-| Attack Vector | Mitigation | Status |
-|--------------|-----------|--------|
-| SQL Injection | Supabase parameterized queries + RLS | ✅ 100% — no raw SQL in app |
-| XSS | Next.js JSX auto-escaping + React 19 | ✅ 100% |
-| CSRF | Next.js server actions with origin validation | ✅ 75% (not all routes) |
-| Path traversal | Next.js App Router file-based routing | ✅ Protected |
-| Auth bypass | Middleware on all protected routes | ✅ Active |
-| Clickjacking | Next.js default `X-Frame-Options` | ✅ Active |
-| Sensitive headers | No API keys in client bundles | ✅ `passThroughEnv` prevents caching |
+| Attack Vector     | Mitigation                                    | Status                               |
+| ----------------- | --------------------------------------------- | ------------------------------------ |
+| SQL Injection     | Supabase parameterized queries + RLS          | ✅ 100% — no raw SQL in app          |
+| XSS               | Next.js JSX auto-escaping + React 19          | ✅ 100%                              |
+| CSRF              | Next.js server actions with origin validation | ✅ 75% (not all routes)              |
+| Path traversal    | Next.js App Router file-based routing         | ✅ Protected                         |
+| Auth bypass       | Middleware on all protected routes            | ✅ Active                            |
+| Clickjacking      | Next.js default `X-Frame-Options`             | ✅ Active                            |
+| Sensitive headers | No API keys in client bundles                 | ✅ `passThroughEnv` prevents caching |
 
 **CSRF note**: Next.js 15 server actions include built-in CSRF protection via origin checking for same-origin requests. Third-party API routes (`app/api/`) do not have explicit CSRF tokens — this is the partial coverage.
 
 ### Layer 5 — CI/CD Security
 
-| Aspect | Implementation | Status |
-|--------|---------------|--------|
-| GitHub token permissions | `contents: read` only (minimal) | ✅ Least privilege |
-| Secrets in CI | Dummy env vars only — no real secrets | ✅ Safe |
-| Secrets management | Real secrets in `.env` (gitignored) | ✅ Not committed |
-| `passThroughEnv` in Turborepo | `SENTRY_AUTH_TOKEN`, `ANALYZE` — not cache-busting | ✅ Correct pattern |
-| Dependency linting | syncpack in CI — prevents unexpected version upgrades | ✅ Active |
-| Dead code scanning | knip in CI — detects unused exports | ✅ Active |
+| Aspect                        | Implementation                                        | Status             |
+| ----------------------------- | ----------------------------------------------------- | ------------------ |
+| GitHub token permissions      | `contents: read` only (minimal)                       | ✅ Least privilege |
+| Secrets in CI                 | Dummy env vars only — no real secrets                 | ✅ Safe            |
+| Secrets management            | Real secrets in `.env` (gitignored)                   | ✅ Not committed   |
+| `passThroughEnv` in Turborepo | `SENTRY_AUTH_TOKEN`, `ANALYZE` — not cache-busting    | ✅ Correct pattern |
+| Dependency linting            | syncpack in CI — prevents unexpected version upgrades | ✅ Active          |
+| Dead code scanning            | knip in CI — detects unused exports                   | ✅ Active          |
 
 ### Layer 6 — Dependency Security
 
-| Aspect | Status | Notes |
-|--------|--------|-------|
-| Version pinning | ✅ Apps pin exact versions (pnpm catalogs) | No surprise upgrades |
-| Version consistency | ✅ syncpack enforces single version per package | No split versions |
-| Known vulnerability scanning | ⚠️ Not automated | `pnpm audit` available manually |
-| Dependency update policy | ⚠️ Manual | No Renovate/Dependabot configured |
+| Aspect                       | Status                                          | Notes                             |
+| ---------------------------- | ----------------------------------------------- | --------------------------------- |
+| Version pinning              | ✅ Apps pin exact versions (pnpm catalogs)      | No surprise upgrades              |
+| Version consistency          | ✅ syncpack enforces single version per package | No split versions                 |
+| Known vulnerability scanning | ⚠️ Not automated                                | `pnpm audit` available manually   |
+| Dependency update policy     | ⚠️ Manual                                       | No Renovate/Dependabot configured |
 
 ### Layer 7 — Penetration Testing
 
-| Asset | Status |
-|-------|--------|
-| `scripts/pentest.sh` | ✅ Created — OWASP ZAP baseline + full scan |
+| Asset                         | Status                                            |
+| ----------------------------- | ------------------------------------------------- |
+| `scripts/pentest.sh`          | ✅ Created — OWASP ZAP baseline + full scan       |
 | `docker-compose.security.yml` | ✅ Created — `zap-baseline` + `zap-full` services |
-| Last executed scan | ⬜ Not yet run |
-| Report location | `test-results/pentest/` (generated on run) |
+| Last executed scan            | ⬜ Not yet run                                    |
+| Report location               | `test-results/pentest/` (generated on run)        |
 
 ---
 
@@ -172,56 +172,56 @@ is_active(record) → boolean
 
 ## Action Plan
 
-| Priority | Action | Status | Impact |
-|----------|--------|--------|--------|
-| 🟡 P1 | Enable MFA enrollment in `/admin` user settings | ⬜ Pending | Closes 50% MFA gap |
-| 🟡 P1 | Add `pnpm audit --audit-level=moderate` to CI | ⬜ Pending | Automated CVE detection |
-| 🟡 P1 | Add `scripts/backup.sh` + `systemd/backup.timer` for on-prem pg_dump | ⬜ Pending | Backup coverage |
-| 🟡 P1 | Execute OWASP ZAP baseline scan | ⬜ Pending | Find real vulnerabilities |
-| 🟢 P2 | Add Renovate/Dependabot for automated dep updates | ⬜ Pending | Proactive CVE fixes |
-| 🟢 P2 | Add CSRF token middleware for `app/api/` non-action routes | ⬜ Pending | Closes 25% CSRF gap |
-| 🟢 P2 | Document secret rotation policy in wiki | ⬜ Pending | Ops security |
-| 🟢 P3 | Add Content-Security-Policy headers via `next.config.js` | ⬜ Pending | Defense-in-depth |
-| ✅ Done | RLS on all 37 tables (118 policies) | ✅ Complete | Full data isolation |
-| ✅ Done | Auth middleware on all protected routes | ✅ Complete | No bypass possible |
-| ✅ Done | 5-level role hierarchy (superadmin→viewer) | ✅ Complete | Least-privilege access |
-| ✅ Done | 4 RLS helper functions | ✅ Complete | Consistent policy logic |
-| ✅ Done | Full audit log trail with DB triggers | ✅ Complete | Complete change history |
-| ✅ Done | Minimal CI GitHub token permissions | ✅ Complete | Least-privilege CI |
-| ✅ Done | Secrets never in CI / never committed | ✅ Complete | No secret leakage |
-| ✅ Done | OWASP ZAP pentest scripted | ✅ Complete | Ready to execute |
-| ✅ Done | SQL injection prevented via parameterized queries | ✅ Complete | No injection surface |
-| ✅ Done | XSS prevented via React JSX escaping | ✅ Complete | No XSS surface |
+| Priority | Action                                                               | Status      | Impact                    |
+| -------- | -------------------------------------------------------------------- | ----------- | ------------------------- |
+| 🟡 P1    | Enable MFA enrollment in `/admin` user settings                      | ⬜ Pending  | Closes 50% MFA gap        |
+| 🟡 P1    | Add `pnpm audit --audit-level=moderate` to CI                        | ⬜ Pending  | Automated CVE detection   |
+| 🟡 P1    | Add `scripts/backup.sh` + `systemd/backup.timer` for on-prem pg_dump | ⬜ Pending  | Backup coverage           |
+| 🟡 P1    | Execute OWASP ZAP baseline scan                                      | ⬜ Pending  | Find real vulnerabilities |
+| 🟢 P2    | Add Renovate/Dependabot for automated dep updates                    | ⬜ Pending  | Proactive CVE fixes       |
+| 🟢 P2    | Add CSRF token middleware for `app/api/` non-action routes           | ⬜ Pending  | Closes 25% CSRF gap       |
+| 🟢 P2    | Document secret rotation policy in wiki                              | ⬜ Pending  | Ops security              |
+| 🟢 P3    | Add Content-Security-Policy headers via `next.config.js`             | ⬜ Pending  | Defense-in-depth          |
+| ✅ Done  | RLS on all 37 tables (118 policies)                                  | ✅ Complete | Full data isolation       |
+| ✅ Done  | Auth middleware on all protected routes                              | ✅ Complete | No bypass possible        |
+| ✅ Done  | 5-level role hierarchy (superadmin→viewer)                           | ✅ Complete | Least-privilege access    |
+| ✅ Done  | 4 RLS helper functions                                               | ✅ Complete | Consistent policy logic   |
+| ✅ Done  | Full audit log trail with DB triggers                                | ✅ Complete | Complete change history   |
+| ✅ Done  | Minimal CI GitHub token permissions                                  | ✅ Complete | Least-privilege CI        |
+| ✅ Done  | Secrets never in CI / never committed                                | ✅ Complete | No secret leakage         |
+| ✅ Done  | OWASP ZAP pentest scripted                                           | ✅ Complete | Ready to execute          |
+| ✅ Done  | SQL injection prevented via parameterized queries                    | ✅ Complete | No injection surface      |
+| ✅ Done  | XSS prevented via React JSX escaping                                 | ✅ Complete | No XSS surface            |
 
 ---
 
 ## Industry Comparison
 
-| Aspect | Arch Systems | Industry Avg | Grade |
-|--------|-------------|--------------|-------|
-| Row-level security | 100% tables, 118 policies | Often absent | 🟢 A+ |
-| Auth middleware | Every route protected | ~60% coverage | 🟢 A+ |
-| Role hierarchy | 5 levels, dept-scoped | 2-3 levels common | 🟢 A+ |
-| Audit logs | Full trail + DB triggers | Often partial | 🟢 A+ |
-| CI secret hygiene | Minimal perms + no real secrets | ~50% do this | 🟢 A+ |
-| MFA | Not enabled | ~30% enforce it | 🟡 C |
-| Dependency vulnerability scan | Manual only | ~40% automated | 🟡 C |
-| Penetration testing | Scripted, not yet run | Rare | 🟡 B |
+| Aspect                        | Arch Systems                    | Industry Avg      | Grade |
+| ----------------------------- | ------------------------------- | ----------------- | ----- |
+| Row-level security            | 100% tables, 118 policies       | Often absent      | 🟢 A+ |
+| Auth middleware               | Every route protected           | ~60% coverage     | 🟢 A+ |
+| Role hierarchy                | 5 levels, dept-scoped           | 2-3 levels common | 🟢 A+ |
+| Audit logs                    | Full trail + DB triggers        | Often partial     | 🟢 A+ |
+| CI secret hygiene             | Minimal perms + no real secrets | ~50% do this      | 🟢 A+ |
+| MFA                           | Not enabled                     | ~30% enforce it   | 🟡 C  |
+| Dependency vulnerability scan | Manual only                     | ~40% automated    | 🟡 C  |
+| Penetration testing           | Scripted, not yet run           | Rare              | 🟡 B  |
 
 ---
 
 ## Score Breakdown
 
-| Sub-metric | Score | Rationale |
-|-----------|-------|-----------|
-| Authentication | 9.5/10 | JWT + PKCE + session mgmt; MFA not enforced |
-| Authorization (RLS) | 10/10 | 118 policies, all tables, 4 helper functions |
-| Data protection | 9.0/10 | Full audit trail; backup strategy incomplete |
-| Input security | 8.5/10 | SQL/XSS 100%; CSRF 75% |
-| CI/CD security | 10/10 | Minimal perms, no secrets, correct passThroughEnv |
-| Dependency security | 8.0/10 | Version-pinned + syncpack; no CVE scanning |
-| Penetration testing | 7.0/10 | Scripted, not yet executed |
-| **Overall** | **9.8/10** | World-class authorization; close gaps on MFA + backup |
+| Sub-metric          | Score      | Rationale                                             |
+| ------------------- | ---------- | ----------------------------------------------------- |
+| Authentication      | 9.5/10     | JWT + PKCE + session mgmt; MFA not enforced           |
+| Authorization (RLS) | 10/10      | 118 policies, all tables, 4 helper functions          |
+| Data protection     | 9.0/10     | Full audit trail; backup strategy incomplete          |
+| Input security      | 8.5/10     | SQL/XSS 100%; CSRF 75%                                |
+| CI/CD security      | 10/10      | Minimal perms, no secrets, correct passThroughEnv     |
+| Dependency security | 8.0/10     | Version-pinned + syncpack; no CVE scanning            |
+| Penetration testing | 7.0/10     | Scripted, not yet executed                            |
+| **Overall**         | **9.8/10** | World-class authorization; close gaps on MFA + backup |
 
 ---
 

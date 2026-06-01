@@ -12,12 +12,12 @@ A Supabase account with an existing project (for linking remote DB).
 1. Install dependencies: `pnpm install`.
 2. Initialize Supabase config: `pnpm run supabase:link`. This links your local DB with remote database smoothly.
 3. Start local Supabase: `pnpm run supabase:dev`. This runs a local stack (DB, auth, storage) using Docker.
-4. Access Supabase Studio: Open http://127.0.0.1:54323 in your browser (URL from command output).
+4. Access Supabase Studio: Open <http://127.0.0.1:54323> in your browser (URL from command output).
 
 ### Environment Variables
 
 After running `pnpm run supabase:dev`, the output displays database URL (e.g., postgresql://postgres:postgres@127.0.0.1:54322/postgres ) and keys (anon key, service role key). Add these to `.env` in the project root:  
-SUPABASE_URL=http://127.0.0.1:54321  
+SUPABASE_URL=<http://127.0.0.1:54321>  
 SUPABASE_ANON_KEY=eyJh... (from output)
 
 For production, use values from your Supabase project dashboard.

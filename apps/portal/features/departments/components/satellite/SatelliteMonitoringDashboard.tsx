@@ -178,7 +178,7 @@ export function SatelliteMonitoringDashboard({
             Critical
           </p>
           <p
-            className={`text-2xl font-bold mt-1 ${critical > 0 ? "text-red-400" : "text-[#3ecf8e]"}`}
+            className={`text-2xl font-bold mt-1 ${critical > 0 ? "text-accent-red" : "text-[#3ecf8e]"}`}
           >
             {critical}
           </p>
@@ -191,7 +191,7 @@ export function SatelliteMonitoringDashboard({
             Moderate
           </p>
           <p
-            className={`text-2xl font-bold mt-1 ${moderate > 0 ? "text-orange-400" : "text-[var(--text-heading)]"}`}
+            className={`text-2xl font-bold mt-1 ${moderate > 0 ? "text-accent-blue" : "text-[var(--text-heading)]"}`}
           >
             {moderate}
           </p>
@@ -204,7 +204,7 @@ export function SatelliteMonitoringDashboard({
             Minor
           </p>
           <p
-            className={`text-2xl font-bold mt-1 ${minor > 0 ? "text-amber-400" : "text-[var(--text-heading)]"}`}
+            className={`text-2xl font-bold mt-1 ${minor > 0 ? "text-accent-blue" : "text-[var(--text-heading)]"}`}
           >
             {minor}
           </p>

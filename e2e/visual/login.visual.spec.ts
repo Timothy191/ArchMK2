@@ -9,20 +9,32 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("login page visual regression", () => {
-  test("full login page matches snapshot", async ({ page }) => {
+  test.beforeEach(async ({ page }) => {
     await page.goto("/login");
     await page.waitForLoadState("networkidle");
+    await page.addStyleTag({
+      content: `
+        canvas { display: none !important; }
+        .animate-pulse { animation: none !important; }
+      `,
+    });
+  });
 
+  test("full login page matches snapshot", async ({ page }) => {
     await expect(page).toHaveScreenshot("login-full.png", {
       fullPage: true,
       threshold: 0.02, // 2% pixel difference tolerance
+      mask: [
+        page.locator('[data-testid="login-clock"]'),
+        page.locator('[data-testid="weather-card"]'),
+        page.locator('[data-testid="alert-banner"]'),
+        page.locator('[data-testid="login-marquees"]'),
+        page.locator('[data-testid="footer-date"]'),
+      ],
     });
   });
 
   test("login form card matches snapshot", async ({ page }) => {
-    await page.goto("/login");
-    await page.waitForLoadState("networkidle");
-
     const form = page.locator("form");
     await expect(form).toHaveScreenshot("login-form-card.png", {
       threshold: 0.02,
@@ -30,17 +42,22 @@ test.describe("login page visual regression", () => {
   });
 
   test("login page with filled email field", async ({ page }) => {
-    await page.goto("/login");
-    await page.waitForLoadState("networkidle");
+    await page
+      .locator("input[type='email'], input#email")
+      .first()
+      .fill("operator@arch.os");
 
-    await page.locator("input[type='email'], input#email").first().fill("operator@plantcor.os");
-
-    await expect(page.locator("form")).toHaveScreenshot("login-form-filled.png", {
-      threshold: 0.02,
-    });
+    await expect(page.locator("form")).toHaveScreenshot(
+      "login-form-filled.png",
+      {
+        threshold: 0.02,
+      },
+    );
   });
 
-  test("login page light macOS theme — no dark backgrounds", async ({ page }) => {
+  test("login page light macOS theme — no dark backgrounds", async ({
+    page,
+  }) => {
     await page.goto("/login");
 
     const bodyBg = await page.evaluate(() => {

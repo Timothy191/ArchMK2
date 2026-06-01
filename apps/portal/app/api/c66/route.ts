@@ -1,11 +1,10 @@
-import { createServerSupabaseClient } from "@repo/supabase/server";
+import { createServiceRoleClient } from "@repo/supabase/service-role";
 import { NextResponse } from "next/server";
+import { logError } from "@/lib/errors/error-logger";
 
-const ALLOWED_SCANNER_SOURCES = process.env.ALLOWED_SCANNER_SOURCES?.split(",").map((s) => s.trim()) || [
-  "C66-HARDWARE",
-  "C66-SCANNER",
-  "GATE-TERMINAL",
-];
+const ALLOWED_SCANNER_SOURCES = process.env.ALLOWED_SCANNER_SOURCES?.split(
+  ",",
+).map((s) => s.trim()) || ["C66-HARDWARE", "C66-SCANNER", "GATE-TERMINAL"];
 
 export async function POST(request: Request) {
   try {
@@ -18,7 +17,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const supabase = await createServerSupabaseClient();
+    const supabase = createServiceRoleClient();
     const contentType = request.headers.get("content-type") || "";
 
     let code = "";
@@ -124,8 +123,10 @@ export async function POST(request: Request) {
       message: isAuthorized ? "Access Granted" : denialReason,
     });
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error("[C66 API Error]", error);
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      url: "/api/c66",
+      method: "POST",
+    });
     return NextResponse.json(
       { success: false, error: "Internal Server Error" },
       { status: 500 },
@@ -134,14 +135,14 @@ export async function POST(request: Request) {
 }
 
 async function logAccess(
-  supabase: any,
+  supabase: ReturnType<typeof createServiceRoleClient>,
   badgeId: string | null,
   entityType: string,
   denialReason: string | null,
   gateLocation: string,
   accessGranted: boolean = false,
 ) {
-  await supabase.from("access_logs").insert([
+  const { error } = await supabase.from("access_logs").insert([
     {
       badge_id: badgeId,
       access_type: entityType,
@@ -151,4 +152,11 @@ async function logAccess(
       denial_reason: denialReason,
     },
   ]);
+
+  if (error) {
+    logError(new Error(error.message), {
+      url: "/api/c66",
+      context: "access_log_write_failed",
+    });
+  }
 }

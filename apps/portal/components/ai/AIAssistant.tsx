@@ -117,7 +117,7 @@ export function AIAssistant({ context, className }: AIAssistantProps) {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-arch-accent-blue text-white flex items-center justify-center shadow-diffusion-sm hover:bg-accent-blue hover:scale-110 active:scale-95 transition-all duration-200 z-50"
+          className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-gradient-to-r from-[var(--accent-blue)] to-[var(--accent-electric-blue)] text-white flex items-center justify-center drop-shadow-[0_0_8px_rgba(0,102,255,0.5)] hover:from-[var(--accent-electric-blue)] hover:to-[var(--accent-blue)] hover:scale-110 active:scale-95 transition-all duration-200 z-50"
           aria-label="Open AI Assistant"
         >
           <svg

@@ -41,9 +41,19 @@ export default async function DrillingReportsPage({
       block_drilled,
       holes,
       meters_drilled,
-      production_delays,
-      non_productional_delays,
-      engineering_delays,
+      delay_blasting,
+      delay_no_operator,
+      delay_natural,
+      delay_tramming,
+      delay_get,
+      delay_mechanical,
+      delay_electrical,
+      delay_hydraulic,
+      delay_scheduled_maintenance,
+      delay_unscheduled_maintenance,
+      delay_supply,
+      delay_power,
+      delay_other,
       status,
       machines!inner(name)
     `,
@@ -64,14 +74,27 @@ export default async function DrillingReportsPage({
     operations?.reduce((sum, op) => sum + (Number(op.total_hours) || 0), 0) ||
     0;
   const totalDelays =
-    operations?.reduce(
-      (sum, op) =>
-        sum +
-        (Number(op.production_delays) || 0) +
-        (Number(op.non_productional_delays) || 0) +
-        (Number(op.engineering_delays) || 0),
-      0,
-    ) || 0;
+    operations?.reduce((sum, op) => {
+      const production_delays =
+        (Number(op.delay_blasting) || 0) +
+        (Number(op.delay_no_operator) || 0) +
+        (Number(op.delay_natural) || 0) +
+        (Number(op.delay_tramming) || 0) +
+        (Number(op.delay_get) || 0);
+      const non_productional_delays =
+        (Number(op.delay_supply) || 0) +
+        (Number(op.delay_power) || 0) +
+        (Number(op.delay_other) || 0);
+      const engineering_delays =
+        (Number(op.delay_mechanical) || 0) +
+        (Number(op.delay_electrical) || 0) +
+        (Number(op.delay_hydraulic) || 0) +
+        (Number(op.delay_scheduled_maintenance) || 0) +
+        (Number(op.delay_unscheduled_maintenance) || 0);
+      return (
+        sum + production_delays + non_productional_delays + engineering_delays
+      );
+    }, 0) || 0;
 
   function formatDelay(minutes: number): string {
     if (!minutes || minutes === 0) return "—";
@@ -97,19 +120,37 @@ export default async function DrillingReportsPage({
       "Eng Delays (min)",
       "Status",
     ],
-    ...(operations || []).map((op: any) => [
-      op.operation_date,
-      op.machines?.name || "Unknown",
-      op.operator_name || "",
-      op.block_drilled || "",
-      op.total_hours ? op.total_hours.toFixed(2) : "",
-      op.holes || 0,
-      op.meters_drilled ? Number(op.meters_drilled).toFixed(2) : "",
-      op.production_delays || 0,
-      op.non_productional_delays || 0,
-      op.engineering_delays || 0,
-      op.status,
-    ]),
+    ...(operations || []).map((op: any) => {
+      const production_delays =
+        (Number(op.delay_blasting) || 0) +
+        (Number(op.delay_no_operator) || 0) +
+        (Number(op.delay_natural) || 0) +
+        (Number(op.delay_tramming) || 0) +
+        (Number(op.delay_get) || 0);
+      const non_productional_delays =
+        (Number(op.delay_supply) || 0) +
+        (Number(op.delay_power) || 0) +
+        (Number(op.delay_other) || 0);
+      const engineering_delays =
+        (Number(op.delay_mechanical) || 0) +
+        (Number(op.delay_electrical) || 0) +
+        (Number(op.delay_hydraulic) || 0) +
+        (Number(op.delay_scheduled_maintenance) || 0) +
+        (Number(op.delay_unscheduled_maintenance) || 0);
+      return [
+        op.operation_date,
+        op.machines?.name || "Unknown",
+        op.operator_name || "",
+        op.block_drilled || "",
+        op.total_hours ? op.total_hours.toFixed(2) : "",
+        op.holes || 0,
+        op.meters_drilled ? Number(op.meters_drilled).toFixed(2) : "",
+        production_delays || 0,
+        non_productional_delays || 0,
+        engineering_delays || 0,
+        op.status,
+      ];
+    }),
   ];
 
   const csvContent = csvRows
@@ -143,12 +184,12 @@ export default async function DrillingReportsPage({
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <GlassCard>
           <div className="flex items-center gap-2">
-            <Drill className="w-4 h-4 text-emerald-500" />
+            <Drill className="w-4 h-4 text-accent-green" />
             <p className="text-[var(--text-muted)] text-sm font-medium">
               Total Meters Drilled
             </p>
           </div>
-          <p className="text-2xl font-semibold text-emerald-500 mt-2">
+          <p className="text-2xl font-semibold text-accent-green mt-2">
             {totalMeters.toFixed(1)}m
           </p>
         </GlassCard>
@@ -176,12 +217,12 @@ export default async function DrillingReportsPage({
         </GlassCard>
         <GlassCard>
           <div className="flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4 text-amber-400" />
+            <AlertTriangle className="w-4 h-4 text-accent-blue" />
             <p className="text-[var(--text-muted)] text-sm font-medium">
               Total Delays
             </p>
           </div>
-          <p className="text-2xl font-semibold text-amber-400 mt-2">
+          <p className="text-2xl font-semibold text-accent-blue mt-2">
             {formatDelay(totalDelays)}
           </p>
         </GlassCard>
@@ -285,10 +326,26 @@ export default async function DrillingReportsPage({
             </thead>
             <tbody className="divide-y divide-[var(--border-default)]">
               {operations?.map((op: any) => {
+                const production_delays =
+                  (Number(op.delay_blasting) || 0) +
+                  (Number(op.delay_no_operator) || 0) +
+                  (Number(op.delay_natural) || 0) +
+                  (Number(op.delay_tramming) || 0) +
+                  (Number(op.delay_get) || 0);
+                const non_productional_delays =
+                  (Number(op.delay_supply) || 0) +
+                  (Number(op.delay_power) || 0) +
+                  (Number(op.delay_other) || 0);
+                const engineering_delays =
+                  (Number(op.delay_mechanical) || 0) +
+                  (Number(op.delay_electrical) || 0) +
+                  (Number(op.delay_hydraulic) || 0) +
+                  (Number(op.delay_scheduled_maintenance) || 0) +
+                  (Number(op.delay_unscheduled_maintenance) || 0);
                 const totalOpDelays =
-                  (Number(op.production_delays) || 0) +
-                  (Number(op.non_productional_delays) || 0) +
-                  (Number(op.engineering_delays) || 0);
+                  production_delays +
+                  non_productional_delays +
+                  engineering_delays;
                 return (
                   <tr
                     key={op.id}
@@ -312,24 +369,24 @@ export default async function DrillingReportsPage({
                     <td className="px-6 py-4 text-[var(--text-muted)] text-sm text-right">
                       {op.holes || 0}
                     </td>
-                    <td className="px-6 py-4 text-emerald-400 text-sm text-right font-medium">
+                    <td className="px-6 py-4 text-accent-green text-sm text-right font-medium">
                       {op.meters_drilled
                         ? Number(op.meters_drilled).toFixed(1)
                         : "—"}
                     </td>
-                    <td className="px-6 py-4 text-amber-400 text-sm text-right">
+                    <td className="px-6 py-4 text-accent-blue text-sm text-right">
                       {formatDelay(totalOpDelays)}
                     </td>
                     <td className="px-6 py-4 text-center">
                       <span
                         className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${
                           op.status === "active"
-                            ? "bg-emerald-500/10 text-emerald-500"
+                            ? "bg-accent-green/10 text-accent-green"
                             : op.status === "completed"
                               ? "bg-[var(--accent-blue)]/10 text-[var(--accent-blue)]"
                               : op.status === "maintenance"
-                                ? "bg-amber-500/10 text-amber-500"
-                                : "bg-red-500/10 text-red-500"
+                                ? "bg-arch-accent-blue/10 text-arch-accent-blue"
+                                : "bg-accent-red/10 text-accent-red"
                         }`}
                       >
                         {op.status}

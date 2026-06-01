@@ -16,18 +16,18 @@ Selection of animation approach for a mining operations portal with real-time da
 
 ## Dimensions of Comparison
 
-| Dimension | Framer Motion 12 | React Spring 9 | GSAP 3 | CSS-only |
-|-----------|------------------|----------------|--------|----------|
-| **React Integration** | Native (hooks API) | Native (hooks API) | Ref-based (useGSAP) | N/A |
-| **Bundle Size** | ~40KB | ~30KB | ~100KB | 0KB |
-| **Performance** | Excellent (GPU-accelerated) | Excellent | Best (most optimized) | Best (no JS) |
-| **Gesture Support** | Built-in (drag, pan, hover) | Requires addon | Draggable plugin | Limited (:hover only) |
-| **Layout Animations** | LayoutGroup (auto) | useTransition | Flip plugin | Impossible |
-| **Server Components** | Requires 'use client' | Requires 'use client' | Requires 'use client' | RSC-compatible |
-| **Spring Physics** | Yes | Yes (best-in-class) | Custom easing | CSS cubic-bezier |
-| **Scroll Animations** | useScroll, useTransform | Parallax addon | ScrollTrigger (superior) | CSS scroll-timeline |
-| **SVG/Morphing** | Good | Good | Excellent | Limited |
-| **Learning Curve** | Moderate | Moderate | Steep | Low |
+| Dimension             | Framer Motion 12            | React Spring 9        | GSAP 3                   | CSS-only              |
+| --------------------- | --------------------------- | --------------------- | ------------------------ | --------------------- |
+| **React Integration** | Native (hooks API)          | Native (hooks API)    | Ref-based (useGSAP)      | N/A                   |
+| **Bundle Size**       | ~40KB                       | ~30KB                 | ~100KB                   | 0KB                   |
+| **Performance**       | Excellent (GPU-accelerated) | Excellent             | Best (most optimized)    | Best (no JS)          |
+| **Gesture Support**   | Built-in (drag, pan, hover) | Requires addon        | Draggable plugin         | Limited (:hover only) |
+| **Layout Animations** | LayoutGroup (auto)          | useTransition         | Flip plugin              | Impossible            |
+| **Server Components** | Requires 'use client'       | Requires 'use client' | Requires 'use client'    | RSC-compatible        |
+| **Spring Physics**    | Yes                         | Yes (best-in-class)   | Custom easing            | CSS cubic-bezier      |
+| **Scroll Animations** | useScroll, useTransform     | Parallax addon        | ScrollTrigger (superior) | CSS scroll-timeline   |
+| **SVG/Morphing**      | Good                        | Good                  | Excellent                | Limited               |
+| **Learning Curve**    | Moderate                    | Moderate              | Steep                    | Low                   |
 
 ## Project Implementation
 
@@ -74,6 +74,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 ### Advanced: Motion Primitives
 
 Custom components in `components/motion-primitives/`:
+
 - `spotlight.tsx` — Mouse-following spotlight effect
 - `glow-effect.tsx` — Ambient glow animations
 - `border-trail.tsx` — Animated gradient borders
@@ -89,6 +90,7 @@ Custom components in `components/motion-primitives/`:
 ## Why Not React Spring
 
 React Spring is excellent but:
+
 - Slightly steeper learning curve for simple transitions
 - Smaller community/examples for dashboard patterns
 - Both are excellent; Framer Motion's layout animations tipped the decision
@@ -96,6 +98,7 @@ React Spring is excellent but:
 ## Why Not GSAP
 
 GSAP is the performance king but:
+
 - ~100KB bundle is heavy for this use case
 - Ref-based API is less React-idiomatic
 - Would require `'use client'` on more components
@@ -105,11 +108,13 @@ Reserved for potential future complex data visualization needs.
 ## Why Not CSS-only
 
 CSS animations are used for:
+
 - Simple hover effects
 - Pulse/loading indicators
 - `tailwindcss-animate` micro-interactions
 
 But cannot handle:
+
 - Layout transitions (FLIP)
 - Gesture-based interactions
 - Dynamic enter/exit with `AnimatePresence`

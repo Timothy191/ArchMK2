@@ -52,13 +52,13 @@ Each worktree runs its own Claude session independently.
 
 ## When to Use
 
-| Scenario | Recommended Approach |
-|----------|---------------------|
-| Quick parallel task | `claude -w` (auto worktree) |
-| Tests running | Start feature in worktree |
-| Long build | Debug in parallel |
-| Exploring approaches | Compare 2-3 simultaneously |
-| Review + new work | Reviewer in one, dev in other |
+| Scenario               | Recommended Approach                |
+| ---------------------- | ----------------------------------- |
+| Quick parallel task    | `claude -w` (auto worktree)         |
+| Tests running          | Start feature in worktree           |
+| Long build             | Debug in parallel                   |
+| Exploring approaches   | Compare 2-3 simultaneously          |
+| Review + new work      | Reviewer in one, dev in other       |
 | Background exploration | Subagent with `isolation: worktree` |
 
 ## Managing Background Agents

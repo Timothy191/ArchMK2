@@ -11,9 +11,9 @@ interface DeformationVelocityChartProps {
 }
 
 const LEVEL_COLORS = {
-  stable:   "#3ecf8e",
-  minor:    "#f59e0b",
-  moderate: "#f97316",
+  stable: "#3ecf8e",
+  minor: "#007aff",
+  moderate: "#007aff",
   critical: "#ef4444",
 };
 
@@ -22,7 +22,7 @@ function getColor(v: number, area: DeformationArea): string {
   const abs = Math.abs(v);
   if (abs >= t.critical) return LEVEL_COLORS.critical;
   if (abs >= t.moderate) return LEVEL_COLORS.moderate;
-  if (abs >= t.minor)    return LEVEL_COLORS.minor;
+  if (abs >= t.minor) return LEVEL_COLORS.minor;
   return LEVEL_COLORS.stable;
 }
 
@@ -46,7 +46,7 @@ export function DeformationVelocityChart({
 
   const t = ALERT_THRESHOLDS[area];
   const domainMin = Math.min(rawMin, -t.critical - 5);
-  const domainMax = Math.max(rawMax,  t.critical + 5);
+  const domainMax = Math.max(rawMax, t.critical + 5);
   const domainRange = domainMax - domainMin || 1;
 
   function scaleX(i: number) {
@@ -67,37 +67,61 @@ export function DeformationVelocityChart({
 
   return (
     <div>
-      <p className="text-[10px] text-[var(--text-secondary)] uppercase tracking-wide mb-1">{label}</p>
+      <p className="text-[10px] text-[var(--text-secondary)] uppercase tracking-wide mb-1">
+        {label}
+      </p>
       <svg viewBox={`0 0 ${W} ${H}`} width="100%" height={H} aria-label={label}>
         {/* threshold bands */}
         <rect
-          x={PAD.left} y={criticalNegY}
-          width={innerW} height={Math.max(0, moderateNegY - criticalNegY)}
-          fill="#ef4444" opacity={0.07}
+          x={PAD.left}
+          y={criticalNegY}
+          width={innerW}
+          height={Math.max(0, moderateNegY - criticalNegY)}
+          fill="#ef4444"
+          opacity={0.07}
         />
         <rect
-          x={PAD.left} y={moderateNegY}
-          width={innerW} height={Math.max(0, minorNegY - moderateNegY)}
-          fill="#f97316" opacity={0.07}
+          x={PAD.left}
+          y={moderateNegY}
+          width={innerW}
+          height={Math.max(0, minorNegY - moderateNegY)}
+          fill="#007aff"
+          opacity={0.07}
         />
         <rect
-          x={PAD.left} y={minorNegY}
-          width={innerW} height={Math.max(0, zeroY - minorNegY)}
-          fill="#f59e0b" opacity={0.07}
+          x={PAD.left}
+          y={minorNegY}
+          width={innerW}
+          height={Math.max(0, zeroY - minorNegY)}
+          fill="#007aff"
+          opacity={0.07}
         />
 
         {/* threshold lines */}
         {[
           { y: criticalNegY, color: "#ef4444", label: `${t.critical}` },
-          { y: moderateNegY, color: "#f97316", label: `${t.moderate}` },
-          { y: minorNegY,    color: "#f59e0b", label: `${t.minor}` },
+          { y: moderateNegY, color: "#007aff", label: `${t.moderate}` },
+          { y: minorNegY, color: "#007aff", label: `${t.minor}` },
         ].map(({ y, color, label: lbl }) => (
           <g key={lbl}>
             <line
-              x1={PAD.left} y1={y} x2={PAD.left + innerW} y2={y}
-              stroke={color} strokeDasharray="3 3" strokeWidth={0.8} opacity={0.6}
+              x1={PAD.left}
+              y1={y}
+              x2={PAD.left + innerW}
+              y2={y}
+              stroke={color}
+              strokeDasharray="3 3"
+              strokeWidth={0.8}
+              opacity={0.6}
             />
-            <text x={PAD.left - 3} y={y + 3} textAnchor="end" fontSize={7} fill={color} opacity={0.8}>
+            <text
+              x={PAD.left - 3}
+              y={y + 3}
+              textAnchor="end"
+              fontSize={7}
+              fill={color}
+              opacity={0.8}
+            >
               -{lbl}
             </text>
           </g>
@@ -105,10 +129,22 @@ export function DeformationVelocityChart({
 
         {/* zero line */}
         <line
-          x1={PAD.left} y1={zeroY} x2={PAD.left + innerW} y2={zeroY}
-          stroke="var(--border-emphasis)" strokeWidth={1}
+          x1={PAD.left}
+          y1={zeroY}
+          x2={PAD.left + innerW}
+          y2={zeroY}
+          stroke="var(--border-emphasis)"
+          strokeWidth={1}
         />
-        <text x={PAD.left - 3} y={zeroY + 3} textAnchor="end" fontSize={7} fill="var(--text-secondary)">0</text>
+        <text
+          x={PAD.left - 3}
+          y={zeroY + 3}
+          textAnchor="end"
+          fontSize={7}
+          fill="var(--text-secondary)"
+        >
+          0
+        </text>
 
         {/* velocity polyline */}
         <polyline
@@ -127,8 +163,21 @@ export function DeformationVelocityChart({
           const color = getColor(p.velocityMmPerMonth, area);
           return (
             <g key={p.month}>
-              <circle cx={cx} cy={cy} r={3.5} fill={color} stroke="var(--text-heading)" strokeWidth={1} />
-              <text x={cx} y={H - 3} textAnchor="middle" fontSize={7} fill="var(--text-secondary)">
+              <circle
+                cx={cx}
+                cy={cy}
+                r={3.5}
+                fill={color}
+                stroke="var(--text-heading)"
+                strokeWidth={1}
+              />
+              <text
+                x={cx}
+                y={H - 3}
+                textAnchor="middle"
+                fontSize={7}
+                fill="var(--text-secondary)"
+              >
                 {p.month}
               </text>
             </g>

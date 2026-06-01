@@ -14,6 +14,7 @@ Complete git history map from project inception to present, showing all branches
 ```
 
 **Active Branches:**
+
 - `fix/fix-bug` — Current development branch (Phase 3 in progress)
 - `master` — Main production branch
 - `worktree-feat-plantcor-os` — Feature branch for Plantcor OS multi-department portal work
@@ -21,6 +22,7 @@ Complete git history map from project inception to present, showing all branches
 ## Git Tree Timeline
 
 ### Current State (fix/fix-bug → master)
+
 ```
 * 21ea2f3 (HEAD -> fix/fix-bug, master)
   ├─ Phase 3: vector memory, multi-agent orchestrator, MCP registry, evaluator-optimizer
@@ -29,12 +31,14 @@ Complete git history map from project inception to present, showing all branches
 ```
 
 ### Phase 3: Advanced Agent Infrastructure
+
 ```
 21ea2f3 Phase 3: vector memory, multi-agent orchestrator, MCP registry, evaluator-optimizer
 3207fa2 Phase 2: safety system, agentic loop, advanced tooling
 ```
 
 ### Phase 2: Safety & Agentic Loop
+
 ```
 3207fa2 Phase 2: safety system, agentic loop, advanced tooling
 42cbbc6 fix: update n8n import script to use cookie-based auth
@@ -42,12 +46,14 @@ Complete git history map from project inception to present, showing all branches
 ```
 
 ### Phase 1: N8N Workflow Engine Integration
+
 ```
 e81342d feat: n8n workflow engine integration with Kiro agents + 10 MCP workflow patterns
 9fdf3a6 feat: version-control Kiro agent config + wire 12 hook scripts + Agent Teams pattern
 ```
 
 ### AI Memory & Infrastructure Layer
+
 ```
 8ab70fa feat: excavator activity, shift coverage, AI memory layer, Redis cache, UI animations
 2fa2740 chore: add scratch_test.ts with test export
@@ -55,6 +61,7 @@ a634218 docs: add docs/wiki directory
 ```
 
 ### Documentation & Architecture
+
 ```
 788518c docs: update wiki index, log, and add docs package manifest
 5300825 docs: add remaining wiki query and concept pages
@@ -65,6 +72,7 @@ f963da1 docs: add ADR, incident response, and onboarding wiki pages
 ```
 
 ### Infrastructure & Automation Setup
+
 ```
 0bc60ad chore: add Claude Code agents, commands, and hooks configuration
 800e9cd docs: add and update wiki documentation for AI service, auth, departments, and architecture
@@ -72,6 +80,7 @@ f963da1 docs: add ADR, incident response, and onboarding wiki pages
 ```
 
 ### Portal & Component Refactoring
+
 ```
 6a76c95 refactor: update portal department pages, hub layout, overview, and @repo/ui components
 cf9510f feat: add 3D components, AI service routes, instrumentation, and portal enhancements
@@ -80,6 +89,7 @@ cf9510f feat: add 3D components, AI service routes, instrumentation, and portal 
 ```
 
 ### Control Room & Evaluation Suite
+
 ```
 97f923e feat: finish control room, update CLAUDE.md, fix build errors
 fea9d31 feat: add skills, shared components, DeepEval evaluation suite, and refactor pages
@@ -87,6 +97,7 @@ fea9d31 feat: add skills, shared components, DeepEval evaluation suite, and refa
 ```
 
 ### Monitoring & Dashboard Overhaul
+
 ```
 93cf498 chore: improve CLAUDE.md docs, fix audit issues, relocate overview app, clean up zips
 a727cc3 feat: add breakdowns module, productivity tools, middleware auth, and cleanup gitignore
@@ -95,12 +106,14 @@ e9d2c8f feat: add Advanced Satellite Monitoring module (SAR/InSAR, Hyperspectral
 ```
 
 ### Core AI Service & Portal Features
+
 ```
-78d81b6 feat: add AI service, control room tables, engineering notes, excavator activity, hourly loads, 
+78d81b6 feat: add AI service, control room tables, engineering notes, excavator activity, hourly loads,
          machine operations, operational delays, roll-over modules, weather API, UI components, and portal refactors
 ```
 
 ### Portal UI/UX Phase
+
 ```
 d42e7ed feat(portal): intro video background with fade-in login
 e9ffa53 feat(portal): PlayStation wave video background + fix test script
@@ -108,12 +121,14 @@ ca8531d feat(portal): login aesthetics + rebrand to Arch-Systems
 ```
 
 ### Portal Phase 6-10: Foundation
+
 ```
 d15d766 feat(portal): Phases 6–10 — error boundaries, DB schema, machine CRUD, admin, polish
 053bb6a feat(portal): restore auth/hub routes, add Control Room components, remove broken files
 ```
 
 ### MCP & Initial Automation
+
 ```
 114f41b docs(mcp): add Supabase MCP activation notes
 a7ec7a0 chore(lockfile): normalize pnpm-lock.yaml quote style
@@ -122,6 +137,7 @@ a7ec7a0 chore(lockfile): normalize pnpm-lock.yaml quote style
 ```
 
 ### Code Review & Cleanup
+
 ```
 09de3fe fix(simplify): address code review findings
 8073380 fix: address code review — design system, security, monorepo boundaries
@@ -129,6 +145,7 @@ a3ed72d chore(post-review): clean up deps, lint-staged, and add CLAUDE.md
 ```
 
 ### Plantcor OS Foundation
+
 ```
 49bc622 feat(plantcor): full Plantcor OS multi-department portal
 4cbc080 Update README.md
@@ -137,6 +154,7 @@ a3ed72d chore(post-review): clean up deps, lint-staged, and add CLAUDE.md
 ## Branch Divergence Points
 
 ### Worktree: feat-plantcor-os
+
 Branched from the Plantcor OS feature but diverged at commit `4614529`:
 
 ```
@@ -154,6 +172,7 @@ b8c232b chore(automation): enable plugins, add PreToolUse hooks, fix MCP config
 **Status:** Development branch, tracking parallel improvements from earlier in project history
 
 ### Origin/Master (Remote)
+
 Latest remote state at commit `f25c5aa`:
 
 ```
@@ -246,25 +265,27 @@ f25c5aa (origin/master, origin/HEAD) Update README.md
 
 ## Key Milestones
 
-| Milestone | Commit | Description |
-|-----------|--------|-------------|
-| **Phase 3** | 21ea2f3 | Vector memory, multi-agent orchestrator, MCP registry |
-| **Phase 2** | 3207fa2 | Safety system, agentic loop, advanced tooling |
-| **N8N Integration** | e81342d | Workflow engine with Kiro agents + 10 MCP patterns |
-| **Documentation Overhaul** | 18114b0 | Architecture decision records & comprehensive wiki |
-| **Monitoring Rewrite** | b90c1ca | Full standards overhaul with velocity charts, AMD risk |
-| **Plantcor OS** | 49bc622 | Multi-department portal foundation |
-| **Project Init** | 582ffe1 | Ready-to-use template |
+| Milestone                  | Commit  | Description                                            |
+| -------------------------- | ------- | ------------------------------------------------------ |
+| **Phase 3**                | 21ea2f3 | Vector memory, multi-agent orchestrator, MCP registry  |
+| **Phase 2**                | 3207fa2 | Safety system, agentic loop, advanced tooling          |
+| **N8N Integration**        | e81342d | Workflow engine with Kiro agents + 10 MCP patterns     |
+| **Documentation Overhaul** | 18114b0 | Architecture decision records & comprehensive wiki     |
+| **Monitoring Rewrite**     | b90c1ca | Full standards overhaul with velocity charts, AMD risk |
+| **Plantcor OS**            | 49bc622 | Multi-department portal foundation                     |
+| **Project Init**           | 582ffe1 | Ready-to-use template                                  |
 
 ## Branch Status Summary
 
 ### Local vs Remote
+
 - **Local master** (21ea2f3): Phase 3 complete, latest developments
 - **Remote origin/master** (f25c5aa): Behind by ~50 commits
 - **Local worktree** (0d0e4a9): Development feature tracking
 - **HEAD**: Positioned at fix/fix-bug branch
 
 ### Recommended Actions
+
 1. Consider pushing local master to remote to sync changes
 2. Review worktree-feat-plantcor-os for merge or rebase into main
 3. Monitor fix/fix-bug branch for feature completion and merge readiness

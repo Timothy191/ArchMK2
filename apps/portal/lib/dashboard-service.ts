@@ -43,10 +43,12 @@ interface MonolithizedDashboardPayload {
 
 /**
  * Get highly optimized, monolithized department dashboard data payload.
- * Pulls from local in-memory L1 cache first, falls back to Redis L2, 
+ * Pulls from local in-memory L1 cache first, falls back to Redis L2,
  * and on miss, queries PostgreSQL C-Native pre-aggregated JSONB in exactly ONE database roundtrip.
  */
-export async function getMonolithizedDashboard(departmentId: string): Promise<MonolithizedDashboardPayload> {
+export async function getMonolithizedDashboard(
+  departmentId: string,
+): Promise<MonolithizedDashboardPayload> {
   const cacheKey = `dept:dashboard:monolith:${departmentId}`;
 
   // Wrap query in hybrid L1/L2 cache with a conservative 15-second TTL
@@ -57,7 +59,7 @@ export async function getMonolithizedDashboard(departmentId: string): Promise<Mo
 
       const { data, error } = await supabase.rpc(
         "get_monolithized_department_dashboard_payload",
-        { dept_id: departmentId }
+        { dept_id: departmentId },
       );
 
       if (error) {
@@ -71,6 +73,6 @@ export async function getMonolithizedDashboard(departmentId: string): Promise<Mo
       // Return raw parsed JSONB payload
       return data as unknown as MonolithizedDashboardPayload;
     },
-    15
+    15,
   );
 }

@@ -1,11 +1,13 @@
 import { createClient } from "@supabase/supabase-js";
+import { APIError } from "@repo/errors";
 
 export function createServiceRoleClient() {
   const url = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_KEY;
   if (!url || !key) {
-    throw new Error(
+    throw new APIError(
       "Missing SUPABASE_URL or SUPABASE_SERVICE_KEY environment variables",
+      { statusCode: 500 },
     );
   }
   return createClient(url, key, {

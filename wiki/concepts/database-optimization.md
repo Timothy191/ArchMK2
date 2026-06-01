@@ -16,15 +16,15 @@ The schema is production-ready (9/10 performance score) but designed for current
 
 ## Current State
 
-| Metric | Current | Target |
-|--------|---------|--------|
-| Query p50 | 12ms | < 10ms |
-| Query p95 | 85ms | < 50ms |
-| Query p99 | 180ms | < 100ms |
-| Cache Hit Rate | 78% | 85%+ |
+| Metric          | Current   | Target                 |
+| --------------- | --------- | ---------------------- |
+| Query p50       | 12ms      | < 10ms                 |
+| Query p95       | 85ms      | < 50ms                 |
+| Query p99       | 180ms     | < 100ms                |
+| Cache Hit Rate  | 78%       | 85%+                   |
 | Connection Pool | 45% usage | < 60% (with PgBouncer) |
-| Tables | 30+ | +partitioned variants |
-| Indexes | 85+ | + materialized views |
+| Tables          | 30+       | +partitioned variants  |
+| Indexes         | 85+       | + materialized views   |
 
 ---
 
@@ -71,6 +71,7 @@ INSERT INTO hourly_loads_partitioned SELECT * FROM hourly_loads;
 Read replicas route `SELECT` queries away from the primary, reducing load for dashboard-heavy workloads.
 
 **In Supabase local/self-hosted:**
+
 ```bash
 # In docker-compose, add replica service:
 postgres-replica:
@@ -183,6 +184,7 @@ checkpoint_completion_target = 0.9
 ## Monitoring
 
 Track optimization impact in Grafana:
+
 - Dashboard: "PostgreSQL Slow Queries" panel
 - Alert: p99 query time > 200ms
 - Alert: replication lag > 500ms

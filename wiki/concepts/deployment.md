@@ -40,6 +40,7 @@ cat migrations/$(ls -t migrations/*.sql | head -1)
 ```
 
 Verify:
+
 - [ ] RLS policies added for new tables
 - [ ] Indexes created for performance
 - [ ] No destructive operations without backup plan
@@ -55,6 +56,7 @@ cat apps/portal/.env | grep -E "^GROQ_API_KEY|^OPENROUTER_API_KEY"
 ```
 
 Required variables:
+
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `SUPABASE_URL`
@@ -82,6 +84,7 @@ pnpm dlx vercel --prod
 ```
 
 **Configuration**:
+
 - Build Command: `cd ../.. && pnpm build`
 - Output Directory: `apps/portal/.next`
 - Install Command: `pnpm install`
@@ -111,6 +114,7 @@ CMD ["pnpm", "--filter", "portal", "start"]
 ```
 
 Build and deploy:
+
 ```bash
 docker build -t arch-systems-portal -f apps/portal/Dockerfile .
 docker run -p 3000:3000 --env-file apps/portal/.env arch-systems-portal
@@ -195,6 +199,7 @@ Verify critical paths:
 ### 3. Error Monitoring
 
 Check Sentry for new errors:
+
 ```bash
 # Via Sentry dashboard
 # Filter: release:"1.5.1", environment:"production"
@@ -273,22 +278,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - uses: pnpm/action-setup@v2
         with:
           version: 9.12.0
-      
+
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'pnpm'
-      
+          node-version: "20"
+          cache: "pnpm"
+
       - run: pnpm install
-      
+
       - run: pnpm lint
       - run: pnpm --filter portal type-check
       - run: pnpm --filter portal test
-      
+
       - name: Deploy to Vercel
         run: pnpm dlx vercel --prod --token=${{ secrets.VERCEL_TOKEN }}
         env:
@@ -301,18 +306,21 @@ jobs:
 ## Environment-Specific Notes
 
 ### Development
+
 - Use `pnpm dev` (port 3000)
 - Supabase local via `pnpm supabase:dev`
 - Hot reload enabled
 - Debug logging on
 
 ### Staging
+
 - Mirrors production configuration
 - Use staging Supabase project
 - Test data seeded
 - Sentry environment: "staging"
 
 ### Production
+
 - Optimized builds (`next build`)
 - Error tracking via Sentry
 - Analytics enabled
@@ -323,13 +331,13 @@ jobs:
 
 ## Troubleshooting Deployments
 
-| Issue | Solution |
-|-------|----------|
-| Build fails | Check `pnpm build` locally first |
-| Env vars missing | Verify in Vercel dashboard or server env |
-| DB connection fails | Check IP allowlist in Supabase |
-| 500 errors | Check Vercel logs or Sentry |
-| Static files 404 | Verify `next.config.js` output: 'standalone' |
+| Issue               | Solution                                     |
+| ------------------- | -------------------------------------------- |
+| Build fails         | Check `pnpm build` locally first             |
+| Env vars missing    | Verify in Vercel dashboard or server env     |
+| DB connection fails | Check IP allowlist in Supabase               |
+| 500 errors          | Check Vercel logs or Sentry                  |
+| Static files 404    | Verify `next.config.js` output: 'standalone' |
 
 ---
 
@@ -350,7 +358,7 @@ git pull origin master
 docker compose up -d --no-deps --build portal
 
 # Full stack restart (if Docker Compose changed)
-./scripts/deploy-local.sh
+./scripts/deploy.sh local
 ```
 
 ### Verify All Services Running

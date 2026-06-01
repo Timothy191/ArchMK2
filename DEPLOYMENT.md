@@ -64,8 +64,8 @@ Options:
 
 This starts:
 
-- Next.js portal on http://localhost:3000
-- Local Supabase on http://localhost:54321
+- Next.js portal on <http://localhost:3000>
+- Local Supabase on <http://localhost:54321>
 - Redis, n8n, Flowise (via Docker)
 - Prometheus & Grafana monitoring
 
@@ -85,6 +85,23 @@ Stops all services and performs a fresh start.
 ```
 
 The script detects running Supabase and reuses it.
+
+---
+
+## Local Network / Wi-Fi Hosting (Live Local)
+
+To run this machine as a local server so that other devices (such as employee phones or tablets) connected to the same Wi-Fi/LAN can access the portal:
+
+```bash
+./scripts/deploy-live-local.sh
+```
+
+### Key Mechanics
+
+- **Dynamic IP Resolution**: Automatically resolves the primary network interface IP address (e.g., `192.168.1.15`).
+- **Client Configuration Exposure**: Modifies `.env` temporarily to bind client-side services (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_FUXA_URL`) to the host IP instead of loopback.
+- **Port Exposure**: Compiles the Next.js production build and exposes the portal web server on all interfaces (`0.0.0.0:3000`).
+- **Auto-Restore**: Halting the server using `./scripts/shutdown.sh` will automatically restore your original local development `.env` configuration.
 
 ---
 
@@ -315,12 +332,11 @@ grep SUPABASE apps/portal/.env
 
 ## Scripts Reference
 
-| Script                 | Purpose                                          |
-| ---------------------- | ------------------------------------------------ |
-| `dev.sh`               | Primary lightning local development (hot-reload) |
-| `deploy.sh`            | Unified deployment (local, staging, production)  |
-| `update-production.sh` | Quick production update without full rebuild     |
-| `shutdown.sh`          | Graceful lossless stack shutdown                 |
+| Script        | Purpose                                          |
+| ------------- | ------------------------------------------------ |
+| `dev.sh`      | Primary lightning local development (hot-reload) |
+| `deploy.sh`   | Unified deployment (local, staging, production)  |
+| `shutdown.sh` | Graceful lossless stack shutdown                 |
 
 ---
 

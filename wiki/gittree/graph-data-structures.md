@@ -11,11 +11,13 @@ Graph data structures model relationships in data systems. They are fundamental 
 ### Nodes (Vertices) & Edges
 
 **Nodes:** Individual entities in the system
+
 - Functions, variables, microservices
 - Database tables, API endpoints
 - Agents, tasks, workflows
 
 **Edges:** Connections between nodes
+
 - Function calls, dependencies
 - Data flow, messages
 - Relationships, constraints
@@ -23,6 +25,7 @@ Graph data structures model relationships in data systems. They are fundamental 
 ### Graph Properties
 
 **Directed vs. Undirected:**
+
 ```
 Directed:        Undirected:
 A → B            A ─ B
@@ -33,6 +36,7 @@ C → D            C ─ D
 ```
 
 **Weighted vs. Unweighted:**
+
 ```
 Weighted:           Unweighted:
 A --(5)-- B         A ─── B
@@ -44,11 +48,12 @@ C --(7)-- D         C ─── D
 ```
 
 **Cyclic vs. Acyclic:**
+
 ```
 Cyclic:         Acyclic (DAG):
 A ─ B           A ─ B
 ├─ C            └─ D
-└─ A (cycle)    
+└─ A (cycle)
                 (no cycles)
 ```
 
@@ -59,6 +64,7 @@ A ─ B           A ─ B
 **Definition:** 2D array where `matrix[i][j]` represents edge from node i to node j
 
 **Example:**
+
 ```
        A  B  C  D
     A [0, 1, 0, 1]
@@ -70,16 +76,19 @@ Graph: A→B, A→D, B→C, C→D, D→A
 ```
 
 **Advantages:**
+
 - Fast edge lookup: O(1)
 - Matrix operations possible
 - Symmetric for undirected graphs
 
 **Disadvantages:**
+
 - Memory: O(n²) even for sparse graphs
 - Inefficient for large graphs
 - Adding nodes requires reallocation
 
 **Use Cases:**
+
 - Highly connected graphs (flights between cities)
 - Matrix-based algorithms (Floyd-Warshall shortest path)
 - Dense networks
@@ -89,6 +98,7 @@ Graph: A→B, A→D, B→C, C→D, D→A
 **Definition:** Dictionary/map where each node has a list of adjacent nodes
 
 **Example:**
+
 ```
 A: [B, D]
 B: [C]
@@ -106,17 +116,20 @@ const graph = new Map([
 ```
 
 **Advantages:**
+
 - Memory efficient: O(n + m) where m = edges
 - Iterating neighbors is fast
 - Flexible for sparse graphs
 - Easy to add nodes
 
 **Disadvantages:**
+
 - Edge lookup slower: O(degree)
 - Less suitable for matrix operations
 - Harder to implement undirected graphs
 
 **Use Cases:**
+
 - Social networks (sparse connections)
 - Dependency graphs
 - Web crawlers
@@ -129,6 +142,7 @@ const graph = new Map([
 **Purpose:** Explore graph level-by-level; find shortest path in unweighted graphs
 
 **Algorithm:**
+
 ```
 1. Start at source node
 2. Add to queue
@@ -138,16 +152,19 @@ const graph = new Map([
 ```
 
 **Applications:**
+
 - Shortest path (unweighted)
 - Level-order traversal
 - Connected components
 - Social networks (degrees of separation)
 
 **Complexity:**
+
 - Time: O(n + m) where n = nodes, m = edges
 - Space: O(n) for queue and visited set
 
 **Example (Finding distance to node):**
+
 ```
 BFS from A to find distances:
 
@@ -165,6 +182,7 @@ Result: A→0, B→1, D→1, C→2
 **Purpose:** Explore deeply before backtracking; detect cycles, topological sort
 
 **Algorithm:**
+
 ```
 1. Start at source node → mark visited
 2. Recursively visit each unvisited neighbor
@@ -172,6 +190,7 @@ Result: A→0, B→1, D→1, C→2
 ```
 
 **Applications:**
+
 - Cycle detection
 - Topological sorting (task dependencies)
 - Strong connected components
@@ -179,10 +198,12 @@ Result: A→0, B→1, D→1, C→2
 - Back-edge detection (cycle in directed graph)
 
 **Complexity:**
+
 - Time: O(n + m)
 - Space: O(n) for recursion stack
 
 **Example (Topological sort for task scheduling):**
+
 ```
 Tasks: A, B, C, D
 Dependencies: B→A, C→A, D→B, D→C
@@ -190,7 +211,7 @@ Dependencies: B→A, C→A, D→B, D→C
 DFS to find order:
 Start D → B → A (visit) → backtrack
       → C → A (already visited)
-      
+
 Result: D, B, C, A (or D, C, B, A)
 Execute in reverse: A, C, B, D ✓
 ```
@@ -200,6 +221,7 @@ Execute in reverse: A, C, B, D ✓
 **Purpose:** Find shortest path in weighted graphs (non-negative weights)
 
 **Algorithm:**
+
 ```
 1. Start at source, distance = 0
 2. Maintain min-heap of unvisited nodes by distance
@@ -209,16 +231,19 @@ Execute in reverse: A, C, B, D ✓
 ```
 
 **Applications:**
+
 - Route planning (GPS, networks)
 - Network routing protocols
 - Game AI pathfinding
 - Social network closeness
 
 **Complexity:**
+
 - Time: O((n + m) log n) with binary heap
 - Space: O(n)
 
 **Example (Shortest route):**
+
 ```
     [1]
    A ------- B
@@ -241,20 +266,23 @@ Result: A→B→D (cost 3)
 **Purpose:** Order nodes in acyclic graph such that dependencies are respected
 
 **Algorithm:**
+
 - DFS-based: track finish times, reverse output
 - Kahn's algorithm: repeatedly remove nodes with no dependencies
 
 **Applications:**
+
 - Task scheduling
 - Build system dependency order
 - Package manager resolution
 - Workflow orchestration
 
 **Example (Project build order):**
+
 ```
 Dependencies:
   compile → test → package → deploy
-  
+
 Topological order: compile, test, package, deploy
 (Each must complete before next starts)
 ```
@@ -264,6 +292,7 @@ Topological order: compile, test, package, deploy
 ### 1. Agent Orchestrator
 
 **Graph Model:**
+
 ```
 Nodes: Agents, tasks, MCP tools
 Edges: Agent calls, task dependencies, tool invocations
@@ -275,6 +304,7 @@ Use DFS/Topological sort to determine execution order
 ### 2. N8N Workflow Engine
 
 **Graph Model:**
+
 ```
 Nodes: Workflow steps
 Edges: Transitions between steps
@@ -286,6 +316,7 @@ Use Dijkstra variant to find path with max time
 ### 3. Microservice Dependency Analysis
 
 **Graph Model:**
+
 ```
 Nodes: Services (portal, cms, database, cache)
 Edges: HTTP calls, async messages
@@ -297,6 +328,7 @@ Use connected components analysis
 ### 4. Supabase RLS & Auth Flows
 
 **Graph Model:**
+
 ```
 Nodes: Users, roles, tables, policies
 Edges: Has-role, can-access, depends-on
@@ -308,6 +340,7 @@ BFS/reachability analysis
 ### 5. Package Dependency Resolution
 
 **Graph Model:**
+
 ```
 Nodes: npm packages
 Edges: Depends-on relationships
@@ -344,7 +377,7 @@ class Graph<T> {
     const visited = new Set<T>();
     const queue: T[] = [start];
     const parent = new Map<T, T | null>();
-    
+
     parent.set(start, null);
 
     while (queue.length > 0) {
@@ -377,14 +410,14 @@ class Graph<T> {
 
 ## Performance Comparison
 
-| Operation | Adjacency Matrix | Adjacency List |
-|-----------|------------------|----------------|
-| Edge lookup | O(1) | O(degree) |
-| Find all edges | O(n²) | O(n + m) |
-| Add node | O(n²) | O(1) |
-| Add edge | O(1) | O(1) |
-| Memory | O(n²) | O(n + m) |
-| BFS/DFS | O(n²) | O(n + m) |
+| Operation      | Adjacency Matrix | Adjacency List |
+| -------------- | ---------------- | -------------- |
+| Edge lookup    | O(1)             | O(degree)      |
+| Find all edges | O(n²)            | O(n + m)       |
+| Add node       | O(n²)            | O(1)           |
+| Add edge       | O(1)             | O(1)           |
+| Memory         | O(n²)            | O(n + m)       |
+| BFS/DFS        | O(n²)            | O(n + m)       |
 
 ## Best Practices
 

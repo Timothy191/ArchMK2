@@ -40,8 +40,8 @@ function MachineStatusOutput({ output }: { output: Record<string, unknown> }) {
             <span
               className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${
                 m.active
-                  ? "bg-emerald-500/15 text-emerald-400"
-                  : "bg-red-500/15 text-red-400"
+                  ? "bg-accent-green/15 text-accent-green"
+                  : "bg-accent-red/15 text-accent-red"
               }`}
             >
               {m.active ? "Active" : "Offline"}
@@ -113,7 +113,7 @@ function DelaysOutput({ output }: { output: Record<string, unknown> }) {
           Operational Delays
         </p>
         {totalMinutes > 0 && (
-          <span className="text-[10px] text-arch-accent-orange font-semibold">
+          <span className="text-[10px] text-arch-accent-blue font-semibold">
             {totalMinutes} min total
           </span>
         )}
@@ -124,7 +124,7 @@ function DelaysOutput({ output }: { output: Record<string, unknown> }) {
             key={i}
             className="flex items-center gap-2 text-xs px-2 py-1 rounded bg-arch-surface-tertiary/50"
           >
-            <Clock className="w-3 h-3 text-arch-accent-orange shrink-0" />
+            <Clock className="w-3 h-3 text-arch-accent-blue shrink-0" />
             <span className="text-arch-text-secondary">
               {String(d.reason ?? "—")}
             </span>
@@ -136,8 +136,8 @@ function DelaysOutput({ output }: { output: Record<string, unknown> }) {
             <span
               className={`px-1 py-0.5 rounded text-[10px] font-semibold ${
                 d.status === "active"
-                  ? "bg-red-500/15 text-red-400"
-                  : "bg-emerald-500/15 text-emerald-400"
+                  ? "bg-accent-red/15 text-accent-red"
+                  : "bg-accent-green/15 text-accent-green"
               }`}
             >
               {String(d.status ?? "—")}

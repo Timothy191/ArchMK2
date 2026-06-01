@@ -1,9 +1,5 @@
 import { machineStatusTool, shiftLogsTool, delaysTool, aiTools } from "./tools";
 
-jest.mock("ai", () => ({
-  tool: jest.fn((config: Record<string, unknown>) => config),
-}));
-
 jest.mock("@repo/supabase/server", () => ({
   createServerSupabaseClient: jest.fn(),
 }));

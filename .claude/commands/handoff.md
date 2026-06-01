@@ -21,6 +21,7 @@ When the user runs `/handoff`:
    - List files modified this session
 
 2. **Query learnings captured this session**:
+
    ```bash
    sqlite3 ~/.pro-workflow/data.db "
      SELECT category, rule, mistake, correction
@@ -36,40 +37,50 @@ When the user runs `/handoff`:
 # Session Handoff — [date] [time]
 
 ## Status
+
 - **Branch**: feature/xyz
 - **Commits this session**: 3
 - **Uncommitted changes**: 2 files modified
 - **Tests**: passing / failing / not run
 
 ## What's Done
+
 - [completed task 1]
 - [completed task 2]
 
 ## What's In Progress
+
 - [current task with context on where you stopped]
 - [file:line that needs attention next]
 
 ## What's Pending
+
 - [next task that hasn't been started]
 - [blocked items with reason]
 
 ## Key Decisions Made
+
 - [decision 1 and why]
 - [decision 2 and why]
 
 ## Learnings Captured
+
 - [Category] Rule (from this session)
 
 ## Files Touched
+
 - `path/to/file1.ts` — [what changed]
 - `path/to/file2.ts` — [what changed]
 
 ## Gotchas for Next Session
+
 - [thing that tripped you up]
 - [non-obvious behavior discovered]
 
 ## Resume Command
+
 Copy this into your next session:
+
 > Continue working on [branch]. [1-2 sentence context]. Next step: [specific action].
 ```
 

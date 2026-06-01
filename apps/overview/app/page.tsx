@@ -1,14 +1,16 @@
-"use client"
+"use client";
 
-import { useState, Suspense, lazy } from "react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Network, Building2, Layers, Database } from "lucide-react"
+import { useState, Suspense, lazy } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Network, Building2, Layers, Database } from "lucide-react";
 
 // Lazy load sections for better performance
-const SystemArchitecture = lazy(() => import("./sections/SystemArchitecture"))
-const DepartmentBreakdown = lazy(() => import("./sections/DepartmentBreakdown"))
-const TechStack = lazy(() => import("./sections/TechStack"))
-const DatabaseSchema = lazy(() => import("./sections/DatabaseSchema"))
+const SystemArchitecture = lazy(() => import("./sections/SystemArchitecture"));
+const DepartmentBreakdown = lazy(
+  () => import("./sections/DepartmentBreakdown"),
+);
+const TechStack = lazy(() => import("./sections/TechStack"));
+const DatabaseSchema = lazy(() => import("./sections/DatabaseSchema"));
 
 // Loading fallback
 function SectionLoader() {
@@ -19,11 +21,11 @@ function SectionLoader() {
         <span className="text-[#b4b4b4] text-sm">Loading...</span>
       </div>
     </div>
-  )
+  );
 }
 
 export default function OverviewPage() {
-  const [activeTab, setActiveTab] = useState("architecture")
+  const [activeTab, setActiveTab] = useState("architecture");
 
   return (
     <main className="min-h-screen bg-[#0f0f0f]">
@@ -122,7 +124,8 @@ export default function OverviewPage() {
         <div className="max-w-[1600px] mx-auto px-6 py-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-[#898989]">
             <div>
-              Arch Systems — Multi-departmental business portal for opencast coal mine operations
+              Arch Systems — Multi-departmental business portal for opencast
+              coal mine operations
             </div>
             <div className="flex items-center gap-4">
               <span>Built with Next.js 14 + Supabase</span>
@@ -132,5 +135,5 @@ export default function OverviewPage() {
         </div>
       </footer>
     </main>
-  )
+  );
 }

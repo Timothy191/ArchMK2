@@ -32,21 +32,17 @@ async function getEngineeringHubData(deptId: string) {
       .from("breakdowns")
       .select("*", { count: "exact", head: true })
       .eq("department_id", deptId)
-      .eq("status", "resolved")
-      .gte("resolved_at", new Date(Date.now() - 86400000).toISOString()),
+      .eq("status", "completed")
+      .gte("updated_at", new Date(Date.now() - 86400000).toISOString()),
     db
       .from("breakdowns")
-      .select("id, machine_name, issue, priority, created_at")
+      .select("id, machine_name, reason, priority, created_at")
       .eq("department_id", deptId)
       .eq("status", "active")
       .is("deleted_at", null)
       .order("created_at", { ascending: false })
       .limit(5),
-    db
-      .from("tire_inspections")
-      .select("*", { count: "exact", head: true })
-      .eq("department_id", deptId)
-      .in("status", ["warning", "critical"]),
+    Promise.resolve({ count: 0, data: null, error: null }),
   ]);
 
   return {
@@ -93,7 +89,7 @@ export default async function EngineeringDashboardPage() {
           <GlassCard className="h-full hover:bg-[var(--bg-secondary)] transition-colors cursor-pointer">
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-red-500/10 text-red-500">
+                <div className="p-2.5 rounded-xl bg-accent-red/10 text-accent-red">
                   <AlertTriangle className="w-5 h-5" />
                 </div>
                 <div>
@@ -109,16 +105,16 @@ export default async function EngineeringDashboardPage() {
             </div>
 
             <div className="mt-5 grid grid-cols-2 gap-3">
-              <div className="p-3 rounded-lg bg-red-500/5 border border-red-500/10">
-                <p className="text-2xl font-bold text-red-500">
+              <div className="p-3 rounded-lg bg-accent-red/5 border border-accent-red/10">
+                <p className="text-2xl font-bold text-accent-red">
                   {activeBreakdowns}
                 </p>
                 <p className="text-xs text-[var(--text-muted)] mt-0.5">
                   Active Breakdowns
                 </p>
               </div>
-              <div className="p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/10">
-                <p className="text-2xl font-bold text-emerald-500">
+              <div className="p-3 rounded-lg bg-accent-green/5 border border-accent-green/10">
+                <p className="text-2xl font-bold text-accent-green">
                   {resolvedToday}
                 </p>
                 <p className="text-xs text-[var(--text-muted)] mt-0.5">
@@ -146,9 +142,9 @@ export default async function EngineeringDashboardPage() {
                     <span
                       className={`text-xs font-medium px-2 py-0.5 rounded-full ${
                         b.priority === "critical"
-                          ? "bg-red-500/10 text-red-500"
+                          ? "bg-accent-red/10 text-accent-red"
                           : b.priority === "high"
-                            ? "bg-amber-500/10 text-amber-500"
+                            ? "bg-arch-accent-blue/10 text-arch-accent-blue"
                             : "bg-[var(--bg-tertiary)] text-[var(--text-muted)]"
                       }`}
                     >
@@ -166,7 +162,7 @@ export default async function EngineeringDashboardPage() {
           <GlassCard className="h-full hover:bg-[var(--bg-secondary)] transition-colors cursor-pointer">
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-500">
+                <div className="p-2.5 rounded-xl bg-arch-accent-blue/10 text-arch-accent-blue">
                   <CircleDot className="w-5 h-5" />
                 </div>
                 <div>
@@ -182,8 +178,8 @@ export default async function EngineeringDashboardPage() {
             </div>
 
             <div className="mt-5 grid grid-cols-2 gap-3">
-              <div className="p-3 rounded-lg bg-amber-500/5 border border-amber-500/10">
-                <p className="text-2xl font-bold text-amber-500">
+              <div className="p-3 rounded-lg bg-arch-accent-blue/5 border border-arch-accent-blue/10">
+                <p className="text-2xl font-bold text-arch-accent-blue">
                   {tireAlerts}
                 </p>
                 <p className="text-xs text-[var(--text-muted)] mt-0.5">

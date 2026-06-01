@@ -43,7 +43,9 @@ class SyncQueue {
       const request = indexedDB.open(this.dbName, this.dbVersion);
 
       request.onerror = () => {
-        logError(new Error("Failed to open IndexedDB for SyncQueue"), { context: "sync_queue_indexeddb_open" });
+        logError(new Error("Failed to open IndexedDB for SyncQueue"), {
+          context: "sync_queue_indexeddb_open",
+        });
         reject(request.error);
       };
 
@@ -60,7 +62,9 @@ class SyncQueue {
             autoIncrement: true,
           });
           store.createIndex("status", "status", { unique: false });
-          store.createIndex("idempotencyKey", "idempotencyKey", { unique: true });
+          store.createIndex("idempotencyKey", "idempotencyKey", {
+            unique: true,
+          });
         }
       };
     });
@@ -69,7 +73,11 @@ class SyncQueue {
   /**
    * Enqueue a new mutation action
    */
-  public async enqueueAction(actionType: string, payload: any, departmentId: string): Promise<string> {
+  public async enqueueAction(
+    actionType: string,
+    payload: any,
+    departmentId: string,
+  ): Promise<string> {
     const idempotencyKey = crypto.randomUUID();
     const action: QueuedAction = {
       idempotencyKey,
@@ -114,7 +122,7 @@ class SyncQueue {
   private getPendingActions(): Promise<QueuedAction[]> {
     return new Promise((resolve, reject) => {
       if (!this.db) return resolve([]);
-      
+
       const transaction = this.db.transaction([this.storeName], "readonly");
       const store = transaction.objectStore(this.storeName);
       const index = store.index("status");
@@ -156,7 +164,7 @@ class SyncQueue {
     try {
       await this.initDB();
       const pending = await this.getPendingActions();
-      
+
       if (pending.length === 0) {
         this.isProcessing = false;
         return;
@@ -169,9 +177,12 @@ class SyncQueue {
           action.status = "synced";
           await this.updateAction(action);
         } catch (error) {
-          logError(error instanceof Error ? error : new Error(String(error)), { context: "sync_queue_replay", idempotencyKey: action.idempotencyKey });
+          logError(error instanceof Error ? error : new Error(String(error)), {
+            context: "sync_queue_replay",
+            idempotencyKey: action.idempotencyKey,
+          });
           action.retryCount++;
-          
+
           if (action.retryCount >= 5) {
             action.status = "failed"; // Terminate playback on hard failures after 5 retries
           }
@@ -179,7 +190,9 @@ class SyncQueue {
         }
       }
     } catch (err) {
-      logError(err instanceof Error ? err : new Error(String(err)), { context: "sync_queue_process" });
+      logError(err instanceof Error ? err : new Error(String(err)), {
+        context: "sync_queue_process",
+      });
     } finally {
       this.isProcessing = false;
     }

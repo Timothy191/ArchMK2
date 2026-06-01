@@ -119,7 +119,7 @@ CREATE POLICY "safety_incidents_update_creator_or_supervisor"
 -- Seed safety category data
 INSERT INTO safety_severities (level, weight, color, sort_order) VALUES
   ('low', 1, '#3ecf8e', 1),
-  ('medium', 2, '#f59e0b', 2),
+  ('medium', 2, '#007aff', 2),
   ('high', 3, '#ef4444', 3),
   ('critical', 4, '#dc2626', 4)
 ON CONFLICT (level) DO UPDATE SET
@@ -128,9 +128,9 @@ ON CONFLICT (level) DO UPDATE SET
   sort_order = EXCLUDED.sort_order;
 
 INSERT INTO safety_incident_categories (name, description, color, icon, sort_order) VALUES
-  ('Slip, Trip, or Fall', 'Worker slip, trip, or fall events', '#f59e0b', 'AlertTriangle', 1),
+  ('Slip, Trip, or Fall', 'Worker slip, trip, or fall events', '#007aff', 'AlertTriangle', 1),
   ('Equipment Contact', 'Contact with machinery or equipment', '#ef4444', 'Wrench', 2),
-  ('Vehicle Incident', 'Vehicle-related safety events', '#f97316', 'Truck', 3),
+  ('Vehicle Incident', 'Vehicle-related safety events', '#007aff', 'Truck', 3),
   ('Hazardous Material', 'Chemical or material exposure', '#8b5cf6', 'FlaskConical', 4),
   ('Environmental', 'Environmental-related safety issues', '#10b981', 'TreePine', 5),
   ('Near Miss', 'Close-call event with no injury', '#3b82f6', 'Eye', 6),

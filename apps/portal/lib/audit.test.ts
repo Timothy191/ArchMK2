@@ -21,18 +21,16 @@ function buildMockSupabase({
 
   const mock = {
     auth: {
-      getUser: jest
-        .fn()
-        .mockResolvedValue({ data: { user: { id: userId } } }),
+      getUser: jest.fn().mockResolvedValue({ data: { user: { id: userId } } }),
     },
     from: jest.fn().mockImplementation((table: string) => {
       if (table === "employees") {
         return {
           select: jest.fn().mockReturnValue({
             eq: jest.fn().mockReturnValue({
-              single: jest
-                .fn()
-                .mockResolvedValue({ data: employeeId ? { id: employeeId } : null }),
+              maybeSingle: jest.fn().mockResolvedValue({
+                data: employeeId ? { id: employeeId } : null,
+              }),
             }),
           }),
         };

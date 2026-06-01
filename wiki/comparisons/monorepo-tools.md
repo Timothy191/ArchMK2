@@ -16,18 +16,18 @@ Selection of monorepo orchestration tool for a multi-package TypeScript codebase
 
 ## Dimensions of Comparison
 
-| Dimension | Turborepo 2.1 | Nx | pnpm Workspaces (alone) |
-|-----------|---------------|----|-------------------------|
-| **Build Cache** | Remote + local (Vercel integration) | Remote + local (Nx Cloud) | None (manual) |
-| **Task Pipeline** | Graph-based, configurable | Graph-based, very configurable | Script-based |
-| **Affected Detection** | Via `turbo.json` deps | Git-based affected graph | Manual |
-| **Bundle Analysis** | Built-in | Bundle analyzer plugins | None |
-| **TypeScript** | First-class | First-class | Package-level only |
-| **Incremental Builds** | Yes | Yes | No |
-| **IDE Support** | Good | Excellent (Nx Console) | None |
-| **Migration Path** | Easy from CRA/Vite | Steeper learning curve | N/A |
-| **CI/CD Integration** | Vercel-native | Broad CI support | Manual scripting |
-| **Cost** | Free (remote cache on Vercel) | Free tier limited | Free |
+| Dimension              | Turborepo 2.1                       | Nx                             | pnpm Workspaces (alone) |
+| ---------------------- | ----------------------------------- | ------------------------------ | ----------------------- |
+| **Build Cache**        | Remote + local (Vercel integration) | Remote + local (Nx Cloud)      | None (manual)           |
+| **Task Pipeline**      | Graph-based, configurable           | Graph-based, very configurable | Script-based            |
+| **Affected Detection** | Via `turbo.json` deps               | Git-based affected graph       | Manual                  |
+| **Bundle Analysis**    | Built-in                            | Bundle analyzer plugins        | None                    |
+| **TypeScript**         | First-class                         | First-class                    | Package-level only      |
+| **Incremental Builds** | Yes                                 | Yes                            | No                      |
+| **IDE Support**        | Good                                | Excellent (Nx Console)         | None                    |
+| **Migration Path**     | Easy from CRA/Vite                  | Steeper learning curve         | N/A                     |
+| **CI/CD Integration**  | Vercel-native                       | Broad CI support               | Manual scripting        |
+| **Cost**               | Free (remote cache on Vercel)       | Free tier limited              | Free                    |
 
 ## Project Implementation
 
@@ -66,6 +66,7 @@ catalog:
 ## Why Not Nx
 
 Nx is more powerful for:
+
 - Large enterprise teams
 - Angular/React mixed repos
 - Complex code generation needs
@@ -75,6 +76,7 @@ For this 3-app, 8-package monorepo, Nx would be overkill and add unnecessary com
 ## Why Not pnpm Workspaces Alone
 
 pnpm workspaces handle installation and linking, but lack:
+
 - Build orchestration across dependency graph
 - Task caching (critical for CI speed)
 - Bundle analysis
@@ -85,6 +87,7 @@ Running `pnpm -r build` builds sequentially without parallelism awareness.
 ## Verdict
 
 **Turborepo + pnpm is optimal** for this scale. The combination gives:
+
 - pnpm's disk-efficient node_modules
 - Turborepo's intelligent task scheduling
 - Zero-cost remote caching via Vercel

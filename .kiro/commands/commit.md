@@ -28,6 +28,7 @@ npm test -- --changed --passWithNoTests 2>&1 | tail -10
 ### 3. Code Review
 
 Scan staged changes for:
+
 - `console.log` / `debugger` statements
 - TODO/FIXME/HACK comments without tickets
 - Hardcoded secrets or API keys
@@ -48,8 +49,9 @@ Draft a commit message based on the staged diff:
 **Types:** feat, fix, refactor, test, docs, chore, perf, ci, style
 
 **Rules:**
+
 - Summary under 72 characters
-- Body explains *why*, not *what*
+- Body explains _why_, not _what_
 - Reference issue numbers when applicable
 - No generic messages ("fix bug", "update code")
 
@@ -66,6 +68,7 @@ git commit -m "<message>"
 ### 6. Learning Check
 
 After committing, ask:
+
 - Any learnings from this change to capture?
 - Any patterns worth adding to LEARNED?
 

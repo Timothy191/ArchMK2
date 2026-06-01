@@ -10,7 +10,10 @@ describe("systemPrompts.chat", () => {
   });
 
   it("includes memory context section when memoryContext provided", () => {
-    const result = systemPrompts.chat(undefined, "Previous: machine XR-1 last serviced 3 months ago");
+    const result = systemPrompts.chat(
+      undefined,
+      "Previous: machine XR-1 last serviced 3 months ago",
+    );
     expect(result).toContain("context from past conversations");
     expect(result).toContain("machine XR-1 last serviced");
     expect(result).toContain("personalize your response");
@@ -18,7 +21,9 @@ describe("systemPrompts.chat", () => {
 
   it("includes operational context section when context provided", () => {
     const result = systemPrompts.chat("control-room shift handoff");
-    expect(result).toContain("Current operational context: control-room shift handoff");
+    expect(result).toContain(
+      "Current operational context: control-room shift handoff",
+    );
     expect(result).not.toContain("context from past conversations");
   });
 

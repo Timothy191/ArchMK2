@@ -185,7 +185,7 @@ export function UsersTab() {
                           emp.role === "admin"
                             ? "bg-violet-500/10 text-violet-400 border-violet-500/20"
                             : emp.role === "supervisor"
-                              ? "bg-amber-500/10 text-amber-400 border-amber-500/20"
+                              ? "bg-accent-blue/10 text-accent-blue border-accent-blue/20"
                               : ""
                         }
                       >
@@ -215,7 +215,7 @@ export function UsersTab() {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="text-red-400 hover:text-red-300"
+                          className="text-accent-red hover:text-accent-red/80"
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>

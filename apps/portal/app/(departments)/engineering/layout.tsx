@@ -13,8 +13,10 @@ export default async function EngineeringLayout({
   const tabs = getDepartmentTabs("engineering");
 
   return (
-    <DepartmentLayout department={dept} tabs={tabs}>
-      {children}
-    </DepartmentLayout>
+    <>
+      <DepartmentLayout department={dept} tabs={tabs}>
+        {children}
+      </DepartmentLayout>
+    </>
   );
 }

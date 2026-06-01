@@ -155,7 +155,7 @@ export function SafetyIncidentForm({
               htmlFor="incident-type"
               className="text-[var(--text-muted)] text-sm block"
             >
-              Type <span className="text-red-400">*</span>
+              Type <span className="text-accent-red">*</span>
             </label>
             <select
               id="incident-type"
@@ -177,14 +177,14 @@ export function SafetyIncidentForm({
               ))}
             </select>
             {errors.incidentType && (
-              <p className="text-red-400 text-xs">{errors.incidentType}</p>
+              <p className="text-accent-red text-xs">{errors.incidentType}</p>
             )}
           </div>
 
           {/* Severity */}
           <div className="space-y-2">
             <label className="text-[var(--text-muted)] text-sm block">
-              Severity <span className="text-red-400">*</span>
+              Severity <span className="text-accent-red">*</span>
             </label>
             <select
               aria-label="Severity Level"
@@ -202,13 +202,15 @@ export function SafetyIncidentForm({
               ))}
             </select>
             {errors.severityId && (
-              <p className="text-red-400 text-xs">{errors.severityId}</p>
+              <p className="text-accent-red text-xs">{errors.severityId}</p>
             )}
           </div>
 
           {/* Category */}
           <div className="space-y-2">
-            <label className="text-[var(--text-muted)] text-sm block">Category</label>
+            <label className="text-[var(--text-muted)] text-sm block">
+              Category
+            </label>
             <select
               aria-label="Incident Category"
               value={formData.categoryId}
@@ -230,7 +232,9 @@ export function SafetyIncidentForm({
         {/* Shift & Injured Parties */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <label className="text-[var(--text-muted)] text-sm block">Shift</label>
+            <label className="text-[var(--text-muted)] text-sm block">
+              Shift
+            </label>
             <div className="flex gap-2">
               {["day", "night"].map((shift) => (
                 <button
@@ -271,7 +275,7 @@ export function SafetyIncidentForm({
               className="w-full bg-[var(--bg-primary)] border border-[var(--border-emphasis)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[#3ecf8e]"
             />
             {errors.injuredParties && (
-              <p className="text-red-400 text-xs">{errors.injuredParties}</p>
+              <p className="text-accent-red text-xs">{errors.injuredParties}</p>
             )}
           </div>
         </div>
@@ -279,7 +283,7 @@ export function SafetyIncidentForm({
         {/* Description */}
         <div className="space-y-2">
           <label className="text-[var(--text-muted)] text-sm block">
-            Description <span className="text-red-400">*</span>
+            Description <span className="text-accent-red">*</span>
           </label>
           <textarea
             aria-label="Description"
@@ -294,7 +298,7 @@ export function SafetyIncidentForm({
           />
           <div className="flex justify-between">
             {errors.description && (
-              <p className="text-red-400 text-xs">{errors.description}</p>
+              <p className="text-accent-red text-xs">{errors.description}</p>
             )}
             <p className="text-[var(--text-secondary)] text-xs ml-auto">
               {formData.description.length}/500
@@ -304,7 +308,9 @@ export function SafetyIncidentForm({
 
         {/* Location */}
         <div className="space-y-2">
-          <label className="text-[var(--text-muted)] text-sm block">Location</label>
+          <label className="text-[var(--text-muted)] text-sm block">
+            Location
+          </label>
           <input
             type="text"
             aria-label="Location"
@@ -320,7 +326,9 @@ export function SafetyIncidentForm({
         {/* Root Cause & Corrective Action */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <label className="text-[var(--text-muted)] text-sm block">Root Cause</label>
+            <label className="text-[var(--text-muted)] text-sm block">
+              Root Cause
+            </label>
             <input
               type="text"
               value={formData.rootCause}
@@ -352,7 +360,9 @@ export function SafetyIncidentForm({
 
         {/* Status */}
         <div className="space-y-2">
-          <label className="text-[var(--text-muted)] text-sm block">Status</label>
+          <label className="text-[var(--text-muted)] text-sm block">
+            Status
+          </label>
           <div className="flex flex-wrap gap-2">
             {STATUSES.map((s) => (
               <button
@@ -383,7 +393,7 @@ export function SafetyIncidentForm({
             {isSubmitting ? "Saving..." : "Log Incident"}
           </button>
           {errors.submit && (
-            <p className="text-red-400 text-sm">{errors.submit}</p>
+            <p className="text-accent-red text-sm">{errors.submit}</p>
           )}
         </div>
       </form>

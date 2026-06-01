@@ -74,9 +74,9 @@ export function OfflineBanner() {
       aria-live="polite"
       className={cn(
         "fixed top-0 left-0 right-0 z-[9999] flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium transition-all duration-300",
-        state === "offline" && "bg-amber-500/95 text-amber-950",
-        state === "syncing" && "bg-blue-500/95 text-white",
-        state === "back-online" && "bg-emerald-500/95 text-white",
+        state === "offline" && "bg-arch-accent-blue/95 text-white",
+        state === "syncing" && "bg-accent-blue/95 text-white",
+        state === "back-online" && "bg-accent-green/95 text-white",
       )}
     >
       {state === "offline" && (
@@ -85,9 +85,7 @@ export function OfflineBanner() {
           <span>
             Offline mode — changes are queued locally
             {queueCount > 0 && (
-              <span className="ml-1 font-semibold">
-                ({queueCount} pending)
-              </span>
+              <span className="ml-1 font-semibold">({queueCount} pending)</span>
             )}
           </span>
         </>

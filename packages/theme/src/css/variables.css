@@ -33,12 +33,12 @@
   /* Text range — macOS type hierarchy */
   --arch8: #a1a1a6; /* muted / placeholder */
   --arch9: #6e6e73; /* secondary / caption */
-  --arch10: #3a3a3c; /* body */
-  --arch11: #1d1d1f; /* heading / primary */
+  --arch10: #1c1c1e; /* body — darkened for legibility */
+  --arch11: #0a0a0c; /* heading / primary — maximum contrast */
 
   /* Aurora Accents — status colors (unchanged) */
   --arch12: #ff3b30; /* red — error / danger */
-  --arch13: #ff9f0a; /* orange — warning */
+  --arch13: #007aff; /* blue — warning */
   --arch14: #34c759; /* green — success */
   --arch15: #007aff; /* blue — macOS system blue / info */
 
@@ -62,14 +62,52 @@
   --text-heading: var(--arch11);
 
   --accent-red: var(--arch12);
-  --accent-orange: var(--arch13);
+  --accent-blue: var(--arch13);
   --accent-green: var(--arch14);
-  --accent-blue: var(--arch15);
+
+  /* ─── Extended Action & Status Palette ────────────────────────────────────
+     These complement the macOS system blue with vivid action tokens that
+     align with the premium glassmorphism spec. Components must use semantic
+     aliases (--color-action-*, --color-status-*) rather than these directly.
+     ─────────────────────────────────────────────────────────────────────── */
+
+  /* Vivid Electric Blue — primary CTA, interactive highlights */
+  --accent-electric-blue: #0066ff;
+  --accent-electric-blue-hover: #0052d6;
+  --accent-electric-blue-subtle: rgba(0, 102, 255, 0.1);
+  --accent-electric-blue-border: rgba(0, 102, 255, 0.28);
+
+  /* Mint Green — status: optimal / active / healthy */
+  --accent-mint: #10b981;
+  --accent-mint-hover: #059669;
+  --accent-mint-subtle: rgba(16, 185, 129, 0.1);
+  --accent-mint-border: rgba(16, 185, 129, 0.28);
+
+  /* Amber — status: warning / pending / degraded */
+  --accent-amber: #f59e0b;
+  --accent-amber-hover: #d97706;
+  --accent-amber-subtle: rgba(245, 158, 11, 0.1);
+  --accent-amber-border: rgba(245, 158, 11, 0.28);
+
+  /* Semantic action aliases — use these in components */
+  --color-action-primary: var(--accent-electric-blue);
+  --color-action-primary-hover: var(--accent-electric-blue-hover);
+  --color-status-positive: var(--accent-mint);
+  --color-status-warning: var(--accent-amber);
+  --color-status-danger: var(--accent-red);
+
+  /* Glow shadows for the extended palette */
+  --shadow-glow-electric-blue:
+    0 0 20px rgba(0, 102, 255, 0.22), 0 0 60px rgba(0, 102, 255, 0.08);
+  --shadow-glow-mint:
+    0 0 20px rgba(16, 185, 129, 0.2), 0 0 60px rgba(16, 185, 129, 0.07);
+  --shadow-glow-amber:
+    0 0 20px rgba(245, 158, 11, 0.2), 0 0 60px rgba(245, 158, 11, 0.07);
 
   /* Semantic status colors — used by QR access control and similar modules */
   --success: #34c759;
   --success-foreground: 0 0% 100%;
-  --warning: #ff9f0a;
+  --warning: #007aff;
   --warning-foreground: 0 0% 100%;
   --danger: #ff3b30;
   --danger-foreground: 0 0% 100%;
@@ -82,12 +120,11 @@
        @deprecated Use the canonical --accent-* tokens instead.
        Migration tracked in packages/theme/DECISIONS.md.
        ═══════════════════════════════════════════════════════════════ */
-  --accent-cyan: var(--arch15); /* @deprecated → use --accent-blue */
-  --accent-indigo: var(--arch15); /* @deprecated → use --accent-blue */
-  --accent-violet: var(--arch15); /* @deprecated → use --accent-blue */
-  --accent-alert: var(--arch12); /* @deprecated → use --accent-red */
-  --accent-amber: var(--arch13); /* @deprecated → use --accent-orange */
-  --accent-emerald: var(--arch14); /* @deprecated → use --accent-green */
+  --accent-cyan: var(--accent-blue); /* @deprecated → use --accent-blue */
+  --accent-indigo: var(--accent-blue); /* @deprecated → use --accent-blue */
+  --accent-violet: var(--accent-blue); /* @deprecated → use --accent-blue */
+  --accent-alert: var(--accent-red); /* @deprecated → use --accent-red */
+  --accent-emerald: var(--accent-green); /* @deprecated → use --accent-green */
 
   /* macOS traffic light colors */
   --mac-red: #ff5f56;
@@ -98,7 +135,7 @@
        SHADCN/UI HSL VARIABLES — macOS Light
        ═══════════════════════════════════════════════════════════════ */
   --background: 240 5% 96%; /* #f5f5f7 */
-  --foreground: 240 6% 10%; /* #1d1d1f */
+  --foreground: 240 5% 4%; /* #0a0a0c — darkened heading */
   --card: 0 0% 100%; /* white */
   --card-foreground: 240 6% 10%;
   --popover: 0 0% 100%;
@@ -121,7 +158,7 @@
   /* Charts — macOS system colors */
   --chart-1: 211 100% 50%; /* blue */
   --chart-2: 142 71% 45%; /* green */
-  --chart-3: 37 100% 50%; /* orange */
+  --chart-3: 37 100% 50%; /* blue */
   --chart-4: 4 86% 58%; /* red */
   --chart-5: 270 60% 55%; /* purple */
 
@@ -160,9 +197,78 @@
   --text-on-glass: rgba(10, 10, 20, 0.92);
   --text-on-glass-muted: rgba(10, 10, 20, 0.55);
 
+  /* ── Glass-on-Video (translucent light glass over dark media) ──────────
+     These tokens produce a light-blurred-glass effect when layered over
+     the dark video scrim. The white surface at ~70 % opacity over a
+     dark background reads as a muted light gray — similar to macOS
+     vibrancy panels over a dark wallpaper.
+     Use these in place of inline dark-glass classes for maintainability. */
+  --glass-video-surface: rgba(255, 255, 255, 0.7);
+  --glass-video-surface-hover: rgba(255, 255, 255, 0.82);
+  --glass-video-surface-strong: rgba(255, 255, 255, 0.9);
+  --glass-video-backdrop: blur(24px) saturate(180%);
+  --glass-video-border: rgba(255, 255, 255, 0.15);
+  --glass-video-border-bottom: rgba(0, 0, 0, 0.06);
+  --glass-video-sheen: inset 0 1px 0 0 rgba(255, 255, 255, 0.8);
+  --glass-video-shadow:
+    0 8px 32px -8px rgba(0, 0, 0, 0.15), 0 2px 8px -4px rgba(0, 0, 0, 0.06);
+  --text-on-glass-video: rgba(10, 10, 20, 0.92);
+  --text-on-glass-video-muted: rgba(10, 10, 20, 0.55);
+  --glass-video-radius: 16px;
+
+  /* Dark glass surface — opaque dark card for high-contrast sections
+     like data-heavy dashboards, chart containers, or alert panels. */
+  --dark-glass-surface: rgba(15, 23, 42, 0.75);
+  --dark-glass-surface-hover: rgba(15, 23, 42, 0.85);
+  --dark-glass-border: rgba(255, 255, 255, 0.12);
+  --dark-glass-sheen: inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+  --text-on-dark-glass: rgba(248, 250, 252, 0.95);
+  --text-on-dark-glass-muted: rgba(203, 213, 225, 0.6);
+
+  /* Premium Glass Stack — exact spec for the highest-tier surfaces
+     (hero panels, drawer headers, command bar backdrop).
+     These tokens are intentionally more translucent and vivid
+     than the standard --glass-* set to create visual hierarchy. */
+  --glass-premium-bg: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.45) 0%,
+    rgba(255, 255, 255, 0.15) 100%
+  );
+  --glass-premium-backdrop: blur(24px) saturate(180%);
+  --glass-premium-border: rgba(255, 255, 255, 0.6);
+  --glass-premium-radius: 16px;
+  --glass-premium-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 20px 40px -4px rgba(15, 23, 42, 0.08);
+
   /* Vibrancy — macOS sidebar/toolbar tint */
   --vibrancy-surface: rgba(246, 246, 250, 0.82);
   --vibrancy-border: rgba(0, 0, 0, 0.07);
+
+  /* ═══════════════════════════════════════════════════════════════
+       Z-INDEX MATRIX — Single Source of Truth
+       ═══════════════════════════════════════════════════════════════ */
+  --z-background: 10;
+  --z-telemetry: 20;
+  --z-primary-card: 30;
+  --z-navigation: 40;
+  --z-overlay: 50;
+
+  /* ─── Canvas / Background Wave Tokens ──────────────────────────────────
+     Used by RouteBackground for the animated wave canvas fallback.
+     The gradient moves from soft gray to ice-blue to give depth
+     while keeping the surface light enough for glass to read cleanly.
+     ─────────────────────────────────────────────────────────────────── */
+  --canvas-bg-from: #f4f4f7;
+  --canvas-bg-to: #e8ecf4;
+  --canvas-gradient: linear-gradient(
+    135deg,
+    var(--canvas-bg-from) 0%,
+    var(--canvas-bg-to) 100%
+  );
+  /* Wave layer tint — subtle ice-blue radial used by the animated orbs */
+  --canvas-wave-tint-a: rgba(0, 102, 255, 0.06);
+  --canvas-wave-tint-b: rgba(16, 185, 129, 0.04);
+  --canvas-wave-tint-c: rgba(232, 236, 244, 0.8);
 
   /* ═══════════════════════════════════════════════════════════════
        DIFFUSION SHADOW SYSTEM — Light mode (softer)
@@ -179,7 +285,8 @@
     0 2px 12px -2px rgba(0, 0, 0, 0.1), 0 1px 0 0 rgba(255, 255, 255, 0.95),
     inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
   --shadow-card-hover:
-    0 6px 24px -4px rgba(0, 0, 0, 0.14), 0 1px 0 0 rgba(255, 255, 255, 0.95);
+    0 6px 24px -4px rgba(0, 0, 0, 0.14), 0 1px 0 0 rgba(255, 255, 255, 0.95),
+    0 0 20px -4px rgba(210, 210, 215, 0.3);
   --shadow-elevated:
     0 12px 40px -8px rgba(0, 0, 0, 0.18), 0 2px 8px -4px rgba(0, 0, 0, 0.1);
   --shadow-glow-blue:
@@ -210,13 +317,35 @@
   /* ═══════════════════════════════════════════════════════════════
        RADIUS SCALE
        ═══════════════════════════════════════════════════════════════ */
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
   --radius-card: 16px;
   --radius-button: 8px;
   --radius-full: 9999px;
+
+  /* ===== Design System Tokens ===== */
+  /* ---- Colors (HUD & Overlays) ---- */
+  --color-bg-hud: oklch(0% 0 0deg / 60%);
+  --color-border-hud: oklch(100% 0 0deg / 10%);
+  --color-text-hud-primary: oklch(100% 0 0deg);
+  --color-text-hud-secondary: oklch(100% 0 0deg / 70%);
+  --color-text-hud-tertiary: oklch(100% 0 0deg / 40%);
+
+  /* ---- Opacity Tokens ---- */
+  --opacity-focus-dim: 0.4;
+  --opacity-disabled: 0.38;
+  --opacity-hover: 0.08;
+
+  /* ---- Blur Tokens ---- */
+  --blur-focus-dim: 4px;
+
+  /* ---- Shadows ---- */
+  --shadow-sm: 0 1px 3px oklch(0% 0 0deg / 0.08);
+  --shadow-md: 0 4px 12px oklch(0% 0 0deg / 0.1);
+  --shadow-lg:
+    0 8px 24px oklch(0% 0 0deg / 0.12), 0 0 0 1px oklch(0% 0 0deg / 0.04);
 
   /* macOS menu bar height */
   --mac-menu-bar-height: 28px;
@@ -227,11 +356,11 @@
   --theme-transition-duration: 0ms;
 
   /* Font variables used in Tailwind config preset */
-  --font-inter: "Inter", sans-serif;
+  --font-sans: "Plus Jakarta Sans", sans-serif;
+  --font-inter:
+    "Plus Jakarta Sans", sans-serif; /* alias kept for backward compat */
   --font-outfit: "Outfit", sans-serif;
   --font-mono: ui-monospace, monospace;
 
   color-scheme: light;
 }
-
-/* Light-only. No dark mode. */

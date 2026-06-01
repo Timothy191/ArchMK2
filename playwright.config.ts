@@ -14,6 +14,7 @@ export default defineConfig({
   use: {
     baseURL: "http://localhost:3000",
     screenshot: "only-on-failure",
+    userAgent: "Playwright/E2E-Tests",
   },
   expect: {
     toHaveScreenshot: {

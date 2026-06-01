@@ -76,7 +76,7 @@ describe("LoginForm", () => {
     render(<LoginForm />);
 
     expect(
-      screen.getByPlaceholderText("e.g., admin@plantcor.os"),
+      screen.getByPlaceholderText("e.g., admin@arch.os"),
     ).toBeInTheDocument();
     expect(
       screen.getByPlaceholderText("Enter your password"),
@@ -94,7 +94,7 @@ describe("LoginForm", () => {
 
     render(<LoginForm />);
 
-    fireEvent.change(screen.getByPlaceholderText("e.g., admin@plantcor.os"), {
+    fireEvent.change(screen.getByPlaceholderText("e.g., admin@arch.os"), {
       target: { value: "PC-12345" },
     });
     fireEvent.change(screen.getByPlaceholderText("Enter your password"), {
@@ -124,7 +124,7 @@ describe("LoginForm", () => {
 
     render(<LoginForm />);
 
-    fireEvent.change(screen.getByPlaceholderText("e.g., admin@plantcor.os"), {
+    fireEvent.change(screen.getByPlaceholderText("e.g., admin@arch.os"), {
       target: { value: "PC-12345" },
     });
     fireEvent.change(screen.getByPlaceholderText("Enter your password"), {
@@ -153,7 +153,7 @@ describe("LoginForm", () => {
 
     render(<LoginForm />);
 
-    fireEvent.change(screen.getByPlaceholderText("e.g., admin@plantcor.os"), {
+    fireEvent.change(screen.getByPlaceholderText("e.g., admin@arch.os"), {
       target: { value: "PC-12345" },
     });
     fireEvent.change(screen.getByPlaceholderText("Enter your password"), {
@@ -183,7 +183,7 @@ describe("LoginForm", () => {
 
     render(<LoginForm />);
 
-    fireEvent.change(screen.getByPlaceholderText("e.g., admin@plantcor.os"), {
+    fireEvent.change(screen.getByPlaceholderText("e.g., admin@arch.os"), {
       target: { value: "PC-12345" },
     });
     fireEvent.change(screen.getByPlaceholderText("Enter your password"), {
@@ -219,7 +219,7 @@ describe("LoginForm", () => {
 
     render(<LoginForm />);
 
-    fireEvent.change(screen.getByPlaceholderText("e.g., admin@plantcor.os"), {
+    fireEvent.change(screen.getByPlaceholderText("e.g., admin@arch.os"), {
       target: { value: "PC-12345" },
     });
     fireEvent.change(screen.getByPlaceholderText("Enter your password"), {

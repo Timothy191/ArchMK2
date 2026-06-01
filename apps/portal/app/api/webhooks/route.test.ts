@@ -12,19 +12,28 @@ jest.mock("next/cache", () => ({
   revalidatePath: jest.fn(),
 }));
 
-const { createServerSupabaseClient } = jest.requireMock("@repo/supabase/server");
+const { createServerSupabaseClient } = jest.requireMock(
+  "@repo/supabase/server",
+);
 
-function buildMock(overrides: {
-  user?: unknown;
-  employee?: unknown;
-  webhooks?: unknown;
-  insertData?: unknown;
-  dbError?: unknown;
-} = {}) {
+function buildMock(
+  overrides: {
+    user?: unknown;
+    employee?: unknown;
+    webhooks?: unknown;
+    insertData?: unknown;
+    dbError?: unknown;
+  } = {},
+) {
   const user = overrides.user !== undefined ? overrides.user : { id: "user-1" };
-  const employee = overrides.employee !== undefined
-    ? overrides.employee
-    : { department_id: "dept-1", role: "supervisor", accessible_departments: [] };
+  const employee =
+    overrides.employee !== undefined
+      ? overrides.employee
+      : {
+          department_id: "dept-1",
+          role: "supervisor",
+          accessible_departments: [],
+        };
 
   const mock = {
     auth: {
@@ -43,7 +52,10 @@ function buildMock(overrides: {
       return {
         select: jest.fn().mockReturnValue({
           is: jest.fn().mockReturnValue({
-            or: jest.fn().mockResolvedValue({ data: overrides.webhooks ?? [], error: overrides.dbError ?? null }),
+            or: jest.fn().mockResolvedValue({
+              data: overrides.webhooks ?? [],
+              error: overrides.dbError ?? null,
+            }),
             // admin path (no .or())
             then: undefined,
           }),
@@ -53,7 +65,13 @@ function buildMock(overrides: {
         }),
         insert: jest.fn().mockReturnValue({
           select: jest.fn().mockReturnValue({
-            single: jest.fn().mockResolvedValue({ data: overrides.insertData ?? { id: "wh-1", url: "https://example.com" }, error: overrides.dbError ?? null }),
+            single: jest.fn().mockResolvedValue({
+              data: overrides.insertData ?? {
+                id: "wh-1",
+                url: "https://example.com",
+              },
+              error: overrides.dbError ?? null,
+            }),
           }),
         }),
       };
@@ -70,16 +88,18 @@ function buildMock(overrides: {
 describe("GET /api/webhooks", () => {
   beforeEach(() => jest.clearAllMocks());
 
+  const mockReq = new NextRequest("http://localhost/api/webhooks");
+
   it("returns 401 when not authenticated", async () => {
     buildMock({ user: null });
-    const res = await GET();
+    const res = await GET(mockReq);
     expect(res.status).toBe(401);
     expect((await res.json()).error).toBe("Unauthorized");
   });
 
   it("returns 404 when employee not found", async () => {
     buildMock({ employee: null });
-    const res = await GET();
+    const res = await GET(mockReq);
     expect(res.status).toBe(404);
     expect((await res.json()).error).toBe("Employee not found");
   });
@@ -87,10 +107,14 @@ describe("GET /api/webhooks", () => {
   it("returns 200 with webhooks for non-admin (with .or filter)", async () => {
     const webhookList = [{ id: "w1", url: "https://example.com" }];
     buildMock({
-      employee: { department_id: "dept-1", role: "supervisor", accessible_departments: [] },
+      employee: {
+        department_id: "dept-1",
+        role: "supervisor",
+        accessible_departments: [],
+      },
       webhooks: webhookList,
     });
-    const res = await GET();
+    const res = await GET(mockReq);
     expect(res.status).toBe(200);
     const json = await res.json();
     expect(json.webhooks).toEqual(webhookList);
@@ -98,11 +122,15 @@ describe("GET /api/webhooks", () => {
 
   it("returns 500 on db error", async () => {
     buildMock({
-      employee: { department_id: "dept-1", role: "supervisor", accessible_departments: [] },
+      employee: {
+        department_id: "dept-1",
+        role: "supervisor",
+        accessible_departments: [],
+      },
       webhooks: null,
       dbError: { message: "DB failure" },
     });
-    const res = await GET();
+    const res = await GET(mockReq);
     expect(res.status).toBe(500);
   });
 
@@ -111,10 +139,16 @@ describe("GET /api/webhooks", () => {
     const webhookList = [{ id: "w2", url: "https://admin.com" }];
 
     // Override to make the is() call resolve directly for admin
-    const adminEmployee = { department_id: "dept-1", role: "admin", accessible_departments: [] };
+    const adminEmployee = {
+      department_id: "dept-1",
+      role: "admin",
+      accessible_departments: [],
+    };
     const mock = {
       auth: {
-        getUser: jest.fn().mockResolvedValue({ data: { user: { id: "admin-1" } } }),
+        getUser: jest
+          .fn()
+          .mockResolvedValue({ data: { user: { id: "admin-1" } } }),
       },
       from: jest.fn().mockImplementation((table: string) => {
         if (table === "employees") {
@@ -132,15 +166,17 @@ describe("GET /api/webhooks", () => {
           select: jest.fn().mockReturnValue({
             is: jest.fn().mockReturnValue(
               Object.assign(isResult, {
-                or: jest.fn().mockResolvedValue({ data: webhookList, error: null }),
-              })
+                or: jest
+                  .fn()
+                  .mockResolvedValue({ data: webhookList, error: null }),
+              }),
             ),
           }),
         };
       }),
     };
     createServerSupabaseClient.mockResolvedValue(mock);
-    const res = await GET();
+    const res = await GET(mockReq);
     expect(res.status).toBe(200);
   });
 });
@@ -162,7 +198,10 @@ describe("POST /api/webhooks", () => {
 
   it("returns 401 when not authenticated", async () => {
     buildMock({ user: null });
-    const req = makeRequest({ url: "https://example.com", event_types: ["daily_log.created"] });
+    const req = makeRequest({
+      url: "https://example.com",
+      event_types: ["daily_log.created"],
+    });
     const res = await POST(req);
     expect(res.status).toBe(401);
   });
@@ -184,14 +223,21 @@ describe("POST /api/webhooks", () => {
 
   it("returns 404 when employee not found", async () => {
     buildMock({ employee: null });
-    const req = makeRequest({ url: "https://example.com", event_types: ["breakdown.created"] });
+    const req = makeRequest({
+      url: "https://example.com",
+      event_types: ["breakdown.created"],
+    });
     const res = await POST(req);
     expect(res.status).toBe(404);
   });
 
   it("returns 403 when non-admin tries to create webhook for different department", async () => {
     buildMock({
-      employee: { department_id: "dept-1", role: "supervisor", accessible_departments: [] },
+      employee: {
+        department_id: "dept-1",
+        role: "supervisor",
+        accessible_departments: [],
+      },
     });
     const req = makeRequest({
       url: "https://example.com",
@@ -204,8 +250,16 @@ describe("POST /api/webhooks", () => {
 
   it("returns 201 on successful creation", async () => {
     buildMock({
-      employee: { department_id: "dept-1", role: "supervisor", accessible_departments: [] },
-      insertData: { id: "wh-new", url: "https://example.com", event_types: ["breakdown.created"] },
+      employee: {
+        department_id: "dept-1",
+        role: "supervisor",
+        accessible_departments: [],
+      },
+      insertData: {
+        id: "wh-new",
+        url: "https://example.com",
+        event_types: ["breakdown.created"],
+      },
     });
     const req = makeRequest({
       url: "https://example.com",
@@ -218,13 +272,19 @@ describe("POST /api/webhooks", () => {
   });
 
   it("returns 500 when insert fails", async () => {
-    const employee = { department_id: "dept-1", role: "supervisor", accessible_departments: [] };
+    const employee = {
+      department_id: "dept-1",
+      role: "supervisor",
+      accessible_departments: [],
+    };
     const insertError = { message: "Insert failed" };
 
     // Custom mock where insert returns an error
     const mock = {
       auth: {
-        getUser: jest.fn().mockResolvedValue({ data: { user: { id: "user-1" } } }),
+        getUser: jest
+          .fn()
+          .mockResolvedValue({ data: { user: { id: "user-1" } } }),
       },
       from: jest.fn().mockImplementation((table: string) => {
         if (table === "employees") {
@@ -239,7 +299,9 @@ describe("POST /api/webhooks", () => {
         return {
           insert: jest.fn().mockReturnValue({
             select: jest.fn().mockReturnValue({
-              single: jest.fn().mockResolvedValue({ data: null, error: insertError }),
+              single: jest
+                .fn()
+                .mockResolvedValue({ data: null, error: insertError }),
             }),
           }),
         };
@@ -247,9 +309,12 @@ describe("POST /api/webhooks", () => {
     };
     createServerSupabaseClient.mockResolvedValue(mock);
 
-    const req = makeRequest({ url: "https://example.com", event_types: ["breakdown.created"] });
+    const req = makeRequest({
+      url: "https://example.com",
+      event_types: ["breakdown.created"],
+    });
     const res = await POST(req);
     expect(res.status).toBe(500);
-    expect((await res.json()).error).toBe("Insert failed");
+    expect((await res.json()).error).toBe("Failed to create webhook");
   });
 });

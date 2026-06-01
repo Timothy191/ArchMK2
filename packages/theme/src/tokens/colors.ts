@@ -16,29 +16,41 @@ export const arch2 = "#e8e8ed"; // sunken / input bg
 export const arch3 = "#d2d2d7"; // pressed / deeply sunken
 
 /** Border range — hairline to emphasis (stored as hex approximations for JS use) */
-export const arch4 = "rgba(0,0,0,0.06)";  // border subtle
-export const arch5 = "rgba(0,0,0,0.12)";  // border default
-export const arch6 = "rgba(0,0,0,0.20)";  // border emphasis
-export const arch7 = "rgba(0,0,0,0.30)";  // border strong
+export const arch4 = "rgba(0,0,0,0.06)"; // border subtle
+export const arch5 = "rgba(0,0,0,0.12)"; // border default
+export const arch6 = "rgba(0,0,0,0.20)"; // border emphasis
+export const arch7 = "rgba(0,0,0,0.30)"; // border strong
 
 /** Text range — macOS type hierarchy */
-export const arch8 = "#a1a1a6";   // muted / placeholder
-export const arch9 = "#6e6e73";   // secondary / caption
-export const arch10 = "#3a3a3c";  // body
-export const arch11 = "#1d1d1f";  // heading / primary
+export const arch8 = "#a1a1a6"; // muted / placeholder
+export const arch9 = "#6e6e73"; // secondary / caption
+export const arch10 = "#3a3a3c"; // body
+export const arch11 = "#1d1d1f"; // heading / primary
 
 /** Aurora Accents — macOS system colors */
-export const arch12 = "#ff3b30";  // red — error / danger
-export const arch13 = "#ff9f0a";  // orange — warning
-export const arch14 = "#34c759";  // green — success
-export const arch15 = "#007aff";  // blue — macOS system blue
+export const arch12 = "#ff3b30"; // red — error / danger
+export const arch13 = "#007aff"; // blue — warning
+export const arch14 = "#34c759"; // green — success
+export const arch15 = "#007aff"; // blue — macOS system blue
 
 /** Complete palette array (for iteration) */
 export const ARCH_PALETTE = [
-  arch0, arch1, arch2, arch3,
-  arch4, arch5, arch6, arch7,
-  arch8, arch9, arch10, arch11,
-  arch12, arch13, arch14, arch15,
+  arch0,
+  arch1,
+  arch2,
+  arch3,
+  arch4,
+  arch5,
+  arch6,
+  arch7,
+  arch8,
+  arch9,
+  arch10,
+  arch11,
+  arch12,
+  arch13,
+  arch14,
+  arch15,
 ] as const;
 
 // ═══════════════════════════════════════════════════════════════
@@ -65,9 +77,8 @@ export const colors = {
   },
   accent: {
     red: arch12,
-    orange: arch13,
+    blue: arch13,
     green: arch14,
-    blue: arch15,
   },
 } as const;
 
@@ -87,8 +98,8 @@ export const accentIndigo = arch15;
 export const accentViolet = arch15;
 /** @deprecated → use colors.accent.red */
 export const accentAlert = arch12;
-/** @deprecated → use colors.accent.orange */
-export const accentAmber = arch13;
+/** @deprecated → use colors.accent.blue */
+export const accentBlue = arch13;
 /** @deprecated → use colors.accent.green */
 export const accentEmerald = arch14;
 
@@ -121,10 +132,10 @@ export const glass = {
 // ═══════════════════════════════════════════════════════════════ */
 
 export const hsl = {
-  primary: "211 100% 50%",         // #007aff macOS blue
+  primary: "211 100% 50%", // #007aff macOS blue
   primaryForeground: "0 0% 100%",
-  background: "240 5% 96%",        // #f5f5f7
-  foreground: "240 6% 10%",        // #1d1d1f
+  background: "240 5% 96%", // #f5f5f7
+  foreground: "240 6% 10%", // #1d1d1f
   card: "0 0% 100%",
   cardForeground: "240 6% 10%",
   popover: "0 0% 100%",
@@ -135,7 +146,7 @@ export const hsl = {
   mutedForeground: "240 3% 44%",
   accent: "240 5% 91%",
   accentForeground: "240 6% 10%",
-  destructive: "4 86% 58%",        // #ff3b30
+  destructive: "4 86% 58%", // #ff3b30
   destructiveForeground: "0 0% 100%",
   border: "240 6% 87%",
   input: "240 5% 91%",
@@ -153,9 +164,21 @@ export const hslDark = hsl;
 /** Generate a themer-compatible ColorSet for external tool export */
 export function generateThemerColorSet() {
   return {
-    shade0: arch0, shade1: arch1, shade2: arch2, shade3: arch3,
-    shade4: arch4, shade5: arch5, shade6: arch6, shade7: arch7,
-    accent0: arch12, accent1: arch13, accent2: arch14, accent3: arch15,
-    accent4: arch12, accent5: arch13, accent6: arch14, accent7: arch15,
+    shade0: arch0,
+    shade1: arch1,
+    shade2: arch2,
+    shade3: arch3,
+    shade4: arch4,
+    shade5: arch5,
+    shade6: arch6,
+    shade7: arch7,
+    accent0: arch12,
+    accent1: arch13,
+    accent2: arch14,
+    accent3: arch15,
+    accent4: arch12,
+    accent5: arch13,
+    accent6: arch14,
+    accent7: arch15,
   };
 }

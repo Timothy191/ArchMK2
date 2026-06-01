@@ -33,24 +33,25 @@ Location: `.kiro/safety/`
 
 ### Files
 
-| File | Purpose |
-|------|---------|
-| `.kiro/safety/index.js` | Safety orchestrator — runs all 7 layers, returns allow/block decision |
-| `.kiro/safety/layers/01-budget.js` | Tool call budget: per-session counter, hard limits (warn at 40, block at 80) |
-| `.kiro/safety/layers/02-permission.js` | Allow/deny rules from settings.local.json, deny-by-default mode |
-| `.kiro/safety/layers/03-isolation.js` | Command allowlist, path restrictions, dangerous pattern blocking |
-| `.kiro/safety/layers/04-content-filter.js` | PII/secret regex scan + output content safety check |
-| `.kiro/safety/layers/05-rate-limiter.js` | Sliding window (60s), per-tool type counters, auto-cooldown |
-| `.kiro/safety/layers/06-audit-log.js` | Write structured audit event to `ltm/store/audit.jsonl` |
-| `.kiro/safety/layers/07-user-control.js` | Persistent exception store, auto-approve patterns, trust levels |
-| `.kiro/safety/policies/default.json` | Default policy: warn on suspicious, block on dangerous |
-| `.kiro/safety/policies/strict.json` | Strict: deny-by-default, only explicitly allowed operations |
-| `.kiro/safety/policies/permissive.json` | Permissive: auto-approve known patterns, block only critical |
-| `.kiro/safety/exceptions.json` | User-approved persistent exceptions |
+| File                                       | Purpose                                                                      |
+| ------------------------------------------ | ---------------------------------------------------------------------------- |
+| `.kiro/safety/index.js`                    | Safety orchestrator — runs all 7 layers, returns allow/block decision        |
+| `.kiro/safety/layers/01-budget.js`         | Tool call budget: per-session counter, hard limits (warn at 40, block at 80) |
+| `.kiro/safety/layers/02-permission.js`     | Allow/deny rules from settings.local.json, deny-by-default mode              |
+| `.kiro/safety/layers/03-isolation.js`      | Command allowlist, path restrictions, dangerous pattern blocking             |
+| `.kiro/safety/layers/04-content-filter.js` | PII/secret regex scan + output content safety check                          |
+| `.kiro/safety/layers/05-rate-limiter.js`   | Sliding window (60s), per-tool type counters, auto-cooldown                  |
+| `.kiro/safety/layers/06-audit-log.js`      | Write structured audit event to `ltm/store/audit.jsonl`                      |
+| `.kiro/safety/layers/07-user-control.js`   | Persistent exception store, auto-approve patterns, trust levels              |
+| `.kiro/safety/policies/default.json`       | Default policy: warn on suspicious, block on dangerous                       |
+| `.kiro/safety/policies/strict.json`        | Strict: deny-by-default, only explicitly allowed operations                  |
+| `.kiro/safety/policies/permissive.json`    | Permissive: auto-approve known patterns, block only critical                 |
+| `.kiro/safety/exceptions.json`             | User-approved persistent exceptions                                          |
 
 ### Layer Interface
 
 Every layer exports: `(toolCall, context) => { allow, reason, severity, layer }`
+
 - `toolCall`: `{ tool, input, sessionId }` — the current tool invocation
 - `context`: `{ policy, budget, rateCounts, sessionStart }` — shared execution context
 - Returns: `{ allow: boolean, reason: string, severity: 'info'|'warn'|'block' }`
@@ -58,6 +59,7 @@ Every layer exports: `(toolCall, context) => { allow, reason, severity, layer }`
 ### Wiring
 
 Added to `settings.json` PreToolUse matcher `"*"`:
+
 ```json
 {
   "type": "command",
@@ -82,26 +84,26 @@ IDLE → ANALYZE → PLAN → EXECUTE → VERIFY → REPORT → IDLE
                         (re-plan)    (retry/fallback/resume)
 ```
 
-| State | Description |
-|-------|-------------|
-| IDLE | No active task. Waiting for user input. |
-| ANALYZE | Task classification, blast radius, dependency discovery |
-| PLAN | Decompose into units, create task-list.json, assign priorities |
-| EXECUTE | Dispatch subagents, monitor progress, handle failures |
-| VERIFY | Run validation (lint, typecheck, test), quality gate |
-| REPORT | Synthesize results, save LTM checkpoint, present to user |
+| State   | Description                                                      |
+| ------- | ---------------------------------------------------------------- |
+| IDLE    | No active task. Waiting for user input.                          |
+| ANALYZE | Task classification, blast radius, dependency discovery          |
+| PLAN    | Decompose into units, create task-list.json, assign priorities   |
+| EXECUTE | Dispatch subagents, monitor progress, handle failures            |
+| VERIFY  | Run validation (lint, typecheck, test), quality gate             |
+| REPORT  | Synthesize results, save LTM checkpoint, present to user         |
 | BLOCKED | Task blocked (rate limit, missing info, conflict). Wait/resolve. |
 
 ### Files
 
-| File | Purpose |
-|------|---------|
-| `.kiro/loop/index.js` | State machine engine: transitions, persistence, hook dispatch |
-| `.kiro/loop/queue.js` | Task queue: priority sort, dependency resolution, CRUD |
-| `.kiro/loop/scheduler.js` | Subagent dispatch: health check, timeout, result aggregation |
-| `.kiro/loop/recovery.js` | Error recovery: retry with backoff, circuit break, fallback |
-| `.kiro/loop/context.js` | Context window manager: progressive load, pressure monitor |
-| `.kiro/loop/state.json` | Persistent state file (machine-readable, LTM-backed) |
+| File                      | Purpose                                                       |
+| ------------------------- | ------------------------------------------------------------- |
+| `.kiro/loop/index.js`     | State machine engine: transitions, persistence, hook dispatch |
+| `.kiro/loop/queue.js`     | Task queue: priority sort, dependency resolution, CRUD        |
+| `.kiro/loop/scheduler.js` | Subagent dispatch: health check, timeout, result aggregation  |
+| `.kiro/loop/recovery.js`  | Error recovery: retry with backoff, circuit break, fallback   |
+| `.kiro/loop/context.js`   | Context window manager: progressive load, pressure monitor    |
+| `.kiro/loop/state.json`   | Persistent state file (machine-readable, LTM-backed)          |
 
 ### State JSON Schema
 
@@ -111,13 +113,29 @@ IDLE → ANALYZE → PLAN → EXECUTE → VERIFY → REPORT → IDLE
   "state": "idle|analyze|plan|execute|verify|report|blocked",
   "current_task": { "id": "t-001", "description": "...", "priority": 1 },
   "queue": [
-    { "id": "t-002", "description": "...", "priority": 2, "dependencies": [], "status": "pending" }
+    {
+      "id": "t-002",
+      "description": "...",
+      "priority": 2,
+      "dependencies": [],
+      "status": "pending"
+    }
   ],
   "subagents": [
-    { "id": "unit-1", "agent": "scout", "status": "running", "started_at": "..." }
+    {
+      "id": "unit-1",
+      "agent": "scout",
+      "status": "running",
+      "started_at": "..."
+    }
   ],
   "history": [
-    { "state": "plan", "entered_at": "...", "exited_at": "...", "result": "..." }
+    {
+      "state": "plan",
+      "entered_at": "...",
+      "exited_at": "...",
+      "result": "..."
+    }
   ],
   "metrics": {
     "tool_calls_total": 127,
@@ -130,13 +148,13 @@ IDLE → ANALYZE → PLAN → EXECUTE → VERIFY → REPORT → IDLE
 
 ### Wiring
 
-| Hook Event | Script | When |
-|-----------|--------|------|
-| PreToolUse | `loop/index.js` state='execute' | Check queue, throttle dispatch if busy |
-| PostToolUse | `loop/index.js` | Persist state, update metrics |
-| SubagentStop | `loop/index.js` | Aggregate results, check if all complete |
-| SessionStart | `loop/index.js` restore | Resume from saved state |
-| SessionEnd | `loop/save-state.js` | Save final state to LTM checkpoint |
+| Hook Event   | Script                          | When                                     |
+| ------------ | ------------------------------- | ---------------------------------------- |
+| PreToolUse   | `loop/index.js` state='execute' | Check queue, throttle dispatch if busy   |
+| PostToolUse  | `loop/index.js`                 | Persist state, update metrics            |
+| SubagentStop | `loop/index.js`                 | Aggregate results, check if all complete |
+| SessionStart | `loop/index.js` restore         | Resume from saved state                  |
+| SessionEnd   | `loop/save-state.js`            | Save final state to LTM checkpoint       |
 
 ---
 
@@ -147,6 +165,7 @@ IDLE → ANALYZE → PLAN → EXECUTE → VERIFY → REPORT → IDLE
 File: `.kiro/tools/shell-sandbox.js`
 
 Features:
+
 - Command allowlist (pre-approved commands from settings.local.json)
 - Dangerous pattern detection (rm -rf, sudo, pipes to shell)
 - Path restriction (reject writes outside project dir)
@@ -158,6 +177,7 @@ Features:
 File: `.kiro/tools/file-diff.js`
 
 Features:
+
 - Pre-edit diff generation via `git diff`
 - Highlight lines added/removed/changed
 - Reject edits that modify too many lines (>200)
@@ -168,6 +188,7 @@ Features:
 File: `.kiro/tools/composer.js`
 
 Features:
+
 - Chain simple tools: `Read → Edit → Lint → Check` as one operation
 - Parallel tool execution with result merging
 - Error rollback on partial failure
@@ -212,18 +233,19 @@ Features:
 
 ### Files to Modify
 
-| File | Change |
-|------|--------|
-| `.kiro/settings.json` | Add safety-gate PreToolUse hook; add loop persist hooks |
-| `.kiro/settings.local.json` | Add loop restore hooks; update permissions |
-| `.kiro/agents/digital-twin.md` | Reference safety system and loop states |
-| `.kiro/agents/team-lead.md` | Use loop queue for task management |
+| File                           | Change                                                  |
+| ------------------------------ | ------------------------------------------------------- |
+| `.kiro/settings.json`          | Add safety-gate PreToolUse hook; add loop persist hooks |
+| `.kiro/settings.local.json`    | Add loop restore hooks; update permissions              |
+| `.kiro/agents/digital-twin.md` | Reference safety system and loop states                 |
+| `.kiro/agents/team-lead.md`    | Use loop queue for task management                      |
 
 ---
 
 ## Implementation Order
 
 ### Phase 2a: Safety System (7 layers)
+
 1. Create `.kiro/safety/` directory structure and policy files
 2. Implement layer 2 (permission) — reuse existing allow/deny rules
 3. Implement layer 1 (budget) — port from tool-call-budget.js with hard limits
@@ -237,6 +259,7 @@ Features:
 11. Test all 7 layers with known inputs
 
 ### Phase 2b: Agentic Loop
+
 12. Create `.kiro/loop/` directory and state.json
 13. Implement state machine engine (`index.js`)
 14. Implement task queue (`queue.js`)
@@ -247,6 +270,7 @@ Features:
 19. Test state transitions with mock actions
 
 ### Phase 2c: Advanced Tooling
+
 20. Create shell sandbox (`tools/shell-sandbox.js`)
 21. Create file diff preview (`tools/file-diff.js`)
 22. Create tool composer (`tools/composer.js`)

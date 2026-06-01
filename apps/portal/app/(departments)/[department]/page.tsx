@@ -70,7 +70,7 @@ const SatelliteMonitoringDashboard = dynamic(
   {
     loading: () => (
       <div className="fixed inset-0 flex items-center justify-center bg-[var(--bg-primary)]">
-        <div className="w-8 h-8 border-2 border-cyan-500/20 border-t-cyan-500 rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-[var(--accent-blue)]/20 border-t-[var(--accent-blue)] rounded-full animate-spin" />
       </div>
     ),
   },
@@ -84,7 +84,7 @@ const SafetyDashboard = dynamic(
   {
     loading: () => (
       <div className="fixed inset-0 flex items-center justify-center bg-[var(--bg-primary)]">
-        <div className="w-8 h-8 border-2 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-[var(--accent-green)]/20 border-t-[var(--accent-green)] rounded-full animate-spin" />
       </div>
     ),
   },
@@ -125,7 +125,6 @@ export default async function DepartmentDashboard({
   const { count: machineCount } = await supabase
     .from("machines")
     .select("*", { count: "exact", head: true })
-    .eq("department_id", deptId)
     .eq("active", true);
 
   // 3. Control Room specific data — isolated in conditional + Promise.all
@@ -155,13 +154,17 @@ export default async function DepartmentDashboard({
     ]);
 
     totalHours =
-      todayOperations.data?.reduce((sum, op) => sum + (op.hours_worked || 0), 0) || 0;
+      todayOperations.data?.reduce(
+        (sum, op) => sum + (op.hours_worked || 0),
+        0,
+      ) || 0;
     activeOperations =
       todayOperations.data?.filter((op) => op.end_time === null).length || 0;
 
     delayCount = todayDelays.data?.length || 0;
     delayMinutes =
-      todayDelays.data?.reduce((sum, d) => sum + (d.delay_minutes || 0), 0) || 0;
+      todayDelays.data?.reduce((sum, d) => sum + (d.delay_minutes || 0), 0) ||
+      0;
 
     totalLoads =
       todayLoads.data?.reduce((sum, l) => sum + (l.total_loads || 0), 0) || 0;
@@ -191,11 +194,11 @@ export default async function DepartmentDashboard({
               <p className="text-[var(--text-muted)] text-xs uppercase tracking-wide">
                 Hours Today
               </p>
-              <p className="text-2xl font-bold text-[var(--accent-cyan)] mt-1">
+              <p className="text-2xl font-bold text-[var(--accent-blue)] mt-1">
                 {totalHours.toFixed(1)}h
               </p>
               {activeOperations > 0 && (
-                <p className="text-amber-400 text-xs mt-1">
+                <p className="text-[var(--accent-blue)] text-xs mt-1">
                   {activeOperations} in progress
                 </p>
               )}
@@ -212,7 +215,7 @@ export default async function DepartmentDashboard({
               <p className="text-[var(--text-muted)] text-xs uppercase tracking-wide">
                 Delays
               </p>
-              <p className="text-2xl font-bold text-amber-400 mt-1">
+              <p className="text-2xl font-bold text-[var(--accent-blue)] mt-1">
                 {delayCount}
               </p>
               {delayMinutes > 0 && (
@@ -225,7 +228,7 @@ export default async function DepartmentDashboard({
               <p className="text-[var(--text-muted)] text-xs uppercase tracking-wide">
                 Machines
               </p>
-              <p className="text-2xl font-bold text-emerald-400 mt-1">
+              <p className="text-2xl font-bold text-[var(--accent-green)] mt-1">
                 {machineCount ?? 0}
               </p>
               <p className="text-[var(--text-muted)] text-xs mt-1">Active</p>
@@ -239,7 +242,7 @@ export default async function DepartmentDashboard({
           <div className="flex flex-wrap gap-3">
             <a
               href={`/${deptSlug}/machine-operations`}
-              className="px-4 py-2 bg-[var(--accent-cyan)] text-[var(--bg-secondary)] font-medium rounded-lg hover:bg-[var(--accent-cyan)] transition-colors text-sm"
+              className="px-4 py-2 bg-[var(--accent-blue)] text-[var(--bg-secondary)] font-medium rounded-lg hover:bg-[var(--accent-blue)] transition-colors text-sm"
             >
               + Log Operation
             </a>
@@ -247,7 +250,7 @@ export default async function DepartmentDashboard({
               href={`/${deptSlug}/operational-delays`}
               className="px-4 py-2 bg-[var(--bg-secondary)] border border-[var(--border-default)] text-[var(--text-heading)] font-medium rounded-lg hover:bg-[var(--bg-tertiary)] transition-colors text-sm"
             >
-              + Add Note
+              + Log Delay
             </a>
             <a
               href={`/${deptSlug}/hourly-loads`}
@@ -257,7 +260,10 @@ export default async function DepartmentDashboard({
             </a>
           </div>
 
-          <ShiftCoverageWidget departmentId={deptId} />
+          <ShiftCoverageWidget
+            departmentId={deptId}
+            departmentSlug={deptSlug}
+          />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <ScadaPanel departmentId={deptId} />
@@ -300,7 +306,7 @@ export default async function DepartmentDashboard({
             </GlassCard>
             <GlassCard>
               <p className="text-[var(--text-muted)] text-sm">Status</p>
-              <p className="text-2xl font-bold text-emerald-400 mt-1">
+              <p className="text-2xl font-bold text-[var(--accent-green)] mt-1">
                 {machineCount && machineCount > 0
                   ? `${machineCount} machine${machineCount > 1 ? "s" : ""} active`
                   : "No machines online"}

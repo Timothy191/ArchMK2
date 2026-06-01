@@ -87,7 +87,9 @@ test.describe("login page navigation", () => {
 
   test("login page renders email and password fields", async ({ page }) => {
     await page.goto("/login");
-    await expect(page.locator("input[type='email'], input#email")).toBeVisible();
+    await expect(
+      page.locator("input[type='email'], input#email"),
+    ).toBeVisible();
     await expect(page.locator("input[type='password']")).toBeVisible();
     await expect(page.locator("button[type='submit']")).toBeVisible();
   });
@@ -101,7 +103,9 @@ test.describe("404 and error handling", () => {
     // Either a 404 page or a redirect to login — should not show app content
     const url = page.url();
     const is404OrLogin =
-      url.includes("/login") || (await page.title()).includes("404") || url.includes("nonexistent");
+      url.includes("/login") ||
+      (await page.title()).includes("404") ||
+      url.includes("nonexistent");
     expect(is404OrLogin).toBe(true);
   });
 });

@@ -4,7 +4,6 @@ import {
   createContext,
   useContext,
   useEffect,
-  useState,
   useCallback,
   type ReactNode,
 } from "react";
@@ -34,8 +33,9 @@ export function ArchThemeProvider({ children }: { children: ReactNode }) {
   return (
     <NextThemesProvider
       attribute="class"
-      defaultTheme="light"
+      forcedTheme="light"
       enableSystem={false}
+      enableColorScheme={false}
     >
       <ArchThemeInner>{children}</ArchThemeInner>
     </NextThemesProvider>
@@ -43,7 +43,7 @@ export function ArchThemeProvider({ children }: { children: ReactNode }) {
 }
 
 function ArchThemeInner({ children }: { children: ReactNode }) {
-  const { theme, setTheme } = useNextThemes();
+  useNextThemes();
 
   useEffect(() => {
     const root = document.documentElement;

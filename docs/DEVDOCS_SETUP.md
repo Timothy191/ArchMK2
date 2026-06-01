@@ -6,7 +6,7 @@ Tech documentation crawling MCP server for Windsurf/Cascade integration.
 
 DevDocs provides a completely free, private, UI-based documentation crawling service that can be integrated with Windsurf Cascade via MCP.
 
-**Repository**: https://github.com/cyberagiinc/DevDocs  
+**Repository**: <https://github.com/cyberagiinc/DevDocs>  
 **Local Path**: `/home/timothy/Project/Arch-Mk2/tools/devdocs`
 
 ## Features
@@ -40,11 +40,11 @@ cp .env.template .env
 
 ## Services
 
-| Service | URL | Description |
-|---------|-----|-------------|
-| Frontend UI | http://localhost:3001 | Web interface for managing crawls |
-| Backend API | http://localhost:24125 | REST API for documentation queries |
-| Crawl4AI | http://localhost:11235 | Crawling service |
+| Service     | URL                      | Description                        |
+| ----------- | ------------------------ | ---------------------------------- |
+| Frontend UI | <http://localhost:3001>  | Web interface for managing crawls  |
+| Backend API | <http://localhost:24125> | REST API for documentation queries |
+| Crawl4AI    | <http://localhost:11235> | Crawling service                   |
 
 ## MCP Integration
 
@@ -55,14 +55,7 @@ DevDocs is configured in `.mcp.json`:
   "mcpServers": {
     "devdocs": {
       "command": "docker",
-      "args": [
-        "exec",
-        "-i",
-        "devdocs-backend",
-        "python",
-        "-m",
-        "mcp_server"
-      ],
+      "args": ["exec", "-i", "devdocs-backend", "python", "-m", "mcp_server"],
       "env": {
         "DEVDOCS_URL": "http://localhost:24125"
       }
@@ -74,7 +67,7 @@ DevDocs is configured in `.mcp.json`:
 ## Usage
 
 1. **Start DevDocs**: Run `./docker-start.sh` in the devdocs directory
-2. **Add Documentation**: Use the UI at http://localhost:3001 to crawl docs
+2. **Add Documentation**: Use the UI at <http://localhost:3001> to crawl docs
 3. **Query in Cascade**: DevDocs MCP tools become available for querying documentation
 
 ## Available MCP Tools
@@ -86,12 +79,14 @@ DevDocs is configured in `.mcp.json`:
 ## Troubleshooting
 
 ### Containers won't start
+
 ```bash
 docker-compose down
 docker-compose up -d
 ```
 
 ### Reset all data
+
 ```bash
 docker-compose down -v
 rm -rf storage/* crawl_results/*
@@ -99,6 +94,7 @@ rm -rf storage/* crawl_results/*
 ```
 
 ### Check logs
+
 ```bash
 docker logs devdocs-backend
 docker logs devdocs-frontend
@@ -108,6 +104,7 @@ docker logs devdocs-crawl4ai
 ## Integration with Project
 
 DevDocs complements `codebase-memory-mcp`:
+
 - **codebase-memory-mcp**: Code intelligence, graph queries, architecture analysis
 - **devdocs**: External documentation crawling (React docs, Supabase docs, etc.)
 
@@ -119,6 +116,6 @@ DevDocs complements `codebase-memory-mcp`:
 
 ## Resources
 
-- Main Repo: https://github.com/cyberagiinc/DevDocs
-- Issues: https://github.com/cyberagiinc/DevDocs/issues
+- Main Repo: <https://github.com/cyberagiinc/DevDocs>
+- Issues: <https://github.com/cyberagiinc/DevDocs/issues>
 - Local Setup: `/home/timothy/Project/Arch-Mk2/tools/devdocs/`

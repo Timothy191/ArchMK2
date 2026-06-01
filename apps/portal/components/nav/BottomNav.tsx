@@ -13,23 +13,44 @@ import {
 import { cn } from "@repo/ui/lib/utils";
 
 const NAV_ITEMS = [
-  { href: "/", label: "Hub", icon: LayoutDashboard },
-  { href: "/drilling", label: "Drilling", icon: Drill },
-  { href: "/production", label: "Production", icon: Factory },
-  { href: "/safety", label: "Safety", icon: HardHat },
-  { href: "/control-room", label: "Control", icon: Radar },
-  { href: "/executive", label: "Analytics", icon: BarChart3 },
+  { href: "/", label: "Hub", icon: LayoutDashboard, dept: null },
+  { href: "/drilling", label: "Drilling", icon: Drill, dept: "drilling" },
+  {
+    href: "/production",
+    label: "Production",
+    icon: Factory,
+    dept: "production",
+  },
+  { href: "/safety", label: "Safety", icon: HardHat, dept: "safety" },
+  {
+    href: "/control-room",
+    label: "Control",
+    icon: Radar,
+    dept: "control-room",
+  },
+  { href: "/executive", label: "Analytics", icon: BarChart3, dept: null },
 ];
 
-export function BottomNav() {
+interface BottomNavProps {
+  accessibleDepartments?: string[];
+}
+
+export function BottomNav({ accessibleDepartments }: BottomNavProps) {
   const pathname = usePathname();
+
+  const visibleItems =
+    accessibleDepartments && accessibleDepartments.length > 0
+      ? NAV_ITEMS.filter(
+          (item) => !item.dept || accessibleDepartments.includes(item.dept),
+        )
+      : NAV_ITEMS;
 
   return (
     <nav
       aria-label="Mobile navigation"
       className="fixed bottom-0 left-0 right-0 z-40 flex md:hidden border-t border-[var(--border-default)] bg-white/90 backdrop-blur-xl pb-[env(safe-area-inset-bottom)]"
     >
-      {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
+      {visibleItems.map(({ href, label, icon: Icon }) => {
         const isActive =
           href === "/" ? pathname === "/" : pathname.startsWith(href);
         return (

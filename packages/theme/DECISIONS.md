@@ -57,8 +57,8 @@ automatically update. Zero component changes required.
 
 ## 004 — Department accent colours as runtime Tailwind classes
 
-**Decision**: Department accent colours (amber, emerald, blue, violet, red, orange, cyan, indigo)
-are applied via dynamic Tailwind class strings (e.g. `text-amber-500`) rather than CSS variables.
+**Decision**: Department accent colours (blue, emerald, blue, violet, red, blue, cyan, indigo)
+are applied via dynamic Tailwind class strings (e.g. `text-blue-500`) rather than CSS variables.
 
 **Why**: There are 8 departments. Encoding each as a CSS variable set would require 8 × N token
 definitions and a data-attribute switch per page. The department colour is only used for icon
@@ -102,11 +102,11 @@ it via `scripts/generate-tokens.mjs`. The JS values should never be edited manua
 
 Three tiers enforced by `scripts/validate-tokens.mjs` and documented inline in `variables.css`:
 
-| Tier           | Tokens                                                                                                        | Rule                                                                              |
-| -------------- | ------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
-| **Primitive**  | `--arch0`–`--arch15`                                                                                          | Raw values only. Never referenced in components or `preset.ts` semantic sections. |
-| **Semantic**   | `--bg-primary`, `--text-body`, `--shadow-card`, etc.                                                          | All component and utility references. Auto-updated by dark mode.                  |
-| **Deprecated** | `--accent-cyan`, `--accent-indigo`, `--accent-violet`, `--accent-alert`, `--accent-amber`, `--accent-emerald` | Map to canonical Tier 2. Stylelint warns. Migrate on touch.                       |
+| Tier           | Tokens                                                                                                       | Rule                                                                              |
+| -------------- | ------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------- |
+| **Primitive**  | `--arch0`–`--arch15`                                                                                         | Raw values only. Never referenced in components or `preset.ts` semantic sections. |
+| **Semantic**   | `--bg-primary`, `--text-body`, `--shadow-card`, etc.                                                         | All component and utility references. Auto-updated by dark mode.                  |
+| **Deprecated** | `--accent-cyan`, `--accent-indigo`, `--accent-violet`, `--accent-alert`, `--accent-blue`, `--accent-emerald` | Map to canonical Tier 2. Stylelint warns. Migrate on touch.                       |
 
 ---
 

@@ -25,7 +25,7 @@ export function MacTitleBar({
         "group/titlebar flex items-center gap-3 px-4 h-11",
         "bg-white/50 backdrop-blur-sm border-b border-black/[0.06]",
         "select-none shrink-0",
-        className
+        className,
       )}
     >
       {/* Traffic lights */}
@@ -68,9 +68,7 @@ export function MacTitleBar({
 
       {/* Right slot (e.g. toolbar buttons) */}
       {rightSlot && (
-        <div className="flex items-center gap-1.5 shrink-0">
-          {rightSlot}
-        </div>
+        <div className="flex items-center gap-1.5 shrink-0">{rightSlot}</div>
       )}
 
       {/* Empty spacer to balance title centering when no rightSlot */}

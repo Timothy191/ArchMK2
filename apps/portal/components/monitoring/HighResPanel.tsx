@@ -108,11 +108,11 @@ export function HighResPanel({ scenes }: HighResPanelProps) {
   return (
     <div className="space-y-4">
       {/* Info Banner */}
-      <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+      <div className="p-4 rounded-xl bg-accent-green/10 border border-accent-green/20">
         <div className="flex items-start gap-3">
-          <span className="text-emerald-400 text-xl mt-0.5">🛰️</span>
+          <span className="text-accent-green text-xl mt-0.5">🛰️</span>
           <div>
-            <p className="text-sm font-semibold text-emerald-400">
+            <p className="text-sm font-semibold text-accent-green">
               High-Resolution Commercial Imagery
             </p>
             <p className="text-xs text-[var(--text-secondary)] mt-1 leading-relaxed">
@@ -206,7 +206,7 @@ export function HighResPanel({ scenes }: HighResPanelProps) {
             </div>
           </div>
         ) : (
-          <p className="text-[10px] text-amber-400">
+          <p className="text-[10px] text-accent-blue">
             Peak elevation must be greater than base elevation.
           </p>
         )}
@@ -261,7 +261,7 @@ export function HighResPanel({ scenes }: HighResPanelProps) {
             </p>
           </div>
         ) : cdFrom && cdTo ? (
-          <p className="text-[10px] text-amber-400">
+          <p className="text-[10px] text-accent-blue">
             "To" date must be after "From" date.
           </p>
         ) : null}
@@ -336,7 +336,7 @@ export function HighResPanel({ scenes }: HighResPanelProps) {
                   <td className="p-2.5 text-[var(--text-heading)]">
                     <span className="text-[11px]">{p.name}</span>
                     {p.key && (
-                      <span className="ml-1 text-[9px] px-1 py-0.5 rounded bg-amber-500/20 text-amber-400">
+                      <span className="ml-1 text-[9px] px-1 py-0.5 rounded bg-accent-blue/20 text-accent-blue">
                         API KEY
                       </span>
                     )}
@@ -394,7 +394,7 @@ export function HighResPanel({ scenes }: HighResPanelProps) {
                   }
                   className={`w-full text-left rounded-xl border transition-colors overflow-hidden ${
                     selectedScene === scene.id
-                      ? "bg-emerald-500/10 border-emerald-500/30"
+                      ? "bg-accent-green/10 border-accent-green/30"
                       : "bg-[var(--bg-primary)] border-[var(--border-emphasis)] hover:bg-[var(--bg-tertiary)]"
                   }`}
                 >
@@ -420,13 +420,13 @@ export function HighResPanel({ scenes }: HighResPanelProps) {
                             className={`text-[10px] px-1.5 py-0.5 rounded-full ${
                               cloud < 10
                                 ? "bg-[#3ecf8e]/20 text-[var(--accent-green)]"
-                                : "bg-amber-500/20 text-amber-400"
+                                : "bg-accent-blue/20 text-accent-blue"
                             }`}
                           >
                             ☁ {cloud.toFixed(0)}%
                           </span>
                         )}
-                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-accent-green/20 text-accent-green">
                           10m
                         </span>
                       </div>

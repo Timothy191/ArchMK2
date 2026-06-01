@@ -1,3 +1,4 @@
+import { getDepartmentContext } from "~/lib/dept-context";
 import { createServerSupabaseClient } from "@repo/supabase/server";
 import { GlassCard } from "@repo/ui/GlassCard";
 import { Button } from "@repo/ui/components/ui/button";
@@ -10,52 +11,45 @@ import {
   TableRow,
 } from "@repo/ui/components/ui/table";
 import { QrCode, Plus, UserCheck, ShieldOff } from "lucide-react";
+import { getBadgesForDepartment } from "../actions";
 
 export const dynamic = "force-dynamic";
 
-// Mock data for initial UI build out
-const MOCK_BADGES = [
-  {
-    id: "b1",
-    qr_code: "EMP-4992-XYZ",
-    entity_type: "personnel",
-    entity_name: "David Miller",
-    is_active: true,
-    issued_at: "2026-05-18T08:00:00Z",
-  },
-  {
-    id: "b2",
-    qr_code: "VIS-8812-ABC",
-    entity_type: "visitor",
-    entity_name: "Sarah Jenkins",
-    is_active: true,
-    issued_at: "2026-05-19T10:15:00Z",
-  },
-  {
-    id: "b3",
-    qr_code: "EMP-1022-LMN",
-    entity_type: "personnel",
-    entity_name: "Michael Chang",
-    is_active: false,
-    issued_at: "2025-11-01T09:00:00Z",
-  },
-  {
-    id: "b4",
-    qr_code: "VEH-5501-QRS",
-    entity_type: "vehicle",
-    entity_name: "Fleet Truck #44",
-    is_active: true,
-    issued_at: "2026-01-10T14:20:00Z",
-  },
-];
-
 export default async function BadgesPage() {
-  await createServerSupabaseClient();
+  const { deptId } = await getDepartmentContext({
+    department: "access-control",
+  });
 
-  // Future implementation: Fetch actual badges mapping to personnel/visitors
-  // const { data: badges } = await supabase.from('badges').select('*, personnel(first_name, surname), visitors(name)').order('issued_at', { ascending: false });
+  const supabase = await createServerSupabaseClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return (
+      <div className="space-y-6">
+        <p className="text-[var(--text-muted)]">
+          Please log in to view badges.
+        </p>
+      </div>
+    );
+  }
 
-  const badges = MOCK_BADGES;
+  const badges = await getBadgesForDepartment(deptId);
+
+  // Resolve entity names from nested relation data
+  const resolvedBadges = badges.map((b: any) => {
+    let entityName = "Unknown";
+    if (b.personnel) {
+      entityName = `${b.personnel.first_name} ${b.personnel.surname}`;
+    } else if (b.visitor) {
+      entityName = `${b.visitor.first_name} ${b.visitor.surname}`;
+    } else if (b.fleet) {
+      entityName = `${b.fleet.fleet_code} (${b.fleet.vehicle_type})`;
+    } else if (b.equipment) {
+      entityName = `${b.equipment.equip_code} (${b.equipment.equipment_type})`;
+    }
+    return { ...b, entity_name: entityName };
+  });
 
   return (
     <div className="space-y-6">
@@ -81,7 +75,7 @@ export default async function BadgesPage() {
           <GlassCard className="p-0 overflow-hidden">
             <div className="p-4 border-b border-[var(--border-default)] bg-[var(--bg-secondary)]/50">
               <h3 className="font-medium text-[var(--text-heading)] flex items-center">
-                <UserCheck className="w-4 h-4 mr-2 text-emerald-400" />
+                <UserCheck className="w-4 h-4 mr-2 text-accent-green" />
                 Active Provisioned Badges
               </h3>
             </div>
@@ -103,12 +97,22 @@ export default async function BadgesPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {badges.map((badge) => (
+                {resolvedBadges.length === 0 && (
+                  <TableRow>
+                    <TableCell
+                      colSpan={4}
+                      className="text-center py-8 text-[var(--text-muted)]"
+                    >
+                      No badges found for this department.
+                    </TableCell>
+                  </TableRow>
+                )}
+                {resolvedBadges.map((badge: any) => (
                   <TableRow
                     key={badge.id}
                     className="border-b border-[var(--border-default)]/50 hover:bg-[var(--bg-tertiary)] transition-colors cursor-pointer group"
                   >
-                    <TableCell className="font-mono text-sm text-[var(--accent-blue)] group-hover:text-blue-400 transition-colors">
+                    <TableCell className="font-mono text-sm text-[var(--accent-blue)] group-hover:text-accent-blue transition-colors">
                       {badge.qr_code}
                     </TableCell>
                     <TableCell className="font-medium text-[var(--text-heading)]">
@@ -119,11 +123,11 @@ export default async function BadgesPage() {
                     </TableCell>
                     <TableCell className="text-right">
                       {badge.is_active ? (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-accent-green/10 text-accent-green border border-accent-green/20">
                           Active
                         </span>
                       ) : (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-500/10 text-red-400 border border-red-500/20">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-accent-red/10 text-accent-red border border-accent-red/20">
                           Revoked
                         </span>
                       )}
@@ -173,7 +177,7 @@ export default async function BadgesPage() {
                 </Button>
                 <Button
                   variant="outline"
-                  className="w-full text-xs font-medium border-red-500/20 text-red-400 hover:bg-red-500/10 hover:text-red-400"
+                  className="w-full text-xs font-medium border-accent-red/20 text-accent-red hover:bg-accent-red/10 hover:text-accent-red"
                 >
                   <ShieldOff className="w-3 h-3 mr-2" />
                   Revoke All

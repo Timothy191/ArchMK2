@@ -23,12 +23,11 @@ interface SafetyIncidentsListProps {
 }
 
 const statusColors: Record<string, string> = {
-  open: "text-amber-400",
-  "under-investigation": "text-blue-400",
-  resolved: "text-emerald-400",
+  open: "text-accent-blue",
+  "under-investigation": "text-accent-blue",
+  resolved: "text-accent-green",
   closed: "text-[var(--text-secondary)]",
 };
-
 
 export function SafetyIncidentsList({ incidents }: SafetyIncidentsListProps) {
   if (incidents.length === 0) {
@@ -44,7 +43,10 @@ export function SafetyIncidentsList({ incidents }: SafetyIncidentsListProps) {
   return (
     <div className="space-y-3">
       {incidents.map((incident) => (
-        <GlassCard key={incident.id} className="hover:border-[var(--border-emphasis)] transition-colors">
+        <GlassCard
+          key={incident.id}
+          className="hover:border-[var(--border-emphasis)] transition-colors"
+        >
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-3 flex-wrap">
@@ -72,14 +74,17 @@ export function SafetyIncidentsList({ incidents }: SafetyIncidentsListProps) {
                 <span
                   className={cn(
                     "text-xs font-medium capitalize",
-                    statusColors[incident.status] || "text-[var(--text-secondary)]",
+                    statusColors[incident.status] ||
+                      "text-[var(--text-secondary)]",
                   )}
                 >
                   {incident.status.replace("-", " ")}
                 </span>
               </div>
 
-              <p className="text-[var(--text-heading)] text-sm mt-2">{incident.description}</p>
+              <p className="text-[var(--text-heading)] text-sm mt-2">
+                {incident.description}
+              </p>
 
               {incident.location && (
                 <p className="text-[var(--text-secondary)] text-xs mt-1">
@@ -88,7 +93,7 @@ export function SafetyIncidentsList({ incidents }: SafetyIncidentsListProps) {
               )}
 
               {incident.injured_parties > 0 && (
-                <p className="text-red-400 text-xs mt-1">
+                <p className="text-accent-red text-xs mt-1">
                   ⚠ {incident.injured_parties} injured
                 </p>
               )}
@@ -101,7 +106,9 @@ export function SafetyIncidentsList({ incidents }: SafetyIncidentsListProps) {
                   minute: "2-digit",
                 })}
               </p>
-              <p className="text-[var(--text-secondary)] text-xs mt-1">{incident.shift_type} shift</p>
+              <p className="text-[var(--text-secondary)] text-xs mt-1">
+                {incident.shift_type} shift
+              </p>
             </div>
           </div>
         </GlassCard>

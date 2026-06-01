@@ -127,7 +127,7 @@ export default function UpdatePasswordPage() {
             <span className="w-3 h-3 rounded-full bg-[var(--mac-green)] border border-[var(--border-subtle)]" />
           </div>
           <span className="flex-1 text-center text-[13px] font-medium text-[var(--text-secondary)] select-none pr-14">
-            Plantcor — New Password
+            Arch — New Password
           </span>
         </div>
 
@@ -217,7 +217,7 @@ export default function UpdatePasswordPage() {
                 {error && (
                   <p
                     id="update-error"
-                    className="text-sm text-red-400 flex items-center gap-2"
+                    className="text-sm text-accent-red flex items-center gap-2"
                     role="alert"
                   >
                     <IconAlertHexagon

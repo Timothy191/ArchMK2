@@ -91,7 +91,7 @@ export function DepartmentLayout({
   const basePath = `/${department.name}`;
 
   return (
-    <div className="flex h-screen bg-[var(--bg-primary)]">
+    <div className="flex h-[calc(100vh-28px)]">
       {/* macOS Sidebar — vibrancy style */}
       <aside
         className="w-60 shrink-0 border-r border-black/[0.08] bg-[var(--vibrancy-surface)] backdrop-blur-2xl flex flex-col"
@@ -102,7 +102,7 @@ export function DepartmentLayout({
         <MacTitleBar title={department.displayName} />
 
         {/* Back to Hub link */}
-        <div className="px-3 pt-3 pb-1">
+        <div className="px-3 pt-3 pb-1 flex items-center justify-between">
           <Link
             href="/"
             className="flex items-center gap-1.5 text-[12px] text-[var(--text-muted)] hover:text-[var(--accent-blue)] transition-colors group px-2 py-1 rounded"
@@ -112,6 +112,11 @@ export function DepartmentLayout({
             </span>
             <span>Back to Hub</span>
           </Link>
+          <img
+            src="/logo.png"
+            alt="Arch Logo"
+            className="w-4 h-4 object-contain opacity-60 mr-2"
+          />
         </div>
 
         {/* Department icon + label */}
@@ -119,15 +124,14 @@ export function DepartmentLayout({
           <div
             className={cn(
               "p-1.5 rounded-lg",
-              department.color === "amber" && "bg-amber-500/10 text-amber-600",
+              department.color === "blue" && "bg-blue-500/10 text-blue-600",
               department.color === "emerald" &&
-                "bg-emerald-500/10 text-emerald-600",
+                "bg-accent-green/10 text-accent-green",
               department.color === "blue" && "bg-blue-500/10 text-blue-600",
               department.color === "violet" &&
                 "bg-violet-500/10 text-violet-600",
               department.color === "red" && "bg-red-500/10 text-red-600",
-              department.color === "orange" &&
-                "bg-orange-500/10 text-orange-600",
+              department.color === "blue" && "bg-blue-500/10 text-blue-600",
               department.color === "cyan" && "bg-cyan-500/10 text-cyan-600",
               department.color === "indigo" &&
                 "bg-indigo-500/10 text-indigo-600",
@@ -183,8 +187,8 @@ export function DepartmentLayout({
         </nav>
 
         {/* Bottom status strip */}
-        <div className="p-3 border-t border-black/[0.06]">
-          <div className="flex items-center gap-2 px-2 py-1.5 rounded-md bg-[var(--accent-green)]/8 border border-[var(--accent-green)]/15">
+        <div className="p-3 border-t border-black/[0.06] flex items-center justify-between gap-2">
+          <div className="flex-1 flex items-center gap-2 px-2 py-1.5 rounded-md bg-[var(--accent-green)]/8 border border-[var(--accent-green)]/15">
             <div className="w-1.5 h-1.5 rounded-full bg-[var(--accent-green)] animate-pulse" />
             <span className="text-[11px] text-[var(--text-muted)] font-medium tracking-wide">
               Connection Secure
@@ -194,7 +198,7 @@ export function DepartmentLayout({
       </aside>
 
       {/* Main content area */}
-      <main className="flex-1 overflow-auto bg-[var(--bg-primary)] p-6">
+      <main className="flex-1 overflow-auto bg-white/40 backdrop-blur-sm p-6">
         <motion.div
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}

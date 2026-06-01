@@ -44,7 +44,9 @@ describe("classifyDeformationByVelocity", () => {
     expect(classifyDeformationByVelocity(25, "pit-wall")).toBe("critical");
     expect(classifyDeformationByVelocity(15, "tailings-dam")).toBe("critical");
     expect(classifyDeformationByVelocity(35, "haul-road")).toBe("critical");
-    expect(classifyDeformationByVelocity(10, "processing-plant")).toBe("critical");
+    expect(classifyDeformationByVelocity(10, "processing-plant")).toBe(
+      "critical",
+    );
   });
 
   it("uses absolute value — negative velocity classifies the same as positive", () => {
@@ -63,7 +65,9 @@ describe("classifyDeformationByVelocity", () => {
     for (const area of areas) {
       const { critical } = ALERT_THRESHOLDS[area];
       expect(classifyDeformationByVelocity(critical, area)).toBe("critical");
-      expect(classifyDeformationByVelocity(critical - 1, area)).not.toBe("critical");
+      expect(classifyDeformationByVelocity(critical - 1, area)).not.toBe(
+        "critical",
+      );
     }
   });
 });
@@ -91,7 +95,15 @@ describe("ALERT_THRESHOLDS", () => {
 
 describe("MAP_TILE_URLS", () => {
   it("has URLs for all expected layer keys", () => {
-    const expectedKeys = ["optical", "terrain", "sar", "ndvi", "geology", "osm", "none"];
+    const expectedKeys = [
+      "optical",
+      "terrain",
+      "sar",
+      "ndvi",
+      "geology",
+      "osm",
+      "none",
+    ];
     for (const key of expectedKeys) {
       expect(MAP_TILE_URLS[key]).toBeTruthy();
       expect(MAP_TILE_URLS[key]).toMatch(/^https:\/\//);
@@ -191,7 +203,13 @@ describe("fetchSentinel2Scenes", () => {
         features: [
           {
             id: "low-cloud",
-            properties: { datetime: "2026-01-01T00:00:00Z", platform: "sentinel-2a", constellation: "sentinel-2", instruments: [], "eo:cloud_cover": 10 },
+            properties: {
+              datetime: "2026-01-01T00:00:00Z",
+              platform: "sentinel-2a",
+              constellation: "sentinel-2",
+              instruments: [],
+              "eo:cloud_cover": 10,
+            },
             geometry: { type: "Polygon", coordinates: [] },
             assets: {},
             links: [],
@@ -199,7 +217,13 @@ describe("fetchSentinel2Scenes", () => {
           },
           {
             id: "high-cloud",
-            properties: { datetime: "2026-01-01T00:00:00Z", platform: "sentinel-2a", constellation: "sentinel-2", instruments: [], "eo:cloud_cover": 80 },
+            properties: {
+              datetime: "2026-01-01T00:00:00Z",
+              platform: "sentinel-2a",
+              constellation: "sentinel-2",
+              instruments: [],
+              "eo:cloud_cover": 80,
+            },
             geometry: { type: "Polygon", coordinates: [] },
             assets: {},
             links: [],
@@ -221,7 +245,13 @@ describe("fetchSentinel2Scenes", () => {
         features: [
           {
             id: "at-threshold",
-            properties: { datetime: "2026-01-01T00:00:00Z", platform: "sentinel-2a", constellation: "sentinel-2", instruments: [], "eo:cloud_cover": 30 },
+            properties: {
+              datetime: "2026-01-01T00:00:00Z",
+              platform: "sentinel-2a",
+              constellation: "sentinel-2",
+              instruments: [],
+              "eo:cloud_cover": 30,
+            },
             geometry: { type: "Polygon", coordinates: [] },
             assets: {},
             links: [],
@@ -242,7 +272,12 @@ describe("fetchSentinel2Scenes", () => {
         features: [
           {
             id: "no-cloud-data",
-            properties: { datetime: "2026-01-01T00:00:00Z", platform: "sentinel-2a", constellation: "sentinel-2", instruments: [] },
+            properties: {
+              datetime: "2026-01-01T00:00:00Z",
+              platform: "sentinel-2a",
+              constellation: "sentinel-2",
+              instruments: [],
+            },
             geometry: { type: "Polygon", coordinates: [] },
             assets: {},
             links: [],
@@ -280,12 +315,19 @@ describe("classifyDeformation (legacy, shift-based)", () => {
 });
 
 describe("getSTACQuicklookUrl", () => {
-  function makeItem(assets: Record<string, { href: string; type: string }>): STACItem {
+  function makeItem(
+    assets: Record<string, { href: string; type: string }>,
+  ): STACItem {
     return {
       id: "test",
       type: "Feature",
       geometry: { type: "Polygon", coordinates: [] },
-      properties: { datetime: "", platform: "", constellation: "", instruments: [] },
+      properties: {
+        datetime: "",
+        platform: "",
+        constellation: "",
+        instruments: [],
+      },
       assets,
       links: [],
       bbox: [0, 0, 0, 0],
@@ -293,17 +335,23 @@ describe("getSTACQuicklookUrl", () => {
   }
 
   it("returns QUICKLOOK href when present", () => {
-    const item = makeItem({ QUICKLOOK: { href: "https://example.com/ql.jpg", type: "image/jpeg" } });
+    const item = makeItem({
+      QUICKLOOK: { href: "https://example.com/ql.jpg", type: "image/jpeg" },
+    });
     expect(getSTACQuicklookUrl(item)).toBe("https://example.com/ql.jpg");
   });
 
   it("falls back to thumbnail when QUICKLOOK missing", () => {
-    const item = makeItem({ thumbnail: { href: "https://example.com/thumb.jpg", type: "image/jpeg" } });
+    const item = makeItem({
+      thumbnail: { href: "https://example.com/thumb.jpg", type: "image/jpeg" },
+    });
     expect(getSTACQuicklookUrl(item)).toBe("https://example.com/thumb.jpg");
   });
 
   it("returns null when no recognized asset key present", () => {
-    const item = makeItem({ B01: { href: "https://example.com/b01.tif", type: "image/tiff" } });
+    const item = makeItem({
+      B01: { href: "https://example.com/b01.tif", type: "image/tiff" },
+    });
     expect(getSTACQuicklookUrl(item)).toBeNull();
   });
 });
@@ -365,9 +413,15 @@ describe("DEFAULT_MINE_BBOX and DEFAULT_MINE_CENTER", () => {
   });
 
   it("center is within bbox", () => {
-    expect(DEFAULT_MINE_CENTER.lat).toBeGreaterThanOrEqual(DEFAULT_MINE_BBOX.south);
-    expect(DEFAULT_MINE_CENTER.lat).toBeLessThanOrEqual(DEFAULT_MINE_BBOX.north);
-    expect(DEFAULT_MINE_CENTER.lon).toBeGreaterThanOrEqual(DEFAULT_MINE_BBOX.west);
+    expect(DEFAULT_MINE_CENTER.lat).toBeGreaterThanOrEqual(
+      DEFAULT_MINE_BBOX.south,
+    );
+    expect(DEFAULT_MINE_CENTER.lat).toBeLessThanOrEqual(
+      DEFAULT_MINE_BBOX.north,
+    );
+    expect(DEFAULT_MINE_CENTER.lon).toBeGreaterThanOrEqual(
+      DEFAULT_MINE_BBOX.west,
+    );
     expect(DEFAULT_MINE_CENTER.lon).toBeLessThanOrEqual(DEFAULT_MINE_BBOX.east);
   });
 });

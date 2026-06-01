@@ -1,7 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@repo/supabase/server";
+import { withRateLimit } from "@/lib/api/rate-limit-middleware";
 
-export async function GET(req: NextRequest) {
+function sanitizeCsvCell(value: string): string {
+  const dangerous = /^[=+\-@\t\r]/;
+  const sanitized = dangerous.test(value) ? "'" + value : value;
+  return `"${sanitized.replace(/"/g, '""')}"`;
+}
+
+async function handleExportRequest(req: NextRequest): Promise<NextResponse> {
   const supabase = await createServerSupabaseClient();
   const {
     data: { user },
@@ -11,14 +18,20 @@ export async function GET(req: NextRequest) {
   }
 
   const { searchParams } = req.nextUrl;
-  const from = searchParams.get("from") ?? new Date(Date.now() - 30 * 86400000).toISOString().split("T")[0]!;
+  const from =
+    searchParams.get("from") ??
+    new Date(Date.now() - 30 * 86400000).toISOString().split("T")[0]!;
   const to = searchParams.get("to") ?? new Date().toISOString().split("T")[0]!;
   const dept = searchParams.get("dept");
-  const format = req.headers.get("accept")?.includes("text/csv") ? "csv" : "json";
+  const format = req.headers.get("accept")?.includes("text/csv")
+    ? "csv"
+    : "json";
 
   let query = supabase
     .from("daily_logs")
-    .select("id, log_date, shift, department_id, production_logs(coal_tonnes, waste_tonnes)")
+    .select(
+      "id, log_date, shift, department_id, production_logs(coal_tonnes, waste_tonnes)",
+    )
     .gte("log_date", from)
     .lte("log_date", to)
     .order("log_date", { ascending: false });
@@ -34,7 +47,10 @@ export async function GET(req: NextRequest) {
 
   const { data, error } = await query;
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: "Database query failed" },
+      { status: 500 },
+    );
   }
 
   type ProdLog = { coal_tonnes: number | null; waste_tonnes: number | null };
@@ -69,7 +85,9 @@ export async function GET(req: NextRequest) {
     const csv = [
       headers.join(","),
       ...rows.map((r) =>
-        headers.map((h) => `"${String(r[h as keyof typeof r]).replace(/"/g, '""')}"`).join(","),
+        headers
+          .map((h) => sanitizeCsvCell(String(r[h as keyof typeof r])))
+          .join(","),
       ),
     ].join("\n");
     return new NextResponse(csv, {
@@ -81,4 +99,8 @@ export async function GET(req: NextRequest) {
   }
 
   return NextResponse.json({ data: rows, from, to, count: rows.length });
+}
+
+export async function GET(req: NextRequest) {
+  return withRateLimit(req, () => handleExportRequest(req));
 }

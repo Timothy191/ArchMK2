@@ -3,7 +3,6 @@ import tailwindcssAnimate from "tailwindcss-animate";
 
 const archTheme: Config = {
   content: [
-    "./pages/**/*.{ts,tsx}",
     "./components/**/*.{ts,tsx}",
     "./app/**/*.{ts,tsx}",
     "./src/**/*.{ts,tsx}",
@@ -23,6 +22,7 @@ const archTheme: Config = {
     extend: {
       fontFamily: {
         sans: [
+          "var(--font-sans)",
           "var(--font-inter)",
           "var(--font-outfit)",
           "system-ui",
@@ -81,9 +81,8 @@ const archTheme: Config = {
         // macOS system accent colors
         "accent-blue": "var(--accent-blue)",
         "accent-red": "var(--accent-red)",
-        "accent-orange": "var(--accent-orange)",
         "accent-green": "var(--accent-green)",
-        "accent-amber": "var(--accent-orange)",
+        "accent-amber": "var(--accent-amber)",
         "accent-emerald": "var(--accent-green)",
 
         // macOS traffic light colors
@@ -96,6 +95,16 @@ const archTheme: Config = {
         "glass-surface-hover": "var(--glass-surface-hover)",
         "glass-surface-strong": "var(--glass-surface-strong)",
         "glass-border": "var(--glass-border)",
+        "glass-video": "var(--glass-video-surface)",
+        "glass-video-hover": "var(--glass-video-surface-hover)",
+        "glass-dark": "var(--dark-glass-surface)",
+        "glass-dark-hover": "var(--dark-glass-surface-hover)",
+        "text-on-glass": "var(--text-on-glass)",
+        "text-on-glass-muted": "var(--text-on-glass-muted)",
+        "text-on-glass-video": "var(--text-on-glass-video)",
+        "text-on-glass-video-muted": "var(--text-on-glass-video-muted)",
+        "text-on-dark-glass": "var(--text-on-dark-glass)",
+        "text-on-dark-glass-muted": "var(--text-on-dark-glass-muted)",
         vibrancy: "var(--vibrancy-surface)",
 
         // Arch semantic namespace — for production-ready theme consistency
@@ -118,7 +127,6 @@ const archTheme: Config = {
           accent: {
             blue: "var(--accent-blue)", // --arch15 #007aff
             red: "var(--accent-red)", // --arch12 #ff3b30
-            orange: "var(--accent-orange)", // --arch13 #ff9f0a
             green: "var(--accent-green)", // --arch14 #34c759
           },
         },
@@ -204,8 +212,29 @@ const archTheme: Config = {
             inverted: "hsl(var(--tremor-content-inverted))",
           },
         },
+        hud: {
+          DEFAULT: "var(--color-bg-hud)",
+          border: "var(--color-border-hud)",
+          "text-primary": "var(--color-text-hud-primary)",
+          "text-secondary": "var(--color-text-hud-secondary)",
+          "text-tertiary": "var(--color-text-hud-tertiary)",
+        },
+      },
+      opacity: {
+        "focus-dim": "var(--opacity-focus-dim)",
+        disabled: "var(--opacity-disabled)",
+        hover: "var(--opacity-hover)",
+      },
+      blur: {
+        "focus-dim": "var(--blur-focus-dim)",
+      },
+      backdropBlur: {
+        xl: "var(--blur-focus-dim)",
       },
       boxShadow: {
+        sm: "var(--shadow-sm)",
+        md: "var(--shadow-md)",
+        lg: "var(--shadow-lg)",
         window: "var(--shadow-window)",
         "glow-blue": "var(--shadow-glow-blue)",
         "diffusion-sm": "var(--shadow-diffusion-sm)",
@@ -231,9 +260,11 @@ const archTheme: Config = {
         "tremor-metric": ["1.875rem", { lineHeight: "2.25rem" }],
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        sm: "var(--radius-sm)",
+        md: "var(--radius-md)",
+        lg: "var(--radius-lg)",
+        xl: "var(--radius-xl)",
+        full: "var(--radius-full)",
       },
       keyframes: {
         "accordion-down": {

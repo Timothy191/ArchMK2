@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Arch-Systems — Sequential Stable Deployment Script v2.1
+# Arch-Systems — Sequential Stable Deployment Script v2.2
 # Usage: ./scripts/deploy.sh [local|production|staging] [options]
 #
 # Features:
@@ -36,6 +36,7 @@ DRY_RUN=false
 MIGRATE_ONLY=false
 ROLLBACK=false
 FORCE=false
+LIGHTWEIGHT=false
 NO_BROWSER=false
 
 for arg in "${@:2}"; do
@@ -47,6 +48,7 @@ for arg in "${@:2}"; do
     --migrate-only) MIGRATE_ONLY=true ;;
     --rollback) ROLLBACK=true ;;
     --force) FORCE=true ;;
+    --lightweight) LIGHTWEIGHT=true ;;
     --no-browser) NO_BROWSER=true ;;
   esac
 done
@@ -131,6 +133,39 @@ success() {
   echo "$msg" >> "$DEPLOY_LOG" 2>/dev/null || true
 }
 
+# ── Error Collection ────────────────────────────────────
+DEPLOY_ERRORS=()
+
+collect_error() {
+  local msg="$*"
+  DEPLOY_ERRORS+=("$msg")
+  error "$msg"
+}
+
+report_errors_and_exit() {
+  if [ ${#DEPLOY_ERRORS[@]} -eq 0 ]; then
+    return 0
+  fi
+
+  echo
+  echo -e "${RED}${BOLD}╔════════════════════════════════════════════════════════════════╗${NC}"
+  echo -e "${RED}${BOLD}║           DEPLOYMENT BLOCKED — ERRORS FOUND                  ║${NC}"
+  echo -e "${RED}${BOLD}╚════════════════════════════════════════════════════════════════╝${NC}"
+  echo
+  echo -e "${RED}${BOLD}Found ${#DEPLOY_ERRORS[@]} error(s) — deployment cannot proceed:${NC}"
+  echo
+  local i=1
+  for err in "${DEPLOY_ERRORS[@]}"; do
+    echo -e "  ${RED}${BOLD}$i.${NC} ${RED}$err${NC}"
+    ((i++))
+  done
+  echo
+  echo -e "${YELLOW}Fix all errors above, then re-run deployment.${NC}"
+  echo
+  cleanup_lock
+  exit 1
+}
+
 # ── Lock Management ───────────────────────────────────────
 acquire_lock() {
   if [ "$FORCE" = true ]; then
@@ -212,16 +247,17 @@ confirm() {
   echo -e "${YELLOW}⚠️  DEPLOYMENT CONFIRMATION${NC}"
   echo -e "${YELLOW}   Target:${NC} ${BOLD}$DEPLOY_MODE${NC}"
   echo -e "${YELLOW}   This will execute sequentially:${NC}"
-  echo "   1. Environment validation"
-  echo "   2. Create backup (production)"
-  echo "   3. Stop existing services"
-  echo "   4. Build application"
-  echo "   5. Start infrastructure (Supabase, Docker)"
-  echo "   6. Run database migrations"
-  echo "   7. Deploy portal"
-  echo "   8. Health checks"
-  echo "   9. Launch monitoring terminal"
-  echo "   10. Open browser"
+  echo "   1. Port conflict check & cleanup"
+  echo "   2. Environment validation"
+  echo "   3. Create backup (production)"
+  echo "   4. Stop existing services"
+  echo "   5. Build application"
+  echo "   6. Start infrastructure (Supabase, Docker)"
+  echo "   7. Run database migrations"
+  echo "   8. Deploy portal"
+  echo "   9. Running tests"
+  echo "   10. Launch monitoring terminal"
+  echo "   11. Open browser"
   echo
   read -rp "Continue? [y/N] " response
   [[ "$response" =~ ^[Yy]$ ]] || exit 0
@@ -233,6 +269,11 @@ healthcheck() {
   local max_attempts="${2:-60}"
   local service_name="${3:-service}"
   local delay="${4:-2}"
+  
+  if [ "$DRY_RUN" = true ]; then
+    success "$service_name is healthy (dry-run)"
+    return 0
+  fi
   
   info "Health checking $service_name at $url (max ${max_attempts}s)..."
   
@@ -289,17 +330,184 @@ is_portal_running() {
   curl -fs "http://localhost:$PORT" > /dev/null 2>&1
 }
 
-# ── Phase 1: Environment Validation ────────────────────
-phase_validate() {
-  phase "1. ENVIRONMENT VALIDATION"
-  
+# ── Pre-Flight: Collect-All Validation ─────────────────
+validate_prerequisites() {
+  phase "0. PRE-FLIGHT VALIDATION"
+  DEPLOY_ERRORS=()
+
   log "Checking Node.js..."
   local node_version
   node_version=$(node -v 2>/dev/null | sed 's/v//' || echo "0.0.0")
   if [ "$(printf '%s\n' "20.17.0" "$node_version" | sort -V | head -n1)" != "20.17.0" ]; then
-    fatal "Node.js >= 20.17.0 required. Found: $node_version"
+    collect_error "Node.js >= 20.17.0 required. Found: $node_version"
+  else
+    success "Node.js v$node_version"
   fi
-  success "Node.js v$node_version"
+
+  log "Checking pnpm..."
+  if ! command -v pnpm > /dev/null 2>&1; then
+    collect_error "pnpm not found. Install: npm install -g pnpm@9.12.0"
+  else
+    success "pnpm $(pnpm -v)"
+  fi
+
+  log "Checking Docker..."
+  if ! docker info > /dev/null 2>&1; then
+    if [ "$DEPLOY_MODE" = "local" ]; then
+      collect_error "Docker is not running. Start Docker Desktop/Daemon manually."
+    else
+      warn "Docker not available (non-critical for remote deploy)"
+    fi
+  else
+    success "Docker OK"
+  fi
+
+  log "Checking Git repository..."
+  if [ ! -d "$REPO_ROOT/.git" ]; then
+    collect_error "Not a git repository: $REPO_ROOT"
+  else
+    success "Git repository OK"
+  fi
+
+  log "Checking required directories..."
+  [ ! -d "$PORTAL_DIR" ] && collect_error "Portal directory missing: $PORTAL_DIR"
+  [ ! -d "$DATABASE_DIR" ] && collect_error "Database directory missing: $DATABASE_DIR"
+  [ ! -d "$DATABASE_DIR/migrations" ] && collect_error "Migrations directory missing"
+  if [ ${#DEPLOY_ERRORS[@]} -eq 0 ]; then
+    success "Required directories OK"
+  fi
+
+  # Environment validation
+  log "Checking environment files..."
+  case "$DEPLOY_MODE" in
+    production)
+      if [ ! -f "$PORTAL_DIR/.env" ]; then
+        collect_error "Production .env not found at $PORTAL_DIR/.env"
+      else
+        local supa_url
+        supa_url=$(grep -E '^NEXT_PUBLIC_SUPABASE_URL=' "$PORTAL_DIR/.env" | cut -d= -f2- | tr -d '"' || true)
+        if [ -z "$supa_url" ]; then
+          collect_error "NEXT_PUBLIC_SUPABASE_URL not set in .env"
+        elif [[ "$supa_url" == *localhost* ]] || [[ "$supa_url" == *127.0.0.1* ]]; then
+          collect_error "Production requires non-localhost Supabase URL"
+        fi
+      fi
+      ;;
+    staging)
+      if [ ! -f "$PORTAL_DIR/.env.staging" ] && [ ! -f "$PORTAL_DIR/.env" ]; then
+        collect_error "Staging .env not found"
+      fi
+      ;;
+    local)
+      if [ ! -f "$PORTAL_DIR/.env" ] && [ ! -f "$PORTAL_DIR/.env.local" ]; then
+        if [ -f "$PORTAL_DIR/.env.example" ]; then
+          log "Apps portal .env missing. Copying from .env.example..."
+          run_if_not_dry cp "$PORTAL_DIR/.env.example" "$PORTAL_DIR/.env"
+          success "Created .env file from template"
+          if grep -q -E "your-|TODO|CHANGEME" "$PORTAL_DIR/.env" 2>/dev/null; then
+            warn "Created .env file contains placeholder secrets — verify apps/portal/.env"
+          fi
+        else
+          collect_error "No .env or .env.example found for local deployment"
+        fi
+      fi
+      ;;
+  esac
+
+  if [ ${#DEPLOY_ERRORS[@]} -eq 0 ]; then
+    success "Environment files OK"
+  fi
+
+  log "Checking lock file..."
+  if [ ! -f "$REPO_ROOT/pnpm-lock.yaml" ]; then
+    collect_error "pnpm-lock.yaml missing — run pnpm install"
+  else
+    success "Lock file OK"
+  fi
+
+  # If any errors collected, report and exit
+  report_errors_and_exit
+  success "Pre-flight validation passed — all prerequisites ready"
+}
+
+# ── Phase 1: Port Conflict Check & Cleanup ─────────────
+phase_port_check() {
+  phase "1. PORT CONFLICT CHECK & CLEANUP"
+
+  # Port Conflict Resolution (Local Only)
+  if [ "$DEPLOY_MODE" = "local" ]; then
+    log "Checking for colliding ports..."
+    check_and_fix_port() {
+      local port="$1" name="$2" service="$3"
+      if sudo lsof -i :"$port" -sTCP:LISTEN -t >/dev/null 2>&1; then
+        local pid
+        pid=$(sudo lsof -i :"$port" -sTCP:LISTEN -t | head -n1)
+        local proc
+        proc=$(ps -p "$pid" -o comm= 2>/dev/null || echo "unknown")
+        if [[ "$proc" == *"docker"* ]]; then
+          return 0
+        fi
+        warn "Port $port ($name) occupied by native $proc (PID $pid). Freeing..."
+        if [ "$DRY_RUN" = true ]; then
+          log "[DRY-RUN] Would attempt to stop native service '$service' or kill process PID $pid"
+          success "Freed port $port ($name) (dry-run)"
+          return 0
+        fi
+        
+        # Check if we should force or prompt
+        if [ "${FORCE:-false}" = "true" ]; then
+          log "Force-clearing port $port ($name) PID $pid ($proc)..."
+        elif [ -t 0 ]; then
+          echo -n -e "  Port $port ($name) occupied by native $proc (PID $pid). Kill it? [y/N]: "
+          read -r response < /dev/tty || response="n"
+          if [[ ! "$response" =~ ^[Yy]$ ]]; then
+            fatal "Port $port ($name) occupied by native $proc (PID $pid). Clear it manually or run with --force."
+          fi
+        else
+          fatal "Port $port ($name) occupied by native $proc (PID $pid) in non-interactive environment — run with --force to clear"
+        fi
+
+        if [ -n "$service" ] && command -v systemctl >/dev/null 2>&1 && sudo systemctl stop "$service" >/dev/null 2>&1; then
+          sleep 1
+          if ! sudo lsof -i :"$port" -sTCP:LISTEN -t >/dev/null 2>&1; then
+            success "Freed port $port ($name) by stopping native service"
+            return 0
+          fi
+        fi
+        if sudo kill -9 "$pid" 2>/dev/null || kill -9 "$pid" 2>/dev/null; then
+          sleep 1
+          if ! sudo lsof -i :"$port" -sTCP:LISTEN -t >/dev/null 2>&1; then
+            success "Freed port $port ($name) by killing conflicting process"
+            return 0
+          fi
+        fi
+        fatal "Port $port ($name) is locked by PID $pid and could not be freed."
+      fi
+    }
+    check_and_fix_port 5432 "PostgreSQL" "postgresql"
+    if [ "${LIGHTWEIGHT:-false}" != "true" ]; then
+      check_and_fix_port 6379 "Redis" "redis-server"
+    fi
+    check_and_fix_port 54321 "Supabase API" ""
+    check_and_fix_port 8000 "Kong Gateway" ""
+    check_and_fix_port "$PORT" "Portal Dev Server" ""
+    success "All port requirements verified and cleared"
+  else
+    success "Non-local environment — native port checks skipped"
+  fi
+}
+
+# ── Phase 2: Environment Validation ────────────────────
+phase_validate() {
+  phase "2. ENVIRONMENT VALIDATION"
+
+  # Pre-flight already ran; do runtime checks only
+  log "Checking terminal..."
+  if [ "$TERMINAL_TYPE" != "none" ]; then
+    success "Terminal: $TERMINAL_TYPE"
+  else
+    warn "No compatible terminal found for monitoring"
+  fi
   
   log "Checking pnpm..."
   if ! command -v pnpm > /dev/null 2>&1; then
@@ -349,62 +557,6 @@ phase_validate() {
     success "Terminal: $TERMINAL_TYPE"
   else
     warn "No compatible terminal found for monitoring"
-  fi
-
-  # Port Conflict Resolution (Local Only)
-  if [ "$DEPLOY_MODE" = "local" ]; then
-    log "Checking for colliding ports..."
-    check_and_fix_port() {
-      local port="$1" name="$2" service="$3"
-      if lsof -i :"$port" -t >/dev/null 2>&1; then
-        local pid
-        pid=$(lsof -i :"$port" -t | head -n1)
-        local proc
-        proc=$(ps -p "$pid" -o comm= 2>/dev/null || echo "unknown")
-        if [[ "$proc" == *"docker"* ]]; then
-          return 0
-        fi
-        warn "Port $port ($name) occupied by native $proc (PID $pid). Freeing..."
-        if [ "$DRY_RUN" = true ]; then
-          log "[DRY-RUN] Would attempt to stop native service '$service' or kill process PID $pid"
-          success "Freed port $port ($name) (dry-run)"
-          return 0
-        fi
-        
-        # Check if we should force or prompt
-        if [ "${FORCE_DEPLOY:-false}" = "true" ]; then
-          log "Force-clearing port $port ($name) PID $pid ($proc)..."
-        elif [ -t 0 ]; then
-          echo -n -e "  Port $port ($name) occupied by native $proc (PID $pid). Kill it? [y/N]: "
-          read -r response < /dev/tty || response="n"
-          if [[ ! "$response" =~ ^[Yy]$ ]]; then
-            fatal "Port $port ($name) occupied by native $proc (PID $pid). Clear it manually or run with --force."
-          fi
-        else
-          fatal "Port $port ($name) occupied by native $proc (PID $pid) in non-interactive environment — run with --force to clear"
-        fi
-
-        if [ -n "$service" ] && command -v systemctl >/dev/null 2>&1 && sudo systemctl stop "$service" >/dev/null 2>&1; then
-          sleep 1
-          if ! lsof -i :"$port" -t >/dev/null 2>&1; then
-            success "Freed port $port ($name) by stopping native service"
-            return 0
-          fi
-        fi
-        if sudo kill -9 "$pid" 2>/dev/null || kill -9 "$pid" 2>/dev/null; then
-          sleep 1
-          if ! lsof -i :"$port" -t >/dev/null 2>&1; then
-            success "Freed port $port ($name) by killing conflicting process"
-            return 0
-          fi
-        fi
-        fatal "Port $port ($name) is locked by PID $pid and could not be freed."
-      fi
-    }
-    check_and_fix_port 5432 "PostgreSQL" "postgresql"
-    check_and_fix_port 6379 "Redis" "redis-server"
-    check_and_fix_port 54321 "Supabase API" ""
-    check_and_fix_port 8000 "Kong Gateway" ""
   fi
   
   # Environment files
@@ -460,7 +612,7 @@ phase_validate() {
 phase_backup() {
   [ "$DEPLOY_MODE" != "production" ] && return 0
   
-  phase "2. CREATING BACKUP"
+  phase "3. CREATING BACKUP"
   
   run_if_not_dry mkdir -p "$BACKUP_DIR"
   
@@ -482,7 +634,7 @@ phase_backup() {
 
 # ── Phase 3: Stop Services ───────────────────────────────
 phase_stop_services() {
-  phase "3. STOPPING EXISTING SERVICES"
+  phase "4. STOPPING EXISTING SERVICES"
   
   # Stop portal
   if [ -f "$REPO_ROOT/.portal.pid" ]; then
@@ -529,8 +681,7 @@ phase_stop_services() {
     fi
     
     if [ "$CLEAN_ONLY" = true ]; then
-      log "Stopping Supabase..."
-      run_if_not_dry cd "$DATABASE_DIR" && pnpx supabase stop 2>/dev/null || true
+      log "Keeping existing Supabase instance running (as requested)"
     fi
   fi
   
@@ -542,7 +693,7 @@ phase_stop_services() {
 phase_build() {
   [ "$SKIP_BUILD" = true ] && return 0
   
-  phase "4. BUILDING APPLICATION"
+  phase "5. BUILDING APPLICATION"
   
   run_if_not_dry cd "$REPO_ROOT"
   
@@ -557,45 +708,72 @@ phase_build() {
 
 # ── Phase 5: Start Infrastructure ───────────────────────
 phase_start_infrastructure() {
-  phase "5. STARTING INFRASTRUCTURE"
+  phase "6. STARTING INFRASTRUCTURE"
   
   case "$DEPLOY_MODE" in
     local)
       # Supabase
       if is_supabase_running; then
-        success "Supabase already running - connecting"
+        success "Supabase already running - connecting to existing instance"
       else
-        log "Starting Supabase..."
-        run_if_not_dry mkdir -p "$SUPABASE_DIR/supabase/migrations"
-        run_if_not_dry cp -r "$DATABASE_DIR/migrations/"* "$SUPABASE_DIR/supabase/migrations/" 2>/dev/null || true
-        run_if_not_dry cd "$DATABASE_DIR" && pnpx supabase start
-        healthcheck "http://127.0.0.1:54321/rest/v1/" 60 "Supabase API"
-      fi
-      
-      # Docker tools
-      local tools_compose="$REPO_ROOT/docker-compose.tools.yml"
-      if [ -f "$tools_compose" ]; then
-        if $COMPOSE_CMD -f "$tools_compose" ps --format '{{.Status}}' 2>/dev/null | grep -q 'Up'; then
-          success "Docker tools already running - connecting"
+        log "Supabase is not running. Attempting to start existing Supabase containers..."
+        if docker ps -a --format '{{.Names}}' | grep -q "^supabase_db_supabase$"; then
+          run_if_not_dry docker start $(docker ps -a --filter "name=supabase" --format "{{.ID}}")
+          healthcheck "http://127.0.0.1:54321/rest/v1/" 60 "Supabase API"
         else
-          log "Starting Docker tools (Redis, n8n, Flowise)..."
-          run_if_not_dry $COMPOSE_CMD -f "$tools_compose" up -d || warn "Some Docker tools failed to start (non-critical)"
-          sleep 5
-          success "Docker tools processing complete"
+          fatal "Supabase is not running and no existing Supabase containers were found. Please start it first."
         fi
       fi
       
-      # Monitoring
-      local monitor_compose="$REPO_ROOT/docker-compose.monitoring.yml"
-      if [ -f "$monitor_compose" ]; then
-        if $COMPOSE_CMD -f "$monitor_compose" ps --format '{{.Status}}' 2>/dev/null | grep -q 'Up'; then
-          success "Monitoring already running - connecting"
-        else
-          log "Starting monitoring (Prometheus, Grafana)..."
-          run_if_not_dry $COMPOSE_CMD -f "$monitor_compose" up -d || warn "Some monitoring services failed (non-critical)"
-          sleep 3
-          success "Monitoring processing complete"
+      # Docker tools (skipped in lightweight mode)
+      if [ "${LIGHTWEIGHT:-false}" != "true" ]; then
+        local tools_compose="$REPO_ROOT/docker-compose.tools.yml"
+        if [ -f "$tools_compose" ]; then
+          if $COMPOSE_CMD -f "$tools_compose" ps --format '{{.Status}}' 2>/dev/null | grep -q 'Up'; then
+            success "Docker tools already running - connecting"
+          else
+            log "Starting Docker tools (Redis, n8n, Flowise, Langfuse, etc.)..."
+            run_if_not_dry $COMPOSE_CMD -f "$tools_compose" up -d || warn "Some Docker tools failed to start (non-critical)"
+            
+            if [ "$DRY_RUN" = false ]; then
+              log "Waiting for Docker tools to report healthy..."
+              local services=("plantcor-redis" "plantcor-n8n" "plantcor-flowise" "plantcor-langfuse-db" "plantcor-langfuse" "plantcor-qdrant")
+              for service in "${services[@]}"; do
+                info "Gating on $service health..."
+                local attempts=0
+                while [ $attempts -lt 30 ]; do
+                  local status
+                  status=$(docker inspect --format='{{.State.Health.Status}}' "$service" 2>/dev/null || echo "starting")
+                  if [ "$status" = "healthy" ]; then
+                    success "$service is healthy"
+                    break
+                  fi
+                  sleep 2
+                  ((attempts++))
+                done
+                if [ $attempts -eq 30 ]; then
+                  warn "$service health check timed out (continuing anyway)"
+                fi
+              done
+            fi
+            success "Docker tools processing complete"
+          fi
         fi
+
+        # Monitoring
+        local monitor_compose="$REPO_ROOT/docker-compose.monitoring.yml"
+        if [ -f "$monitor_compose" ]; then
+          if $COMPOSE_CMD -f "$monitor_compose" ps --format '{{.Status}}' 2>/dev/null | grep -q 'Up'; then
+            success "Monitoring already running - connecting"
+          else
+            log "Starting monitoring (Prometheus, Grafana)..."
+            run_if_not_dry $COMPOSE_CMD -f "$monitor_compose" up -d || warn "Some monitoring services failed (non-critical)"
+            sleep 3
+            success "Monitoring processing complete"
+          fi
+        fi
+      else
+        log "Lightweight mode: skipping Docker tools and monitoring"
       fi
       ;;
       
@@ -618,9 +796,7 @@ phase_start_infrastructure() {
 
 # ── Phase 6: Database Migrations ──────────────────────
 phase_migrations() {
-  [ "$MIGRATE_ONLY" = true ] || return 0
-  
-  phase "6. DATABASE MIGRATIONS"
+  phase "7. DATABASE MIGRATIONS"
   
   case "$DEPLOY_MODE" in
     local)
@@ -636,7 +812,7 @@ phase_migrations() {
 
 # ── Phase 7: Deploy Portal ─────────────────────────────
 phase_deploy_portal() {
-  phase "7. DEPLOYING PORTAL"
+  phase "8. DEPLOYING PORTAL"
   
   case "$DEPLOY_MODE" in
     local)
@@ -644,7 +820,7 @@ phase_deploy_portal() {
       run_if_not_dry cd "$PORTAL_DIR"
       
       if [ "$DRY_RUN" = false ]; then
-        PORT=$PORT pnpm start > "$REPO_ROOT/portal.log" 2>&1 &
+        HOSTNAME=0.0.0.0 PORT=$PORT pnpm start > "$REPO_ROOT/portal.log" 2>&1 &
         echo $! > "$REPO_ROOT/.portal.pid"
       fi
       
@@ -679,7 +855,7 @@ phase_deploy_portal() {
       run_if_not_dry cd "$PORTAL_DIR"
       
       if [ "$DRY_RUN" = false ]; then
-        PORT=$PORT pnpm start > "$REPO_ROOT/portal-staging.log" 2>&1 &
+        HOSTNAME=0.0.0.0 PORT=$PORT pnpm start > "$REPO_ROOT/portal-staging.log" 2>&1 &
         echo $! > "$REPO_ROOT/.portal-staging.pid"
       fi
       
@@ -694,22 +870,28 @@ phase_deploy_portal() {
 phase_testing() {
   [ "$SKIP_TESTS" = true ] && return 0
   
-  phase "8. RUNNING TESTS"
+  phase "9. RUNNING TESTS"
   
   run_if_not_dry cd "$REPO_ROOT"
   
   log "Running unit tests..."
   if ! run_if_not_dry pnpm --filter portal test -- --passWithNoTests 2>/dev/null; then
-    warn "Unit tests had issues (non-fatal)"
+    collect_error "Unit tests failed — fix before deploying"
+    report_errors_and_exit
   else
     success "Unit tests passed"
   fi
   
   log "Running health checks..."
+  if [ "$DRY_RUN" = true ]; then
+    success "Health checks skipped (dry-run)"
+    return 0
+  fi
   local endpoints=(
     "http://localhost:$PORT|Portal Root"
     "http://localhost:$PORT/login|Login Page"
     "http://localhost:$PORT/api/health|Health API"
+    "http://localhost:$PORT/api/health/live|Live Probe"
   )
   
   for endpoint in "${endpoints[@]}"; do
@@ -720,9 +902,11 @@ phase_testing() {
     if curl -fs "$url" > /dev/null 2>&1; then
       success "$name OK"
     else
-      warn "$name check failed"
+      collect_error "$name health check failed: $url"
     fi
   done
+
+  report_errors_and_exit
 }
 
 # ── Phase 9: Launch Monitoring ─────────────────────────
@@ -730,7 +914,7 @@ phase_launch_monitoring() {
   [ "$TERMINAL_TYPE" = "none" ] && return 0
   [ "$DRY_RUN" = true ] && return 0
   
-  phase "9. LAUNCHING MONITORING TERMINAL"
+  phase "10. LAUNCHING MONITORING TERMINAL"
   
   # Create monitoring script
   local monitor_script="$REPO_ROOT/.monitor-$$.sh"
@@ -824,7 +1008,7 @@ EOF
 phase_results_and_browser() {
   [ "$DRY_RUN" = true ] && return 0
   
-  phase "10. DEPLOYMENT RESULTS & BROWSER"
+  phase "11. DEPLOYMENT RESULTS & BROWSER"
   
   local login_url="http://localhost:$PORT/login"
   
@@ -975,7 +1159,7 @@ RESULTSEOF
 main() {
   echo
   echo -e "${BOLD}╔════════════════════════════════════════════════════════════════╗${NC}"
-  echo -e "${BOLD}║     ARCH-SYSTEMS SEQUENTIAL DEPLOYMENT v2.1                    ║${NC}"
+  echo -e "${BOLD}║     ARCH-SYSTEMS SEQUENTIAL DEPLOYMENT v2.2                    ║${NC}"
   echo -e "${BOLD}╚════════════════════════════════════════════════════════════════╝${NC}"
   echo
   
@@ -993,6 +1177,7 @@ main() {
       echo "  --migrate-only   Only migrations"
       echo "  --rollback       Rollback"
       echo "  --force          Skip confirmation"
+      echo "  --lightweight    Skip n8n, Flowise, Redis tools, and monitoring (portal + Supabase only)"
       echo "  --no-browser     Don't open browser"
       echo
       exit 1
@@ -1037,10 +1222,14 @@ main() {
   log "Terminal: $TERMINAL_TYPE"
   echo
   
+  # Pre-flight: validate ALL prerequisites before touching anything
+  validate_prerequisites
+
   # Confirm
   confirm
-  
+
   # Execute phases sequentially
+  phase_port_check
   phase_validate
   phase_backup
   phase_stop_services

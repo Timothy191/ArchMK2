@@ -18,6 +18,7 @@ Explore the codebase to understand the scope:
 3. Score confidence across 5 dimensions (0-100)
 
 **Scoring:**
+
 - Scope clarity (0-20): Know exactly what files change?
 - Pattern familiarity (0-20): Similar patterns exist?
 - Dependency awareness (0-20): Know what depends on changed code?
@@ -25,6 +26,7 @@ Explore the codebase to understand the scope:
 - Test strategy (0-20): Know how to verify?
 
 **Decision:**
+
 - Score >= 70 → Present research findings and move to Phase 2
 - Score < 70 → Identify gaps, gather more context, re-score
 
@@ -78,6 +80,7 @@ Self-review with verification — every finding must be confirmed by reading the
 ### Learning Capture
 
 After completing, ask:
+
 - What corrections were made during implementation?
 - Any patterns worth adding to LEARNED?
 - Format: `[LEARN] Category: Rule`

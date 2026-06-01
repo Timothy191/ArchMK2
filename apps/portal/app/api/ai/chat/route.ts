@@ -1,5 +1,3 @@
-"use server";
-
 /**
  * AI Chat API — Graph-native agent orchestration.
  *
@@ -12,6 +10,8 @@ import { createServerSupabaseClient } from "@repo/supabase/server";
 import { logError } from "@/lib/errors/error-logger";
 import { createInitialAgentState } from "@/lib/ai/agent-state";
 import { runAgentGraph, finalizeAgentGraph } from "@/lib/ai/agent-graph";
+import { NextResponse } from "next/server";
+import { withRateLimit } from "@/lib/api/rate-limit-middleware";
 
 const ChatRequestSchema = z.object({
   messages: z
@@ -26,13 +26,14 @@ const ChatRequestSchema = z.object({
     .max(50),
   context: z.string().max(4_096).optional(),
   sessionId: z.string().min(1).max(256).optional(),
+  model: z.string().max(128).optional(),
 });
 
 function generateSessionId(): string {
   return `sess_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
 }
 
-export async function POST(req: Request) {
+async function handleChatRequest(req: Request) {
   const ip = req.headers.get("x-forwarded-for") ?? "unknown";
 
   // Authenticate early so we have a userId for the graph
@@ -66,6 +67,7 @@ export async function POST(req: Request) {
     messages: rawMessages,
     context,
     sessionId: clientSessionId,
+    model,
   } = parsed.data;
   const sessionId = clientSessionId ?? generateSessionId();
 
@@ -81,6 +83,7 @@ export async function POST(req: Request) {
     ip,
     messages,
     context,
+    model,
   );
 
   try {
@@ -108,4 +111,11 @@ export async function POST(req: Request) {
       { status: 500, headers: { "Content-Type": "application/json" } },
     );
   }
+}
+
+export async function POST(req: Request) {
+  return withRateLimit(
+    req,
+    () => handleChatRequest(req) as Promise<NextResponse>,
+  );
 }

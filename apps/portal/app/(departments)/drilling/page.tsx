@@ -23,7 +23,7 @@ async function getDrillingDashboardData(deptId: string, today: string) {
     db
       .from("machines")
       .select("*", { count: "exact", head: true })
-      .eq("department_id", deptId)
+      .eq("machine_type", "Drill Rig")
       .eq("active", true),
     db
       .from("drill_operations")
@@ -117,7 +117,7 @@ export default async function DrillingDashboardPage() {
 
         <GlassCard>
           <div className="flex items-center gap-2">
-            <Drill className="w-4 h-4 text-emerald-500" />
+            <Drill className="w-4 h-4 text-accent-green" />
             <p className="text-[var(--text-muted)] text-xs font-medium uppercase tracking-wider">
               Active Drills
             </p>
@@ -126,7 +126,7 @@ export default async function DrillingDashboardPage() {
             {machineCount}
           </p>
           {activeOps > 0 && (
-            <p className="text-emerald-500 text-xs mt-1">
+            <p className="text-accent-green text-xs mt-1">
               {activeOps} operation{activeOps > 1 ? "s" : ""} active
             </p>
           )}
@@ -146,12 +146,14 @@ export default async function DrillingDashboardPage() {
 
         <GlassCard>
           <div className="flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4 text-amber-400" />
+            <AlertTriangle className="w-4 h-4 text-accent-blue" />
             <p className="text-[var(--text-muted)] text-xs font-medium uppercase tracking-wider">
               Delays
             </p>
           </div>
-          <p className="text-2xl font-bold text-amber-400 mt-2">{delayCount}</p>
+          <p className="text-2xl font-bold text-accent-blue mt-2">
+            {delayCount}
+          </p>
           {delayMinutes > 0 && (
             <p className="text-[var(--text-muted)] text-xs mt-1">
               {delayMinutes} min lost

@@ -39,6 +39,7 @@ cd packages/database && pnpm supabase status
 **Cause**: `apps/overview` uses React 18, while `apps/portal` uses React 19. Sharing components between them causes conflicts.
 
 **Solution**:
+
 ```bash
 # Never import components from apps/overview into apps/portal
 # Keep component sharing limited to @repo/ui
@@ -55,12 +56,14 @@ cd packages/database && pnpm supabase status
 **Cause**: DeepEval's `DesignSystemComplianceMetric` or pre-commit hooks caught disallowed Tailwind classes.
 
 **Forbidden Classes**:
+
 - `font-bold`, `font-semibold` → Use `font-medium`
 - `bg-white/5`, `border-white/10`, `text-white/50`, `text-white/70`
 - `shadow-*` → Use CSS shadows from `@repo/theme`
 - Direct `clsx` or `tailwind-merge` imports → Use `cn()` from `@repo/ui`
 
 **Solution**:
+
 ```tsx
 // Wrong
 <div className="font-bold bg-white/5 shadow-lg">
@@ -80,29 +83,36 @@ cd packages/database && pnpm supabase status
 **Diagnostic Steps**:
 
 1. **Check RLS is enabled**:
+
 ```sql
 SELECT relname, relrowsecurity FROM pg_class WHERE relname = 'your_table';
 -- Should show relrowsecurity = true
 ```
 
 2. **Verify auth context**:
+
 ```typescript
-const { data: { user } } = await supabase.auth.getUser()
-console.log('User ID:', user?.id)
+const {
+  data: { user },
+} = await supabase.auth.getUser();
+console.log("User ID:", user?.id);
 ```
 
 3. **Test with service role** (bypasses RLS):
+
 ```typescript
 // Only for debugging, never in production code
-const serviceClient = createClient(supabaseUrl, serviceRoleKey)
+const serviceClient = createClient(supabaseUrl, serviceRoleKey);
 ```
 
 **Common Causes**:
+
 - Missing `employees` row for the authenticated user
 - `department_id` mismatch between user and data
 - No `accessible_departments` entry for cross-department access
 
 **Solution**: Check `auth.user_department_id()` returns expected UUID:
+
 ```sql
 SELECT auth.user_department_id();
 ```
@@ -120,6 +130,7 @@ SELECT auth.user_department_id();
 3. **Missing `handle_new_user()` trigger** in Supabase
 
 **Diagnostic**:
+
 ```bash
 # Check middleware logs
 cat apps/portal/middleware.ts | grep -A 5 "redirect"
@@ -129,9 +140,11 @@ cat apps/portal/middleware.ts | grep -A 5 "redirect"
 
 1. Clear middleware cache by restarting dev server
 2. Verify employee role in Supabase Studio:
+
 ```sql
 SELECT full_name, role, department_id FROM employees WHERE auth_id = 'user-uuid';
 ```
+
 3. Check `RESTRICTED_ROUTES` in middleware matches user's role
 
 ---
@@ -143,6 +156,7 @@ SELECT full_name, role, department_id FROM employees WHERE auth_id = 'user-uuid'
 **Cause**: `packages/database/migrations/` (source of truth) differs from `packages/supabase/supabase/migrations/` (deploy copy).
 
 **Solution**:
+
 ```bash
 # 1. Reset to clean state
 cd packages/database && pnpm supabase:reset
@@ -165,12 +179,13 @@ pnpm deploy:local
 **Cause**: `@univerjs/preset-sheets-core/lib/index.css` imported multiple times or in wrong location.
 
 **Solution**:
+
 - Import ONLY in `UniverSheet.tsx` component
 - NEVER import in `layout.tsx` or global CSS
 
 ```typescript
 // apps/portal/features/departments/components/tools/UniverSheet.tsx
-import '@univerjs/preset-sheets-core/lib/index.css'  // Once only here
+import "@univerjs/preset-sheets-core/lib/index.css"; // Once only here
 ```
 
 ---
@@ -182,6 +197,7 @@ import '@univerjs/preset-sheets-core/lib/index.css'  // Once only here
 **Cause**: Turborepo dependency graph out of sync.
 
 **Solution**:
+
 ```bash
 # Clean build
 pnpm clean  # or rm -rf **/node_modules **/.turbo **/dist
@@ -192,6 +208,7 @@ pnpm build
 ### Error: TypeScript errors in @repo packages
 
 **Solution**:
+
 ```bash
 # Build packages first
 pnpm --filter @repo/ui build
@@ -209,6 +226,7 @@ pnpm --filter portal build
 ### Symptom: n8n or Flowise shows "offline" in Tools tab
 
 **Diagnostic**:
+
 ```bash
 # Check tool status endpoint
 curl http://localhost:3000/api/tools/status
@@ -221,6 +239,7 @@ curl -I http://localhost:3000  # Flowise default
 **Solutions**:
 
 1. **n8n**: Ensure Docker container is running:
+
 ```bash
 docker run -it --rm --name n8n -p 5678:5678 n8nio/n8n
 ```
@@ -238,21 +257,25 @@ docker run -it --rm --name n8n -p 5678:5678 n8nio/n8n
 **Diagnostic Steps**:
 
 1. Check API keys are set:
+
 ```bash
 grep -E "GROQ_API_KEY|OPENROUTER_API_KEY|TOGETHER_API_KEY" apps/portal/.env
 ```
 
 2. Test provider directly:
+
 ```bash
 curl https://api.groq.com/openai/v1/models \
   -H "Authorization: Bearer $GROQ_API_KEY"
 ```
 
 3. Check provider status pages:
-- Groq: https://status.groq.com
-- OpenRouter: https://status.openrouter.ai
+
+- Groq: <https://status.groq.com>
+- OpenRouter: <https://status.openrouter.ai>
 
 **Solutions**:
+
 - Verify keys are valid and not rate-limited
 - Check failover is working (Groq → OpenRouter → Together)
 - Review `apps/portal/lib/ai/ai-service.ts` for error handling
@@ -266,6 +289,7 @@ curl https://api.groq.com/openai/v1/models \
 **Cause**: E2E tests require the dev server to be running.
 
 **Solution**:
+
 ```bash
 # Terminal 1: Start dev server
 pnpm dev
@@ -279,6 +303,7 @@ pnpm test:e2e
 **Cause**: Supabase must be running and seeded.
 
 **Solution**:
+
 ```bash
 cd packages/database && pnpm supabase:dev
 pnpm deploy:local  # Seeds test data

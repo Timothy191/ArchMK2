@@ -5,6 +5,7 @@ import {
   type ColumnType,
 } from "kysely";
 import { Pool } from "pg";
+import { APIError } from "@repo/errors";
 
 // Mirror key tables from Database for type-safe complex queries.
 // Add more tables as needed — Kysely validates at compile time only.
@@ -75,13 +76,12 @@ export interface KyselyDatabase {
  * ```
  */
 export function createKyselyClient() {
-  const url =
-    process.env.DATABASE_URL ??
-    process.env.SUPABASE_DATABASE_URL;
+  const url = process.env.DATABASE_URL ?? process.env.SUPABASE_DATABASE_URL;
 
   if (!url) {
-    throw new Error(
+    throw new APIError(
       "Missing DATABASE_URL. Set it in your env (Supabase connection pool string).",
+      { statusCode: 500 },
     );
   }
 

@@ -16,6 +16,7 @@ import { CloseShiftModal } from "~/features/departments/components/control-room/
 
 interface ShiftCoverageClientProps {
   departmentId: string;
+  departmentSlug: string;
   initialDate: string;
   initialShift: "day" | "night";
 }
@@ -37,6 +38,7 @@ interface ShiftHistoryItem {
 
 export function ShiftCoverageClient({
   departmentId,
+  departmentSlug,
   initialDate,
   initialShift,
 }: ShiftCoverageClientProps) {
@@ -61,7 +63,6 @@ export function ShiftCoverageClient({
           supabase
             .from("machines")
             .select("id, name, machine_type")
-            .eq("department_id", departmentId)
             .eq("active", true)
             .order("name"),
           supabase
@@ -199,8 +200,8 @@ export function ShiftCoverageClient({
       </GlassCard>
 
       {error && (
-        <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
-          <p className="text-red-400 text-sm">{error}</p>
+        <div className="p-3 bg-accent-red/10 border border-accent-red/20 rounded-lg">
+          <p className="text-accent-red text-sm">{error}</p>
         </div>
       )}
 
@@ -211,7 +212,7 @@ export function ShiftCoverageClient({
               Machine Coverage
             </h3>
             {isClosed && (
-              <span className="text-[10px] uppercase tracking-wider text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full font-medium">
+              <span className="text-[10px] uppercase tracking-wider text-accent-green bg-accent-green/10 border border-accent-green/20 px-2 py-0.5 rounded-full font-medium">
                 Closed
               </span>
             )}
@@ -283,22 +284,24 @@ export function ShiftCoverageClient({
                       m.hours_worked !== null &&
                       m.hours_worked > 0 ? (
                         <div className="flex items-center justify-center gap-1.5">
-                          <CheckCircle className="w-4 h-4 text-emerald-400" />
-                          <span className="text-emerald-400 text-xs">
+                          <CheckCircle className="w-4 h-4 text-accent-green" />
+                          <span className="text-accent-green text-xs">
                             Reported
                           </span>
                         </div>
                       ) : m.has_entry && m.hours_worked === 0 ? (
                         <div className="flex items-center justify-center gap-1.5">
-                          <AlertTriangle className="w-4 h-4 text-amber-400" />
-                          <span className="text-amber-400 text-xs">
+                          <AlertTriangle className="w-4 h-4 text-accent-blue" />
+                          <span className="text-accent-blue text-xs">
                             Partial
                           </span>
                         </div>
                       ) : (
                         <div className="flex items-center justify-center gap-1.5">
-                          <XCircle className="w-4 h-4 text-red-400" />
-                          <span className="text-red-400 text-xs">Missing</span>
+                          <XCircle className="w-4 h-4 text-accent-red" />
+                          <span className="text-accent-red text-xs">
+                            Missing
+                          </span>
                         </div>
                       )}
                     </td>
@@ -372,7 +375,7 @@ export function ShiftCoverageClient({
                       <span
                         className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                           item.shift_type === "day"
-                            ? "bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                            ? "bg-accent-blue/10 text-accent-blue border border-accent-blue/20"
                             : "bg-indigo-500/10 text-indigo-400 border border-indigo-500/20"
                         }`}
                       >
@@ -394,6 +397,7 @@ export function ShiftCoverageClient({
         open={showModal}
         onClose={() => setShowModal(false)}
         departmentId={departmentId}
+        departmentSlug={departmentSlug}
         date={date}
         shiftType={shiftType}
         onComplete={() => {

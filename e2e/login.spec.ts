@@ -61,9 +61,7 @@ test.describe("auth middleware", () => {
     await expect(page.locator("form")).toBeVisible();
   });
 
-  test("unauthenticated user is redirected from hub page", async ({
-    page,
-  }) => {
+  test("unauthenticated user is redirected from hub page", async ({ page }) => {
     await page.goto("/");
 
     await expect(page).toHaveURL(/.*\/login.*/);
@@ -87,8 +85,8 @@ test.describe("design system", () => {
     await page.goto("/login");
 
     // Body background should be a light gray (#f3f4f6)
-    const bodyBg = await page.evaluate(() =>
-      window.getComputedStyle(document.body).backgroundColor,
+    const bodyBg = await page.evaluate(
+      () => window.getComputedStyle(document.body).backgroundColor,
     );
     const match = bodyBg.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
     if (match) {
@@ -101,9 +99,9 @@ test.describe("design system", () => {
   test("login form uses macOS glass card styling", async ({ page }) => {
     await page.goto("/login");
 
-    // Form card should use the light glass background (#f5f5f7)
-    const form = page.locator("form");
-    await expect(form).toHaveClass(/bg-\[#f5f5f7\]/);
+    // Form card should use the card background class
+    const card = page.locator('[data-testid="login-card"]');
+    await expect(card).toHaveClass(/bg-arch-surface-secondary|bg-white\/70/);
 
     // Heading should be present and use dark text
     const heading = page.locator("h1");
@@ -118,11 +116,11 @@ test.describe("design system", () => {
 
     // Raw Tailwind shadow utilities are forbidden — only named custom tokens allowed
     const forbiddenPatterns = [
-      "shadow-sm\"",
-      "shadow-md\"",
-      "shadow-lg\"",
-      "shadow-xl\"",
-      "shadow-2xl\"",
+      'shadow-sm"',
+      'shadow-md"',
+      'shadow-lg"',
+      'shadow-xl"',
+      'shadow-2xl"',
     ];
 
     for (const pattern of forbiddenPatterns) {

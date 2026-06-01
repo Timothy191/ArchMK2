@@ -14,6 +14,7 @@ import {
   pruneEpisodicMemories,
   type MemoryEntry,
 } from "./memory";
+import { clearMemoryCache } from "@repo/redis/cache";
 
 // ---------------------------------------------------------------------------
 // Mocks
@@ -25,13 +26,14 @@ jest.mock("@repo/supabase/server", () => ({
 
 jest.mock("./embeddings", () => ({
   generateEmbedding: jest.fn().mockResolvedValue(Array(1536).fill(0.1)),
-  batchGenerateEmbeddings: jest.fn().mockResolvedValue([
-    Array(1536).fill(0.1),
-    Array(1536).fill(0.2),
-  ]),
+  batchGenerateEmbeddings: jest
+    .fn()
+    .mockResolvedValue([Array(1536).fill(0.1), Array(1536).fill(0.2)]),
 }));
 
-const { createServerSupabaseClient } = jest.requireMock("@repo/supabase/server");
+const { createServerSupabaseClient } = jest.requireMock(
+  "@repo/supabase/server",
+);
 
 function makeRow(overrides: Partial<Record<string, unknown>> = {}) {
   return {
@@ -55,6 +57,11 @@ function buildSupabaseMock(overrides: Record<string, unknown> = {}) {
   createServerSupabaseClient.mockResolvedValue(mock);
   return mock;
 }
+
+beforeEach(() => {
+  jest.clearAllMocks();
+  clearMemoryCache();
+});
 
 // ---------------------------------------------------------------------------
 // formatMemoriesForContext
@@ -118,8 +125,24 @@ describe("formatMemoriesForContext", () => {
 
   it("joins multiple memories with newlines", () => {
     const memories: MemoryEntry[] = [
-      { id: "m1", sessionId: "s1", userId: "u1", content: "First memory", metadata: {}, memoryType: "episodic", createdAt: "2026-01-01T00:00:00Z" },
-      { id: "m2", sessionId: "s1", userId: "u1", content: "Second memory", metadata: {}, memoryType: "semantic", createdAt: "2026-01-01T00:00:00Z" },
+      {
+        id: "m1",
+        sessionId: "s1",
+        userId: "u1",
+        content: "First memory",
+        metadata: {},
+        memoryType: "episodic",
+        createdAt: "2026-01-01T00:00:00Z",
+      },
+      {
+        id: "m2",
+        sessionId: "s1",
+        userId: "u1",
+        content: "Second memory",
+        metadata: {},
+        memoryType: "semantic",
+        createdAt: "2026-01-01T00:00:00Z",
+      },
     ];
     const result = formatMemoriesForContext(memories);
     expect(result).toContain("First memory");
@@ -165,14 +188,22 @@ describe("storeMemory", () => {
       from: jest.fn().mockReturnValue({
         insert: jest.fn().mockReturnValue({
           select: jest.fn().mockReturnValue({
-            single: jest.fn().mockResolvedValue({ data: null, error: { message: "DB error" } }),
+            single: jest.fn().mockResolvedValue({
+              data: null,
+              error: { message: "DB error" },
+            }),
           }),
         }),
       }),
     });
 
     await expect(
-      storeMemory({ sessionId: "s1", userId: "u1", content: "fail", memoryType: "episodic" }),
+      storeMemory({
+        sessionId: "s1",
+        userId: "u1",
+        content: "fail",
+        memoryType: "episodic",
+      }),
     ).rejects.toThrow("Memory storage failed");
   });
 });
@@ -191,7 +222,10 @@ describe("storeMemories", () => {
   });
 
   it("inserts multiple memories and returns mapped entries", async () => {
-    const rows = [makeRow({ id: "m1", content: "First" }), makeRow({ id: "m2", content: "Second" })];
+    const rows = [
+      makeRow({ id: "m1", content: "First" }),
+      makeRow({ id: "m2", content: "Second" }),
+    ];
     buildSupabaseMock({
       from: jest.fn().mockReturnValue({
         insert: jest.fn().mockReturnValue({
@@ -201,8 +235,18 @@ describe("storeMemories", () => {
     });
 
     const result = await storeMemories([
-      { sessionId: "s1", userId: "u1", content: "First", memoryType: "episodic" },
-      { sessionId: "s1", userId: "u1", content: "Second", memoryType: "semantic" },
+      {
+        sessionId: "s1",
+        userId: "u1",
+        content: "First",
+        memoryType: "episodic",
+      },
+      {
+        sessionId: "s1",
+        userId: "u1",
+        content: "Second",
+        memoryType: "semantic",
+      },
     ]);
 
     expect(result).toHaveLength(2);
@@ -214,13 +258,23 @@ describe("storeMemories", () => {
     buildSupabaseMock({
       from: jest.fn().mockReturnValue({
         insert: jest.fn().mockReturnValue({
-          select: jest.fn().mockResolvedValue({ data: null, error: { message: "Batch insert failed" } }),
+          select: jest.fn().mockResolvedValue({
+            data: null,
+            error: { message: "Batch insert failed" },
+          }),
         }),
       }),
     });
 
     await expect(
-      storeMemories([{ sessionId: "s1", userId: "u1", content: "test", memoryType: "episodic" }]),
+      storeMemories([
+        {
+          sessionId: "s1",
+          userId: "u1",
+          content: "test",
+          memoryType: "episodic",
+        },
+      ]),
     ).rejects.toThrow("Batch memory storage failed");
   });
 });
@@ -234,13 +288,24 @@ describe("retrieveRelevantMemories", () => {
 
   it("returns mapped entries on successful hybrid search", async () => {
     const rpcRows = [
-      { id: "m1", session_id: "s1", content: "Result", metadata: {}, memory_type: "episodic", created_at: "2026-01-01T00:00:00Z", combined_score: 0.9 },
+      {
+        id: "m1",
+        session_id: "s1",
+        content: "Result",
+        metadata: {},
+        memory_type: "episodic",
+        created_at: "2026-01-01T00:00:00Z",
+        combined_score: 0.9,
+      },
     ];
     buildSupabaseMock({
       rpc: jest.fn().mockResolvedValue({ data: rpcRows, error: null }),
     });
 
-    const result = await retrieveRelevantMemories({ userId: "u1", query: "test query" });
+    const result = await retrieveRelevantMemories({
+      userId: "u1",
+      query: "test query",
+    });
     expect(result).toHaveLength(1);
     expect(result[0]!.content).toBe("Result");
     expect(result[0]!.combinedScore).toBe(0.9);
@@ -248,15 +313,30 @@ describe("retrieveRelevantMemories", () => {
 
   it("falls back to semantic search when hybrid search fails", async () => {
     const semanticRows = [
-      { id: "m2", session_id: "s1", content: "Semantic result", metadata: {}, memory_type: "semantic", created_at: "2026-01-01T00:00:00Z", similarity: 0.8 },
+      {
+        id: "m2",
+        session_id: "s1",
+        content: "Semantic result",
+        metadata: {},
+        memory_type: "semantic",
+        created_at: "2026-01-01T00:00:00Z",
+        similarity: 0.8,
+      },
     ];
     const supabase = buildSupabaseMock({
-      rpc: jest.fn()
-        .mockResolvedValueOnce({ data: null, error: { message: "Hybrid RPC failed" } })
+      rpc: jest
+        .fn()
+        .mockResolvedValueOnce({
+          data: null,
+          error: { message: "Hybrid RPC failed" },
+        })
         .mockResolvedValueOnce({ data: semanticRows, error: null }),
     });
 
-    const result = await retrieveRelevantMemories({ userId: "u1", query: "test" });
+    const result = await retrieveRelevantMemories({
+      userId: "u1",
+      query: "test",
+    });
     expect(supabase.rpc).toHaveBeenCalledTimes(2);
     expect(result[0]!.content).toBe("Semantic result");
   });
@@ -271,10 +351,15 @@ describe("retrieveSemanticMemories", () => {
 
   it("returns empty array when semantic search fails", async () => {
     buildSupabaseMock({
-      rpc: jest.fn().mockResolvedValue({ data: null, error: { message: "RPC failed" } }),
+      rpc: jest
+        .fn()
+        .mockResolvedValue({ data: null, error: { message: "RPC failed" } }),
     });
 
-    const result = await retrieveSemanticMemories({ userId: "u1", query: "test" });
+    const result = await retrieveSemanticMemories({
+      userId: "u1",
+      query: "test",
+    });
     expect(result).toEqual([]);
   });
 
@@ -292,13 +377,16 @@ describe("retrieveSemanticMemories", () => {
       similarityThreshold: 0.85,
     });
 
-    expect(supabase.rpc).toHaveBeenCalledWith("search_memories_semantic", expect.objectContaining({
-      p_user_id: "u1",
-      p_session_id: "s1",
-      p_memory_type: "episodic",
-      match_count: 5,
-      similarity_threshold: 0.85,
-    }));
+    expect(supabase.rpc).toHaveBeenCalledWith(
+      "search_memories_semantic",
+      expect.objectContaining({
+        p_user_id: "u1",
+        p_session_id: "s1",
+        p_memory_type: "episodic",
+        match_count: 5,
+        similarity_threshold: 0.85,
+      }),
+    );
   });
 });
 
@@ -307,11 +395,20 @@ describe("retrieveSemanticMemories", () => {
 // ---------------------------------------------------------------------------
 
 describe("getConversationHistory", () => {
-  beforeEach(() => jest.clearAllMocks());
+  beforeEach(() => {
+    jest.clearAllMocks();
+    clearMemoryCache();
+  });
 
   it("returns mapped conversation history from RPC", async () => {
     const rows = [
-      { id: "m1", content: "User: hello", metadata: {}, memory_type: "episodic", created_at: "2026-01-01T00:00:00Z" },
+      {
+        id: "m1",
+        content: "User: hello",
+        metadata: {},
+        memory_type: "episodic",
+        created_at: "2026-01-01T00:00:00Z",
+      },
     ];
     buildSupabaseMock({
       rpc: jest.fn().mockResolvedValue({ data: rows, error: null }),
@@ -326,7 +423,9 @@ describe("getConversationHistory", () => {
   it("falls back to direct DB query when RPC fails", async () => {
     const fallbackRows = [makeRow({ content: "Fallback entry" })];
     buildSupabaseMock({
-      rpc: jest.fn().mockResolvedValue({ data: null, error: { message: "RPC failed" } }),
+      rpc: jest
+        .fn()
+        .mockResolvedValue({ data: null, error: { message: "RPC failed" } }),
       from: jest.fn().mockReturnValue({
         select: jest.fn().mockReturnValue({
           eq: jest.fn().mockReturnValue({
@@ -342,7 +441,10 @@ describe("getConversationHistory", () => {
       }),
     });
 
-    const result = await getConversationHistory("session-1", "user-1");
+    const result = await getConversationHistory(
+      "session-fallback",
+      "user-fallback",
+    );
     expect(result[0]!.content).toBe("Fallback entry");
   });
 });
@@ -363,7 +465,9 @@ describe("getSemanticFact", () => {
               eq: jest.fn().mockReturnValue({
                 order: jest.fn().mockReturnValue({
                   limit: jest.fn().mockReturnValue({
-                    single: jest.fn().mockResolvedValue({ data: { content: "language: English" } }),
+                    single: jest.fn().mockResolvedValue({
+                      data: { content: "language: English" },
+                    }),
                   }),
                 }),
               }),
@@ -431,7 +535,9 @@ describe("pruneEpisodicMemories", () => {
         delete: jest.fn().mockReturnValue({
           eq: jest.fn().mockReturnValue({
             eq: jest.fn().mockReturnValue({
-              lt: jest.fn().mockResolvedValue({ error: { message: "DB error" } }),
+              lt: jest
+                .fn()
+                .mockResolvedValue({ error: { message: "DB error" } }),
             }),
           }),
         }),
@@ -508,7 +614,9 @@ describe("searchSemanticFacts", () => {
           eq: jest.fn().mockReturnValue({
             eq: jest.fn().mockReturnValue({
               order: jest.fn().mockReturnValue({
-                limit: jest.fn().mockResolvedValue({ data: mockFacts, error: null }),
+                limit: jest
+                  .fn()
+                  .mockResolvedValue({ data: mockFacts, error: null }),
               }),
             }),
           }),

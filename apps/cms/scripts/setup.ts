@@ -17,9 +17,21 @@ async function setup() {
 
   // Create initial departments
   const departments = [
-    { name: "drilling", displayName: "Drilling", description: "Drill rig operations" },
-    { name: "production", displayName: "Production", description: "Coal yield tracking" },
-    { name: "control-room", displayName: "Control Room", description: "Real-time monitoring" },
+    {
+      name: "drilling",
+      displayName: "Drilling",
+      description: "Drill rig operations",
+    },
+    {
+      name: "production",
+      displayName: "Production",
+      description: "Coal yield tracking",
+    },
+    {
+      name: "control-room",
+      displayName: "Control Room",
+      description: "Real-time monitoring",
+    },
   ];
 
   for (const dept of departments) {

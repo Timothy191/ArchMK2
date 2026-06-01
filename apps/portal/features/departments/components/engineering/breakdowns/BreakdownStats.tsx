@@ -13,32 +13,32 @@ export function BreakdownStats({ metrics }: BreakdownStatsProps) {
       label: "Active Incidents",
       value: metrics.active,
       icon: Zap,
-      color: "text-red-400",
-      bg: "bg-red-500/10 border-red-500/20",
+      color: "text-accent-red",
+      bg: "bg-accent-red/10 border-accent-red/20",
       sub: "Currently in workshop",
     },
     {
       label: "Total Breakdowns",
       value: metrics.total,
       icon: AlertTriangle,
-      color: "text-amber-400",
-      bg: "bg-amber-500/10 border-amber-500/20",
+      color: "text-accent-blue",
+      bg: "bg-accent-blue/10 border-accent-blue/20",
       sub: "All time",
     },
     {
       label: "Completed Today",
       value: metrics.completedToday,
       icon: CheckCircle,
-      color: "text-emerald-400",
-      bg: "bg-emerald-500/10 border-emerald-500/20",
+      color: "text-accent-green",
+      bg: "bg-accent-green/10 border-accent-green/20",
       sub: "Back in service",
     },
     {
       label: "Avg. Repair Time",
       value: `${metrics.avgRepairHours.toFixed(1)}h`,
       icon: Clock,
-      color: "text-blue-400",
-      bg: "bg-blue-500/10 border-blue-500/20",
+      color: "text-accent-blue",
+      bg: "bg-accent-blue/10 border-accent-blue/20",
       sub: "All completed",
     },
   ];
@@ -60,11 +60,11 @@ export function BreakdownStats({ metrics }: BreakdownStatsProps) {
                 <p className="text-2xl font-bold text-[var(--text-heading)] mt-1">
                   {stat.value}
                 </p>
-                <p className="text-[var(--text-secondary)] text-xs mt-1">{stat.sub}</p>
+                <p className="text-[var(--text-secondary)] text-xs mt-1">
+                  {stat.sub}
+                </p>
               </div>
-              <div
-                className={`p-2 rounded-lg border ${stat.bg}`}
-              >
+              <div className={`p-2 rounded-lg border ${stat.bg}`}>
                 <Icon className={`w-4 h-4 ${stat.color}`} />
               </div>
             </div>

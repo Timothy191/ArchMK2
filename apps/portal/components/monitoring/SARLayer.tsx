@@ -18,8 +18,8 @@ interface SARLayerPanelProps {
 const COLORMAP_STEPS = [
   { label: "-50", color: "#7f1d1d" },
   { label: "-30", color: "#ef4444" },
-  { label: "-15", color: "#f97316" },
-  { label: "-5", color: "#f59e0b" },
+  { label: "-15", color: "#007aff" },
+  { label: "-5", color: "#007aff" },
   { label: "0", color: "#3ecf8e" },
   { label: "+5", color: "#06b6d4" },
   { label: "+15", color: "#6366f1" },
@@ -54,11 +54,11 @@ export function SARLayerPanel({
   return (
     <div className="space-y-4">
       {/* InSAR Info Banner */}
-      <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20">
+      <div className="p-4 rounded-xl bg-accent-blue/10 border border-accent-blue/20">
         <div className="flex items-start gap-3">
-          <span className="text-blue-400 text-xl mt-0.5">📡</span>
+          <span className="text-accent-blue text-xl mt-0.5">📡</span>
           <div>
-            <p className="text-sm font-semibold text-blue-400">
+            <p className="text-sm font-semibold text-accent-blue">
               Sentinel-1 SAR / InSAR
             </p>
             <p className="text-xs text-[var(--text-secondary)] mt-1 leading-relaxed">
@@ -72,9 +72,9 @@ export function SARLayerPanel({
       </div>
 
       {/* LOS Disclaimer — geotechnical standard requirement */}
-      <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-start gap-2">
-        <span className="text-amber-400 text-sm mt-0.5 shrink-0">⚠</span>
-        <p className="text-[11px] text-amber-300/80 leading-relaxed">
+      <div className="p-3 rounded-xl bg-accent-blue/10 border border-accent-blue/20 flex items-start gap-2">
+        <span className="text-accent-blue text-sm mt-0.5 shrink-0">⚠</span>
+        <p className="text-[11px] text-accent-blue/80 leading-relaxed">
           <strong>LOS displacement, not vertical:</strong> All deformation
           values are Line-of-Sight (LOS) measurements at the satellite's
           incidence angle (~38–40°). True vertical subsidence = LOS ÷
@@ -129,19 +129,19 @@ export function SARLayerPanel({
               </th>
               <th
                 scope="col"
-                className="text-center text-amber-400 pb-1.5 font-medium"
+                className="text-center text-accent-blue pb-1.5 font-medium"
               >
                 Minor
               </th>
               <th
                 scope="col"
-                className="text-center text-orange-400 pb-1.5 font-medium"
+                className="text-center text-accent-blue pb-1.5 font-medium"
               >
                 Moderate
               </th>
               <th
                 scope="col"
-                className="text-center text-red-400 pb-1.5 font-medium"
+                className="text-center text-accent-red pb-1.5 font-medium"
               >
                 Critical
               </th>
@@ -158,11 +158,15 @@ export function SARLayerPanel({
                 <td className="py-1 text-[var(--text-muted)]">
                   {AREA_LABELS[area] ?? area}
                 </td>
-                <td className="py-1 text-center text-amber-400">≥{t.minor}</td>
-                <td className="py-1 text-center text-orange-400">
+                <td className="py-1 text-center text-accent-blue">
+                  ≥{t.minor}
+                </td>
+                <td className="py-1 text-center text-accent-blue">
                   ≥{t.moderate}
                 </td>
-                <td className="py-1 text-center text-red-400">≥{t.critical}</td>
+                <td className="py-1 text-center text-accent-red">
+                  ≥{t.critical}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -183,7 +187,7 @@ export function SARLayerPanel({
                 onClick={() => setSelectedZone(r)}
                 className={`text-[10px] px-2 py-0.5 rounded-full border transition-colors ${
                   selectedZone?.id === r.id
-                    ? "bg-blue-500/20 border-blue-500/40 text-blue-300"
+                    ? "bg-accent-blue/20 border-accent-blue/40 text-accent-blue"
                     : "bg-[var(--bg-tertiary)] border-[var(--border-emphasis)] text-[var(--text-secondary)] hover:text-[var(--text-heading)]"
                 }`}
               >
@@ -273,7 +277,7 @@ export function SARLayerPanel({
                 onClick={() => handleSelect(scene)}
                 className={`w-full text-left p-3 rounded-xl border transition-colors ${
                   selectedScene === scene.id
-                    ? "bg-blue-500/10 border-blue-500/30"
+                    ? "bg-accent-blue/10 border-accent-blue/30"
                     : "bg-[var(--bg-primary)] border-[var(--border-emphasis)] hover:bg-[var(--bg-tertiary)]"
                 }`}
               >
@@ -281,7 +285,7 @@ export function SARLayerPanel({
                   <p className="text-xs text-[var(--text-heading)] font-medium font-mono truncate max-w-[160px]">
                     {scene.id.slice(0, 22)}…
                   </p>
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 shrink-0">
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-accent-blue/20 text-accent-blue shrink-0">
                     {scene.properties["s1:polarisation"] ?? "SAR"}
                   </span>
                 </div>

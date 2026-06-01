@@ -17,6 +17,7 @@ interface CloseShiftModalProps {
   open: boolean;
   onClose: () => void;
   departmentId: string;
+  departmentSlug: string;
   date: string;
   shiftType: "day" | "night";
   onComplete: () => void;
@@ -36,6 +37,7 @@ export function CloseShiftModal({
   open,
   onClose,
   departmentId,
+  departmentSlug,
   date,
   shiftType,
   onComplete,
@@ -112,6 +114,8 @@ export function CloseShiftModal({
         shiftType,
         state.employeeId,
         pin,
+        false,
+        departmentSlug,
       );
       if (result.success) {
         setState({ type: "success" });
@@ -137,7 +141,7 @@ export function CloseShiftModal({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--arch11)]/60 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
       <GlassCard className="w-full max-w-md mx-4">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-medium text-[var(--text-heading)]">
@@ -164,19 +168,19 @@ export function CloseShiftModal({
 
         {state.type === "has_errors" && (
           <div className="space-y-4">
-            <div className="flex items-start gap-3 p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
-              <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
+            <div className="flex items-start gap-3 p-3 bg-accent-red/10 border border-accent-red/20 rounded-lg">
+              <AlertCircle className="w-5 h-5 text-accent-red shrink-0 mt-0.5" />
               <div>
-                <p className="text-red-400 text-sm font-medium mb-2">
+                <p className="text-accent-red text-sm font-medium mb-2">
                   Cannot close shift until the following are resolved:
                 </p>
                 <ul className="space-y-1">
                   {state.errors.map((err, i) => (
                     <li
                       key={i}
-                      className="text-red-300 text-xs flex items-start gap-2"
+                      className="text-accent-red/80 text-xs flex items-start gap-2"
                     >
-                      <span className="mt-1.5 w-1 h-1 rounded-full bg-red-400 shrink-0" />
+                      <span className="mt-1.5 w-1 h-1 rounded-full bg-accent-red shrink-0" />
                       {err}
                     </li>
                   ))}
@@ -195,9 +199,9 @@ export function CloseShiftModal({
 
         {(state.type === "pin_entry" || state.type === "verifying") && (
           <div className="space-y-5">
-            <div className="flex items-center gap-3 p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
-              <CheckCircle className="w-5 h-5 text-emerald-400 shrink-0" />
-              <p className="text-emerald-300 text-sm">
+            <div className="flex items-center gap-3 p-3 bg-accent-green/10 border border-accent-green/20 rounded-lg">
+              <CheckCircle className="w-5 h-5 text-accent-green shrink-0" />
+              <p className="text-accent-green text-sm">
                 All machines accounted for. Supervisor PIN required to close.
               </p>
             </div>
@@ -251,13 +255,15 @@ export function CloseShiftModal({
 
         {state.type === "verified" && (
           <div className="space-y-5">
-            <div className="flex items-center gap-3 p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
-              <UserCheck className="w-5 h-5 text-emerald-400 shrink-0" />
+            <div className="flex items-center gap-3 p-3 bg-accent-green/10 border border-accent-green/20 rounded-lg">
+              <UserCheck className="w-5 h-5 text-accent-green shrink-0" />
               <div>
-                <p className="text-emerald-700 text-sm font-medium">
+                <p className="text-accent-green text-sm font-medium">
                   Approved by
                 </p>
-                <p className="text-emerald-600 text-sm">{state.employeeName}</p>
+                <p className="text-accent-green text-sm">
+                  {state.employeeName}
+                </p>
               </div>
             </div>
 
@@ -289,8 +295,8 @@ export function CloseShiftModal({
 
         {state.type === "success" && (
           <div className="flex flex-col items-center py-8 gap-3">
-            <CheckCircle className="w-12 h-12 text-emerald-400" />
-            <p className="text-emerald-400 font-medium text-lg">
+            <CheckCircle className="w-12 h-12 text-accent-green" />
+            <p className="text-accent-green font-medium text-lg">
               Shift closed successfully
             </p>
           </div>
@@ -298,9 +304,9 @@ export function CloseShiftModal({
 
         {state.type === "api_error" && (
           <div className="space-y-4">
-            <div className="flex items-start gap-3 p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
-              <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
-              <p className="text-red-300 text-sm">{state.message}</p>
+            <div className="flex items-start gap-3 p-3 bg-accent-red/10 border border-accent-red/20 rounded-lg">
+              <AlertCircle className="w-5 h-5 text-accent-red shrink-0 mt-0.5" />
+              <p className="text-accent-red/80 text-sm">{state.message}</p>
             </div>
             <button
               type="button"

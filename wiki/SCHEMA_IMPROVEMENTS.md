@@ -6,7 +6,6 @@ Analysis of the Arch-Systems database schema reveals a well-structured foundatio
 
 ---
 
-
 ## 🔴 Completed Issues (Migrations 010-016)
 
 ### 1. Foreign Key Indexes ✅
@@ -40,6 +39,7 @@ Analysis of the Arch-Systems database schema reveals a well-structured foundatio
 **Status**: COMPLETED in 010, 014, 016
 
 Dashboard queries now use optimized composite indexes:
+
 ```sql
 CREATE INDEX idx_daily_logs_lookup ON daily_logs(department_id, log_date DESC, shift);
 CREATE INDEX idx_machine_ops_lookup ON machine_operations(department_id, shift_date DESC);
@@ -52,6 +52,7 @@ CREATE INDEX idx_excavator_activity_lookup ON excavator_activity(department_id, 
 **Status**: COMPLETED in migration 010, 014, 016
 
 Standardized across all reference tables:
+
 - `operators`, `sites`, `mine_blocks`, `delay_categories`, `report_templates`
 - All now have `deleted_at TIMESTAMPTZ` column
 
@@ -60,6 +61,7 @@ Standardized across all reference tables:
 **Status**: COMPLETED in migration 016
 
 Added audit trail columns to operational tables:
+
 - `daily_logs.created_by` → tracks log creator
 - `hourly_loads.created_by` → tracks load recorder
 - `machine_hours.created_by` → tracks machine record creator
@@ -71,6 +73,7 @@ Added audit trail columns to operational tables:
 **Status**: COMPLETED in migration 016
 
 Added computed columns for complex calculations:
+
 - `breakdowns.duration_hours` — Calculates duration from date_in/time_in to date_out/time_out
 - STORED generated column for persistence and query optimization
 
@@ -83,6 +86,7 @@ Added computed columns for complex calculations:
 ## 🟡 Medium Priority Improvements (Post-Phase 3)
 
 ### 6. Normalize `hourly_loads` Table
+
 **Impact**: Schema flexibility, reduced maintenance
 **Effort**: High
 **Priority**: P2
@@ -90,29 +94,34 @@ Added computed columns for complex calculations:
 **Current Issue**: 12 individual hour columns are denormalized.
 
 **Option A - Keep current (simple queries)**:
+
 ```sql
 -- Add check constraint to ensure non-negative values
-ALTER TABLE hourly_loads ADD CONSTRAINT hour_non_negative 
+ALTER TABLE hourly_loads ADD CONSTRAINT hour_non_negative
 CHECK (hour_01 >= 0 AND hour_02 >= 0 /* ... all hours */ AND hour_12 >= 0);
 ```
 
 **Option B - Hybrid approach (future migration)**:
+
 ```sql
 -- Keep existing for performance, add JSONB for flexibility
 ALTER TABLE hourly_loads ADD COLUMN hour_details JSONB;
 ```
 
 ### 7. Consolidate Delay Tracking Tables
+
 **Impact**: Reduced redundancy, simplified queries
 **Effort**: High
 **Priority**: P2
 
 **Analysis**:
+
 - `delay_categories` (reference) - keep
 - `operational_delays` - keep, rename to `delays`
 - `shift_notes` was dropped, data moved to `operational_delays`
 
 ### 8. Add Audit Trail Consistency
+
 **Impact**: Forensic capability, compliance
 **Effort**: Medium
 **Priority**: P2
@@ -128,20 +137,22 @@ ALTER TABLE hourly_loads ADD COLUMN created_by UUID REFERENCES employees(id);
 ## 🟢 Low Priority Improvements (Post-Phase 3)
 
 ### 9. Table Partitioning Strategy
+
 **Impact**: Query performance at scale
 **Effort**: High (requires downtime)
 **Priority**: P3
 
 **Candidates for partitioning**:
 
-| Table | Partition Key | Reason |
-|-------|---------------|--------|
-| audit_logs | created_at (monthly) | Append-only, large volume |
-| memory_embeddings | created_at (monthly) | Append-only, grows continuously |
-| safety_incidents | incident_date (yearly) | Historical data |
-| excavator_activity | activity_date (quarterly) | Time-series analytics |
+| Table              | Partition Key             | Reason                          |
+| ------------------ | ------------------------- | ------------------------------- |
+| audit_logs         | created_at (monthly)      | Append-only, large volume       |
+| memory_embeddings  | created_at (monthly)      | Append-only, grows continuously |
+| safety_incidents   | incident_date (yearly)    | Historical data                 |
+| excavator_activity | activity_date (quarterly) | Time-series analytics           |
 
 ### 10. Add Stored Generated Columns for Common Calculations
+
 **Impact**: Query simplification, performance
 **Effort**: Low
 **Priority**: P3
@@ -151,10 +162,10 @@ ALTER TABLE hourly_loads ADD COLUMN created_by UUID REFERENCES employees(id);
 -- Already has delay_minutes, could add running totals
 
 -- Example: Duration calculation for breakdowns
-ALTER TABLE breakdowns ADD COLUMN duration_hours NUMERIC 
+ALTER TABLE breakdowns ADD COLUMN duration_hours NUMERIC
 GENERATED ALWAYS AS (
-  CASE 
-    WHEN date_out IS NOT NULL THEN 
+  CASE
+    WHEN date_out IS NOT NULL THEN
       EXTRACT(EPOCH FROM (
         (date_out + time_out::interval) - (date_in + time_in::interval)
       )) / 3600
@@ -167,20 +178,21 @@ GENERATED ALWAYS AS (
 
 ## 📊 Schema Quality Score
 
-| Category | Score | Notes |
-|----------|-------|-------|
-| Security | 10/10 | Excellent RLS coverage, consistent policies, comprehensive in 012-014 |
-| Normalization | 7/10 | Some denormalization (hourly_loads), good referential integrity |
-| Indexing | 9/10 | FK indexes and composite indexes added in 010-014 |
-| Documentation | 9/10 | Comprehensive table/column comments in 014 |
-| Performance | 9/10 | Excellent index coverage, numeric precision, ready for scale |
-| Maintainability | 9/10 | Consistent patterns, clear migrations, comprehensive docs |
+| Category        | Score | Notes                                                                 |
+| --------------- | ----- | --------------------------------------------------------------------- |
+| Security        | 10/10 | Excellent RLS coverage, consistent policies, comprehensive in 012-014 |
+| Normalization   | 7/10  | Some denormalization (hourly_loads), good referential integrity       |
+| Indexing        | 9/10  | FK indexes and composite indexes added in 010-014                     |
+| Documentation   | 9/10  | Comprehensive table/column comments in 014                            |
+| Performance     | 9/10  | Excellent index coverage, numeric precision, ready for scale          |
+| Maintainability | 9/10  | Consistent patterns, clear migrations, comprehensive docs             |
 
 ---
 
 ## 🛠️ Migration Implementation Plan
 
 ### Phase 1: Critical Fixes (COMPLETED in 010-014)
+
 - [x] Add missing foreign key indexes - Migrations 010_schema_optimization.sql, 014_schema_refinement.sql
 - [x] Add updated_at to child tables - daily_logs, machine_hours, fuel_logs, production_logs
 - [x] Add soft delete columns to reference tables
@@ -191,6 +203,7 @@ GENERATED ALWAYS AS (
 - [x] Add missing RLS policies
 
 ### Phase 2: High Priority (COMPLETED in 010-014)
+
 - [x] Migrate columns to enum types - Migration 016_schema_enhancements.sql (Native Enums)
 - [x] Add composite indexes (dashboard patterns covered in 014)
 - [x] Standardize soft delete pattern (columns added in 010-014)
@@ -198,12 +211,14 @@ GENERATED ALWAYS AS (
 - [x] Comprehensive documentation (014)
 
 ### Phase 3: Enhancements (COMPLETED in 016)
+
 1. [x] Add audit trail columns (created_by)
 2. [x] Migrate columns to native enum types
 3. [x] Column type migration from CHECK to enum types
 4. [x] Add generated columns (breakdown duration)
 
 ### Phase 4: Future Enhancements (Month 2+)
+
 1. Consider hourly_loads normalization
 2. Table partitioning for large tables
 3. Performance monitoring dashboard
@@ -214,16 +229,16 @@ GENERATED ALWAYS AS (
 
 ```sql
 -- Monitor for missing indexes
-SELECT 
+SELECT
   schemaname, tablename, attname
-FROM pg_stats 
-WHERE schemaname = 'public' 
-  AND seq_scan > 0 
+FROM pg_stats
+WHERE schemaname = 'public'
+  AND seq_scan > 0
   AND idx_scan = 0;
 
 -- Monitor RLS policy performance
-EXPLAIN ANALYZE 
-SELECT * FROM machines 
+EXPLAIN ANALYZE
+SELECT * FROM machines
 WHERE department_id = 'uuid-here';
 ```
 
@@ -232,6 +247,7 @@ WHERE department_id = 'uuid-here';
 ## 🔍 Validation Checklist
 
 After each migration:
+
 - [ ] Verify no sequential scans on FK columns
 - [ ] Confirm RLS policies still enforce access
 - [ ] Test insert/update/delete on all affected tables

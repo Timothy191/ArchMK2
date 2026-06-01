@@ -13,12 +13,12 @@ fileMatchPattern: ["**/components/**/*", "**/ui/**/*"]
 
 ## Forbidden Patterns
 
-| Pattern | Why |
-|---------|-----|
-| `bg-white/5`, `border-white/10` | Breaks theme abstraction |
-| `font-semibold`, `font-bold` | Use theme tokens instead |
-| `shadow-*`, `box-shadow` | Use design system shadow tokens |
-| Direct `@supabase/supabase-js` imports | Use `@repo/supabase` wrappers |
+| Pattern                                | Why                             |
+| -------------------------------------- | ------------------------------- |
+| `bg-white/5`, `border-white/10`        | Breaks theme abstraction        |
+| `font-semibold`, `font-bold`           | Use theme tokens instead        |
+| `shadow-*`, `box-shadow`               | Use design system shadow tokens |
+| Direct `@supabase/supabase-js` imports | Use `@repo/supabase` wrappers   |
 
 ## Design System Components
 

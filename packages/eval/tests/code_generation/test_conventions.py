@@ -28,7 +28,7 @@ export default function Dashboard({ stats }) {
     <div className="space-y-6">
       <KPIGrid cols={4}>
         <KPICard label="Hours Today" value="24.5h" color="green" />
-        <KPICard label="Delays" value={3} color="amber" sub="45 min lost" />
+        <KPICard label="Delays" value={3} color="blue" sub="45 min lost" />
       </KPIGrid>
     </div>
   );

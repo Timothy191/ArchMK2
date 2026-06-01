@@ -17,26 +17,29 @@ export default async function DailyLogPage({
   const isSafety = department === "safety";
 
   if (isSafety) {
-    // Fetch categories and severities for safety incident form
-    const { data: categories } = await supabase
-      .from("safety_incident_categories")
-      .select("id, name, color, icon")
-      .order("sort_order");
-
-    const { data: severities } = await supabase
-      .from("safety_severities")
-      .select("id, level, color")
-      .order("sort_order");
-
-    // Fetch today's safety incidents
-    const { data: todayIncidents } = await supabase
-      .from("safety_incidents")
-      .select(
-        "id, incident_type, severity_id, severity:severities(color), category:categories(name), description, location, injured_parties, status, shift_type, created_at",
-      )
-      .eq("department_id", deptId)
-      .eq("incident_date", today)
-      .order("created_at", { ascending: false });
+    // Parallel fetch of independent safety reference data and incidents
+    const [
+      { data: categories },
+      { data: severities },
+      { data: todayIncidents },
+    ] = await Promise.all([
+      supabase
+        .from("safety_incident_categories")
+        .select("id, name, color, icon")
+        .order("sort_order"),
+      supabase
+        .from("safety_severities")
+        .select("id, level, color")
+        .order("sort_order"),
+      supabase
+        .from("safety_incidents")
+        .select(
+          "id, incident_type, severity_id, severity:safety_severities(color), category:safety_incident_categories(name), description, location, injured_parties, status, shift_type, created_at",
+        )
+        .eq("department_id", deptId)
+        .eq("incident_date", today)
+        .order("created_at", { ascending: false }),
+    ]);
 
     const formattedIncidents = (todayIncidents || []).map((inc: any) => ({
       ...inc,
@@ -55,8 +58,8 @@ export default async function DailyLogPage({
         </h2>
 
         {formattedIncidents.length > 0 && (
-          <GlassCard className="border-amber-500/20">
-            <p className="text-amber-400 text-sm font-medium">
+          <GlassCard className="border-accent-blue/20">
+            <p className="text-accent-blue text-sm font-medium">
               {formattedIncidents.length} incident
               {formattedIncidents.length > 1 ? "s" : ""} logged today
             </p>
@@ -79,11 +82,10 @@ export default async function DailyLogPage({
     );
   }
 
-  // Standard daily log for non-safety departments
+  // Standard daily log for non-safety departments (centralised fleet)
   const { data: machines } = await supabase
     .from("machines")
     .select("id, name, machine_type")
-    .eq("department_id", deptId)
     .eq("active", true)
     .order("name");
 
@@ -105,8 +107,8 @@ export default async function DailyLogPage({
       </h2>
 
       {allShiftsLogged ? (
-        <GlassCard className="border-emerald-500/20">
-          <p className="text-emerald-400 text-sm font-medium">
+        <GlassCard className="border-accent-green/20">
+          <p className="text-accent-green text-sm font-medium">
             &#10003; All shifts logged for today
           </p>
           <p className="text-[var(--text-secondary)] text-sm mt-1">
@@ -121,8 +123,8 @@ export default async function DailyLogPage({
       ) : (
         <>
           {existingShifts.length > 0 && (
-            <GlassCard className="border-amber-500/20">
-              <p className="text-amber-400 text-sm font-medium">
+            <GlassCard className="border-accent-blue/20">
+              <p className="text-accent-blue text-sm font-medium">
                 {existingShifts.length} shift
                 {existingShifts.length > 1 ? "s" : ""} already logged:{" "}
                 {existingShifts.join(", ")}

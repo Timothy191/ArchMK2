@@ -1,8 +1,9 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import type { TrendDataPoint } from "./ProductionTrend";
 
-export const ProductionTrend = dynamic(
+const ProductionTrendInner = dynamic(
   () => import("./ProductionTrend").then((m) => m.ProductionTrend),
   {
     ssr: false,
@@ -11,3 +12,11 @@ export const ProductionTrend = dynamic(
     ),
   },
 );
+
+interface ProductionTrendProps {
+  data: TrendDataPoint[];
+}
+
+export function ProductionTrend({ data }: ProductionTrendProps) {
+  return <ProductionTrendInner data={data} />;
+}

@@ -17,6 +17,17 @@ jest.mock("@repo/utils/inngest", () => {
   };
 });
 
+jest.mock("@repo/supabase/server", () => ({
+  createServerSupabaseClient: jest.fn().mockResolvedValue({
+    auth: {
+      getUser: jest.fn().mockResolvedValue({
+        data: { user: { id: "test-user-id" } },
+        error: null,
+      }),
+    },
+  }),
+}));
+
 const { __mockSend: mockSend } = jest.requireMock("@repo/utils/inngest");
 
 // ---------------------------------------------------------------------------

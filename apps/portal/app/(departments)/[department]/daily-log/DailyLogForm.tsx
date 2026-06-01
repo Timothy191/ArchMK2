@@ -133,7 +133,7 @@ export function DailyLogForm({ departmentId, machines }: DailyLogFormProps) {
           rows={4}
           className={cn(
             "w-full px-4 py-3 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-default)] text-[var(--text-heading)] placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-blue)]/30 focus:border-[var(--accent-blue)] transition-colors resize-none",
-            errors.notes && "border-red-400",
+            errors.notes && "border-accent-red",
           )}
           placeholder="Enter any observations or issues..."
           aria-label="Daily log notes"
@@ -141,7 +141,10 @@ export function DailyLogForm({ departmentId, machines }: DailyLogFormProps) {
           aria-describedby={errors.notes ? "daily-log-notes-error" : undefined}
         />
         {errors.notes && (
-          <p id="daily-log-notes-error" className="text-red-400 text-xs mt-1">
+          <p
+            id="daily-log-notes-error"
+            className="text-accent-red text-xs mt-1"
+          >
             {errors.notes.message}
           </p>
         )}
@@ -155,7 +158,7 @@ export function DailyLogForm({ departmentId, machines }: DailyLogFormProps) {
 
         {status === "success" && (
           <span
-            className="text-sm text-emerald-400"
+            className="text-sm text-accent-green"
             role="status"
             aria-live="polite"
           >
@@ -164,7 +167,7 @@ export function DailyLogForm({ departmentId, machines }: DailyLogFormProps) {
         )}
         {status === "error" && (
           <span
-            className="text-sm text-red-400"
+            className="text-sm text-accent-red"
             role="alert"
             aria-live="assertive"
           >

@@ -61,6 +61,7 @@ Evaluate Claude's code output against Arch-Systems project conventions using cus
 All custom metrics are in `metrics/`. Each extends `deepeval.metrics.BaseMetric` and implements `measure()` returning a score from 0.0 to 1.0.
 
 To add a new metric:
+
 1. Create `metrics/your_metric.py` extending `BaseMetric`
 2. Implement `measure(test_case)` returning a float score
 3. Add tests in `tests/code_generation/test_your_metric.py`
@@ -70,6 +71,7 @@ To add a new metric:
 `datasets/golden_cases.json` contains pre-recorded AI service responses for offline evaluation. These are used when the portal is not running or `EVAL_USE_CACHE=true` is set.
 
 To update golden cases, run the portal and execute:
+
 ```bash
 EVAL_USE_CACHE=false poetry run pytest tests/ai_service/ --cache-record
 ```

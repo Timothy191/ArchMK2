@@ -15,7 +15,11 @@ export async function createServerSupabaseClient() {
         setAll(cookiesToSet) {
           try {
             cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options),
+              cookieStore.set(name, value, {
+                ...options,
+                maxAge: undefined,
+                expires: undefined,
+              }),
             );
           } catch {
             // The `setAll` method was called from a Server Component.
@@ -34,7 +38,9 @@ export async function createServerSupabaseClient() {
  * This prevents "AuthApiError: Invalid Refresh Token: Refresh Token Not Found" errors
  * from crashing server components.
  */
-export async function getUserSafely(supabase: Awaited<ReturnType<typeof createServerSupabaseClient>>): Promise<User | null> {
+export async function getUserSafely(
+  supabase: Awaited<ReturnType<typeof createServerSupabaseClient>>,
+): Promise<User | null> {
   try {
     const result = await supabase.auth.getUser();
     return result.data.user ?? null;

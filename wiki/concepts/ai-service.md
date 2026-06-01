@@ -144,12 +144,12 @@ Phase 3 extended the AI service with memory, orchestration, and tool infrastruct
 
 Long-term AI memory stored in PostgreSQL using the `pgvector` extension:
 
-| Table | Purpose |
-|-------|---------|
-| `memories` | Stored facts, context, and conversation history |
-| `embeddings` | Vector embeddings (1536-dim) for semantic search |
-| `conversations` | Chat session records per user/department |
-| `agent_sessions` | Multi-agent task tracking |
+| Table            | Purpose                                          |
+| ---------------- | ------------------------------------------------ |
+| `memories`       | Stored facts, context, and conversation history  |
+| `embeddings`     | Vector embeddings (1536-dim) for semantic search |
+| `conversations`  | Chat session records per user/department         |
+| `agent_sessions` | Multi-agent task tracking                        |
 
 Hybrid search: keyword (`tsvector`) + embedding (`HNSW index`) combined via reciprocal rank fusion.
 
@@ -180,13 +180,13 @@ Cache hit rate target: 78%+ (measured in Grafana).
 
 Coordinates specialized sub-agents for complex operational queries:
 
-| Component | Role |
-|-----------|------|
-| Task Router | Classifies query → routes to best agent |
-| Memory Manager | Retrieves relevant context from pgvector |
-| Context Builder | Assembles prompt with dept data + history |
-| Tool Selector | Picks MCP tools for the query type |
-| Result Merger | Combines multi-agent outputs into response |
+| Component       | Role                                       |
+| --------------- | ------------------------------------------ |
+| Task Router     | Classifies query → routes to best agent    |
+| Memory Manager  | Retrieves relevant context from pgvector   |
+| Context Builder | Assembles prompt with dept data + history  |
+| Tool Selector   | Picks MCP tools for the query type         |
+| Result Merger   | Combines multi-agent outputs into response |
 
 See [[external-tools]] for n8n workflow integration with the orchestrator.
 

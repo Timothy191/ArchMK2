@@ -16,12 +16,12 @@ The portal supports 8 departments, each with specialized tabs, data entry forms,
 
 | Slug                 | Display Name         | Color   | Focus                                       |
 | -------------------- | -------------------- | ------- | ------------------------------------------- |
-| drilling             | Drilling             | amber   | Drill rig operations & bit depth telemetry  |
+| drilling             | Drilling             | blue    | Drill rig operations & bit depth telemetry  |
 | production           | Production           | emerald | Coal yield, tonnage & extraction tracking   |
 | access-control       | Access Control       | blue    | Site access, badging & security             |
 | engineering          | Engineering          | violet  | Equipment specs, maintenance & CAD          |
 | control-room         | Control Room         | red     | SCADA systems & real-time monitoring        |
-| safety               | Safety               | orange  | Incident logs, compliance & inspections     |
+| safety               | Safety               | blue    | Incident logs, compliance & inspections     |
 | training             | Training             | cyan    | LMS, certifications & competency tracking   |
 | satellite-monitoring | Satellite Monitoring | indigo  | SAR/InSAR, hyperspectral & high-res imagery |
 

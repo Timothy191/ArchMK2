@@ -20,7 +20,8 @@ const animatedButtonVariants = cva(
           "border border-[var(--border-default)] bg-transparent hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-heading)] active:bg-[var(--bg-secondary)]",
         secondary:
           "bg-[var(--bg-tertiary)] text-[var(--text-body)] hover:bg-[var(--bg-tertiary)]/80 active:bg-[var(--bg-tertiary)]/60",
-        ghost: "hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-heading)] active:bg-[var(--bg-secondary)]",
+        ghost:
+          "hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-heading)] active:bg-[var(--bg-secondary)]",
         link: "text-[var(--accent-cyan)] underline-offset-4 hover:underline",
       },
       size: {

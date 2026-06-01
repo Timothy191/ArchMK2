@@ -2,6 +2,7 @@
  * @jest-environment node
  */
 import { PUT, DELETE } from "./route";
+import { NextRequest } from "next/server";
 
 jest.mock("@repo/supabase/server", () => ({
   createServerSupabaseClient: jest.fn(),
@@ -11,21 +12,27 @@ jest.mock("next/cache", () => ({
   revalidatePath: jest.fn(),
 }));
 
-const { createServerSupabaseClient } = jest.requireMock("@repo/supabase/server");
+const { createServerSupabaseClient } = jest.requireMock(
+  "@repo/supabase/server",
+);
 
-function buildMock(overrides: {
-  user?: unknown;
-  employee?: unknown;
-  existingWebhook?: unknown;
-  updateError?: unknown;
-} = {}) {
+function buildMock(
+  overrides: {
+    user?: unknown;
+    employee?: unknown;
+    existingWebhook?: unknown;
+    updateError?: unknown;
+  } = {},
+) {
   const user = overrides.user !== undefined ? overrides.user : { id: "user-1" };
-  const employee = overrides.employee !== undefined
-    ? overrides.employee
-    : { department_id: "dept-1", role: "admin", accessible_departments: [] };
-  const existingWebhook = overrides.existingWebhook !== undefined
-    ? overrides.existingWebhook
-    : { id: "wh-1", url: "https://example.com", department_id: "dept-1" };
+  const employee =
+    overrides.employee !== undefined
+      ? overrides.employee
+      : { department_id: "dept-1", role: "admin", accessible_departments: [] };
+  const existingWebhook =
+    overrides.existingWebhook !== undefined
+      ? overrides.existingWebhook
+      : { id: "wh-1", url: "https://example.com", department_id: "dept-1" };
 
   let callCount = 0;
 
@@ -60,10 +67,15 @@ function buildMock(overrides: {
         update: jest.fn().mockReturnValue({
           eq: jest.fn().mockReturnValue({
             select: jest.fn().mockReturnValue({
-              single: jest.fn().mockResolvedValue({ data: existingWebhook, error: overrides.updateError ?? null }),
+              single: jest.fn().mockResolvedValue({
+                data: existingWebhook,
+                error: overrides.updateError ?? null,
+              }),
             }),
             // for DELETE (no .select())
-            then: jest.fn().mockResolvedValue({ error: overrides.updateError ?? null }),
+            then: jest
+              .fn()
+              .mockResolvedValue({ error: overrides.updateError ?? null }),
           }),
         }),
       };
@@ -74,7 +86,7 @@ function buildMock(overrides: {
 }
 
 function makeRequest(body: unknown = {}) {
-  return new Request("http://localhost/api/webhooks/wh-1", {
+  return new NextRequest("http://localhost/api/webhooks/wh-1", {
     method: "PUT",
     body: JSON.stringify(body),
     headers: { "Content-Type": "application/json" },
@@ -112,8 +124,16 @@ describe("PUT /api/webhooks/[id]", () => {
 
   it("returns 403 when non-admin tries to update webhook from different dept", async () => {
     buildMock({
-      employee: { department_id: "dept-1", role: "supervisor", accessible_departments: [] },
-      existingWebhook: { id: "wh-1", url: "https://example.com", department_id: "dept-OTHER" },
+      employee: {
+        department_id: "dept-1",
+        role: "supervisor",
+        accessible_departments: [],
+      },
+      existingWebhook: {
+        id: "wh-1",
+        url: "https://example.com",
+        department_id: "dept-OTHER",
+      },
     });
     const res = await PUT(makeRequest({ url: "https://new.com" }), { params });
     expect(res.status).toBe(403);
@@ -130,7 +150,9 @@ describe("DELETE /api/webhooks/[id]", () => {
   const params = Promise.resolve({ id: "wh-1" });
 
   function makeDeleteRequest() {
-    return new Request("http://localhost/api/webhooks/wh-1", { method: "DELETE" });
+    return new NextRequest("http://localhost/api/webhooks/wh-1", {
+      method: "DELETE",
+    });
   }
 
   it("returns 401 when not authenticated", async () => {
@@ -154,19 +176,39 @@ describe("DELETE /api/webhooks/[id]", () => {
 
   it("returns 403 when non-admin tries to delete webhook from different dept", async () => {
     buildMock({
-      employee: { department_id: "dept-1", role: "supervisor", accessible_departments: [] },
-      existingWebhook: { id: "wh-1", url: "https://example.com", department_id: "dept-OTHER" },
+      employee: {
+        department_id: "dept-1",
+        role: "supervisor",
+        accessible_departments: [],
+      },
+      existingWebhook: {
+        id: "wh-1",
+        url: "https://example.com",
+        department_id: "dept-OTHER",
+      },
     });
     const res = await DELETE(makeDeleteRequest(), { params });
     expect(res.status).toBe(403);
   });
 
   it("returns 200 on successful soft delete", async () => {
-    const employee = { department_id: "dept-1", role: "admin", accessible_departments: [] };
-    const existingWebhook = { id: "wh-1", url: "https://example.com", department_id: "dept-1" };
+    const employee = {
+      department_id: "dept-1",
+      role: "admin",
+      accessible_departments: [],
+    };
+    const existingWebhook = {
+      id: "wh-1",
+      url: "https://example.com",
+      department_id: "dept-1",
+    };
 
     const mock = {
-      auth: { getUser: jest.fn().mockResolvedValue({ data: { user: { id: "user-1" } } }) },
+      auth: {
+        getUser: jest
+          .fn()
+          .mockResolvedValue({ data: { user: { id: "user-1" } } }),
+      },
       from: jest.fn().mockImplementation((table: string) => {
         if (table === "employees") {
           return {
@@ -197,12 +239,24 @@ describe("DELETE /api/webhooks/[id]", () => {
   });
 
   it("returns 500 when soft delete fails", async () => {
-    const employee = { department_id: "dept-1", role: "admin", accessible_departments: [] };
-    const existingWebhook = { id: "wh-1", url: "https://example.com", department_id: "dept-1" };
+    const employee = {
+      department_id: "dept-1",
+      role: "admin",
+      accessible_departments: [],
+    };
+    const existingWebhook = {
+      id: "wh-1",
+      url: "https://example.com",
+      department_id: "dept-1",
+    };
     const deleteError = { message: "Delete failed" };
 
     const mock = {
-      auth: { getUser: jest.fn().mockResolvedValue({ data: { user: { id: "user-1" } } }) },
+      auth: {
+        getUser: jest
+          .fn()
+          .mockResolvedValue({ data: { user: { id: "user-1" } } }),
+      },
       from: jest.fn().mockImplementation((table: string) => {
         if (table === "employees") {
           return {
@@ -229,7 +283,7 @@ describe("DELETE /api/webhooks/[id]", () => {
 
     const res = await DELETE(makeDeleteRequest(), { params });
     expect(res.status).toBe(500);
-    expect((await res.json()).error).toBe("Delete failed");
+    expect((await res.json()).error).toBe("Failed to delete webhook");
   });
 });
 
@@ -243,12 +297,28 @@ describe("PUT /api/webhooks/[id] – success paths", () => {
   const params = Promise.resolve({ id: "wh-1" });
 
   it("returns 200 on successful update", async () => {
-    const employee = { department_id: "dept-1", role: "admin", accessible_departments: [] };
-    const existingWebhook = { id: "wh-1", url: "https://old.com", department_id: "dept-1" };
-    const updatedWebhook = { id: "wh-1", url: "https://new.com", department_id: "dept-1" };
+    const employee = {
+      department_id: "dept-1",
+      role: "admin",
+      accessible_departments: [],
+    };
+    const existingWebhook = {
+      id: "wh-1",
+      url: "https://old.com",
+      department_id: "dept-1",
+    };
+    const updatedWebhook = {
+      id: "wh-1",
+      url: "https://new.com",
+      department_id: "dept-1",
+    };
 
     const mock = {
-      auth: { getUser: jest.fn().mockResolvedValue({ data: { user: { id: "user-1" } } }) },
+      auth: {
+        getUser: jest
+          .fn()
+          .mockResolvedValue({ data: { user: { id: "user-1" } } }),
+      },
       from: jest.fn().mockImplementation((table: string) => {
         if (table === "employees") {
           return {
@@ -268,7 +338,9 @@ describe("PUT /api/webhooks/[id] – success paths", () => {
           update: jest.fn().mockReturnValue({
             eq: jest.fn().mockReturnValue({
               select: jest.fn().mockReturnValue({
-                single: jest.fn().mockResolvedValue({ data: updatedWebhook, error: null }),
+                single: jest
+                  .fn()
+                  .mockResolvedValue({ data: updatedWebhook, error: null }),
               }),
             }),
           }),
@@ -277,7 +349,7 @@ describe("PUT /api/webhooks/[id] – success paths", () => {
     };
     createServerSupabaseClient.mockResolvedValue(mock);
 
-    const req = new Request("http://localhost/api/webhooks/wh-1", {
+    const req = new NextRequest("http://localhost/api/webhooks/wh-1", {
       method: "PUT",
       body: JSON.stringify({ url: "https://new.com" }),
       headers: { "Content-Type": "application/json" },

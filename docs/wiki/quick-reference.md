@@ -1,19 +1,19 @@
 # Quick Reference
 
-| I need to... | Go to |
-|--------------|-------|
-| Understand the project | [Arch-Systems Overview](/entities/arch-systems) |
-| Start developing | [Onboarding](/concepts/onboarding) → [Monorepo](/concepts/turborepo-monorepo) |
-| Build a department feature | [Department Features](/concepts/department-features) |
-| Add UI components | [Design System](/concepts/design-system) |
-| Work with database | [Database Schema](/concepts/database-schema) → [RLS Policies](/concepts/rls-policy) |
-| Implement auth | [Auth & Middleware](/concepts/auth-middleware) |
-| Use AI service | [AI Service](/concepts/ai-service) |
-| Set up external tools | [External Tools](/concepts/external-tools) |
-| Monitor/debug | [Monitoring](/concepts/monitoring-error-tracking) |
-| Run tests/eval | [DeepEval](/concepts/deepeval-integration) |
-| Debug issues | [Troubleshooting](/concepts/troubleshooting) |
-| Deploy code | [Deployment](/concepts/deployment) |
+| I need to...               | Go to                                                                               |
+| -------------------------- | ----------------------------------------------------------------------------------- |
+| Understand the project     | [Arch-Systems Overview](/entities/arch-systems)                                     |
+| Start developing           | [Onboarding](/concepts/onboarding) → [Monorepo](/concepts/turborepo-monorepo)       |
+| Build a department feature | [Department Features](/concepts/department-features)                                |
+| Add UI components          | [Design System](/concepts/design-system)                                            |
+| Work with database         | [Database Schema](/concepts/database-schema) → [RLS Policies](/concepts/rls-policy) |
+| Implement auth             | [Auth & Middleware](/concepts/auth-middleware)                                      |
+| Use AI service             | [AI Service](/concepts/ai-service)                                                  |
+| Set up external tools      | [External Tools](/concepts/external-tools)                                          |
+| Monitor/debug              | [Monitoring](/concepts/monitoring-error-tracking)                                   |
+| Run tests/eval             | [DeepEval](/concepts/deepeval-integration)                                          |
+| Debug issues               | [Troubleshooting](/concepts/troubleshooting)                                        |
+| Deploy code                | [Deployment](/concepts/deployment)                                                  |
 
 ## Common Commands
 

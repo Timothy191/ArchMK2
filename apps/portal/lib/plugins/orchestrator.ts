@@ -1,12 +1,12 @@
 import { ArchPlugin, PluginHooks, PluginWidget } from "./types";
-import { NotFoundError, APIError } from "@repo/errors";
+import { NotFoundError, APIError, ConflictError } from "@repo/errors";
 import { logError } from "@/lib/errors/error-logger";
 import { interpret, type ActorRefFrom } from "xstate";
 import { orchestratorMachine, type HealthReport } from "./machines";
 
 /**
  * PluginOrchestrator - XState-powered plugin lifecycle management
- * 
+ *
  * Refactored to use XState actor model for robust state management.
  * Maintains backward-compatible public API while using state machines internally.
  */
@@ -16,12 +16,12 @@ class PluginOrchestrator {
 
   constructor() {
     this.isClient = typeof window !== "undefined";
-    
+
     // Create XState actor
     this.actor = interpret(orchestratorMachine, {
       systemId: "plugin-system",
     });
-    
+
     // Subscribe to state changes for debugging
     this.actor.subscribe((snapshot) => {
       if (process.env.NODE_ENV === "development") {
@@ -37,11 +37,11 @@ class PluginOrchestrator {
     if (!this.isClient) {
       this.actor.start();
       this.actor.send({ type: "INITIALIZE" });
-      
+
       // Auto-load plugins
       this.loadAllPlugins().catch((err) => {
-        logError(err instanceof Error ? err : new Error(String(err)), { 
-          context: "plugin_autoload_critical" 
+        logError(err instanceof Error ? err : new Error(String(err)), {
+          context: "plugin_autoload_critical",
         });
       });
     }
@@ -53,7 +53,7 @@ class PluginOrchestrator {
    */
   public async loadAllPlugins(): Promise<void> {
     if (this.isClient) return;
-    
+
     const snapshot = this.actor.getSnapshot();
     if (snapshot.context.isInitialized && snapshot.value === "active") {
       return; // Already loaded
@@ -65,7 +65,7 @@ class PluginOrchestrator {
     // Wait for loading to complete (poll with timeout)
     const maxWait = 10000; // 10 seconds max
     const startTime = Date.now();
-    
+
     while (Date.now() - startTime < maxWait) {
       const current = this.actor.getSnapshot();
       if (current.value === "active") {
@@ -74,23 +74,31 @@ class PluginOrchestrator {
       await new Promise((r) => setTimeout(r, 100));
     }
 
-    throw new Error("Plugin loading timeout exceeded");
+    throw new ConflictError("Plugin loading timeout exceeded", {
+      resource: "plugin_orchestrator",
+    });
   }
 
   /**
    * Sandboxed Engine Execution.
    * Runs custom plugin mathematical or data algorithms safely.
    */
-  public async executeEngine(pluginId: string, params?: Record<string, any>): Promise<Record<string, any>> {
+  public async executeEngine(
+    pluginId: string,
+    params?: Record<string, any>,
+  ): Promise<Record<string, any>> {
     // Find plugin from XState context
     const snapshot = this.actor.getSnapshot();
     const pluginActor = snapshot.context.plugins.get(pluginId);
-    
+
     if (!pluginActor) {
-      throw new NotFoundError(`Active engine for plugin ID [${pluginId}] not found.`, {
-        resource: "plugin_engine",
-        id: pluginId,
-      });
+      throw new NotFoundError(
+        `Active engine for plugin ID [${pluginId}] not found.`,
+        {
+          resource: "plugin_engine",
+          id: pluginId,
+        },
+      );
     }
 
     // Get plugin data from actor
@@ -101,23 +109,28 @@ class PluginOrchestrator {
         id: pluginId,
       });
     }
-    const plugin = (pluginSnapshot as unknown as { context: { plugin?: ArchPlugin } }).context.plugin;
-    
+    const plugin = (
+      pluginSnapshot as unknown as { context: { plugin?: ArchPlugin } }
+    ).context.plugin;
+
     if (!plugin || !plugin.engine || !plugin.engine.execute) {
-      throw new NotFoundError(`Plugin [${pluginId}] has no executable engine.`, {
-        resource: "plugin_engine",
-        id: pluginId,
-      });
+      throw new NotFoundError(
+        `Plugin [${pluginId}] has no executable engine.`,
+        {
+          resource: "plugin_engine",
+          id: pluginId,
+        },
+      );
     }
 
     try {
       return await plugin.engine.execute(params);
     } catch (err: any) {
-      logError(err instanceof Error ? err : new Error(String(err)), { 
-        context: "plugin_engine_crash", 
-        pluginId 
+      logError(err instanceof Error ? err : new Error(String(err)), {
+        context: "plugin_engine_crash",
+        pluginId,
       });
-      
+
       throw new APIError(`Plugin computational error: ${err.message || err}`, {
         statusCode: 500,
         context: { pluginId, originalError: err.message || String(err) },
@@ -130,7 +143,10 @@ class PluginOrchestrator {
    * Sandboxed Lifecycle Event Dispatcher.
    * Triggers plugin background listeners in parallel using parallel settle bounds.
    */
-  public async triggerHook(hookName: keyof PluginHooks, data: any): Promise<void> {
+  public async triggerHook(
+    hookName: keyof PluginHooks,
+    data: any,
+  ): Promise<void> {
     await this.loadAllPlugins();
 
     const snapshot = this.actor.getSnapshot();
@@ -140,7 +156,9 @@ class PluginOrchestrator {
     for (const actor of snapshot.context.plugins.values()) {
       const pluginSnapshot = actor.getSnapshot();
       if (pluginSnapshot.status !== "active") continue;
-      const plugin = (pluginSnapshot as unknown as { context: { plugin?: ArchPlugin } }).context.plugin;
+      const plugin = (
+        pluginSnapshot as unknown as { context: { plugin?: ArchPlugin } }
+      ).context.plugin;
       if (plugin) {
         plugins.push(plugin);
       }
@@ -155,10 +173,10 @@ class PluginOrchestrator {
             await hookFn(data);
           }
         } catch (err: any) {
-          logError(err instanceof Error ? err : new Error(String(err)), { 
-            context: "plugin_hook_crash", 
-            pluginId: plugin.metadata.id, 
-            hookName 
+          logError(err instanceof Error ? err : new Error(String(err)), {
+            context: "plugin_hook_crash",
+            pluginId: plugin.metadata.id,
+            hookName,
           });
         }
       });
@@ -181,13 +199,15 @@ class PluginOrchestrator {
     for (const actor of snapshot.context.plugins.values()) {
       const pluginSnapshot = actor.getSnapshot();
       if (pluginSnapshot.status !== "active") continue;
-      const plugin = (pluginSnapshot as unknown as { context: { plugin?: ArchPlugin } }).context.plugin;
-      
+      const plugin = (
+        pluginSnapshot as unknown as { context: { plugin?: ArchPlugin } }
+      ).context.plugin;
+
       if (plugin && plugin.widgets && plugin.widgets.length > 0) {
         widgets.push(...plugin.widgets);
       }
     }
-    
+
     return widgets;
   }
 
@@ -210,7 +230,9 @@ class PluginOrchestrator {
   /**
    * XState Integration: Subscribe to orchestrator state changes
    */
-  public subscribe(callback: (_healthReport: HealthReport) => void): () => void {
+  public subscribe(
+    callback: (_healthReport: HealthReport) => void,
+  ): () => void {
     const sub = this.actor.subscribe((snapshot) => {
       callback(snapshot.context.healthReport);
     });

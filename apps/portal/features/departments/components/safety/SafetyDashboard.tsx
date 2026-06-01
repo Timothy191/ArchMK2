@@ -86,7 +86,7 @@ export async function SafetyDashboard({ deptId }: { deptId: string }) {
           <p className="text-[var(--text-secondary)] text-xs uppercase tracking-wide">
             Incident-Free Days (30d)
           </p>
-          <p className="text-2xl font-medium text-emerald-400 mt-1">
+          <p className="text-2xl font-medium text-accent-green mt-1">
             {incidentFreeDays}d
           </p>
           <p className="text-[var(--text-secondary)] text-xs mt-1">out of 30</p>
@@ -95,7 +95,7 @@ export async function SafetyDashboard({ deptId }: { deptId: string }) {
           <p className="text-[var(--text-secondary)] text-xs uppercase tracking-wide">
             Open Incidents
           </p>
-          <p className="text-2xl font-medium text-amber-400 mt-1">
+          <p className="text-2xl font-medium text-accent-blue mt-1">
             {openCount}
           </p>
           {todayCount > 0 && (
@@ -108,7 +108,7 @@ export async function SafetyDashboard({ deptId }: { deptId: string }) {
           <p className="text-[var(--text-secondary)] text-xs uppercase tracking-wide">
             Lost Time (30d)
           </p>
-          <p className="text-2xl font-medium text-red-400 mt-1">
+          <p className="text-2xl font-medium text-accent-red mt-1">
             {monthlyLostTime}
           </p>
           <p className="text-[var(--text-secondary)] text-xs mt-1">
@@ -195,7 +195,7 @@ export async function SafetyDashboard({ deptId }: { deptId: string }) {
                   <span
                     className={`text-xs px-2 py-0.5 rounded-full ${
                       inc.status === "open"
-                        ? "text-amber-400 bg-amber-400/10"
+                        ? "text-accent-blue bg-accent-blue/10"
                         : inc.status === "resolved"
                           ? "text-[#3ecf8e] bg-[#3ecf8e]/10"
                           : "text-[var(--text-secondary)] bg-[var(--text-secondary)]/10"
@@ -241,7 +241,7 @@ export async function SafetyDashboard({ deptId }: { deptId: string }) {
               <span
                 className={
                   injuredToday > 0
-                    ? "text-red-400"
+                    ? "text-accent-red"
                     : "text-[var(--text-heading)]"
                 }
               >

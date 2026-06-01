@@ -1,3 +1,8 @@
+export interface QuickAction {
+  label: string;
+  href: string;
+}
+
 export interface Department {
   name: string;
   displayName: string;
@@ -11,6 +16,8 @@ export interface Department {
     label: string;
     value: string;
   };
+  trend?: number[];
+  actions?: QuickAction[];
 }
 
 export const DEPARTMENTS: Department[] = [
@@ -19,11 +26,16 @@ export const DEPARTMENTS: Department[] = [
     displayName: "Drilling",
     icon: "Drill",
     description: "Drill rig operations & bit depth telemetry",
-    color: "amber",
+    color: "blue",
     type: "standard",
     status: "active",
     gridSpan: "md:col-span-2 xl:col-span-1",
     stats: { label: "Depth", value: "1,240m" },
+    trend: [1180, 1195, 1205, 1210, 1220, 1235, 1240, 1245],
+    actions: [
+      { label: "View Logs", href: "/drilling/drilling-operations" },
+      { label: "Telemetry", href: "/drilling/machine-telemetry" },
+    ],
   },
   {
     name: "production",
@@ -35,6 +47,11 @@ export const DEPARTMENTS: Department[] = [
     status: "active",
     gridSpan: "md:col-span-1 xl:col-span-2",
     stats: { label: "Yield", value: "85%" },
+    trend: [78, 80, 79, 82, 83, 84, 85, 86],
+    actions: [
+      { label: "Daily Log", href: "/production/daily-log" },
+      { label: "Reports", href: "/production/reports" },
+    ],
   },
   {
     name: "access-control",
@@ -46,6 +63,11 @@ export const DEPARTMENTS: Department[] = [
     status: "active",
     gridSpan: "md:col-span-1 xl:col-span-1",
     stats: { label: "On-site", value: "142" },
+    trend: [135, 138, 140, 139, 141, 142, 142, 143],
+    actions: [
+      { label: "Access Logs", href: "/access-control/access-logs" },
+      { label: "Badges", href: "/access-control/badges" },
+    ],
   },
   {
     name: "engineering",
@@ -54,9 +76,14 @@ export const DEPARTMENTS: Department[] = [
     description: "Equipment specs, maintenance & CAD",
     color: "violet",
     type: "standard",
-    status: "maintenance",
+    status: "active",
     gridSpan: "md:col-span-1 xl:col-span-1",
     stats: { label: "Pending", value: "12" },
+    trend: [8, 10, 9, 11, 12, 11, 12, 13],
+    actions: [
+      { label: "Breakdowns", href: "/engineering/breakdowns" },
+      { label: "Tires", href: "/engineering/tire-management" },
+    ],
   },
   {
     name: "control-room",
@@ -68,17 +95,27 @@ export const DEPARTMENTS: Department[] = [
     status: "active",
     gridSpan: "md:col-span-2 xl:col-span-1",
     stats: { label: "Alerts", value: "0" },
+    trend: [2, 1, 1, 0, 0, 0, 0, 0],
+    actions: [
+      { label: "Hourly Loads", href: "/control-room/hourly-loads" },
+      { label: "Machine Ops", href: "/control-room/machine-operations" },
+    ],
   },
   {
     name: "safety",
     displayName: "Safety",
     icon: "HardHat",
     description: "Incident logs, compliance & inspections",
-    color: "orange",
+    color: "blue",
     type: "safety",
     status: "active",
     gridSpan: "md:col-span-1 xl:col-span-1",
     stats: { label: "LTI-free", value: "450d" },
+    trend: [445, 446, 447, 448, 449, 450, 450, 450],
+    actions: [
+      { label: "Daily Log", href: "/safety/daily-log" },
+      { label: "Incidents", href: "/safety/incidents" },
+    ],
   },
   {
     name: "training",
@@ -90,6 +127,11 @@ export const DEPARTMENTS: Department[] = [
     status: "active",
     gridSpan: "md:col-span-1 xl:col-span-1",
     stats: { label: "Courses", value: "8" },
+    trend: [6, 7, 7, 8, 8, 8, 8, 9],
+    actions: [
+      { label: "Certifications", href: "/training/certifications" },
+      { label: "Schedules", href: "/training/schedules" },
+    ],
   },
   {
     name: "satellite-monitoring",
@@ -101,17 +143,27 @@ export const DEPARTMENTS: Department[] = [
     status: "active",
     gridSpan: "md:col-span-2 xl:col-span-1",
     stats: { label: "Imagery", value: "Latest" },
+    trend: [3, 4, 4, 5, 5, 6, 6, 7],
+    actions: [
+      { label: "SAR View", href: "/satellite-monitoring/sar" },
+      { label: "High-Res", href: "/satellite-monitoring/highres" },
+    ],
   },
   {
     name: "admin",
     displayName: "Admin",
-    icon: "Shield",
+    icon: "ShieldCheck",
     description: "Personnel management, shift oversight & quotas",
     color: "violet",
     type: "standard",
     status: "active",
     gridSpan: "md:col-span-1 xl:col-span-1",
     stats: { label: "Employees", value: "248" },
+    trend: [240, 242, 243, 245, 246, 247, 248, 249],
+    actions: [
+      { label: "Personnel", href: "/admin/personnel" },
+      { label: "Shifts", href: "/admin/shifts" },
+    ],
   },
 ];
 
@@ -135,7 +187,7 @@ export const PRODUCTIVITY_TOOLS = [
     displayName: "Schedule",
     icon: "Calendar",
     description: "View site-wide shift calendar",
-    color: "amber",
+    color: "blue",
   },
   {
     name: "calculations",
@@ -168,17 +220,13 @@ export const DEPARTMENT_TABS = [
  */
 export const CONTROL_ROOM_TABS = [
   { name: "dashboard", label: "Dashboard", icon: "BarChart2" },
-  { name: "daily-log", label: "Daily Log", icon: "ClipboardList" },
   { name: "hourly-loads", label: "Hourly Loads", icon: "Clock" },
   { name: "machine-operations", label: "Machine Ops", icon: "Cpu" },
   { name: "operational-delays", label: "Delays", icon: "AlertTriangle" },
-  { name: "engineering-notes", label: "Engineering", icon: "Wrench" },
   { name: "excavator-activity", label: "Excavator", icon: "Pickaxe" },
-  { name: "shift-coverage", label: "Shift Coverage", icon: "CheckSquare" },
   { name: "roll-over", label: "Roll Over", icon: "GitCommit" },
   { name: "machines", label: "Machine DB", icon: "Database" },
   { name: "reports", label: "Reports", icon: "FileText" },
-  { name: "satellite", label: "Satellite", icon: "Satellite" },
 ] as const;
 
 export const ENGINEERING_TABS = [
@@ -221,6 +269,17 @@ export const ACCESS_CONTROL_TABS = [
 ] as const;
 
 /**
+ * Training specific tabs - focused on training programs, certifications, schedules, and LMS progress
+ */
+export const TRAINING_TABS = [
+  { name: "dashboard", label: "Overview", icon: "BarChart2" },
+  { name: "certifications", label: "Certifications", icon: "ShieldCheck" },
+  { name: "courses", label: "Courses & LMS", icon: "GraduationCap" },
+  { name: "schedules", label: "Schedules", icon: "Clock" },
+  { name: "reports", label: "Reports", icon: "FileText" },
+] as const;
+
+/**
  * Get tabs for a specific department
  * Control Room gets specialized tabs, others get standard tabs
  */
@@ -239,6 +298,9 @@ export function getDepartmentTabs(departmentName: string) {
   }
   if (departmentName === "drilling") {
     return DRILLING_TABS;
+  }
+  if (departmentName === "training") {
+    return TRAINING_TABS;
   }
   return DEPARTMENT_TABS;
 }

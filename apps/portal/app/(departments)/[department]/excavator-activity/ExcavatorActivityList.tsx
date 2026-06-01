@@ -45,55 +45,116 @@ export function ExcavatorActivityList({
   todayActivity,
   todayAssignments,
 }: ExcavatorActivityListProps) {
-  // Group by shift
-  const dayOps = todayActivity.filter((a) => a.shift_type === "day");
-  const nightOps = todayActivity.filter((a) => a.shift_type === "night");
+  // Group by site_id, then by shift
+  const siteMap = new Map<
+    string,
+    { siteName: string; activities: ExcavatorActivity[] }
+  >();
+
+  for (const activity of todayActivity) {
+    const siteKey = activity.site_id ?? "__none__";
+    const siteName = activity.site?.name ?? "No Site Assigned";
+    if (!siteMap.has(siteKey)) {
+      siteMap.set(siteKey, { siteName, activities: [] });
+    }
+    siteMap.get(siteKey)!.activities.push(activity);
+  }
+
+  // Put "No Site Assigned" last
+  const siteEntries = Array.from(siteMap.entries()).sort(([a], [b]) => {
+    if (a === "__none__") return 1;
+    if (b === "__none__") return -1;
+    return 0;
+  });
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <h3 className="text-lg font-medium text-[var(--text-heading)]">
         Today&apos;s Activity
       </h3>
 
-      {dayOps.length > 0 && (
-        <div className="space-y-2">
-          <h4 className="text-sm font-medium text-amber-400 flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-amber-400" />
-            Day Shift
-          </h4>
-          <div className="space-y-2">
-            {dayOps.map((activity) => (
-              <ActivityCard
-                key={activity.id}
-                activity={activity}
-                assignments={todayAssignments.filter(
-                  (a) => a.excavator_activity_id === activity.id,
-                )}
-              />
-            ))}
-          </div>
-        </div>
-      )}
+      {siteEntries.map(([siteKey, { siteName, activities }]) => {
+        const siteAssignments = activities.flatMap((a) =>
+          todayAssignments.filter((ta) => ta.excavator_activity_id === a.id),
+        );
+        const siteBcm = siteAssignments.reduce(
+          (sum, a) => sum + (a.total_bcm || 0),
+          0,
+        );
+        const siteLoads = siteAssignments.reduce(
+          (sum, a) => sum + (a.total_loads || 0),
+          0,
+        );
 
-      {nightOps.length > 0 && (
-        <div className="space-y-2">
-          <h4 className="text-sm font-medium text-blue-400 flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-blue-400" />
-            Night Shift
-          </h4>
-          <div className="space-y-2">
-            {nightOps.map((activity) => (
-              <ActivityCard
-                key={activity.id}
-                activity={activity}
-                assignments={todayAssignments.filter(
-                  (a) => a.excavator_activity_id === activity.id,
+        const dayOps = activities.filter((a) => a.shift_type === "day");
+        const nightOps = activities.filter((a) => a.shift_type === "night");
+
+        return (
+          <div key={siteKey} className="space-y-3">
+            {/* Site header */}
+            <div className="flex items-center justify-between border-b border-[var(--border-default)] pb-2">
+              <h4 className="text-base font-medium text-[var(--text-heading)] flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-[var(--accent-cyan)]" />
+                {siteName}
+              </h4>
+              <div className="flex items-center gap-4 text-xs text-[var(--text-muted)]">
+                {siteBcm > 0 && (
+                  <span className="text-accent-green font-medium">
+                    {siteBcm.toFixed(1)} BCM
+                  </span>
                 )}
-              />
-            ))}
+                {siteLoads > 0 && (
+                  <span className="text-[var(--accent-cyan)] font-medium">
+                    {siteLoads.toLocaleString()} loads
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Day shift */}
+            {dayOps.length > 0 && (
+              <div className="space-y-2">
+                <h5 className="text-xs font-medium text-accent-blue flex items-center gap-1.5 ml-4">
+                  <span className="w-1.5 h-1.5 rounded-full bg-accent-blue" />
+                  Day Shift
+                </h5>
+                <div className="space-y-2">
+                  {dayOps.map((activity) => (
+                    <ActivityCard
+                      key={activity.id}
+                      activity={activity}
+                      assignments={todayAssignments.filter(
+                        (a) => a.excavator_activity_id === activity.id,
+                      )}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Night shift */}
+            {nightOps.length > 0 && (
+              <div className="space-y-2">
+                <h5 className="text-xs font-medium text-indigo-400 flex items-center gap-1.5 ml-4">
+                  <span className="w-1.5 h-1.5 rounded-full bg-indigo-400" />
+                  Night Shift
+                </h5>
+                <div className="space-y-2">
+                  {nightOps.map((activity) => (
+                    <ActivityCard
+                      key={activity.id}
+                      activity={activity}
+                      assignments={todayAssignments.filter(
+                        (a) => a.excavator_activity_id === activity.id,
+                      )}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
-        </div>
-      )}
+        );
+      })}
     </div>
   );
 }
@@ -131,7 +192,7 @@ function ActivityCard({
               {activity.block_mined && (
                 <>
                   <span className="text-[var(--border-emphasis)]">|</span>
-                  <span className="text-amber-400">
+                  <span className="text-accent-blue">
                     Block {activity.block_mined.code}
                   </span>
                 </>
@@ -142,8 +203,8 @@ function ActivityCard({
             <span
               className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${
                 activity.shift_type === "day"
-                  ? "bg-amber-500/20 text-amber-400"
-                  : "bg-blue-500/20 text-blue-400"
+                  ? "bg-accent-blue/20 text-accent-blue"
+                  : "bg-accent-blue/20 text-accent-blue"
               }`}
             >
               {activity.shift_type === "day" ? "Day" : "Night"} Shift
@@ -235,13 +296,13 @@ function ActivityCard({
         <div className="flex items-center gap-4 text-xs">
           <div className="flex items-center gap-1.5">
             <span className="text-[var(--text-muted)]">BCM/h:</span>
-            <span className="text-amber-400 font-medium">
+            <span className="text-accent-blue font-medium">
               {bcmPerHour.toFixed(1)}
             </span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="text-[var(--text-muted)]">Loads/h:</span>
-            <span className="text-emerald-400 font-medium">
+            <span className="text-accent-green font-medium">
               {loadsPerHour.toFixed(1)}
             </span>
           </div>

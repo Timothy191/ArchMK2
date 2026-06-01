@@ -19,6 +19,7 @@ interface OperationalDelay {
   } | null;
   machine?: {
     name: string;
+    sites?: { name: string }[] | { name: string } | null;
   } | null;
 }
 
@@ -27,17 +28,17 @@ interface OperationalDelaysListProps {
 }
 
 const DELAY_TYPE_COLORS: Record<string, string> = {
-  equipment: "#f59e0b",
+  equipment: "#007aff",
   weather: "#3b82f6",
   safety: "#ef4444",
   material: "#8b5cf6",
   shift_change: "#10b981",
-  operator: "#f97316",
+  operator: "#60a5fa",
   other: "#6b7280",
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  active: "#f59e0b",
+  active: "#007aff",
   recovered: "#10b981",
   extended: "#ef4444",
 };
@@ -68,8 +69,8 @@ export function OperationalDelaysList({ delays }: OperationalDelaysListProps) {
     <div className="space-y-4">
       {dayDelays.length > 0 && (
         <div className="space-y-2">
-          <h4 className="text-sm font-medium text-amber-400 flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-amber-400"></span>
+          <h4 className="text-sm font-medium text-accent-blue flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-accent-blue"></span>
             Day Shift Delays
           </h4>
           <div className="space-y-2">
@@ -82,8 +83,8 @@ export function OperationalDelaysList({ delays }: OperationalDelaysListProps) {
 
       {nightDelays.length > 0 && (
         <div className="space-y-2">
-          <h4 className="text-sm font-medium text-blue-400 flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-blue-400"></span>
+          <h4 className="text-sm font-medium text-accent-blue flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-accent-blue"></span>
             Night Shift Delays
           </h4>
           <div className="space-y-2">
@@ -134,7 +135,7 @@ function DelayCard({ delay }: { delay: OperationalDelay }) {
           </span>
 
           {/* Duration */}
-          <span className="px-2 py-0.5 bg-amber-500/10 text-amber-400 text-xs rounded-full">
+          <span className="px-2 py-0.5 bg-accent-blue/10 text-accent-blue text-xs rounded-full">
             {delay.delay_minutes} min
           </span>
 
@@ -144,15 +145,31 @@ function DelayCard({ delay }: { delay: OperationalDelay }) {
           </span>
         </div>
 
-        {/* Machine */}
-        {delay.machine && (
-          <p className="text-[var(--text-muted)] text-xs">
-            Machine:{" "}
-            <span className="text-[var(--text-secondary)]">
-              {delay.machine.name}
-            </span>
-          </p>
-        )}
+        {/* Machine & Site */}
+        {delay.machine &&
+          (() => {
+            const siteName = Array.isArray(delay.machine.sites)
+              ? delay.machine.sites[0]?.name
+              : delay.machine.sites?.name;
+            return (
+              <p className="text-[var(--text-muted)] text-xs flex items-center gap-2">
+                <span>
+                  Machine:{" "}
+                  <span className="text-[var(--text-secondary)]">
+                    {delay.machine.name}
+                  </span>
+                </span>
+                {siteName && (
+                  <>
+                    <span className="text-[var(--border-emphasis)]">·</span>
+                    <span className="text-[var(--accent-cyan)]">
+                      {siteName}
+                    </span>
+                  </>
+                )}
+              </p>
+            );
+          })()}
 
         {/* Description */}
         <p className="text-[var(--text-heading)] text-sm">
@@ -162,7 +179,7 @@ function DelayCard({ delay }: { delay: OperationalDelay }) {
         {/* Impact */}
         {delay.impact_description && (
           <p className="text-sm">
-            <span className="text-amber-400">Impact:</span>{" "}
+            <span className="text-accent-blue">Impact:</span>{" "}
             <span className="text-[var(--text-secondary)]">
               {delay.impact_description}
             </span>

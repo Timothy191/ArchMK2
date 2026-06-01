@@ -8,7 +8,7 @@
  * 2. No --arch* primitive tokens leak directly into preset.ts color utilities
  *    (components must use semantic aliases only)
  * 3. Deprecated aliases (--accent-cyan, --accent-indigo, --accent-violet,
- *    --accent-alert, --accent-amber, --accent-emerald, --bg-void) are not
+ *    --accent-alert, --accent-blue, --accent-emerald, --bg-void) are not
  *    introduced as new definitions outside the TIER 3 block.
  *
  * Exits 1 if violations are found (fails CI).
@@ -102,7 +102,6 @@ const DEPRECATED = [
   "--accent-indigo",
   "--accent-violet",
   "--accent-alert",
-  "--accent-amber",
   "--accent-emerald",
   "--bg-void",
 ];

@@ -1,17 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 
 export default function AuthLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [introComplete, setIntroComplete] = useState(false);
-  const [videoLoaded, setVideoLoaded] = useState(false);
-  const [showIntroLayer, setShowIntroLayer] = useState(true);
-  const [isFadingOut, setIsFadingOut] = useState(false);
-
   // Suppress specific Supabase refresh token errors
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -20,16 +15,31 @@ export default function AuthLayout({
       // eslint-disable-next-line no-console
       console.error = (...args) => {
         // Suppress Supabase AuthApiError: Invalid Refresh Token: Refresh Token Not Found
-        if (args[0] && 
-            typeof args[0] === 'string' && 
-            args[0].includes('AuthApiError') && 
-            args[0].includes('Invalid Refresh Token') && 
-            args[0].includes('Refresh Token Not Found')) {
+        // args[0] may be a string or an AuthApiError object depending on caller
+        const firstArg = args[0];
+        const isRefreshTokenError = (value: unknown): boolean => {
+          if (!value) return false;
+          if (typeof value === "string") {
+            return (
+              value.includes("Invalid Refresh Token") ||
+              value.includes("Refresh Token Not Found")
+            );
+          }
+          if (typeof value === "object" && "message" in value) {
+            const msg = String((value as { message: unknown }).message);
+            return (
+              msg.includes("Invalid Refresh Token") ||
+              msg.includes("Refresh Token Not Found")
+            );
+          }
+          return false;
+        };
+        if (isRefreshTokenError(firstArg)) {
           return; // Suppress this specific error
         }
         originalError.apply(console, args);
       };
-      
+
       return () => {
         // eslint-disable-next-line no-console
         console.error = originalError;
@@ -37,100 +47,9 @@ export default function AuthLayout({
     }
   }, []);
 
-  // Fallback timeout to prevent stuck intro if video fails to load
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const timeoutId = setTimeout(() => {
-        if (!videoLoaded) {
-          setVideoLoaded(true);
-        }
-      }, 8000); // 8 second fallback
-      
-      return () => clearTimeout(timeoutId);
-    }
-  }, [videoLoaded]);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const isE2E =
-        window.navigator.webdriver ||
-        window.navigator.userAgent.toLowerCase().includes("playwright") ||
-        window.location.search.includes("skipIntro=true") ||
-        window.location.search.includes("redirect=");
-      if (isE2E) {
-        setIntroComplete(true);
-        setShowIntroLayer(false);
-        return;
-      }
-
-      const seenIntro = localStorage.getItem("arch:introSeen");
-      if (seenIntro === "1") {
-        setIntroComplete(true);
-        setShowIntroLayer(false);
-      }
-    }
-  }, []);
-
-  const handleIntroComplete = () => {
-    if (isFadingOut || !showIntroLayer) return;
-    setIsFadingOut(true);
-    setIntroComplete(true);
-    if (typeof window !== "undefined") {
-      localStorage.setItem("arch:introSeen", "1");
-    }
-    setTimeout(() => {
-      setShowIntroLayer(false);
-    }, 1000);
-  };
-
   return (
-    <div className="relative min-h-screen flex items-center justify-center lg:justify-start p-6 lg:p-12 overflow-hidden bg-transparent">
-      {/* Intro Video Layer */}
-      {showIntroLayer && (
-        <div
-          className={`fixed inset-0 z-[100] flex items-center justify-center bg-[var(--bg-primary)] transition-opacity duration-[800ms] ease-out ${
-            isFadingOut ? "opacity-0 pointer-events-none" : "opacity-100"
-          }`}
-          onTransitionEnd={() => {
-            if (isFadingOut) {
-              setShowIntroLayer(false);
-            }
-          }}
-        >
-          <video
-            autoPlay
-            muted
-            playsInline
-            onCanPlayThrough={() => setVideoLoaded(true)}
-            onPlay={() => setVideoLoaded(true)}
-            onEnded={handleIntroComplete}
-            onError={handleIntroComplete}
-            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${videoLoaded ? "opacity-100" : "opacity-0"}`}
-          >
-            <source src="/intro.mp4" type="video/mp4" />
-          </video>
-
-          {/* Skip Button */}
-          <button
-            onClick={handleIntroComplete}
-            className={`absolute bottom-12 right-12 z-[101] px-6 py-2 rounded-full border border-[var(--border-emphasis)] bg-white/60 backdrop-blur-xl text-[var(--text-muted)] text-xs font-medium uppercase tracking-[0.2em] hover:bg-white/80 hover:text-[var(--text-heading)] transition-all shadow-diffusion-sm ${!videoLoaded ? "opacity-0 pointer-events-none" : "opacity-100"}`}
-          >
-            Skip Intro
-          </button>
-
-          {/* The video layer is now clean of loading text per user request */}
-        </div>
-      )}
-
-      <div
-        className={`relative z-10 w-full max-w-md max-h-[90vh] overflow-y-auto transition-[opacity,transform] duration-[1500ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${
-          introComplete
-            ? "opacity-100 translate-y-0"
-            : "opacity-0 translate-y-8 pointer-events-none select-none"
-        }`}
-      >
-        {children}
-      </div>
+    <div className="relative min-h-[calc(100vh-28px)] flex items-start lg:items-center justify-center lg:justify-start p-6 lg:p-12 overflow-y-auto">
+      <div className="relative z-10 w-full max-w-md">{children}</div>
     </div>
   );
 }

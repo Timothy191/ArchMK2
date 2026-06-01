@@ -1,17 +1,19 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@repo/supabase/server";
 import { revalidatePath } from "next/cache";
+import { withRateLimit } from "@/lib/api/rate-limit-middleware";
 
 export const dynamic = "force-dynamic";
 
-// PUT /api/webhooks/[id] - Update a webhook endpoint
-export async function PUT(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+async function handlePutWebhook(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+): Promise<NextResponse> {
   const { id } = await params;
   const supabase = await createServerSupabaseClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -66,7 +68,10 @@ export async function PUT(
     .single();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to update webhook" },
+      { status: 500 },
+    );
   }
 
   revalidatePath("/admin/tools");
@@ -75,14 +80,23 @@ export async function PUT(
   return NextResponse.json({ webhook });
 }
 
-// DELETE /api/webhooks/[id] - Delete a webhook endpoint
-export async function DELETE(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
+// PUT /api/webhooks/[id] - Update a webhook endpoint
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
 ) {
+  return withRateLimit(request, () => handlePutWebhook(request, { params }));
+}
+
+async function handleDeleteWebhook(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+): Promise<NextResponse> {
   const { id } = await params;
   const supabase = await createServerSupabaseClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -127,11 +141,22 @@ export async function DELETE(
     .eq("id", id);
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to delete webhook" },
+      { status: 500 },
+    );
   }
 
   revalidatePath("/admin/tools");
   revalidatePath("/(departments)/[department]/tools");
 
   return NextResponse.json({ success: true });
+}
+
+// DELETE /api/webhooks/[id] - Delete a webhook endpoint
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  return withRateLimit(request, () => handleDeleteWebhook(request, { params }));
 }

@@ -54,7 +54,9 @@ export function WebhookManager() {
   const [webhooks, setWebhooks] = useState<WebhookEndpoint[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [editingWebhook, setEditingWebhook] = useState<WebhookEndpoint | null>(null);
+  const [editingWebhook, setEditingWebhook] = useState<WebhookEndpoint | null>(
+    null,
+  );
   const [formData, setFormData] = useState({
     url: "",
     description: "",
@@ -82,7 +84,7 @@ export function WebhookManager() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.url || formData.event_types.length === 0) {
       toast.error("URL and at least one event type are required");
       return;
@@ -98,7 +100,12 @@ export function WebhookManager() {
       if (response.ok) {
         toast.success("Webhook created successfully");
         setShowForm(false);
-        setFormData({ url: "", description: "", event_types: [], active: true });
+        setFormData({
+          url: "",
+          description: "",
+          event_types: [],
+          active: true,
+        });
         fetchWebhooks();
       } else {
         const error = await response.json();
@@ -122,7 +129,12 @@ export function WebhookManager() {
       if (response.ok) {
         toast.success("Webhook updated successfully");
         setEditingWebhook(null);
-        setFormData({ url: "", description: "", event_types: [], active: true });
+        setFormData({
+          url: "",
+          description: "",
+          event_types: [],
+          active: true,
+        });
         fetchWebhooks();
       } else {
         const error = await response.json();
@@ -176,7 +188,7 @@ export function WebhookManager() {
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <RefreshCw className="w-6 h-6 animate-spin text-muted" />
+        <RefreshCw className="w-6 h-6 animate-spin text-arch-text-tertiary" />
       </div>
     );
   }
@@ -184,13 +196,21 @@ export function WebhookManager() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-medium text-heading">Webhook Endpoints</h2>
+        <h2 className="text-2xl font-semibold text-arch-text-primary">
+          Webhook Endpoints
+        </h2>
         <Button
           onClick={() => {
             setEditingWebhook(null);
-            setFormData({ url: "", description: "", event_types: [], active: true });
+            setFormData({
+              url: "",
+              description: "",
+              event_types: [],
+              active: true,
+            });
             setShowForm(!showForm);
           }}
+          className="bg-arch-accent-blue text-white hover:bg-arch-accent-blue/90"
         >
           <Plus className="w-4 h-4 mr-2" />
           Add Webhook
@@ -198,13 +218,19 @@ export function WebhookManager() {
       </div>
 
       {showForm && (
-        <Card className="p-6 border-default">
-          <h3 className="text-lg font-medium text-heading mb-4">
+        <Card className="p-6 border-arch-border-primary bg-arch-surface-secondary shadow-window">
+          <h3 className="text-lg font-semibold text-arch-text-primary mb-4">
             {editingWebhook ? "Edit Webhook" : "Create Webhook"}
           </h3>
-          <form onSubmit={editingWebhook ? handleUpdate : handleSubmit} className="space-y-4">
+          <form
+            onSubmit={editingWebhook ? handleUpdate : handleSubmit}
+            className="space-y-4"
+          >
             <div>
-              <label htmlFor="url" className="block text-sm font-medium text-body mb-2">
+              <label
+                htmlFor="url"
+                className="block text-sm font-medium text-arch-text-secondary mb-2"
+              >
                 Endpoint URL
               </label>
               <Input
@@ -212,27 +238,35 @@ export function WebhookManager() {
                 type="url"
                 placeholder="https://your-endpoint.com/webhook"
                 value={formData.url}
-                onChange={(e) => setFormData({ ...formData, url: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, url: e.target.value })
+                }
+                className="bg-arch-surface-primary border-arch-border-subtle focus-visible:ring-arch-accent-blue"
                 required
               />
             </div>
 
             <div>
-              <label htmlFor="description" className="block text-sm font-medium text-body mb-2">
+              <label
+                htmlFor="description"
+                className="block text-sm font-medium text-arch-text-secondary mb-2"
+              >
                 Description (Optional)
               </label>
               <textarea
                 id="description"
                 placeholder="Describe what this webhook is for"
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
                 rows={2}
-                className="w-full px-3 py-2 border border-default rounded bg-bg-primary text-heading"
+                className="w-full px-3 py-2 border border-arch-border-subtle rounded-lg bg-arch-surface-primary text-arch-text-primary focus:outline-none focus:border-arch-accent-blue/50 transition-colors text-sm"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-body mb-2">
+              <label className="block text-sm font-medium text-arch-text-secondary mb-2">
                 Event Types
               </label>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
@@ -241,10 +275,10 @@ export function WebhookManager() {
                     key={eventType}
                     type="button"
                     onClick={() => toggleEventType(eventType)}
-                    className={`text-left px-3 py-2 rounded border ${
+                    className={`text-left px-3 py-2 rounded-lg border transition-all text-xs ${
                       formData.event_types.includes(eventType)
-                        ? "bg-accent-emerald border-accent-emerald text-bg-void"
-                        : "border-default text-body"
+                        ? "bg-arch-accent-green/10 border-arch-accent-green text-arch-accent-green font-medium"
+                        : "border-arch-border-subtle text-arch-text-secondary hover:bg-arch-surface-tertiary"
                     }`}
                   >
                     {eventType}
@@ -253,28 +287,44 @@ export function WebhookManager() {
               </div>
             </div>
 
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 pt-2">
               <input
                 type="checkbox"
                 id="active"
                 checked={formData.active}
-                onChange={(e) => setFormData({ ...formData, active: e.target.checked })}
-                className="w-4 h-4"
+                onChange={(e) =>
+                  setFormData({ ...formData, active: e.target.checked })
+                }
+                className="w-4 h-4 rounded border-arch-border-subtle text-arch-accent-blue focus:ring-arch-accent-blue"
               />
-              <label htmlFor="active" className="text-sm font-medium text-body">
+              <label
+                htmlFor="active"
+                className="text-sm font-medium text-arch-text-secondary"
+              >
                 Active
               </label>
             </div>
 
-            <div className="flex gap-2">
-              <Button type="submit">{editingWebhook ? "Update" : "Create"}</Button>
+            <div className="flex gap-2 pt-4">
+              <Button
+                type="submit"
+                className="bg-arch-accent-blue text-white hover:bg-arch-accent-blue/90"
+              >
+                {editingWebhook ? "Update" : "Create"}
+              </Button>
               <Button
                 type="button"
                 variant="outline"
+                className="border-arch-border-subtle text-arch-text-secondary hover:bg-arch-surface-tertiary"
                 onClick={() => {
                   setShowForm(false);
                   setEditingWebhook(null);
-                  setFormData({ url: "", description: "", event_types: [], active: true });
+                  setFormData({
+                    url: "",
+                    description: "",
+                    event_types: [],
+                    active: true,
+                  });
                 }}
               >
                 Cancel
@@ -286,34 +336,53 @@ export function WebhookManager() {
 
       <div className="space-y-4">
         {webhooks.length === 0 ? (
-          <Card className="p-8 text-center border-default">
-            <p className="text-muted">No webhooks configured yet</p>
+          <Card className="p-8 text-center border-arch-border-subtle bg-arch-surface-primary/30">
+            <p className="text-arch-text-tertiary">
+              No webhooks configured yet
+            </p>
           </Card>
         ) : (
           webhooks.map((webhook) => (
-            <Card key={webhook.id} className="p-6 border-default">
+            <Card
+              key={webhook.id}
+              className="p-6 border-arch-border-subtle bg-arch-surface-secondary shadow-card hover:shadow-diffusion-sm transition-all"
+            >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
-                    <h3 className="font-medium text-heading">{webhook.url}</h3>
+                    <h3 className="font-semibold text-arch-text-primary">
+                      {webhook.url}
+                    </h3>
                     {webhook.active ? (
-                      <Badge variant="default" className="bg-accent-emerald">
+                      <Badge
+                        variant="default"
+                        className="bg-arch-accent-green text-white border-none"
+                      >
                         <CheckCircle className="w-3 h-3 mr-1" />
                         Active
                       </Badge>
                     ) : (
-                      <Badge variant="outline">
+                      <Badge
+                        variant="outline"
+                        className="border-arch-border-subtle text-arch-text-tertiary"
+                      >
                         <XCircle className="w-3 h-3 mr-1" />
                         Inactive
                       </Badge>
                     )}
                   </div>
                   {webhook.description && (
-                    <p className="text-sm text-muted mb-3">{webhook.description}</p>
+                    <p className="text-sm text-arch-text-secondary mb-3">
+                      {webhook.description}
+                    </p>
                   )}
                   <div className="flex flex-wrap gap-1">
                     {webhook.event_types.map((eventType: WebhookEventType) => (
-                      <Badge key={eventType} variant="secondary" className="text-xs">
+                      <Badge
+                        key={eventType}
+                        variant="secondary"
+                        className="text-[10px] bg-arch-surface-tertiary text-arch-text-secondary border-none"
+                      >
                         {eventType}
                       </Badge>
                     ))}
@@ -323,6 +392,7 @@ export function WebhookManager() {
                   <Button
                     variant="outline"
                     size="sm"
+                    className="border-arch-border-subtle text-arch-text-secondary hover:bg-arch-surface-tertiary"
                     onClick={() => handleEdit(webhook)}
                   >
                     Edit
@@ -330,6 +400,7 @@ export function WebhookManager() {
                   <Button
                     variant="outline"
                     size="sm"
+                    className="border-arch-border-subtle text-arch-accent-red hover:bg-arch-accent-red/10"
                     onClick={() => handleDelete(webhook.id)}
                   >
                     <Trash2 className="w-4 h-4" />

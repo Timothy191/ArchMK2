@@ -28,6 +28,9 @@ export function DozerRollForm({ departmentId, dozers }: DozerRollFormProps) {
   const [machineId, setMachineId] = useState("");
   const [lengthM, setLengthM] = useState("");
   const [widthM, setWidthM] = useState("");
+  const [bladePasses, setBladePasses] = useState("");
+  const [pushCount, setPushCount] = useState("");
+  const [hoursOperated, setHoursOperated] = useState("");
   const [shiftType, setShiftType] = useState<"day" | "night">(
     getCurrentShift(),
   );
@@ -52,6 +55,9 @@ export function DozerRollForm({ departmentId, dozers }: DozerRollFormProps) {
     setMachineId("");
     setLengthM("");
     setWidthM("");
+    setBladePasses("");
+    setPushCount("");
+    setHoursOperated("");
     setShiftType(getCurrentShift());
     setError(null);
     setIsOpen(false);
@@ -80,8 +86,9 @@ export function DozerRollForm({ departmentId, dozers }: DozerRollFormProps) {
         machine_id: machineId,
         roll_date: today,
         shift_type: shiftType,
-        blade_passes: 0,
-        push_count: 0,
+        blade_passes: parseInt(bladePasses || "0", 10),
+        push_count: parseInt(pushCount || "0", 10),
+        hours_operated: parseFloat(hoursOperated || "0"),
         area_covered_sqm: area,
         notes: `Length: ${lengthM}m, Width: ${widthM}m`,
       });
@@ -137,7 +144,7 @@ export function DozerRollForm({ departmentId, dozers }: DozerRollFormProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="block text-sm text-[var(--text-secondary)]">
-                  Dozer <span className="text-red-400">*</span>
+                  Dozer <span className="text-accent-red">*</span>
                 </label>
                 <select
                   value={machineId}
@@ -210,8 +217,55 @@ export function DozerRollForm({ departmentId, dozers }: DozerRollFormProps) {
               </div>
             </div>
 
+            {/* Roll Metrics */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <label className="block text-sm text-[var(--text-secondary)]">
+                  Blade Passes
+                </label>
+                <input
+                  type="number"
+                  min={0}
+                  step="1"
+                  value={bladePasses}
+                  onChange={(e) => setBladePasses(e.target.value)}
+                  placeholder="e.g. 12"
+                  className="w-full bg-[var(--bg-secondary)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] placeholder:text-[var(--text-muted)] text-sm focus:outline-none focus:border-[var(--accent-blue)] focus:ring-2 focus:ring-[var(--accent-blue)]/20 transition-colors"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="block text-sm text-[var(--text-secondary)]">
+                  Push Count
+                </label>
+                <input
+                  type="number"
+                  min={0}
+                  step="1"
+                  value={pushCount}
+                  onChange={(e) => setPushCount(e.target.value)}
+                  placeholder="e.g. 8"
+                  className="w-full bg-[var(--bg-secondary)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] placeholder:text-[var(--text-muted)] text-sm focus:outline-none focus:border-[var(--accent-blue)] focus:ring-2 focus:ring-[var(--accent-blue)]/20 transition-colors"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="block text-sm text-[var(--text-secondary)]">
+                  Hours Operated
+                </label>
+                <input
+                  type="number"
+                  min={0}
+                  max={24}
+                  step="0.1"
+                  value={hoursOperated}
+                  onChange={(e) => setHoursOperated(e.target.value)}
+                  placeholder="e.g. 8.5"
+                  className="w-full bg-[var(--bg-secondary)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] placeholder:text-[var(--text-muted)] text-sm focus:outline-none focus:border-[var(--accent-blue)] focus:ring-2 focus:ring-[var(--accent-blue)]/20 transition-colors"
+                />
+              </div>
+            </div>
+
             {/* Error */}
-            {error && <p className="text-red-400 text-sm">{error}</p>}
+            {error && <p className="text-accent-red text-sm">{error}</p>}
 
             {/* Actions */}
             <div className="flex items-center gap-4">

@@ -15,11 +15,11 @@ export default async function HourlyLoadsPage({
     department,
   });
 
-  // Fetch machines
+  // Fetch dump trucks with bin_factor (centralised fleet)
   const { data: machines } = await supabase
     .from("machines")
-    .select("id, name, machine_type")
-    .eq("department_id", deptId)
+    .select("id, name, machine_type, bin_factor")
+    .eq("machine_type", "Dump Truck")
     .eq("active", true)
     .order("name");
 

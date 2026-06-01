@@ -12,11 +12,13 @@ confidence: high
 # ADR-002: Supabase as Backend Platform
 
 ## Status
+
 **Accepted** — Implemented May 2024
 
 ## Context
 
 We needed a backend platform providing:
+
 - Relational database for mining operations data
 - Authentication system for multi-department users
 - Real-time subscriptions for live dashboards
@@ -62,18 +64,21 @@ We will use **Supabase** as our primary backend platform.
 ## Alternatives Considered
 
 ### Firebase (Google) (REJECTED)
+
 - Firestore NoSQL doesn't fit relational mining data
 - Vendor lock-in to Google ecosystem
 - Less mature TypeScript support
 - Query limitations for complex joins
 
 ### Self-Hosted PostgreSQL + Keycloak (REJECTED)
+
 - DevOps overhead for backups, scaling, patches
 - Custom auth implementation required
 - Real-time system would need custom WebSocket layer
 - Higher operational burden than managed service
 
 ### AWS RDS + Cognito (REJECTED)
+
 - Higher complexity than Supabase
 - No built-in real-time subscriptions
 - More expensive for equivalent features

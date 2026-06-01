@@ -26,6 +26,8 @@ RUN --mount=type=cache,target=/pnpm-store \
 FROM deps AS builder
 COPY --from=pruner /app/out/full/ .
 ENV NODE_ENV=production
+ARG CI=true
+ENV CI=${CI}
 # Build-time env vars (Next.js embeds these in the standalone output)
 ARG NEXT_PUBLIC_SUPABASE_URL
 ARG NEXT_PUBLIC_SUPABASE_ANON_KEY

@@ -1,7 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@repo/supabase/server";
+import { withRateLimit } from "@/lib/api/rate-limit-middleware";
 
-export async function GET(req: NextRequest) {
+function sanitizeCsvCell(value: string): string {
+  const dangerous = /^[=+\-@\t\r]/;
+  const sanitized = dangerous.test(value) ? "'" + value : value;
+  return `"${sanitized.replace(/"/g, '""')}"`;
+}
+
+async function handleExportRequest(req: NextRequest): Promise<NextResponse> {
   const supabase = await createServerSupabaseClient();
   const {
     data: { user },
@@ -12,12 +19,15 @@ export async function GET(req: NextRequest) {
 
   const { searchParams } = req.nextUrl;
   const dept = searchParams.get("dept");
-  const format = req.headers.get("accept")?.includes("text/csv") ? "csv" : "json";
+  const format = req.headers.get("accept")?.includes("text/csv")
+    ? "csv"
+    : "json";
 
   let query = supabase
     .from("machines")
-    .select("id, name, model, active, department_id, created_at")
-    .is("deleted_at", null)
+    .select(
+      "id, name, machine_type, serial_number, bin_factor, active, department_id, site_id, created_at",
+    )
     .order("name");
 
   if (dept) {
@@ -31,15 +41,28 @@ export async function GET(req: NextRequest) {
 
   const { data, error } = await query;
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: "Database query failed" },
+      { status: 500 },
+    );
   }
 
   if (format === "csv") {
-    const keys = ["id", "name", "model", "active", "department_id", "created_at"] as const;
+    const keys = [
+      "id",
+      "name",
+      "machine_type",
+      "serial_number",
+      "bin_factor",
+      "active",
+      "department_id",
+      "site_id",
+      "created_at",
+    ] as const;
     const csv = [
       keys.join(","),
       ...(data ?? []).map((r) =>
-        keys.map((k) => `"${String(r[k] ?? "").replace(/"/g, '""')}"`).join(","),
+        keys.map((k) => sanitizeCsvCell(String(r[k] ?? ""))).join(","),
       ),
     ].join("\n");
     return new NextResponse(csv, {
@@ -51,4 +74,8 @@ export async function GET(req: NextRequest) {
   }
 
   return NextResponse.json({ data, count: data?.length ?? 0 });
+}
+
+export async function GET(req: NextRequest) {
+  return withRateLimit(req, () => handleExportRequest(req));
 }

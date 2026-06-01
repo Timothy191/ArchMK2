@@ -53,6 +53,7 @@ pnpm supabase status
 ### Issue: "Cannot find module 'react'" or version conflicts
 
 **Diagnose**:
+
 ```bash
 # Check React versions
 pnpm list react
@@ -65,6 +66,7 @@ pnpm list react
 ### Issue: "Forbidden class: font-bold" in pre-commit
 
 **Fix**:
+
 ```tsx
 // Wrong
 <div className="font-bold">
@@ -80,16 +82,19 @@ Forbidden classes: `font-bold`, `font-semibold`, `shadow-*`, `bg-white/5`, `bord
 **See**: [[why-query-returns-empty]] — Full diagnosis guide
 
 Quick check:
+
 ```typescript
-const { data: { user } } = await supabase.auth.getUser()
-console.log('User:', user?.id)  // Should exist
+const {
+  data: { user },
+} = await supabase.auth.getUser();
+console.log("User:", user?.id); // Should exist
 
 const { data: employee } = await supabase
-  .from('employees')
-  .select('*')
-  .eq('auth_id', user?.id)
-  .single()
-console.log('Employee:', employee)  // Should exist, not null
+  .from("employees")
+  .select("*")
+  .eq("auth_id", user?.id)
+  .single();
+console.log("Employee:", employee); // Should exist, not null
 ```
 
 If `employee` is null → [[why-query-returns-empty]]
@@ -97,11 +102,13 @@ If `employee` is null → [[why-query-returns-empty]]
 ### Issue: Infinite redirects (auth loop)
 
 **Check**:
+
 1. `handle_new_user()` trigger exists in Supabase
 2. Employee row created for user
 3. User has correct role for route
 
 **Fix**:
+
 ```sql
 -- Check if trigger exists
 SELECT * FROM pg_trigger WHERE tgname = 'handle_new_user';
@@ -113,6 +120,7 @@ SELECT * FROM employees WHERE auth_id = 'user-id';
 ### Issue: Build fails
 
 **Steps**:
+
 ```bash
 # Clean rebuild
 rm -rf **/node_modules **/.turbo **/dist **/.next
@@ -121,6 +129,7 @@ pnpm build
 ```
 
 If still failing, check specific error:
+
 - TypeScript errors → `pnpm --filter portal type-check`
 - Lint errors → `pnpm lint`
 - Package errors → Check `pnpm-workspace.yaml`
@@ -128,6 +137,7 @@ If still failing, check specific error:
 ### Issue: AI chat not working
 
 **Check**:
+
 ```bash
 # Verify API keys
 cat apps/portal/.env | grep -E "GROQ|OPENROUTER|TOGETHER"
@@ -140,6 +150,7 @@ curl https://api.groq.com/openai/v1/models \
 ### Issue: External tools show "offline"
 
 **Check**:
+
 ```bash
 # Test n8n
 curl -I http://localhost:5678
@@ -164,7 +175,7 @@ curl http://localhost:3000/api/tools/status
 
 ### Supabase Dashboard
 
-1. Go to https://supabase.com/dashboard
+1. Go to <https://supabase.com/dashboard>
 2. Table Editor: Verify data exists
 3. SQL Editor: Run test queries
 4. Logs: Check for errors
@@ -172,7 +183,7 @@ curl http://localhost:3000/api/tools/status
 
 ### Vercel Dashboard (Production)
 
-1. Go to https://vercel.com/dashboard
+1. Go to <https://vercel.com/dashboard>
 2. Functions: Check serverless function logs
 3. Analytics: See performance metrics
 4. Deployments: Compare working vs broken
@@ -206,7 +217,9 @@ When asking for help in #dev-support, use this format:
 
 **Error Message**:
 ```
+
 Paste full error here
+
 ```
 
 **What I've Tried**:
@@ -230,14 +243,14 @@ Paste full error here
 
 ## Specific Debugging Guides
 
-| Issue | Guide |
-|-------|-------|
-| Query returns empty | [[why-query-returns-empty]] |
-| Auth not working | [[how-does-auth-work]] |
-| Build failing | [[troubleshooting]] → Build section |
-| Deploy failing | [[how-to-deploy-production]] |
-| Performance slow | [[monitoring-error-tracking]] |
-| AI not responding | [[ai-service]] |
+| Issue               | Guide                               |
+| ------------------- | ----------------------------------- |
+| Query returns empty | [[why-query-returns-empty]]         |
+| Auth not working    | [[how-does-auth-work]]              |
+| Build failing       | [[troubleshooting]] → Build section |
+| Deploy failing      | [[how-to-deploy-production]]        |
+| Performance slow    | [[monitoring-error-tracking]]       |
+| AI not responding   | [[ai-service]]                      |
 
 ---
 

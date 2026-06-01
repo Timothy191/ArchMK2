@@ -296,7 +296,7 @@ export function ExcavatorActivityForm({
 
         {showSuccessPlus ? (
           <div className="flex flex-col items-center gap-4 py-6">
-            <p className="text-emerald-400 font-medium">
+            <p className="text-accent-green font-medium">
               Activity logged successfully
             </p>
             <button
@@ -317,7 +317,7 @@ export function ExcavatorActivityForm({
               {/* Excavator Dropdown */}
               <div className="space-y-2">
                 <label className="text-[var(--text-secondary)] text-sm block">
-                  Excavator <span className="text-red-400">*</span>
+                  Excavator <span className="text-accent-red">*</span>
                 </label>
                 <select
                   value={formData.excavatorId}
@@ -338,14 +338,16 @@ export function ExcavatorActivityForm({
                   ))}
                 </select>
                 {errors.excavatorId && (
-                  <p className="text-red-400 text-xs">{errors.excavatorId}</p>
+                  <p className="text-accent-red text-xs">
+                    {errors.excavatorId}
+                  </p>
                 )}
               </div>
 
               {/* Operator Dropdown */}
               <div className="space-y-2">
                 <label className="text-[var(--text-secondary)] text-sm block">
-                  Operator <span className="text-red-400">*</span>
+                  Operator <span className="text-accent-red">*</span>
                 </label>
                 <select
                   value={formData.operatorId}
@@ -365,14 +367,14 @@ export function ExcavatorActivityForm({
                   ))}
                 </select>
                 {errors.operatorId && (
-                  <p className="text-red-400 text-xs">{errors.operatorId}</p>
+                  <p className="text-accent-red text-xs">{errors.operatorId}</p>
                 )}
               </div>
 
               {/* Site Dropdown */}
               <div className="space-y-2">
                 <label className="text-[var(--text-secondary)] text-sm block">
-                  Site/Location <span className="text-red-400">*</span>
+                  Site/Location <span className="text-accent-red">*</span>
                 </label>
                 <select
                   value={formData.siteId}
@@ -393,14 +395,14 @@ export function ExcavatorActivityForm({
                   ))}
                 </select>
                 {errors.siteId && (
-                  <p className="text-red-400 text-xs">{errors.siteId}</p>
+                  <p className="text-accent-red text-xs">{errors.siteId}</p>
                 )}
               </div>
 
               {/* Shift Type */}
               <div className="space-y-2">
                 <label className="text-[var(--text-secondary)] text-sm block">
-                  Shift <span className="text-red-400">*</span>
+                  Shift <span className="text-accent-red">*</span>
                 </label>
                 <div className="flex gap-2">
                   {(["day", "night"] as const).map((shift) => (
@@ -476,7 +478,7 @@ export function ExcavatorActivityForm({
                   </div>
                   <div>
                     <p className="text-[var(--text-muted)] text-xs">BCM/Hour</p>
-                    <p className="text-lg font-medium text-amber-400">
+                    <p className="text-lg font-medium text-accent-blue">
                       {bcmPerHour.toFixed(1)}
                     </p>
                   </div>
@@ -484,7 +486,7 @@ export function ExcavatorActivityForm({
                     <p className="text-[var(--text-muted)] text-xs">
                       Loads/Hour
                     </p>
-                    <p className="text-lg font-medium text-emerald-400">
+                    <p className="text-lg font-medium text-accent-green">
                       {loadsPerHour.toFixed(1)}
                     </p>
                   </div>
@@ -527,7 +529,7 @@ export function ExcavatorActivityForm({
                 {isSubmitting ? "Saving..." : "Log Activity"}
               </button>
               {errors.submit && (
-                <p className="text-red-400 text-sm">{errors.submit}</p>
+                <p className="text-accent-red text-sm">{errors.submit}</p>
               )}
             </div>
 

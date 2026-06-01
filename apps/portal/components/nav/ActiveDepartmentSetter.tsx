@@ -3,8 +3,14 @@
 import { useEffect } from "react";
 import { useNavigationState } from "../../hooks/useNavigationState";
 
-export function ActiveDepartmentSetter({ department }: { department: string | null }) {
-  const setActiveDepartment = useNavigationState((state) => state.setActiveDepartment);
+export function ActiveDepartmentSetter({
+  department,
+}: {
+  department: string | null;
+}) {
+  const setActiveDepartment = useNavigationState(
+    (state) => state.setActiveDepartment,
+  );
 
   useEffect(() => {
     setActiveDepartment(department);

@@ -77,8 +77,8 @@ test.describe("login form data entry", () => {
   test("typing in email field updates its value", async ({ page }) => {
     await page.goto("/login");
     const emailInput = page.locator("input[type='email'], input#email").first();
-    await emailInput.fill("operator@plantcor.os");
-    await expect(emailInput).toHaveValue("operator@plantcor.os");
+    await emailInput.fill("operator@arch.os");
+    await expect(emailInput).toHaveValue("operator@arch.os");
   });
 
   test("typing in password field updates its value", async ({ page }) => {
@@ -111,7 +111,9 @@ test.describe("login form data entry", () => {
 
     // Error message should appear (generic check for any error text)
     await expect(
-      page.locator("[role='alert'], .text-red-400, [data-testid='error-message']").first(),
+      page
+        .locator("[role='alert'], .text-red-400, [data-testid='error-message']")
+        .first(),
     ).toBeVisible({ timeout: 5000 });
   });
 });

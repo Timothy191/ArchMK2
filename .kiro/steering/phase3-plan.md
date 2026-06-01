@@ -20,6 +20,7 @@ ltm/bin/
 File: `ltm/bin/vector.py`
 
 Features:
+
 - Embed events from `ltm/store/events.jsonl` using `sentence-transformers/all-MiniLM-L6-v2`
 - Store embeddings in `ltm/store/vectors.jsonl` (JSONL with id + embedding + text + metadata)
 - Search: cosine similarity against query embedding, return top-k
@@ -27,10 +28,12 @@ Features:
 - Integration: n8n Pattern 4 (Vector Memory) and Pattern 5 (Hybrid Memory) webhooks call this script
 
 ### Dependencies
+
 - `sentence-transformers` (PyPI) — 30MB model, no GPU needed, runs in <2s for typical project memories
 - `numpy` — for cosine similarity
 
 ### Integration with n8n
+
 - Pattern 4 webhook (`/webhook/vector-memory`) already exists
 - Update its Code node to call `python3 ltm/bin/vector.py search "..."` instead of grep-based search
 - Pattern 5 webhook (`/webhook/hybrid-memory`) combines vector search + recent events
@@ -54,10 +57,12 @@ Goal: Real subprocess-based subagent spawning with worktree isolation.
 ### Subagent Spawning
 
 Follow `twaldin/harness` pattern: invoke agents as subprocesses with:
+
 - `RunSpec`: harness type, model, prompt, workdir, instructions, timeout
 - `RunResult`: exit code, cost, tokens, stdout, stderr
 
 For this project:
+
 - Primary subagent: `npx opencode` or `node /opt/Kiro/src/cli.js` with `--print` mode
 - Worktree isolation: `git worktree add` per subagent
 - System prompt injection via `.kiro/worktrees/<unit-id>/AGENTS.md`
@@ -88,15 +93,16 @@ Goal: Unified MCP tool registry with health monitoring.
 
 ### New MCP Servers to Add
 
-| Server | Purpose | Install |
-|--------|---------|---------|
-| GitHub MCP | Issues, PRs, repos, search | `npx @anthropic-ai/mcp-github` |
-| Playwright | Browser automation | Already configured in `.mcp.json` |
-| DevDocs | Documentation search | Already configured |
+| Server     | Purpose                    | Install                           |
+| ---------- | -------------------------- | --------------------------------- |
+| GitHub MCP | Issues, PRs, repos, search | `npx @anthropic-ai/mcp-github`    |
+| Playwright | Browser automation         | Already configured in `.mcp.json` |
+| DevDocs    | Documentation search       | Already configured                |
 
 ### Unified Tool Registry
 
 Create a dynamic tool discovery system:
+
 1. On session start, list all MCP servers from `.mcp.json`
 2. Call `tools/list` on each to get available tools
 3. Cache the tool catalog in `.kiro/mcp/registry.json`
@@ -138,6 +144,7 @@ Fallback: Report failure with reproduction steps
 ### n8n Integration
 
 Pattern 7 (Evaluator-Optimizer) webhook `/webhook/eval-optimizer` calls:
+
 ```bash
 node .kiro/evaluator-optimizer/index.js --issue "$ISSUE_URL" --workdir /tmp/eval-work
 ```
@@ -154,6 +161,7 @@ node .kiro/evaluator-optimizer/index.js --issue "$ISSUE_URL" --workdir /tmp/eval
 ## Files Summary
 
 ### Create
+
 ```
 ltm/bin/vector.py
 .kiro/orchestrator/index.js
@@ -172,6 +180,7 @@ ltm/bin/vector.py
 ```
 
 ### Modify
+
 ```
 .kiro/agents/digital-twin.md (add Phase 3 capabilities)
 .kiro/agents/team-lead.md (orchestrator integration)

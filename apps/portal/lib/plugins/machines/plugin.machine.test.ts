@@ -72,10 +72,10 @@ describe("Plugin Machine", () => {
 
     // Simulate: idle -> loading (fails) -> failed -> retrying
     actor.send({ type: "LOAD" });
-    
+
     // Manually set to failed state context for testing
     actor.send({ type: "plugin.failed", error: "test error" });
-    
+
     const snapshot = actor.getSnapshot();
     // The machine may have transitioned to failed or retrying
     expect(snapshot.context.pluginName).toBe("test-plugin");

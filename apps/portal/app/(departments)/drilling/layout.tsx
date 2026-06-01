@@ -13,8 +13,10 @@ export default async function DrillingLayout({
   const tabs = getDepartmentTabs("drilling");
 
   return (
-    <DepartmentLayout department={dept} tabs={tabs}>
-      {children}
-    </DepartmentLayout>
+    <>
+      <DepartmentLayout department={dept} tabs={tabs}>
+        {children}
+      </DepartmentLayout>
+    </>
   );
 }

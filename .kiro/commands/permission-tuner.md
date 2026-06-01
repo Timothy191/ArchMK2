@@ -9,6 +9,7 @@ Analyze your permission patterns and generate rules to reduce prompt fatigue.
 ## Quick Start
 
 Run this command to:
+
 1. Scan permission denial history
 2. Identify safe patterns for auto-approval
 3. Generate optimized rules

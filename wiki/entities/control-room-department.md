@@ -36,15 +36,15 @@ The Control Room department is the operational nerve center of Arch-Systems, pro
 
 ## Database Tables
 
-| Table | Purpose |
-|-------|---------|
-| `machine_operations` | Shift-level machine activity with calculated hours |
-| `hourly_loads` | 12-hour load grid per machine per shift |
-| `excavator_activity` | Excavator cycles, passes, loads, material tracking |
-| `excavator_dumper_assignments` | Dumper-to-excavator assignments with BCM |
-| `operational_delays` | Delay logging with categories and durations |
-| `engineering_notes` | Rich text technical notes |
-| `dozer_rolls` | Dozer rollover records |
+| Table                          | Purpose                                            |
+| ------------------------------ | -------------------------------------------------- |
+| `machine_operations`           | Shift-level machine activity with calculated hours |
+| `hourly_loads`                 | 12-hour load grid per machine per shift            |
+| `excavator_activity`           | Excavator cycles, passes, loads, material tracking |
+| `excavator_dumper_assignments` | Dumper-to-excavator assignments with BCM           |
+| `operational_delays`           | Delay logging with categories and durations        |
+| `engineering_notes`            | Rich text technical notes                          |
+| `dozer_rolls`                  | Dozer rollover records                             |
 
 ## Dashboard KPIs
 

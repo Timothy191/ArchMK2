@@ -8,8 +8,9 @@ DECLARE
   event_type TEXT;
   payload JSONB;
   webhook RECORD;
+  dept_id UUID;
 BEGIN
-  -- Determine event type based on table and operation
+  -- Determine event type and department ID based on table and operation
   IF TG_TABLE_NAME = 'daily_logs' THEN
     IF TG_OP = 'INSERT' THEN
       event_type := 'daily_log.created';
@@ -18,6 +19,7 @@ BEGIN
     ELSE
       RETURN NEW;
     END IF;
+    dept_id := NEW.department_id;
     payload := jsonb_build_object(
       'id', NEW.id,
       'department_id', NEW.department_id,
@@ -38,6 +40,7 @@ BEGIN
     ELSE
       RETURN NEW;
     END IF;
+    dept_id := NEW.department_id;
     payload := jsonb_build_object(
       'id', NEW.id,
       'department_id', NEW.department_id,
@@ -63,6 +66,7 @@ BEGIN
     ELSE
       RETURN NEW;
     END IF;
+    dept_id := NEW.department_id;
     payload := jsonb_build_object(
       'id', NEW.id,
       'department_id', NEW.department_id,
@@ -83,6 +87,8 @@ BEGIN
     ELSE
       RETURN NEW;
     END IF;
+    -- Resolve department_id by looking up referenced daily_logs record
+    SELECT department_id INTO dept_id FROM daily_logs WHERE id = NEW.daily_log_id;
     payload := jsonb_build_object(
       'id', NEW.id,
       'daily_log_id', NEW.daily_log_id,
@@ -98,6 +104,7 @@ BEGIN
     ELSE
       RETURN NEW;
     END IF;
+    dept_id := NEW.department_id;
     payload := jsonb_build_object(
       'id', NEW.id,
       'department_id', NEW.department_id,
@@ -120,7 +127,7 @@ BEGIN
     WHERE deleted_at IS NULL
       AND active = true
       AND event_type = ANY(event_types)
-      AND (department_id IS NULL OR department_id = NEW.department_id)
+      AND (department_id IS NULL OR department_id = dept_id)
   LOOP
     INSERT INTO webhook_delivery_logs (
       webhook_endpoint_id,

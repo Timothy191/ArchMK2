@@ -141,7 +141,7 @@ export function BreakdownsTable({
                   <tr
                     key={b.id}
                     className={`border-b border-[var(--border-emphasis)] last:border-0 hover:bg-[var(--bg-tertiary)] transition-colors ${
-                      b.missing_book_in ? "border-l-2 border-l-amber-500" : ""
+                      b.missing_book_in ? "border-l-2 border-l-blue-500" : ""
                     }`}
                   >
                     <td className="px-4 py-3 text-violet-400 font-medium">
@@ -159,7 +159,7 @@ export function BreakdownsTable({
                     </td>
                     <td className="px-4 py-3">
                       {b.status === "completed" ? (
-                        <span className="px-2 py-0.5 rounded-full text-xs bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+                        <span className="px-2 py-0.5 rounded-full text-xs bg-accent-green/10 border border-accent-green/20 text-accent-green">
                           {calcDuration(b)}
                         </span>
                       ) : (
@@ -172,11 +172,11 @@ export function BreakdownsTable({
                     {showStatus && (
                       <td className="px-4 py-3">
                         {b.status === "completed" ? (
-                          <span className="px-2 py-0.5 rounded-full text-xs bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+                          <span className="px-2 py-0.5 rounded-full text-xs bg-accent-green/10 border border-accent-green/20 text-accent-green">
                             Completed
                           </span>
                         ) : (
-                          <span className="px-2 py-0.5 rounded-full text-xs bg-amber-500/10 border border-amber-500/20 text-amber-400">
+                          <span className="px-2 py-0.5 rounded-full text-xs bg-accent-blue/10 border border-accent-blue/20 text-accent-blue">
                             Pending
                           </span>
                         )}
@@ -184,7 +184,7 @@ export function BreakdownsTable({
                     )}
                     <td className="px-4 py-3">
                       {b.missing_book_in ? (
-                        <span className="px-2 py-0.5 rounded-full text-xs bg-amber-500/10 border border-amber-500/20 text-amber-400">
+                        <span className="px-2 py-0.5 rounded-full text-xs bg-accent-blue/10 border border-accent-blue/20 text-accent-blue">
                           Missing Book-In
                         </span>
                       ) : (

@@ -11,14 +11,26 @@ import {
 } from "@/lib/monitoring-api";
 
 const MonitoringMap = dynamic(
-  () => import("@/components/monitoring/MonitoringMap").then((m) => m.MonitoringMap),
-  { ssr: false, loading: () => <div className="h-[340px] bg-[var(--bg-secondary)] border border-[var(--border-default)] rounded-xl animate-pulse" /> }
+  () =>
+    import("@/components/monitoring/MonitoringMap").then(
+      (m) => m.MonitoringMap,
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-[340px] bg-[var(--bg-secondary)] border border-[var(--border-default)] rounded-xl animate-pulse" />
+    ),
+  },
 );
 
-const readings = generateDeformationReadings(DEFAULT_MINE_CENTER.lat, DEFAULT_MINE_CENTER.lon);
+const readings = generateDeformationReadings(
+  DEFAULT_MINE_CENTER.lat,
+  DEFAULT_MINE_CENTER.lon,
+);
 
 export default function ControlRoomSatellitePage() {
-  const [selectedReading, setSelectedReading] = useState<DeformationReading | null>(null);
+  const [selectedReading, setSelectedReading] =
+    useState<DeformationReading | null>(null);
   const critical = readings.filter((r) => r.level === "critical").length;
   const moderate = readings.filter((r) => r.level === "moderate").length;
 
@@ -26,7 +38,9 @@ export default function ControlRoomSatellitePage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-medium text-[var(--text-heading)]">Satellite Monitoring</h2>
+          <h2 className="text-xl font-medium text-[var(--text-heading)]">
+            Satellite Monitoring
+          </h2>
           <p className="text-[var(--text-muted)] text-sm mt-0.5">
             Sentinel-1 InSAR deformation · Real-time site overview
           </p>
@@ -42,20 +56,32 @@ export default function ControlRoomSatellitePage() {
       {/* Summary KPIs */}
       <div className="grid grid-cols-3 gap-3">
         <GlassCard>
-          <p className="text-[var(--text-muted)] text-xs uppercase tracking-wide">Critical Alerts</p>
-          <p className={`text-2xl font-bold mt-1 ${critical > 0 ? "text-red-400" : "text-[var(--accent-cyan)]"}`}>
+          <p className="text-[var(--text-muted)] text-xs uppercase tracking-wide">
+            Critical Alerts
+          </p>
+          <p
+            className={`text-2xl font-bold mt-1 ${critical > 0 ? "text-accent-red" : "text-[var(--accent-cyan)]"}`}
+          >
             {critical}
           </p>
         </GlassCard>
         <GlassCard>
-          <p className="text-[var(--text-muted)] text-xs uppercase tracking-wide">Moderate</p>
-          <p className={`text-2xl font-bold mt-1 ${moderate > 0 ? "text-orange-400" : "text-[var(--text-heading)]"}`}>
+          <p className="text-[var(--text-muted)] text-xs uppercase tracking-wide">
+            Moderate
+          </p>
+          <p
+            className={`text-2xl font-bold mt-1 ${moderate > 0 ? "text-accent-blue" : "text-[var(--text-heading)]"}`}
+          >
             {moderate}
           </p>
         </GlassCard>
         <GlassCard>
-          <p className="text-[var(--text-muted)] text-xs uppercase tracking-wide">Sensor</p>
-          <p className="text-sm font-bold text-[var(--text-heading)] mt-1">Sentinel-1</p>
+          <p className="text-[var(--text-muted)] text-xs uppercase tracking-wide">
+            Sensor
+          </p>
+          <p className="text-sm font-bold text-[var(--text-heading)] mt-1">
+            Sentinel-1
+          </p>
           <p className="text-[var(--text-muted)] text-xs">InSAR</p>
         </GlassCard>
       </div>
@@ -85,15 +111,27 @@ export default function ControlRoomSatellitePage() {
             </button>
           </div>
           <p className="text-xs text-[var(--text-muted)]">
-            Shift: <span className="text-[var(--text-heading)]">{selectedReading.shiftMm} mm</span> ·
-            Trend: <span className="text-[var(--text-heading)] capitalize">{selectedReading.trend}</span> ·
-            Area: <span className="text-[var(--text-heading)] capitalize">{selectedReading.area.replace("-", " ")}</span>
+            Shift:{" "}
+            <span className="text-[var(--text-heading)]">
+              {selectedReading.shiftMm} mm
+            </span>{" "}
+            · Trend:{" "}
+            <span className="text-[var(--text-heading)] capitalize">
+              {selectedReading.trend}
+            </span>{" "}
+            · Area:{" "}
+            <span className="text-[var(--text-heading)] capitalize">
+              {selectedReading.area.replace("-", " ")}
+            </span>
           </p>
         </GlassCard>
       )}
 
       {/* Alert list */}
-      <DeformationSummary readings={readings} onReadingClick={setSelectedReading} />
+      <DeformationSummary
+        readings={readings}
+        onReadingClick={setSelectedReading}
+      />
     </div>
   );
 }

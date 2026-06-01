@@ -5,18 +5,25 @@ updated: 2026-05-15
 type: decision
 status: accepted
 tags: [adr, css, design, decision]
-sources: [wiki/comparisons/styling-approaches.md, wiki/concepts/design-system.md, CLAUDE.md]
+sources:
+  [
+    wiki/comparisons/styling-approaches.md,
+    wiki/concepts/design-system.md,
+    CLAUDE.md,
+  ]
 confidence: high
 ---
 
 # ADR-004: Tailwind CSS with Design Token Architecture
 
 ## Status
+
 **Accepted** — Implemented May 2024
 
 ## Context
 
 We needed a styling approach for:
+
 - Dark-themed mining operations portal
 - Shared design system across monorepo packages
 - Minimal CSS bundle sizes
@@ -39,6 +46,7 @@ We will use **Tailwind CSS 3.4 with CSS variable-based design tokens**, centrali
 ### Forbidden Patterns
 
 These classes are prohibited and caught by DeepEval + pre-commit hooks:
+
 - `font-bold`, `font-semibold` → use `font-medium`
 - `bg-white/5`, `border-white/10`, `text-white/50`, `text-white/70`
 - `shadow-*` → use CSS shadows from design tokens
@@ -68,18 +76,21 @@ These classes are prohibited and caught by DeepEval + pre-commit hooks:
 ## Alternatives Considered
 
 ### CSS-in-JS (styled-components, Emotion) (REJECTED)
+
 - Requires `'use client'` directive (breaks RSC)
 - Runtime JavaScript overhead
 - ThemeProvider cascade complexity
 - Duplicate style generation across packages
 
 ### CSS Modules (REJECTED)
+
 - More files to maintain
 - No built-in utility composition
 - Manual design token sharing
 - Slower iteration than utilities
 
 ### Vanilla Extract (REJECTED)
+
 - Good TypeScript support but
 - Newer ecosystem, fewer examples
 - Build configuration complexity
@@ -92,15 +103,15 @@ export const themePreset = {
   theme: {
     extend: {
       colors: {
-        void: 'hsl(var(--bg-void))',      // #0f0f0f
-        primary: 'hsl(var(--bg-primary))', // #171717
-        card: 'hsl(var(--bg-card))',       // #242424
-        border: 'hsl(var(--border))',       // #363636
-        accent: '#3ecf8e',                 // brand green
-      }
-    }
-  }
-}
+        void: "hsl(var(--bg-void))", // #0f0f0f
+        primary: "hsl(var(--bg-primary))", // #171717
+        card: "hsl(var(--bg-card))", // #242424
+        border: "hsl(var(--border))", // #363636
+        accent: "#3ecf8e", // brand green
+      },
+    },
+  },
+};
 ```
 
 - Portal and `@repo/ui` both re-export `@repo/theme/tailwind`

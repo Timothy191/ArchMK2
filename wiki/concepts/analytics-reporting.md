@@ -16,14 +16,14 @@ The portal captures rich operational data across 8 departments. Advanced analyti
 
 ## Current State
 
-| Feature | Current | Target |
-|---------|---------|--------|
-| Charts (avg across depts) | 79% | 90%+ |
-| Executive Dashboard | None | Full KPI view |
-| PDF/Excel Export | None | Automated via n8n |
-| Trend Analysis | Manual | Automated with forecasts |
-| Predictive Maintenance | None | ML model (XGBoost/Prophet) |
-| Data Export API | None | REST endpoints |
+| Feature                   | Current | Target                     |
+| ------------------------- | ------- | -------------------------- |
+| Charts (avg across depts) | 79%     | 90%+                       |
+| Executive Dashboard       | None    | Full KPI view              |
+| PDF/Excel Export          | None    | Automated via n8n          |
+| Trend Analysis            | Manual  | Automated with forecasts   |
+| Predictive Maintenance    | None    | ML model (XGBoost/Prophet) |
+| Data Export API           | None    | REST endpoints             |
 
 ---
 
@@ -35,14 +35,14 @@ A new top-level route `/hub/executive` accessible to admin/manager roles showing
 
 **Key KPIs:**
 
-| KPI | Source Table | Aggregation |
-|-----|-------------|-------------|
-| Daily Tonnage | `daily_logs.total_tonnage` | SUM by date |
-| Machine Utilization | `machine_hours` | AVG hours / shift |
-| Safety Incidents (MTD) | `safety_incidents` | COUNT, month-to-date |
-| Active Personnel | `employees` | COUNT where status = active |
-| Fleet Availability | `machines` | % operational / total |
-| Fuel Efficiency | `fuel_logs` | liters / tonne produced |
+| KPI                    | Source Table               | Aggregation                 |
+| ---------------------- | -------------------------- | --------------------------- |
+| Daily Tonnage          | `daily_logs.total_tonnage` | SUM by date                 |
+| Machine Utilization    | `machine_hours`            | AVG hours / shift           |
+| Safety Incidents (MTD) | `safety_incidents`         | COUNT, month-to-date        |
+| Active Personnel       | `employees`                | COUNT where status = active |
+| Fleet Availability     | `machines`                 | % operational / total       |
+| Fuel Efficiency        | `fuel_logs`                | liters / tonne produced     |
 
 **Implementation:**
 
@@ -112,6 +112,7 @@ Use historical machine breakdown data to predict failure probability.
   - Historical breakdown frequency
   - Age of machine
 - [ ] Train XGBoost classifier on labeled breakdown events:
+
   ```python
   # packages/ml/train_maintenance_model.py
   import xgboost as xgb
@@ -122,6 +123,7 @@ Use historical machine breakdown data to predict failure probability.
   model.fit(X_train, y_train)
   model.save_model('maintenance_model.json')
   ```
+
 - [ ] Expose predictions via Python FastAPI microservice or Edge Function:
   ```
   POST /api/ml/maintenance-risk
@@ -138,14 +140,14 @@ Use historical machine breakdown data to predict failure probability.
 
 ## Phased Delivery
 
-| Week | Deliverable |
-|------|------------|
-| Week 1, Days 1–2 | Executive KPI dashboard route + KPI cards |
-| Week 1, Days 3–5 | PDF/Excel export (portal side) |
-| Week 2, Days 1–2 | Trend lines + rolling averages on charts |
-| Week 2, Days 3–4 | Data export API endpoints |
-| Week 2, Day 5 | n8n scheduled report workflow |
-| Month 2 | ML predictive maintenance model + integration |
+| Week             | Deliverable                                   |
+| ---------------- | --------------------------------------------- |
+| Week 1, Days 1–2 | Executive KPI dashboard route + KPI cards     |
+| Week 1, Days 3–5 | PDF/Excel export (portal side)                |
+| Week 2, Days 1–2 | Trend lines + rolling averages on charts      |
+| Week 2, Days 3–4 | Data export API endpoints                     |
+| Week 2, Day 5    | n8n scheduled report workflow                 |
+| Month 2          | ML predictive maintenance model + integration |
 
 ---
 

@@ -1,6 +1,7 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@repo/supabase/server";
 import { revalidatePath } from "next/cache";
+import { withRateLimit } from "@/lib/api/rate-limit-middleware";
 
 type WebhookEventType =
   | "daily_log.created"
@@ -31,10 +32,11 @@ interface WebhookEndpoint {
 
 export const dynamic = "force-dynamic";
 
-// GET /api/webhooks - List all webhook endpoints
-export async function GET() {
+async function handleGetWebhooks(_request: NextRequest): Promise<NextResponse> {
   const supabase = await createServerSupabaseClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -58,32 +60,49 @@ export async function GET() {
     .is("deleted_at", null);
 
   if (employee.role !== "admin") {
-    query = query.or(`department_id.eq.${employee.department_id},department_id.in.(${(employee.accessible_departments || []).join(",")})`);
+    query = query.or(
+      `department_id.eq.${employee.department_id},department_id.in.(${(employee.accessible_departments || []).join(",")})`,
+    );
   }
 
   const { data: webhooks, error } = await query;
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: "Database query failed" },
+      { status: 500 },
+    );
   }
 
   return NextResponse.json({ webhooks });
 }
 
-// POST /api/webhooks - Create a new webhook endpoint
-export async function POST(request: Request) {
+// GET /api/webhooks - List all webhook endpoints
+export async function GET(request: NextRequest) {
+  return withRateLimit(request, () => handleGetWebhooks(request));
+}
+
+async function handleCreateWebhook(
+  request: NextRequest,
+): Promise<NextResponse> {
   const supabase = await createServerSupabaseClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const body = await request.json();
-  const { url, description, event_types, department_id } = body as Partial<WebhookEndpoint>;
+  const { url, description, event_types, department_id } =
+    body as Partial<WebhookEndpoint>;
 
   if (!url || !event_types || event_types.length === 0) {
-    return NextResponse.json({ error: "URL and event_types are required" }, { status: 400 });
+    return NextResponse.json(
+      { error: "URL and event_types are required" },
+      { status: 400 },
+    );
   }
 
   // Get user's department and role
@@ -100,7 +119,10 @@ export async function POST(request: Request) {
   // Non-admins can only create webhooks for their department
   if (employee.role !== "admin") {
     const targetDept = department_id || employee.department_id;
-    if (targetDept !== employee.department_id && !employee.accessible_departments?.includes(targetDept)) {
+    if (
+      targetDept !== employee.department_id &&
+      !employee.accessible_departments?.includes(targetDept)
+    ) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
   }
@@ -118,11 +140,19 @@ export async function POST(request: Request) {
     .single();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to create webhook" },
+      { status: 500 },
+    );
   }
 
   revalidatePath("/admin/tools");
   revalidatePath("/(departments)/[department]/tools");
 
   return NextResponse.json({ webhook }, { status: 201 });
+}
+
+// POST /api/webhooks - Create a new webhook endpoint
+export async function POST(request: NextRequest) {
+  return withRateLimit(request, () => handleCreateWebhook(request));
 }

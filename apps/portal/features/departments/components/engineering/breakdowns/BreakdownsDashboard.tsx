@@ -59,9 +59,9 @@ export function BreakdownsDashboard({
           </p>
         </div>
         {activeBreakdowns.length > 0 && (
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/20">
-            <Zap className="w-4 h-4 text-red-400" />
-            <span className="text-red-400 text-sm font-medium">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-accent-red/10 border border-accent-red/20">
+            <Zap className="w-4 h-4 text-accent-red" />
+            <span className="text-accent-red text-sm font-medium">
               {activeBreakdowns.length} Active
             </span>
           </div>
@@ -86,7 +86,7 @@ export function BreakdownsDashboard({
               <Icon className="w-4 h-4" />
               {tab.label}
               {tab.id === "bookout" && activeBreakdowns.length > 0 && (
-                <span className="ml-1 px-1.5 py-0.5 text-xs rounded-full bg-red-500/20 text-red-400 border border-red-500/30">
+                <span className="ml-1 px-1.5 py-0.5 text-xs rounded-full bg-accent-red/20 text-accent-red border border-accent-red/30">
                   {activeBreakdowns.length}
                 </span>
               )}

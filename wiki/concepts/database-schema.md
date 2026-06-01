@@ -284,54 +284,68 @@ Migrations live in `packages/database/migrations/` as numbered `.sql` files:
 Migrations 010-014 implemented the following improvements:
 
 ### Foreign Key Indexes
+
 All foreign key columns now have explicit indexes for join performance:
+
 - `employees.department_id`, `machines.department_id`, `machines.site_id`
 - `daily_logs` composite index on `(department_id, log_date DESC, shift)`
 - All child table indexes (`machine_hours`, `fuel_logs`, `production_logs`)
 
 ### Audit Timestamps
+
 Added `updated_at` columns to:
+
 - `daily_logs`, `machine_hours`, `fuel_logs`, `production_logs`
 
 ### Soft Delete Consistency
+
 Added `deleted_at` columns to:
+
 - `operators`, `sites`, `mine_blocks`, `delay_categories`, `report_templates`
 
 ### Enum Types
+
 Native PostgreSQL enum types created for:
+
 - `role_type`, `shift_type`, `incident_type`, `delay_type`
 - `safety_incident_type`, `safety_status`, `memory_type`
 
 ## Performance Scorecard
 
-| Category | Score | Notes |
-|----------|-------|-------|
-| Security | 10/10 | Comprehensive RLS coverage, admin policies |
-| Indexing | 9/10 | All FKs indexed, composite patterns, HNSW |
-| Normalization | 7/10 | Good referential integrity, hourly_loads denormalization intentional |
-| Maintainability | 9/10 | Consistent migrations, comprehensive docs |
+| Category        | Score | Notes                                                                |
+| --------------- | ----- | -------------------------------------------------------------------- |
+| Security        | 10/10 | Comprehensive RLS coverage, admin policies                           |
+| Indexing        | 9/10  | All FKs indexed, composite patterns, HNSW                            |
+| Normalization   | 7/10  | Good referential integrity, hourly_loads denormalization intentional |
+| Maintainability | 9/10  | Consistent migrations, comprehensive docs                            |
 
 ## Scaling & Optimization Roadmap
 
 Planned enhancements for production scale (see [[database-optimization]] for full details):
 
 ### Table Partitioning (Migrations 017–018)
+
 Time-series tables planned for RANGE partitioning by month:
+
 - `hourly_loads` — highest row growth, queried by date range
 - `daily_logs` — shift-level data, dashboard queries by month
 - `machine_hours` — per-machine utilization records
 - `fuel_logs` — consumption data by shift/machine
 
 ### Connection Pooling
+
 PgBouncer in transaction mode to cap PostgreSQL connections at 25 while supporting 200+ concurrent app connections.
 
 ### Materialized Views (Migration 019)
+
 Pre-computed aggregations refreshed every 15 minutes via `pg_cron`:
+
 - `dept_production_summary` — monthly tonnage + efficiency per department
 - `machine_utilization_weekly` — fleet availability by week
 - `safety_incident_monthly` — incident counts and categories
 
 ### Read Replicas
+
 Streaming replication for dashboard `SELECT` queries, keeping writes on primary.
 
 See [[database-optimization]] for implementation checklists and SQL examples.

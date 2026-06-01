@@ -2,35 +2,36 @@
 
 > Content catalog for the Arch-Systems (Plantcor) company knowledge base.
 > Read this first to find relevant pages for any query.
-> Last updated: 2026-05-17 | Total pages: 59 (17 concepts + 9 entities + 10 comparisons + 7 ADRs + 6 queries + 4 operational + 3 gittree + 2 reports + 1 schema)
-> Current project version: Phase 3 (Latest) | Next.js 15 | React 19 | Supabase | Multi-Agent Orchestrator
+> Last updated: 2026-05-27 | Total pages: 59 (17 concepts + 9 entities + 10 comparisons + 7 ADRs + 6 queries + 4 operational + 3 gittree + 2 reports + 1 schema)
+> Current project version: Phase 5 (Latest) | Next.js 15 | React 19.2.6 | Supabase | LangGraph AI Orchestrator | Light Theme | 48 Migrations
 
 ## Quick Reference
 
-| I need to... | Go to |
-|--------------|-------|
-| Understand project history | [[gittree/README\|Git Tree & Branches]] |
-| View project structure | [[arch-systems]] |
-| Start developing | [[turborepo-monorepo]] → [[supabase-local-dev]] |
-| Build a department feature | [[department-features]] → [[portal-app-architecture]] |
-| Add UI components | [[design-system]] |
-| Work with database | [[database-schema]] → [[rls-policy]] |
-| Implement auth | [[auth-middleware]] |
-| Use AI service | [[ai-service]] |
-| Set up external tools | [[external-tools]] |
-| Monitor/debug | [[monitoring-error-tracking]] |
-| Run tests/eval | [[deepeval-integration]] |
-| Debug issues | [[how-to-debug-issues]] |
-| Deploy code | [[how-to-deploy-production]] |
-| Set up production server | [[on-premises-deployment]] |
-| Improve test coverage | [[testing-qa-strategy]] |
-| Scale the database | [[database-optimization]] |
-| Add mobile/PWA support | [[mobile-pwa]] |
-| Build analytics & reports | [[analytics-reporting]] |
-| Understand data visualization | [[gittree/visual-graphs-reporting]] |
-| Learn code graph analysis | [[gittree/conceptual-code-graphs]] |
-| Study graph algorithms | [[gittree/graph-data-structures]] |
-| See why we chose X | [[Comparisons]] section below |
+| I need to...                  | Go to                                                 |
+| ----------------------------- | ----------------------------------------------------- |
+| Understand project history    | [[gittree/README\|Git Tree & Branches]]               |
+| View project structure        | [[arch-systems]]                                      |
+| Start developing              | [[turborepo-monorepo]] → [[supabase-local-dev]]       |
+| Build a department feature    | [[department-features]] → [[portal-app-architecture]] |
+| Add UI components             | [[design-system]]                                     |
+| Work with database            | [[database-schema]] → [[rls-policy]]                  |
+| Implement auth                | [[auth-middleware]]                                   |
+| Use AI service                | [[ai-service]]                                        |
+| Set up external tools         | [[external-tools]]                                    |
+| Monitor/debug                 | [[monitoring-error-tracking]]                         |
+| Run tests/eval                | [[deepeval-integration]]                              |
+| Debug issues                  | [[how-to-debug-issues]]                               |
+| Deploy code                   | [[how-to-deploy-production]]                          |
+| Set up production server      | [[on-premises-deployment]]                            |
+| Understand observability      | [[monitoring-error-tracking]]                         |
+| Improve test coverage         | [[testing-qa-strategy]]                               |
+| Scale the database            | [[database-optimization]]                             |
+| Add mobile/PWA support        | [[mobile-pwa]]                                        |
+| Build analytics & reports     | [[analytics-reporting]]                               |
+| Understand data visualization | [[gittree/visual-graphs-reporting]]                   |
+| Learn code graph analysis     | [[gittree/conceptual-code-graphs]]                    |
+| Study graph algorithms        | [[gittree/graph-data-structures]]                     |
+| See why we chose X            | [[Comparisons]] section below                         |
 
 ---
 
@@ -49,11 +50,13 @@
 ## Concepts (12 + 7 ADRs + 4 Operational + 3 Git Tree)
 
 ### Architecture & Setup
+
 - [[turborepo-monorepo|Turborepo Monorepo Structure]] — Workspace layout, conventions, and build commands
 - [[supabase-local-dev|Supabase Local Development]] — Local DB, auth, and storage setup with remote sync
-- [[portal-app-architecture|Portal App Architecture]] — Next.js 15 App Router, RSC, server actions, and feature organization
+- [[portal-app-architecture|Portal App Architecture]] — Next.js 15 App Router, RSC, server actions, LangGraph agent workflow, and feature organization
 
 #### Architecture Decision Records (ADRs)
+
 - [[adr-001-nextjs-app-router|ADR-001]] — Next.js 15 App Router adoption
 - [[adr-002-supabase-backend|ADR-002]] — Supabase as backend platform
 - [[adr-003-turborepo-monorepo|ADR-003]] — Turborepo for monorepo management
@@ -63,6 +66,7 @@
 - [[adr-007-react-19-adoption|ADR-007]] — React 19 adoption strategy
 
 #### Operational Guides
+
 - [[troubleshooting|Troubleshooting Guide]] — Common issues and fixes
 - [[deployment|Deployment Runbook]] — Production deployment procedures
 - [[on-premises-deployment|On-Premises Deployment & Cockpit]] — Linux server provisioning, Cockpit setup, offline deployment
@@ -70,26 +74,30 @@
 - [[incident-response|Incident Response Playbook]] — Production incident handling
 
 ### Database & Security
+
 - [[database-schema|Database Schema]] — Full PostgreSQL schema with RLS policies and table relationships
 - [[rls-policy|RLS Policy Standards]] — Row Level Security requirements and auth helpers
 - [[auth-middleware|Auth and Middleware]] — Supabase auth flow, middleware, role-based access, cross-department permissions
 - [[database-optimization|Database Optimization & Scaling]] — Partitioning, PgBouncer, read replicas, materialized views
 
 ### Features
+
 - [[department-features|Department Features]] — Control room, engineering, safety, satellite monitoring capabilities
-- [[external-tools|External Tools Integration]] — n8n, Flowise, Univer embedding and health checks
-- [[ai-service|AI Service]] — Multi-provider chat with failover, prompt templates, and tool use
-- [[monitoring-error-tracking|Monitoring and Error Tracking]] — Sentry, real-time subscriptions, satellite monitoring API
+- [[external-tools|External Tools Integration]] — n8n, Flowise, Univer embedding, Inngest background jobs, Novu notifications, health checks
+- [[ai-service|AI Service]] — LangGraph 8-node orchestrator, OpenRouter → Groq failover, pgvector memory, Redis rate limiter, department personalities, AI usage logs
+- [[monitoring-error-tracking|Monitoring and Error Tracking]] — Sentry, Highlight session replay, OpenTelemetry tracing, Prometheus/Grafana, real-time subscriptions, satellite monitoring API
 - [[analytics-reporting|Advanced Analytics & Reporting]] — Executive KPI dashboard, PDF/Excel export, trend analysis, ML predictive maintenance
 
 ### Quality & Design
-- [[design-system|Portal Design System]] — Dark-themed Tailwind design tokens and shared components
+
+- [[design-system|Portal Design System]] — Light-only macOS Sonoma Tailwind design tokens, Style Dictionary pipeline, and shared components
 - [[deepeval-integration|DeepEval Integration]] — LLM evaluation framework for AI service quality and code convention compliance
 - [[testing-qa-strategy|Testing & QA Strategy]] — Unit coverage 90%+, E2E critical flows, visual regression, load & security testing
 - [[mobile-pwa|Mobile Responsiveness & PWA]] — Offline support, touch-optimized forms, PWA install
 
 ### Git Tree & Project History
-- [[gittree/README|Git Tree History]] — Complete git graph from project start to Phase 3, all branches and milestones
+
+- [[gittree/README|Git Tree History]] — Complete git graph from project start to Phase 5, all branches and milestones
 - [[gittree/visual-graphs-reporting|Visual Graphs for Reporting]] — Data visualization for metrics, dashboards, and analytics
 - [[gittree/conceptual-code-graphs|Conceptual Code Graphs]] — ASTs, CFGs, CPGs for static analysis and security scanning
 - [[gittree/graph-data-structures|Graph Data Structures]] — Algorithms (BFS, DFS, Dijkstra), adjacency representations

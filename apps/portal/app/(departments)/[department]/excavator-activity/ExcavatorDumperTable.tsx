@@ -277,7 +277,7 @@ export function ExcavatorDumperTable({
                           type="button"
                           onClick={() => handleRemoveRow(index)}
                           title="Remove"
-                          className="p-1 text-[var(--text-muted)] hover:text-red-400 transition-colors text-xs"
+                          className="p-1 text-[var(--text-muted)] hover:text-accent-red transition-colors text-xs"
                         >
                           ✕
                         </button>
@@ -309,7 +309,7 @@ export function ExcavatorDumperTable({
       )}
 
       {errors?.dumperAssignments && (
-        <p className="text-red-400 text-xs">{errors.dumperAssignments}</p>
+        <p className="text-accent-red text-xs">{errors.dumperAssignments}</p>
       )}
     </div>
   );

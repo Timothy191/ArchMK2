@@ -88,10 +88,10 @@ export function KeplerGlMap({
   const geoJSONStr = useMemo(() => JSON.stringify(geoJSON, null, 2), [geoJSON]);
 
   const levelColors: Record<string, string> = {
-    critical: "text-red-400 bg-red-500/10 border-red-500/20",
-    moderate: "text-orange-400 bg-orange-500/10 border-orange-500/20",
-    minor: "text-amber-400 bg-amber-500/10 border-amber-500/20",
-    stable: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
+    critical: "text-accent-red bg-accent-red/10 border-accent-red/20",
+    moderate: "text-accent-blue bg-accent-blue/10 border-accent-blue/20",
+    minor: "text-accent-blue bg-accent-blue/10 border-accent-blue/20",
+    stable: "text-accent-green bg-accent-green/10 border-accent-green/20",
   };
 
   return (

@@ -16,15 +16,15 @@ Phase 3 delivered a working test baseline. A post-Phase 3 sprint added E2E, visu
 
 ## Current State
 
-| Test Type | Status | Notes |
-|-----------|--------|-------|
-| Unit (Jest) | ✅ 178 passing, 23 suites | Coverage reporting active (lcov + html) |
-| E2E (Playwright) | ✅ 3 suites (25 tests) | login, navigation (14), data-entry (11) |
-| Visual Regression | ✅ 2 specs | login.visual.spec, design-system.visual.spec |
-| Load Testing | ✅ k6 configured | login/redirect/ai-chat, ramp 0→40 VUs, p95<2s |
-| DeepEval (AI) | ✅ 25 tests | 12 code-gen + 13 AI service, custom metrics |
-| Security / Pentest | ✅ Scripted | `scripts/pentest.sh` — OWASP ZAP baseline+full |
-| Pass Rate | ~85% | 5 failing tests remain (under investigation) |
+| Test Type          | Status                    | Notes                                          |
+| ------------------ | ------------------------- | ---------------------------------------------- |
+| Unit (Jest)        | ✅ 178 passing, 23 suites | Coverage reporting active (lcov + html)        |
+| E2E (Playwright)   | ✅ 3 suites (25 tests)    | login, navigation (14), data-entry (11)        |
+| Visual Regression  | ✅ 2 specs                | login.visual.spec, design-system.visual.spec   |
+| Load Testing       | ✅ k6 configured          | login/redirect/ai-chat, ramp 0→40 VUs, p95<2s  |
+| DeepEval (AI)      | ✅ 25 tests               | 12 code-gen + 13 AI service, custom metrics    |
+| Security / Pentest | ✅ Scripted               | `scripts/pentest.sh` — OWASP ZAP baseline+full |
+| Pass Rate          | ~85%                      | 5 failing tests remain (under investigation)   |
 
 Test files: `24` across portal and packages.  
 Test runner: `pnpm --filter portal test`  

@@ -1,5 +1,6 @@
 "use server";
 
+import { cacheInvalidateTags } from "@repo/redis";
 import { createServerSupabaseClient } from "@repo/supabase/server";
 import { revalidatePath } from "next/cache";
 import { logAuditEvent } from "@/lib/audit";
@@ -53,7 +54,9 @@ export async function createBreakdown(
     departmentId,
   });
 
+  await cacheInvalidateTags(["table:breakdowns"]);
   revalidatePath("/engineering/breakdowns");
+  revalidatePath("/control-room/engineering-notes");
   return { success: true };
 }
 
@@ -110,7 +113,9 @@ export async function bookOutBreakdown(
     },
   });
 
+  await cacheInvalidateTags(["table:breakdowns"]);
   revalidatePath("/engineering/breakdowns");
+  revalidatePath("/control-room/engineering-notes");
   return { success: true };
 }
 
@@ -164,7 +169,9 @@ export async function directCheckout(
     departmentId,
   });
 
+  await cacheInvalidateTags(["table:breakdowns"]);
   revalidatePath("/engineering/breakdowns");
+  revalidatePath("/control-room/engineering-notes");
   return { success: true };
 }
 
@@ -207,6 +214,8 @@ export async function softDeleteBreakdown(breakdownId: string) {
     newData: { deleted_at: new Date().toISOString() },
   });
 
+  await cacheInvalidateTags(["table:breakdowns"]);
   revalidatePath("/engineering/breakdowns");
+  revalidatePath("/control-room/engineering-notes");
   return { success: true };
 }

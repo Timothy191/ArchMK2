@@ -15,11 +15,15 @@ jest.mock("@repo/supabase/server", () => ({
   }),
 }));
 
-jest.mock("ai", () => ({
-  streamText: jest.fn(),
-  convertToModelMessages: jest.fn().mockResolvedValue([]),
-  stepCountIs: jest.fn((n: number) => n),
-  UIMessage: jest.fn(),
+jest.mock("@/lib/ai/ollama", () => ({
+  ollamaChatStream: jest.fn().mockResolvedValue(
+    (async function* () {
+      yield "Hello";
+    })(),
+  ),
+  ollamaChat: jest.fn().mockResolvedValue("Hello"),
+  ollamaEmbed: jest.fn().mockResolvedValue([[0.1, 0.2]]),
+  DEFAULT_MODEL: "gemma4:latest",
 }));
 
 jest.mock("@/lib/ai/providers", () => ({
@@ -57,23 +61,29 @@ jest.mock("@repo/redis/cache", () => ({
   }),
 }));
 
-const { streamText } = jest.requireMock("ai");
 const { createServerSupabaseClient } = jest.requireMock(
   "@repo/supabase/server",
 );
 const { storeMemory, retrieveRelevantMemories } =
   jest.requireMock("@/lib/ai/memory");
-
+const { ollamaChatStream } = jest.requireMock("@/lib/ai/ollama");
 describe("POST /api/ai/chat", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockCache.clear();
     resetRateLimits();
-    streamText.mockReturnValue({
-      toUIMessageStreamResponse: jest
-        .fn()
-        .mockReturnValue(new Response("stream", { status: 200 })),
+    createServerSupabaseClient.mockResolvedValue({
+      auth: {
+        getUser: jest
+          .fn()
+          .mockResolvedValue({ data: { user: { id: "user-1" } }, error: null }),
+      },
     });
+    ollamaChatStream.mockResolvedValue(
+      (async function* () {
+        yield "Hello";
+      })(),
+    );
   });
 
   function createRequest(body: unknown, headers?: Record<string, string>) {
@@ -107,7 +117,7 @@ describe("POST /api/ai/chat", () => {
     const res = await POST(req);
 
     expect(res.status).toBe(200);
-    expect(streamText).toHaveBeenCalledTimes(1);
+    expect(ollamaChatStream).toHaveBeenCalledTimes(1);
   });
 
   it("rate limits after 30 requests from the same IP", async () => {
@@ -119,6 +129,7 @@ describe("POST /api/ai/chat", () => {
     for (let i = 0; i < 30; i++) {
       const req = createRequest(body);
       const res = await POST(req);
+      // Each request re-auths via agent graph; ollama is mocked so 200
       expect(res.status).toBe(200);
     }
 
@@ -126,7 +137,9 @@ describe("POST /api/ai/chat", () => {
     const req = createRequest(body);
     const res = await POST(req);
     expect(res.status).toBe(429);
-    expect(await res.json()).toEqual({ error: "Rate limited" });
+    expect(await res.json()).toEqual(
+      expect.objectContaining({ error: "Rate limit exceeded" }),
+    );
   });
 
   it("resets rate limit window after 60 seconds", async () => {
@@ -138,7 +151,8 @@ describe("POST /api/ai/chat", () => {
     // Exhaust the rate limit
     for (let i = 0; i < 30; i++) {
       const req = createRequest(body);
-      await POST(req);
+      const res = await POST(req);
+      expect(res.status).toBe(200);
     }
 
     const blockedReq = createRequest(body);
@@ -176,30 +190,8 @@ describe("POST /api/ai/chat", () => {
     expect(res.status).toBe(400);
   });
 
-  it("falls back to secondary provider when primary fails", async () => {
-    streamText
-      .mockImplementationOnce(() => {
-        throw new Error("Primary provider error");
-      })
-      .mockReturnValueOnce({
-        toUIMessageStreamResponse: jest
-          .fn()
-          .mockReturnValue(new Response("secondary-stream", { status: 200 })),
-      });
-
-    const req = createRequest({
-      messages: [{ id: "1", role: "user", content: "Hello" }],
-    });
-
-    const res = await POST(req);
-    expect(res.status).toBe(200);
-    expect(streamText).toHaveBeenCalledTimes(2);
-  });
-
-  it("returns 500 when both providers fail", async () => {
-    streamText.mockImplementation(() => {
-      throw new Error("Provider error");
-    });
+  it("returns 500 when Ollama fails", async () => {
+    ollamaChatStream.mockRejectedValue(new Error("Ollama down"));
 
     const req = createRequest({
       messages: [{ id: "1", role: "user", content: "Hello" }],
@@ -212,7 +204,7 @@ describe("POST /api/ai/chat", () => {
   });
 
   it("returns 401 when user is not authenticated", async () => {
-    createServerSupabaseClient.mockResolvedValueOnce({
+    createServerSupabaseClient.mockResolvedValue({
       auth: {
         getUser: jest.fn().mockResolvedValue({
           data: { user: null },

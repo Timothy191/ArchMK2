@@ -1,7 +1,7 @@
 ---
-title: "ADR-001: Next.js 15 App Router Adoption"
+title: "ADR-001: Next.js 16 App Router Adoption"
 created: 2026-05-15
-updated: 2026-05-15
+updated: 2026-05-25
 type: decision
 status: accepted
 tags: [adr, architecture, nextjs, decision]
@@ -9,14 +9,16 @@ sources: [wiki/comparisons/react-patterns.md, CLAUDE.md]
 confidence: high
 ---
 
-# ADR-001: Next.js 15 App Router Adoption
+# ADR-001: Next.js 16 App Router Adoption
 
 ## Status
-**Accepted** — Implemented May 2024
+
+**Accepted** — Implemented May 2024; migrated to Next.js 16.2.6 on May 25, 2026
 
 ## Context
 
 We needed to choose a React framework and routing architecture for the mining operations portal. The application requirements included:
+
 - Server-side data fetching for operational data
 - Real-time dashboard updates
 - Multi-department routing with shared layouts
@@ -25,13 +27,13 @@ We needed to choose a React framework and routing architecture for the mining op
 
 ## Decision
 
-We will adopt **Next.js 15 with the App Router**, using **React Server Components (RSC) as the default rendering strategy**.
+We adopt **Next.js 16 with the App Router**, using **React Server Components (RSC) as the default rendering strategy**.
 
 ### Key Choices Within This Decision
 
 1. **App Router over Pages Router** — Nested layouts, streaming, RSC support
 2. **Server Components by default** — Only client components when interactivity needed
-3. **Next.js 15** — Latest stable with React 19 compatibility
+3. **Next.js 16.2.6** — Latest stable with React 19.2.6 compatibility, Turbopack by default, async Request APIs
 
 ## Consequences
 
@@ -58,12 +60,14 @@ We will adopt **Next.js 15 with the App Router**, using **React Server Component
 ## Alternatives Considered
 
 ### Next.js Pages Router (REJECTED)
+
 - Full page hydration required
 - No nested layouts
 - Less granular streaming control
 - Legacy pattern (maintenance mode)
 
 ### Traditional SPA (Vite + React Router) (REJECTED)
+
 - No server-side rendering
 - Requires API layer for all data
 - Loses Next.js optimizations (images, fonts, scripts)

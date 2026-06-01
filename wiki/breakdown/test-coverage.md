@@ -34,15 +34,15 @@
 
 ### Test Infrastructure
 
-| Type | Tool | Config | Status |
-|------|------|--------|--------|
-| Unit | Jest 30.x + ts-jest | `apps/portal/jest.config.js` | ✅ Active |
-| E2E | Playwright | `playwright.config.ts` | ✅ Active |
-| Visual Regression | Playwright snapshots | `e2e/visual/` | ✅ Active |
-| Load | k6 | `load-tests/` | ✅ Configured |
-| AI Eval | DeepEval + Python | `packages/eval/` | ✅ Active |
-| Security | OWASP ZAP (scripted) | `scripts/pentest.sh` | ✅ Scripted |
-| Component | Storybook | — | ❌ Not set up |
+| Type              | Tool                 | Config                       | Status        |
+| ----------------- | -------------------- | ---------------------------- | ------------- |
+| Unit              | Jest 30.x + ts-jest  | `apps/portal/jest.config.js` | ✅ Active     |
+| E2E               | Playwright           | `playwright.config.ts`       | ✅ Active     |
+| Visual Regression | Playwright snapshots | `e2e/visual/`                | ✅ Active     |
+| Load              | k6                   | `load-tests/`                | ✅ Configured |
+| AI Eval           | DeepEval + Python    | `packages/eval/`             | ✅ Active     |
+| Security          | OWASP ZAP (scripted) | `scripts/pentest.sh`         | ✅ Scripted   |
+| Component         | Storybook            | —                            | ❌ Not set up |
 
 ### Unit Tests — 37 Files, 178 Passing
 
@@ -82,12 +82,12 @@ apps/portal/
 
 ### Coverage Thresholds (jest.config.js)
 
-| Metric | Threshold | Actual | Status |
-|--------|-----------|--------|--------|
-| Lines | 40% | **40.26%** | 🟢 Passing (barely) |
-| Branches | 30% | **31.41%** | 🟢 Passing |
-| Functions | 35% | **28.47%** | 🔴 FAILING |
-| Statements | 40% | ~40% | 🟢 Passing |
+| Metric     | Threshold | Actual     | Status              |
+| ---------- | --------- | ---------- | ------------------- |
+| Lines      | 40%       | **40.26%** | 🟢 Passing (barely) |
+| Branches   | 30%       | **31.41%** | 🟢 Passing          |
+| Functions  | 35%       | **28.47%** | 🔴 FAILING          |
+| Statements | 40%       | ~40%       | 🟢 Passing          |
 
 > **Note**: Functions threshold is failing (28.47% < 35%). This is the active blocker in CI.
 
@@ -102,18 +102,18 @@ collectCoverageFrom: [
   "!**/*.test.{ts,tsx}",
   "!**/*.d.ts",
   "!**/node_modules/**",
-]
+];
 ```
 
 ### E2E Tests — 5 Specs
 
-| Spec | Tests | Coverage |
-|------|-------|---------|
-| `e2e/login.spec.ts` | Login flow | ✅ Happy path + error state |
-| `e2e/navigation.spec.ts` | 14 tests | ✅ All 8 departments navigate |
-| `e2e/data-entry.spec.ts` | 11 tests | ✅ Control Room shift log form |
-| `e2e/visual/login.visual.spec.ts` | Visual snapshot | ✅ 2% tolerance |
-| `e2e/visual/design-system.visual.spec.ts` | Design system snapshot | ✅ 2% tolerance |
+| Spec                                      | Tests                  | Coverage                       |
+| ----------------------------------------- | ---------------------- | ------------------------------ |
+| `e2e/login.spec.ts`                       | Login flow             | ✅ Happy path + error state    |
+| `e2e/navigation.spec.ts`                  | 14 tests               | ✅ All 8 departments navigate  |
+| `e2e/data-entry.spec.ts`                  | 11 tests               | ✅ Control Room shift log form |
+| `e2e/visual/login.visual.spec.ts`         | Visual snapshot        | ✅ 2% tolerance                |
+| `e2e/visual/design-system.visual.spec.ts` | Design system snapshot | ✅ 2% tolerance                |
 
 Run command: `pnpm test:e2e` (app must be running on `:3000`)
 
@@ -121,29 +121,29 @@ Run command: `pnpm test:e2e` (app must be running on `:3000`)
 
 Location: `load-tests/`
 
-| Scenario | VUs | Duration | Thresholds |
-|----------|-----|----------|------------|
-| Login flow | 0→40 ramp | 5 min | p95 < 2s, error < 1% |
-| Hub redirect | 0→40 ramp | 5 min | p95 < 2s, error < 1% |
-| AI chat | 0→40 ramp | 5 min | p95 < 2s, error < 1% |
+| Scenario     | VUs       | Duration | Thresholds           |
+| ------------ | --------- | -------- | -------------------- |
+| Login flow   | 0→40 ramp | 5 min    | p95 < 2s, error < 1% |
+| Hub redirect | 0→40 ramp | 5 min    | p95 < 2s, error < 1% |
+| AI chat      | 0→40 ramp | 5 min    | p95 < 2s, error < 1% |
 
 ### DeepEval AI Tests — 25 Tests
 
 Location: `packages/eval/`
 
-| Suite | Tests | Custom Metrics |
-|-------|-------|---------------|
-| Code generation | 12 | DesignSystem, SupabaseImport, RLS, DeptPattern, ShiftCloseout |
-| AI service | 13 | Skips cleanly without OPENAI_API_KEY |
+| Suite           | Tests | Custom Metrics                                                |
+| --------------- | ----- | ------------------------------------------------------------- |
+| Code generation | 12    | DesignSystem, SupabaseImport, RLS, DeptPattern, ShiftCloseout |
+| AI service      | 13    | Skips cleanly without OPENAI_API_KEY                          |
 
 ### Security Pentest
 
-| Asset | Status | Notes |
-|-------|--------|-------|
-| `scripts/pentest.sh` | ✅ Created | OWASP ZAP baseline + full scan |
+| Asset                         | Status     | Notes                                |
+| ----------------------------- | ---------- | ------------------------------------ |
+| `scripts/pentest.sh`          | ✅ Created | OWASP ZAP baseline + full scan       |
 | `docker-compose.security.yml` | ✅ Created | `zap-baseline` + `zap-full` services |
-| Execution against local | ⬜ Pending | Manual trigger, Docker required |
-| Last scan results | None | Not yet executed |
+| Execution against local       | ⬜ Pending | Manual trigger, Docker required      |
+| Last scan results             | None       | Not yet executed                     |
 
 ---
 
@@ -182,57 +182,57 @@ Location: `packages/eval/`
 
 ## Action Plan
 
-| Priority | Action | Status | Impact |
-|----------|--------|--------|--------|
-| 🔴 P0 | Fix 5 failing unit tests | ⬜ Pending | Unblocks CI, improves coverage |
-| 🔴 P0 | Raise function coverage — add tests to `lib/` utilities | ⬜ Pending | Fix CI failure |
-| 🟡 P1 | Reach 60% line coverage — add ~200 targeted tests | ⬜ Pending | Hit Phase 1 target |
-| 🟡 P1 | Add E2E test: AI chat send + receive | ⬜ Pending | Critical path coverage |
-| 🟡 P1 | Add E2E test: Admin panel access control | ⬜ Pending | Security smoke test |
-| 🟡 P1 | Execute OWASP ZAP scan (`./scripts/pentest.sh`) | ⬜ Pending | Pentest findings |
-| 🟢 P2 | Set up Storybook for `@repo/ui` | ⬜ Pending | Component visual tests |
-| 🟢 P2 | Raise coverage threshold to 60% in jest.config.js | ⬜ After reaching 60% | CI gate |
-| 🟢 P2 | Add E2E to CI pipeline | ⬜ Pending | Automated regression |
-| ✅ Done | 37-file unit test suite (178 passing) | ✅ Complete | Foundation |
-| ✅ Done | Coverage threshold set (40/30/35/40) | ✅ Complete | CI gate |
-| ✅ Done | E2E: login + navigation + data-entry (25 tests) | ✅ Complete | Critical flows |
-| ✅ Done | Visual regression (2 specs) | ✅ Complete | UI snapshot safety |
-| ✅ Done | k6 load testing (3 scenarios) | ✅ Complete | Performance baseline |
-| ✅ Done | DeepEval AI eval suite (25 tests) | ✅ Complete | AI quality gate |
-| ✅ Done | Security pentest scripted | ✅ Complete | Ready to execute |
+| Priority | Action                                                  | Status                | Impact                         |
+| -------- | ------------------------------------------------------- | --------------------- | ------------------------------ |
+| 🔴 P0    | Fix 5 failing unit tests                                | ⬜ Pending            | Unblocks CI, improves coverage |
+| 🔴 P0    | Raise function coverage — add tests to `lib/` utilities | ⬜ Pending            | Fix CI failure                 |
+| 🟡 P1    | Reach 60% line coverage — add ~200 targeted tests       | ⬜ Pending            | Hit Phase 1 target             |
+| 🟡 P1    | Add E2E test: AI chat send + receive                    | ⬜ Pending            | Critical path coverage         |
+| 🟡 P1    | Add E2E test: Admin panel access control                | ⬜ Pending            | Security smoke test            |
+| 🟡 P1    | Execute OWASP ZAP scan (`./scripts/pentest.sh`)         | ⬜ Pending            | Pentest findings               |
+| 🟢 P2    | Set up Storybook for `@repo/ui`                         | ⬜ Pending            | Component visual tests         |
+| 🟢 P2    | Raise coverage threshold to 60% in jest.config.js       | ⬜ After reaching 60% | CI gate                        |
+| 🟢 P2    | Add E2E to CI pipeline                                  | ⬜ Pending            | Automated regression           |
+| ✅ Done  | 37-file unit test suite (178 passing)                   | ✅ Complete           | Foundation                     |
+| ✅ Done  | Coverage threshold set (40/30/35/40)                    | ✅ Complete           | CI gate                        |
+| ✅ Done  | E2E: login + navigation + data-entry (25 tests)         | ✅ Complete           | Critical flows                 |
+| ✅ Done  | Visual regression (2 specs)                             | ✅ Complete           | UI snapshot safety             |
+| ✅ Done  | k6 load testing (3 scenarios)                           | ✅ Complete           | Performance baseline           |
+| ✅ Done  | DeepEval AI eval suite (25 tests)                       | ✅ Complete           | AI quality gate                |
+| ✅ Done  | Security pentest scripted                               | ✅ Complete           | Ready to execute               |
 
 ---
 
 ## Industry Comparison
 
-| Metric | Arch Systems | Industry Avg | Best Practice | Gap |
-|--------|-------------|--------------|---------------|-----|
-| Line coverage | 40.26% | 60-70% | 80%+ | ⚠️ -20% to target |
-| Branch coverage | 31.41% | 50-60% | 70%+ | ⚠️ -19% to target |
-| Test file count | 37 unit + 5 E2E | Varies | — | 🟢 Good |
-| E2E framework | Playwright | Cypress/Playwright | Same | 🟢 On par |
-| Load testing | k6 | Often absent | k6/Gatling | 🟢 A+ |
-| AI eval | DeepEval | Rare | Emerging practice | 🟢 A+ |
-| Security scan | ZAP scripted | Often absent | OWASP ZAP | 🟢 A |
-| Component tests | None | Storybook ~40% | Storybook | 🔴 Missing |
+| Metric          | Arch Systems    | Industry Avg       | Best Practice     | Gap               |
+| --------------- | --------------- | ------------------ | ----------------- | ----------------- |
+| Line coverage   | 40.26%          | 60-70%             | 80%+              | ⚠️ -20% to target |
+| Branch coverage | 31.41%          | 50-60%             | 70%+              | ⚠️ -19% to target |
+| Test file count | 37 unit + 5 E2E | Varies             | —                 | 🟢 Good           |
+| E2E framework   | Playwright      | Cypress/Playwright | Same              | 🟢 On par         |
+| Load testing    | k6              | Often absent       | k6/Gatling        | 🟢 A+             |
+| AI eval         | DeepEval        | Rare               | Emerging practice | 🟢 A+             |
+| Security scan   | ZAP scripted    | Often absent       | OWASP ZAP         | 🟢 A              |
+| Component tests | None            | Storybook ~40%     | Storybook         | 🔴 Missing        |
 
 ---
 
 ## Score Breakdown
 
-| Sub-metric | Score | Rationale |
-|-----------|-------|-----------|
-| Unit test infrastructure | 8.5/10 | 37 files, 178 passing, CI-gated |
-| E2E coverage | 8.5/10 | 3 flows + 2 visual specs |
-| Line coverage | 4.0/10 | 40% vs 60% target |
-| Branch coverage | 3.1/10 | 31% vs 50% target |
-| Function coverage | 2.8/10 | 28% — failing threshold |
-| Load testing | 10/10 | k6 with 3 production-like scenarios |
-| AI eval | 10/10 | DeepEval suite with custom metrics |
-| Visual regression | 8.5/10 | 2 specs, snapshot comparison |
-| Security pentest | 7.0/10 | Scripted, not yet executed |
-| Component tests | 0/10 | No Storybook |
-| **Overall** | **7.2/10** | Strong infrastructure, coverage gap |
+| Sub-metric               | Score      | Rationale                           |
+| ------------------------ | ---------- | ----------------------------------- |
+| Unit test infrastructure | 8.5/10     | 37 files, 178 passing, CI-gated     |
+| E2E coverage             | 8.5/10     | 3 flows + 2 visual specs            |
+| Line coverage            | 4.0/10     | 40% vs 60% target                   |
+| Branch coverage          | 3.1/10     | 31% vs 50% target                   |
+| Function coverage        | 2.8/10     | 28% — failing threshold             |
+| Load testing             | 10/10      | k6 with 3 production-like scenarios |
+| AI eval                  | 10/10      | DeepEval suite with custom metrics  |
+| Visual regression        | 8.5/10     | 2 specs, snapshot comparison        |
+| Security pentest         | 7.0/10     | Scripted, not yet executed          |
+| Component tests          | 0/10       | No Storybook                        |
+| **Overall**              | **7.2/10** | Strong infrastructure, coverage gap |
 
 ---
 

@@ -6,7 +6,9 @@ export default async function NewDrillOperationPage() {
   const supabase = await createServerSupabaseClient();
 
   // Ensure user is authenticated
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) {
     redirect("/login");
   }
@@ -26,7 +28,6 @@ export default async function NewDrillOperationPage() {
   const { data: machines } = await supabase
     .from("machines")
     .select("id, name")
-    .eq("department_id", dept.id)
     .eq("machine_type", "Drill Rig")
     .eq("active", true)
     .order("name");
@@ -37,22 +38,23 @@ export default async function NewDrillOperationPage() {
     .select("id, full_name")
     .eq("department_id", dept.id)
     .eq("role", "operator")
-    .eq("active", true)
     .order("full_name");
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       <div>
-        <h2 className="text-2xl font-semibold text-[var(--text-heading)]">Log Drill Operation</h2>
+        <h2 className="text-2xl font-semibold text-[var(--text-heading)]">
+          Log Drill Operation
+        </h2>
         <p className="text-sm text-[var(--text-muted)] mt-1">
           Record daily shift metrics, hours, and precise granular delays.
         </p>
       </div>
 
-      <DrillOperationsForm 
-        departmentId={dept.id} 
-        machines={machines || []} 
-        operators={operators || []} 
+      <DrillOperationsForm
+        departmentId={dept.id}
+        machines={machines || []}
+        operators={operators || []}
       />
     </div>
   );

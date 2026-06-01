@@ -37,28 +37,28 @@ The Training department in Arch-Systems handles the Learning Management System (
 
 ## Database Tables
 
-| Table | Purpose | Key Columns |
-|-------|---------|-------------|
-| `training_records` | Completed courses per employee | `employee_id`, `course_id`, `completed_at`, `score` |
-| `certifications` | Active certifications with expiry | `employee_id`, `cert_type`, `issued_at`, `expires_at` |
-| `training_courses` | Course catalog | `name`, `department_id`, `duration_hours`, `required_role` |
-| `competency_assessments` | Skills assessments | `employee_id`, `skill_area`, `assessed_at`, `result` |
-| `machines` | Training equipment and simulators | `name`, `machine_type`, `serial_number`, `active` |
+| Table                    | Purpose                           | Key Columns                                                |
+| ------------------------ | --------------------------------- | ---------------------------------------------------------- |
+| `training_records`       | Completed courses per employee    | `employee_id`, `course_id`, `completed_at`, `score`        |
+| `certifications`         | Active certifications with expiry | `employee_id`, `cert_type`, `issued_at`, `expires_at`      |
+| `training_courses`       | Course catalog                    | `name`, `department_id`, `duration_hours`, `required_role` |
+| `competency_assessments` | Skills assessments                | `employee_id`, `skill_area`, `assessed_at`, `result`       |
+| `machines`               | Training equipment and simulators | `name`, `machine_type`, `serial_number`, `active`          |
 
 Certification expiry queries use `expires_at < NOW() + INTERVAL '30 days'` to surface upcoming renewals.
 
 ## Completeness Status (Phase 3)
 
-| Feature | Status |
-|---------|--------|
-| Dashboard | 80% |
-| Forms (daily-log) | 75% |
-| Tables (machines, history) | 85% |
-| Charts | 70% |
-| Real-time updates | 60% |
-| AI Assistant | 75% |
-| Mobile responsiveness | 60% |
-| **Overall** | **72%** |
+| Feature                    | Status  |
+| -------------------------- | ------- |
+| Dashboard                  | 80%     |
+| Forms (daily-log)          | 75%     |
+| Tables (machines, history) | 85%     |
+| Charts                     | 70%     |
+| Real-time updates          | 60%     |
+| AI Assistant               | 75%     |
+| Mobile responsiveness      | 60%     |
+| **Overall**                | **72%** |
 
 **Mobile:** Certification lookup and assessment sign-off are key mobile use cases for trainers working on-site. See [[mobile-pwa]].
 

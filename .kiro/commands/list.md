@@ -39,6 +39,7 @@ Recent learnings:
 ## Categories
 
 Available categories:
+
 - Navigation
 - Editing
 - Testing

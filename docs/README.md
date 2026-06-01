@@ -33,6 +33,7 @@ pnpm build
 ## Wiki Content
 
 Content is sourced from `/wiki` directory:
+
 - `entities/` - Product/company entities
 - `concepts/` - Architecture, patterns, decisions
 - `comparisons/` - Technology comparisons

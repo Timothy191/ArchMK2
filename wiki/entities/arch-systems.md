@@ -13,6 +13,7 @@ confidence: high
 Arch-Systems (Plantcor) is a multi-departmental mining operations portal built as a monorepo. It provides authenticated access to department-specific dashboards for drilling, production, access control, engineering, control room, safety, training, and satellite monitoring.
 
 ## Technology Stack
+
 - **Frontend:** Next.js 15 (App Router, React 19), Tailwind CSS 3.4, shadcn/ui
 - **Backend:** Supabase (PostgreSQL, Auth, Storage)
 - **Build:** Turborepo 2.1 + pnpm 9.12.0 workspaces
@@ -23,6 +24,7 @@ Arch-Systems (Plantcor) is a multi-departmental mining operations portal built a
 - **State:** Zustand 5
 
 ## Monorepo Structure
+
 - `apps/portal/` → Next.js 15 app with App Router, React 19
 - `packages/ui/` → [[turborepo-monorepo|@repo/ui]] — shared components, shadcn primitives
 - `packages/theme/` → [[design-system|@repo/theme]] — design tokens, Tailwind preset
@@ -35,6 +37,7 @@ Arch-Systems (Plantcor) is a multi-departmental mining operations portal built a
 - `apps/cms/` → Payload CMS v3 (headless, Postgres-backed)
 
 ## Key Shared Components
+
 - `GlassCard` — Card container with dark theme styling
 - `DepartmentLayout` — Sidebar + content layout for department pages
 - `KPI`/`KPIGrid` — Summary metric cards
@@ -43,6 +46,7 @@ Arch-Systems (Plantcor) is a multi-departmental mining operations portal built a
 - `FormFields` — Consistent dark theme form controls
 
 ## Portal App Router
+
 - `(auth)/login/` → Supabase Auth login
 - `(hub)/` → Department grid + productivity tools
 - `(departments)/[department]/` → Dynamic department routes with tabs
@@ -50,19 +54,23 @@ Arch-Systems (Plantcor) is a multi-departmental mining operations portal built a
 - `api/ai/` → AI service endpoint
 
 ## Department Routes
+
 Standard departments get: dashboard, daily-log, machines, history, reports, tools.
 Specialized routes:
+
 - `control-room`: dashboard, hourly-loads, machine-operations, operational-delays, engineering-notes, excavator-activity, roll-over, machines, reports, satellite
 - `engineering`: dashboard, breakdowns, daily-log, machines, history, reports, tools
 - `satellite-monitoring`: overview, sar, hyperspectral, highres
 
 ## Auth & Security
+
 - Three client contexts: browser, server, middleware
 - RLS policies scoped by `employees.auth_id = auth.uid()`
 - `handle_new_user()` trigger auto-creates employee row on signup
 - `employees.accessible_departments` allows cross-department access
 
 ## Key Gotchas
+
 - @react-three/fiber v8.x + @react-three/drei v9.x (React 19 compatible, though wiki mentions React 18 compat historically)
 - Never commit middleware auth bypass without security review
 - Migration source of truth: `packages/database/migrations/` (synced to `packages/supabase/supabase/migrations/` at deploy)
@@ -74,21 +82,21 @@ Specialized routes:
 
 All three phases are complete. Next recommended actions in priority order:
 
-| # | Area | Priority | Est. | Page |
-|---|------|----------|------|------|
-| 1 | On-Premises Server Setup & Cockpit | CRITICAL | 1–2 days | [[on-premises-deployment]] |
-| 2 | Comprehensive Testing & QA | HIGH | 1 week | [[testing-qa-strategy]] |
-| 3 | Database Optimization & Scaling | HIGH | 3–4 days | [[database-optimization]] |
-| 4 | Mobile Responsiveness & PWA | MEDIUM | 1 week | [[mobile-pwa]] |
-| 5 | Advanced Analytics & Reporting | MEDIUM | 2 weeks | [[analytics-reporting]] |
+| #   | Area                               | Priority | Est.     | Page                       |
+| --- | ---------------------------------- | -------- | -------- | -------------------------- |
+| 1   | On-Premises Server Setup & Cockpit | CRITICAL | 1–2 days | [[on-premises-deployment]] |
+| 2   | Comprehensive Testing & QA         | HIGH     | 1 week   | [[testing-qa-strategy]]    |
+| 3   | Database Optimization & Scaling    | HIGH     | 3–4 days | [[database-optimization]]  |
+| 4   | Mobile Responsiveness & PWA        | MEDIUM   | 1 week   | [[mobile-pwa]]             |
+| 5   | Advanced Analytics & Reporting     | MEDIUM   | 2 weeks  | [[analytics-reporting]]    |
 
 ### Current Metrics (Phase 3 Complete)
 
-| Metric | Value |
-|--------|-------|
-| Departments | 8/8 operational |
-| Database tables | 30+ with full RLS |
-| Test coverage | 72% (target: 90%) |
+| Metric                | Value                 |
+| --------------------- | --------------------- |
+| Departments           | 8/8 operational       |
+| Database tables       | 30+ with full RLS     |
+| Test coverage         | 72% (target: 90%)     |
 | Mobile responsiveness | 68% avg (target: 85%) |
-| Security posture | 98% |
-| Wiki pages | 59 |
+| Security posture      | 98%                   |
+| Wiki pages            | 59                    |

@@ -74,7 +74,9 @@ export function ControlRoomActivityFeed({
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-medium text-[var(--text-heading)]">Activity Feed</h2>
+        <h2 className="text-xl font-medium text-[var(--text-heading)]">
+          Activity Feed
+        </h2>
         <div className="flex items-center gap-2">
           {(["all", "insert", "update", "delete"] as const).map((f) => (
             <button
@@ -82,7 +84,7 @@ export function ControlRoomActivityFeed({
               onClick={() => setFilter(f)}
               className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
                 filter === f
-                  ? "bg-[var(--bg-tertiary)] text-[var(--text-heading)] border border-[#3ecf8e]"
+                  ? "bg-[var(--bg-tertiary)] text-[var(--text-heading)] border border-arch-accent-green"
                   : "bg-[var(--bg-primary)] text-[var(--text-secondary)] border border-[var(--border-emphasis)] hover:text-[var(--text-heading)]"
               }`}
             >
@@ -101,13 +103,15 @@ export function ControlRoomActivityFeed({
                   <span
                     className={`w-2 h-2 rounded-full ${
                       activity.type === "insert"
-                        ? "bg-emerald-400"
+                        ? "bg-accent-green"
                         : activity.type === "update"
-                          ? "bg-amber-400"
-                          : "bg-red-400"
+                          ? "bg-accent-blue"
+                          : "bg-accent-red"
                     }`}
                   />
-                  <p className="text-[var(--text-heading)] text-sm">{activity.message}</p>
+                  <p className="text-[var(--text-heading)] text-sm">
+                    {activity.message}
+                  </p>
                 </div>
                 <span className="text-[var(--text-secondary)] text-xs">
                   {new Date(activity.timestamp).toLocaleTimeString()}

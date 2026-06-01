@@ -16,27 +16,27 @@ The portal is desktop-first (control room operators on large screens). Field ope
 
 ## Current State
 
-| Feature | Current | Target |
-|---------|---------|--------|
-| Mobile Responsiveness | 68% avg across depts | 85%+ |
-| PWA / Installable | No | Yes |
-| Offline Mode | No | Read-only + queue writes |
-| Touch Forms | Desktop-optimized | Touch-friendly (large tap targets) |
-| Tablet (Control Room) | 80% | 95% |
-| Tested on Device | No | iOS + Android |
+| Feature               | Current              | Target                             |
+| --------------------- | -------------------- | ---------------------------------- |
+| Mobile Responsiveness | 68% avg across depts | 85%+                               |
+| PWA / Installable     | No                   | Yes                                |
+| Offline Mode          | No                   | Read-only + queue writes           |
+| Touch Forms           | Desktop-optimized    | Touch-friendly (large tap targets) |
+| Tablet (Control Room) | 80%                  | 95%                                |
+| Tested on Device      | No                   | iOS + Android                      |
 
 **Department mobile completeness:**
 
-| Department | Mobile % |
-|------------|----------|
-| Drilling | 60% |
-| Production | 65% |
-| Access Control | 60% |
-| Engineering | 70% |
-| Control Room | 80% |
-| Safety | 70% |
-| Training | 60% |
-| Satellite Mon | 75% |
+| Department     | Mobile % |
+| -------------- | -------- |
+| Drilling       | 60%      |
+| Production     | 65%      |
+| Access Control | 60%      |
+| Engineering    | 70%      |
+| Control Room   | 80%      |
+| Safety         | 70%      |
+| Training       | 60%      |
+| Satellite Mon  | 75%      |
 
 ---
 
@@ -65,6 +65,7 @@ The portal is desktop-first (control room operators on large screens). Field ope
 #### Manifest
 
 Create `apps/portal/public/manifest.json`:
+
 ```json
 {
   "name": "Arch-Systems Portal",
@@ -83,10 +84,11 @@ Create `apps/portal/public/manifest.json`:
 ```
 
 Add to `apps/portal/app/layout.tsx`:
+
 ```tsx
 export const metadata = {
-  manifest: '/manifest.json',
-}
+  manifest: "/manifest.json",
+};
 ```
 
 - [x] `public/manifest.json` created — 8 icon sizes, shortcuts for Hub + Control Room
@@ -104,19 +106,20 @@ pnpm --filter portal add next-pwa
 ```
 
 `next.config.mjs`:
+
 ```js
-import withPWA from 'next-pwa'
+import withPWA from "next-pwa";
 export default withPWA({
-  dest: 'public',
-  disable: process.env.NODE_ENV === 'development',
+  dest: "public",
+  disable: process.env.NODE_ENV === "development",
   runtimeCaching: [
     {
       urlPattern: /^https?.*/,
-      handler: 'NetworkFirst',
-      options: { cacheName: 'arch-portal-cache', networkTimeoutSeconds: 10 }
-    }
-  ]
-})(nextConfig)
+      handler: "NetworkFirst",
+      options: { cacheName: "arch-portal-cache", networkTimeoutSeconds: 10 },
+    },
+  ],
+})(nextConfig);
 ```
 
 - [x] `@ducanh2912/next-pwa` installed
@@ -131,25 +134,25 @@ For field operators submitting data with poor connectivity:
 
 ```ts
 // utils/offline-queue.ts
-const QUEUE_KEY = 'arch_offline_queue'
+const QUEUE_KEY = "arch_offline_queue";
 
 export function queueMutation(action: string, payload: unknown) {
-  const queue = JSON.parse(localStorage.getItem(QUEUE_KEY) ?? '[]')
-  queue.push({ action, payload, timestamp: Date.now() })
-  localStorage.setItem(QUEUE_KEY, JSON.stringify(queue))
+  const queue = JSON.parse(localStorage.getItem(QUEUE_KEY) ?? "[]");
+  queue.push({ action, payload, timestamp: Date.now() });
+  localStorage.setItem(QUEUE_KEY, JSON.stringify(queue));
 }
 
 export async function flushQueue() {
-  const queue = JSON.parse(localStorage.getItem(QUEUE_KEY) ?? '[]')
+  const queue = JSON.parse(localStorage.getItem(QUEUE_KEY) ?? "[]");
   for (const item of queue) {
-    await submitMutation(item.action, item.payload)
+    await submitMutation(item.action, item.payload);
   }
-  localStorage.removeItem(QUEUE_KEY)
+  localStorage.removeItem(QUEUE_KEY);
 }
 ```
 
 - [x] `lib/sync/sync-queue.ts` — IndexedDB queue already implemented with `online` event listener
-- [x] `components/OfflineBanner.tsx` created — amber banner offline, blue syncing, green back-online
+- [x] `components/OfflineBanner.tsx` created — blue banner offline, blue syncing, green back-online
 - [x] Banner polls IndexedDB for pending count while offline
 - [x] `OfflineBanner` mounted in root `layout.tsx` (always present, renders nothing when online)
 
@@ -178,10 +181,10 @@ The theme (`@repo/theme`) already uses Tailwind — ensure these patterns are ap
 
 ```tsx
 // Mobile-first responsive classes
-className="flex flex-col sm:flex-row"
-className="text-sm sm:text-base"
-className="p-3 sm:p-6"
-className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
+className = "flex flex-col sm:flex-row";
+className = "text-sm sm:text-base";
+className = "p-3 sm:p-6";
+className = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4";
 ```
 
 ---

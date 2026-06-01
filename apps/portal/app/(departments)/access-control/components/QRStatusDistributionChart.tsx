@@ -21,7 +21,8 @@ interface CustomTooltipProps {
 function CustomTooltip({ active, payload, totalValue }: CustomTooltipProps) {
   if (!active || !payload?.length || !payload[0]?.payload) return null;
   const d = payload[0].payload;
-  const pct = ((d.value / totalValue) * 100).toFixed(1);
+  const pct =
+    totalValue > 0 ? ((d.value / totalValue) * 100).toFixed(1) : "0.0";
   return (
     <div className="bg-card border border-border rounded-lg shadow-card px-3 py-2 text-xs">
       <div className="flex items-center gap-2 mb-0.5">

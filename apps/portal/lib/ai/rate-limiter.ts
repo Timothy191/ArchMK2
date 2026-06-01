@@ -65,7 +65,11 @@ export async function checkRateLimit(ip: string): Promise<boolean> {
 
     // Increment count
     cached.count++;
-    await cacheSet(key, cached, Math.ceil((WINDOW_MS - (now - cached.windowStart)) / 1000));
+    await cacheSet(
+      key,
+      cached,
+      Math.ceil((WINDOW_MS - (now - cached.windowStart)) / 1000),
+    );
     return true;
   } catch {
     // Fallback to in-memory on Redis error

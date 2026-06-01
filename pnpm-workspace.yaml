@@ -17,6 +17,14 @@ catalog:
   framer-motion: ^12.4.0
   "@phosphor-icons/react": ^2.1.0
   lenis: ^1.2.0
+  recharts: ^2.15.4
+  zod: ^4.4.3
+  zustand: ^5.0.13
+  xstate: ^5.19.2
+  "@tremor/react": ^3.18.7
+  "@sentry/nextjs": ^10.53.1
+  react-hook-form: ^7.76.0
+  openai: ^6.38.0
 
 catalogs:
   react19:

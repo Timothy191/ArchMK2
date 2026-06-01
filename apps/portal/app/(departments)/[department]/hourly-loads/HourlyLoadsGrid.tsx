@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useRef, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { GlassCard } from "@repo/ui/GlassCard";
 import { createBrowserSupabaseClient } from "@repo/supabase/client";
@@ -19,6 +19,7 @@ interface Machine {
   id: string;
   name: string;
   machine_type: string;
+  bin_factor?: number | null;
 }
 
 interface HourlyLoad {
@@ -38,6 +39,7 @@ interface HourlyLoad {
   hour_11: number;
   hour_12: number;
   total_loads: number;
+  material_type?: "Waste" | "Coal";
 }
 
 interface HourlyLoadsGridProps {
@@ -86,6 +88,21 @@ export function HourlyLoadsGrid({
   const supabase = createBrowserSupabaseClient();
   const today = new Date().toISOString().split("T")[0];
 
+  // Track container width for responsive column sizing
+  const [containerWidth, setContainerWidth] = useState<number>(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const observer = new ResizeObserver((entries) => {
+      if (entries[0]) {
+        setContainerWidth(entries[0].contentRect.width - 2);
+      }
+    });
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, []);
+
   const loadsByMachine = new Map<string, HourlyLoad>();
   hourlyLoads.forEach((load) => {
     loadsByMachine.set(load.machine_id, load);
@@ -119,12 +136,29 @@ export function HourlyLoadsGrid({
     [loadsByMachine, selectedShift],
   );
 
+  const getMaterialType = useCallback(
+    (machineId: string): "Waste" | "Coal" => {
+      const load = loadsByMachine.get(machineId);
+      if (!load || load.shift_type !== selectedShift) return "Waste";
+      return load.material_type || "Waste";
+    },
+    [loadsByMachine, selectedShift],
+  );
+
+  // Check if any machine in this department has a bin_factor set
+  const hasBinFactors = machines.some(
+    (m) => m.bin_factor != null && m.bin_factor > 0,
+  );
+
   // Build RevoGrid source rows (stable reference)
   const source = useMemo(() => {
     return machines.map((machine) => {
+      const totalLoads = getMachineTotal(machine.id);
+      const binFactor = machine.bin_factor ?? 0;
       const row: Record<string, string | number> = {
         machineName: machine.name,
         machineType: machine.machine_type,
+        materialType: getMaterialType(machine.id),
       };
       HOURS_12.forEach((_, index) => {
         row[`hour_${(index + 1).toString().padStart(2, "0")}`] = getHourValue(
@@ -132,35 +166,345 @@ export function HourlyLoadsGrid({
           index,
         );
       });
-      row.total = getMachineTotal(machine.id);
+      row.total = totalLoads;
+      if (hasBinFactors) {
+        row.binFactor = binFactor > 0 ? binFactor : "-";
+        row.totalMaterial =
+          binFactor > 0 ? Math.round(totalLoads * binFactor * 10) / 10 : "-";
+      }
       return row;
     });
-  }, [machines, loadsByMachine, selectedShift, getHourValue, getMachineTotal]);
+  }, [
+    machines,
+    loadsByMachine,
+    selectedShift,
+    getHourValue,
+    getMachineTotal,
+    hasBinFactors,
+    getMaterialType,
+  ]);
+
+  // Handle increment/decrement for a specific cell
+  const handleCellChange = useCallback(
+    async (rowIndex: number, hourProp: string, delta: number) => {
+      const machine = machines[rowIndex];
+      if (!machine) return;
+
+      const hourIndex = parseInt(hourProp.split("_")[1] ?? "0", 10) - 1;
+      const currentValue = getHourValue(machine.id, hourIndex);
+      const newValue = Math.max(0, Math.min(100, currentValue + delta));
+      if (newValue === currentValue) return;
+
+      setSaving(true);
+      try {
+        const existingLoad = hourlyLoads.find(
+          (l) => l.machine_id === machine.id && l.shift_type === selectedShift,
+        );
+
+        if (existingLoad) {
+          const { error } = await supabase
+            .from("hourly_loads")
+            .update({ [hourProp]: newValue })
+            .eq("id", existingLoad.id);
+          if (error) throw error;
+        } else {
+          const { error } = await supabase.from("hourly_loads").insert({
+            department_id: departmentId,
+            machine_id: machine.id,
+            load_date: today,
+            shift_type: selectedShift,
+            [hourProp]: newValue,
+          });
+          if (error) throw error;
+        }
+        router.refresh();
+      } catch (err) {
+        logError(err instanceof Error ? err : new Error(String(err)), {
+          context: "hourly_loads_adjust",
+        });
+        alert("Failed to update. Please try again.");
+      } finally {
+        setSaving(false);
+      }
+    },
+    [
+      machines,
+      hourlyLoads,
+      selectedShift,
+      departmentId,
+      today,
+      supabase,
+      router,
+      getHourValue,
+    ],
+  );
+
+  // Handle toggling material type for a row
+  const handleMaterialToggle = useCallback(
+    async (rowIndex: number) => {
+      const machine = machines[rowIndex];
+      if (!machine) return;
+
+      const currentMaterial = getMaterialType(machine.id);
+      const newMaterial = currentMaterial === "Waste" ? "Coal" : "Waste";
+
+      setSaving(true);
+      try {
+        const existingLoad = hourlyLoads.find(
+          (l) => l.machine_id === machine.id && l.shift_type === selectedShift,
+        );
+
+        if (existingLoad) {
+          const { error } = await supabase
+            .from("hourly_loads")
+            .update({ material_type: newMaterial })
+            .eq("id", existingLoad.id);
+          if (error) throw error;
+        } else {
+          const { error } = await supabase.from("hourly_loads").insert({
+            department_id: departmentId,
+            machine_id: machine.id,
+            load_date: today,
+            shift_type: selectedShift,
+            material_type: newMaterial,
+          });
+          if (error) throw error;
+        }
+        router.refresh();
+      } catch (err) {
+        logError(err instanceof Error ? err : new Error(String(err)), {
+          context: "hourly_loads_material_toggle",
+        });
+        alert("Failed to update material. Please try again.");
+      } finally {
+        setSaving(false);
+      }
+    },
+    [
+      machines,
+      hourlyLoads,
+      selectedShift,
+      departmentId,
+      today,
+      supabase,
+      router,
+      getMaterialType,
+    ],
+  );
+
+  // Handle grid click for up/down buttons and material toggle
+  const handleGridClick = useCallback(
+    (e: React.MouseEvent) => {
+      const target = e.target as HTMLElement;
+
+      const toggleBtn = target.closest(
+        '[data-action="toggle-material"]',
+      ) as HTMLElement | null;
+      if (toggleBtn) {
+        const rowIndex = parseInt(toggleBtn.dataset.row || "0", 10);
+        handleMaterialToggle(rowIndex);
+        return;
+      }
+
+      const button = target.closest(
+        '[data-action="up"], [data-action="down"]',
+      ) as HTMLElement | null;
+      if (!button) return;
+
+      const rowIndex = parseInt(button.dataset.row || "0", 10);
+      const hourProp = button.dataset.hour;
+      const action = button.dataset.action;
+
+      if (!hourProp || !action) return;
+
+      const delta = action === "up" ? 1 : -1;
+      handleCellChange(rowIndex, hourProp, delta);
+    },
+    [handleCellChange, handleMaterialToggle],
+  );
 
   // Build RevoGrid columns (stable reference)
   const columns = useMemo(() => {
+    const width = containerWidth || 1150;
+
+    // Proportional widths that sum to 100%
+    let machineColSize = 140;
+    let materialColSize = 100;
+    let hourColSize = 56;
+    let totalColSize = 70;
+    let binFactorColSize = 80;
+    let totalMaterialColSize = 100;
+
+    if (hasBinFactors) {
+      // 17 columns total:
+      // Machine (10%), Material (8%), 12 Hours (12 * 5% = 60%), Total (6%), Bin Factor (7%), Total Material (9%)
+      machineColSize = Math.max(150, Math.floor(width * 0.1));
+      materialColSize = Math.max(100, Math.floor(width * 0.08));
+      hourColSize = Math.max(85, Math.floor(width * 0.05));
+      totalColSize = Math.max(90, Math.floor(width * 0.06));
+      binFactorColSize = Math.max(100, Math.floor(width * 0.07));
+      totalMaterialColSize = Math.max(120, Math.floor(width * 0.09));
+    } else {
+      // 15 columns total:
+      // Machine (12%), Material (8%), 12 Hours (12 * 6% = 72%), Total (8%)
+      machineColSize = Math.max(150, Math.floor(width * 0.12));
+      materialColSize = Math.max(100, Math.floor(width * 0.08));
+      hourColSize = Math.max(85, Math.floor(width * 0.06));
+      totalColSize = Math.max(100, Math.floor(width * 0.08));
+    }
+
     const cols = [
       {
         prop: "machineName",
         name: "Machine",
-        size: 160,
+        size: machineColSize,
         pin: "colPinStart" as const,
       },
-      ...HOURS_12.map((_, index) => ({
-        prop: `hour_${(index + 1).toString().padStart(2, "0")}`,
-        name: `${hourLabels[index]}:00`,
-        size: 72,
+      {
+        prop: "materialType",
+        name: "Material",
+        size: materialColSize,
+        pin: "colPinStart" as const,
         sortable: false,
-      })),
+        readonly: true,
+        cellTemplate: (
+          h: any,
+          { rowIndex, model }: { rowIndex: number; model: any },
+        ) => {
+          const value = model?.materialType ?? "Waste";
+          const isCoal = value === "Coal";
+          return h(
+            "div",
+            { class: "flex items-center justify-center h-full w-full px-1" },
+            [
+              h(
+                "button",
+                {
+                  class: `px-2.5 py-0.5 rounded-full text-xs font-semibold tracking-wider transition-all duration-150 cursor-pointer ${
+                    isCoal
+                      ? "bg-[#1d1d1f] text-[#ffffff] border-[#1d1d1f] hover:bg-[#3a3a3c]"
+                      : "bg-[#f5f5f7] text-[#6e6e73] border-black/[0.08] hover:bg-[#e8e8ed]"
+                  }`,
+                  "data-row": String(rowIndex),
+                  "data-action": "toggle-material",
+                  title: "Click to toggle between Waste and Coal",
+                },
+                value,
+              ),
+            ],
+          );
+        },
+      },
+      ...HOURS_12.map((_, index) => {
+        const hourProp = `hour_${(index + 1).toString().padStart(2, "0")}`;
+        return {
+          prop: hourProp,
+          name: `${hourLabels[index]}:00`,
+          size: hourColSize,
+          sortable: false,
+          cellTemplate: (
+            h: any,
+            { rowIndex, model }: { rowIndex: number; model: any },
+          ) => {
+            const value = model?.[hourProp] ?? 0;
+            const isMax = value >= 100;
+            const isMin = value <= 0;
+            return h(
+              "div",
+              { class: "flex items-center justify-between px-1 gap-1 h-full" },
+              [
+                h("span", { class: "text-sm font-medium" }, value),
+                h("div", { class: "flex flex-col" }, [
+                  h(
+                    "button",
+                    {
+                      class:
+                        "hour-btn-up p-0 leading-none hover:text-[var(--accent-blue)] text-[var(--text-muted)] transition-colors",
+                      "data-row": String(rowIndex),
+                      "data-hour": hourProp,
+                      "data-action": "up",
+                      disabled: isMax,
+                      style: isMax
+                        ? { opacity: "0.3", cursor: "not-allowed" }
+                        : undefined,
+                    },
+                    h(
+                      "svg",
+                      {
+                        xmlns: "http://www.w3.org/2000/svg",
+                        width: "10",
+                        height: "10",
+                        viewBox: "0 0 24 24",
+                        fill: "none",
+                        stroke: "currentColor",
+                        "stroke-width": "3",
+                        "stroke-linecap": "round",
+                        "stroke-linejoin": "round",
+                      },
+                      h("path", { d: "m18 15-6-6-6 6" }),
+                    ),
+                  ),
+                  h(
+                    "button",
+                    {
+                      class:
+                        "hour-btn-down p-0 leading-none hover:text-[var(--accent-blue)] text-[var(--text-muted)] transition-colors",
+                      "data-row": String(rowIndex),
+                      "data-hour": hourProp,
+                      "data-action": "down",
+                      disabled: isMin,
+                      style: isMin
+                        ? { opacity: "0.3", cursor: "not-allowed" }
+                        : undefined,
+                    },
+                    h(
+                      "svg",
+                      {
+                        xmlns: "http://www.w3.org/2000/svg",
+                        width: "10",
+                        height: "10",
+                        viewBox: "0 0 24 24",
+                        fill: "none",
+                        stroke: "currentColor",
+                        "stroke-width": "3",
+                        "stroke-linecap": "round",
+                        "stroke-linejoin": "round",
+                      },
+                      h("path", { d: "m6 9 6 6 6-6" }),
+                    ),
+                  ),
+                ]),
+              ],
+            );
+          },
+        };
+      }),
       {
         prop: "total",
         name: "Total",
-        size: 80,
+        size: totalColSize,
         readonly: true,
       },
     ];
+
+    // Add Bin Factor column for dumpers
+    if (hasBinFactors) {
+      cols.push({
+        prop: "binFactor",
+        name: "Bin Factor",
+        size: binFactorColSize,
+        readonly: true,
+      });
+      cols.push({
+        prop: "totalMaterial",
+        name: "Total Material (t)",
+        size: totalMaterialColSize,
+        readonly: true,
+      });
+    }
+
     return cols;
-  }, [hourLabels]);
+  }, [hourLabels, hasBinFactors, containerWidth]);
 
   const handleAfterEdit = useCallback(
     async (e: any) => {
@@ -231,7 +575,11 @@ export function HourlyLoadsGrid({
 
   const handleExport = () => {
     const exportData = machines.map((machine) => {
-      const data: any = { Machine: machine.name, Type: machine.machine_type };
+      const data: any = {
+        Machine: machine.name,
+        Type: machine.machine_type,
+        Material: getMaterialType(machine.id),
+      };
       HOURS_12.forEach((_, index) => {
         const label = `${hourLabels[index]}:00`;
         data[label] = getHourValue(machine.id, index);
@@ -267,6 +615,10 @@ export function HourlyLoadsGrid({
           shift_type: selectedShift,
         };
 
+        if (row.Material !== undefined) {
+          updateData.material_type = row.Material === "Coal" ? "Coal" : "Waste";
+        }
+
         let hasData = false;
         HOURS_12.forEach((_, index) => {
           const label = `${hourLabels[index]}:00`;
@@ -277,11 +629,15 @@ export function HourlyLoadsGrid({
           }
         });
 
+        if (row.Material !== undefined) {
+          hasData = true;
+        }
+
         if (hasData) {
           const { error } = await supabase
             .from("hourly_loads")
             .upsert(updateData, {
-              onConflict: "department_id,machine_id,load_date,shift_type",
+              onConflict: "machine_id,load_date,shift_type",
             });
 
           if (error)
@@ -329,7 +685,7 @@ export function HourlyLoadsGrid({
               onClick={() => setSelectedShift("day")}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 selectedShift === "day"
-                  ? "bg-amber-500 text-[var(--bg-secondary)]"
+                  ? "bg-[var(--accent-blue)] text-[var(--bg-secondary)]"
                   : "bg-[var(--bg-secondary)] border border-[var(--border-default)] text-[var(--text-muted)] hover:text-[var(--text-heading)]"
               }`}
             >
@@ -379,15 +735,23 @@ export function HourlyLoadsGrid({
         </div>
       </div>
 
-      <DataGrid
-        columns={columns}
-        source={source}
-        height="500px"
-        resize={false}
-        filter={false}
-        sorting={false}
-        onAfterEdit={handleAfterEdit}
-      />
+      <div
+        ref={containerRef}
+        onClick={handleGridClick}
+        className="revo-grid-visible"
+      >
+        <DataGrid
+          key={`grid-${containerWidth}-${columns.length}`}
+          columns={columns}
+          source={source}
+          height="500px"
+          resize={false}
+          filter={false}
+          sorting={false}
+          onAfterEdit={handleAfterEdit}
+          stretch="all"
+        />
+      </div>
     </div>
   );
 }

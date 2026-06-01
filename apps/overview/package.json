@@ -6,7 +6,7 @@
     "dev": "next dev -p 3002",
     "build": "next build",
     "start": "next start -p 3002",
-    "lint": "eslint . --max-warnings 0",
+    "lint": "eslint . --cache --cache-location node_modules/.cache/.eslintcache --max-warnings 0",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
@@ -23,14 +23,14 @@
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",
-    "@types/node": "^20.11.6",
+    "@types/node": "catalog:",
     "@types/react": "catalog:react19",
     "@types/react-dom": "catalog:react19",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.47",
-    "tailwindcss": "^3.4.13",
+    "tailwindcss": "catalog:",
     "@typescript-eslint/parser": "^8.59.4",
     "eslint": "catalog:",
-    "typescript": "^5.6.3"
+    "typescript": "catalog:"
   }
 }

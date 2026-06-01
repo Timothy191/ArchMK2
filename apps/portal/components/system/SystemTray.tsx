@@ -1,0 +1,579 @@
+"use client";
+
+import Link from "next/link";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { cn } from "@repo/ui/lib/utils";
+import {
+  Wifi,
+  WifiOff,
+  BatteryFull,
+  BatteryMedium,
+  BatteryLow,
+  BatteryWarning,
+  BatteryCharging,
+  Volume2,
+  Volume1,
+  VolumeX,
+  Bell,
+  BellDot,
+  SignalHigh,
+  SignalMedium,
+  SignalLow,
+  CheckSquare,
+} from "lucide-react";
+
+/* ------------------------------------------------------------------ */
+//  Types for APIs not in all TS lib definitions
+/* ------------------------------------------------------------------ */
+interface BatteryManager extends EventTarget {
+  charging: boolean;
+  level: number;
+  chargingTime: number;
+  dischargingTime: number;
+  addEventListener(
+    _type:
+      | "chargingchange"
+      | "levelchange"
+      | "chargingtimechange"
+      | "dischargingtimechange",
+    _listener: EventListenerOrEventListenerObject,
+  ): void;
+  removeEventListener(
+    _type:
+      | "chargingchange"
+      | "levelchange"
+      | "chargingtimechange"
+      | "dischargingtimechange",
+    _listener: EventListenerOrEventListenerObject,
+  ): void;
+}
+
+interface NavigatorWithBattery extends Navigator {
+  getBattery?: () => Promise<BatteryManager>;
+}
+
+interface NetworkConnection extends EventTarget {
+  effectiveType?: "4g" | "3g" | "2g" | "slow-2g";
+  type?:
+    | "bluetooth"
+    | "cellular"
+    | "ethernet"
+    | "none"
+    | "wifi"
+    | "wimax"
+    | "other"
+    | "unknown";
+  downlink?: number;
+  downlinkMax?: number;
+  rtt?: number;
+  saveData?: boolean;
+}
+
+interface NavigatorWithConnection extends Navigator {
+  connection?: NetworkConnection;
+  mozConnection?: NetworkConnection;
+  webkitConnection?: NetworkConnection;
+}
+
+/* ------------------------------------------------------------------ */
+//  Helpers
+/* ------------------------------------------------------------------ */
+export function formatTimeSeconds(totalSeconds: number): string {
+  if (!Number.isFinite(totalSeconds) || totalSeconds <= 0)
+    return "Calculating…";
+  const h = Math.floor(totalSeconds / 3600);
+  const m = Math.floor((totalSeconds % 3600) / 60);
+  if (h > 0) return `${h}h ${m}m`;
+  return `${m}m`;
+}
+
+/* ------------------------------------------------------------------ */
+//  useNetworkStatus
+/* ------------------------------------------------------------------ */
+export function useNetworkStatus() {
+  const [online, setOnline] = useState(true);
+  const [effectiveType, setEffectiveType] =
+    useState<NetworkConnection["effectiveType"]>(undefined);
+  const [connType, setConnType] =
+    useState<NetworkConnection["type"]>(undefined);
+  const [downlink, setDownlink] = useState<number | undefined>(undefined);
+  const [rtt, setRtt] = useState<number | undefined>(undefined);
+  const [supported, setSupported] = useState(true);
+
+  useEffect(() => {
+    const handleOnline = () => setOnline(true);
+    const handleOffline = () => setOnline(false);
+    setOnline(navigator.onLine);
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+
+    const nav = navigator as NavigatorWithConnection;
+    const connection =
+      nav.connection ?? nav.mozConnection ?? nav.webkitConnection;
+
+    if (!connection) {
+      setSupported(false);
+    } else {
+      setSupported(true);
+      const sync = () => {
+        setEffectiveType(connection.effectiveType);
+        setConnType(connection.type);
+        setDownlink(connection.downlink);
+        setRtt(connection.rtt);
+      };
+      sync();
+      connection.addEventListener("change", sync);
+      return () => {
+        window.removeEventListener("online", handleOnline);
+        window.removeEventListener("offline", handleOffline);
+        connection.removeEventListener("change", sync);
+      };
+    }
+
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, []);
+
+  return { online, effectiveType, connType, downlink, rtt, supported };
+}
+
+/* ------------------------------------------------------------------ */
+//  useBatteryStatus
+/* ------------------------------------------------------------------ */
+export function useBatteryStatus() {
+  const [level, setLevel] = useState<number | null>(null);
+  const [charging, setCharging] = useState(false);
+  const [chargingTime, setChargingTime] = useState<number>(Infinity);
+  const [dischargingTime, setDischargingTime] = useState<number>(Infinity);
+  const [supported, setSupported] = useState(true);
+  const cleanupRef = useRef<(() => void) | null>(null);
+
+  useEffect(() => {
+    const nav = navigator as NavigatorWithBattery;
+    if (!nav.getBattery) {
+      setSupported(false);
+      return;
+    }
+
+    let cancelled = false;
+
+    nav.getBattery().then((b) => {
+      if (cancelled) return;
+
+      const sync = () => {
+        setLevel(b.level);
+        setCharging(b.charging);
+        setChargingTime(b.chargingTime);
+        setDischargingTime(b.dischargingTime);
+      };
+      sync();
+
+      b.addEventListener("chargingchange", sync);
+      b.addEventListener("levelchange", sync);
+      b.addEventListener("chargingtimechange", sync);
+      b.addEventListener("dischargingtimechange", sync);
+
+      cleanupRef.current = () => {
+        b.removeEventListener("chargingchange", sync);
+        b.removeEventListener("levelchange", sync);
+        b.removeEventListener("chargingtimechange", sync);
+        b.removeEventListener("dischargingtimechange", sync);
+      };
+    });
+
+    return () => {
+      cancelled = true;
+      cleanupRef.current?.();
+      cleanupRef.current = null;
+    };
+  }, []);
+
+  return { level, charging, chargingTime, dischargingTime, supported };
+}
+
+/* ------------------------------------------------------------------ */
+//  useAppVolume
+/* ------------------------------------------------------------------ */
+export function useAppVolume() {
+  const [volume, setVolume] = useState(() => {
+    if (typeof window === "undefined") return 75;
+    const raw = window.localStorage.getItem("arch-app-volume");
+    return raw ? Math.min(100, Math.max(0, Number(raw))) : 75;
+  });
+  const [muted, setMuted] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.localStorage.getItem("arch-app-muted") === "true";
+  });
+
+  const persist = useCallback((v: number, m: boolean) => {
+    window.localStorage.setItem("arch-app-volume", String(v));
+    window.localStorage.setItem("arch-app-muted", String(m));
+  }, []);
+
+  const toggleMute = useCallback(() => {
+    setMuted((m) => {
+      persist(volume, !m);
+      return !m;
+    });
+  }, [volume, persist]);
+
+  const adjust = useCallback(
+    (v: number) => {
+      const clamped = Math.min(100, Math.max(0, v));
+      setVolume(clamped);
+      const m = clamped === 0;
+      setMuted(m);
+      persist(clamped, m);
+    },
+    [persist],
+  );
+
+  return { volume, muted, toggleMute, adjust };
+}
+
+/* ------------------------------------------------------------------ */
+//  useNotificationCount
+/* ------------------------------------------------------------------ */
+export function useNotificationCount() {
+  const [count, setCount] = useState(() => {
+    if (typeof window === "undefined") return 0;
+    const raw = window.localStorage.getItem("arch-tray-notifications");
+    return raw ? Math.max(0, Number(raw)) : 0;
+  });
+
+  const clear = useCallback(() => {
+    setCount(0);
+    window.localStorage.setItem("arch-tray-notifications", "0");
+  }, []);
+
+  return { count, clear };
+}
+
+/* ------------------------------------------------------------------ */
+//  Row Components
+/* ------------------------------------------------------------------ */
+
+export function NetworkStatusRow({
+  online,
+  effectiveType,
+  connType,
+  downlink,
+  rtt,
+  supported,
+}: ReturnType<typeof useNetworkStatus>) {
+  const ConnQualityIcon = !online
+    ? WifiOff
+    : effectiveType === "4g" || effectiveType === "3g"
+      ? SignalHigh
+      : effectiveType === "2g"
+        ? SignalMedium
+        : effectiveType === "slow-2g"
+          ? SignalLow
+          : Wifi;
+
+  return (
+    <div className="flex items-center gap-2.5 px-2 py-1.5 rounded-md">
+      <ConnQualityIcon
+        className={cn(
+          "w-4 h-4 shrink-0",
+          online ? "text-[var(--accent-green)]" : "text-[var(--accent-red)]",
+        )}
+      />
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center justify-between">
+          <span className="text-[12px] font-medium text-[var(--text-heading)]">
+            {online ? "Connected" : "Offline"}
+          </span>
+          {effectiveType && (
+            <span className="text-[10px] uppercase text-[var(--text-muted)]">
+              {effectiveType}
+            </span>
+          )}
+        </div>
+        {supported && online && (
+          <div className="flex items-center gap-2 mt-0.5">
+            {connType && (
+              <span className="text-[10px] text-[var(--text-muted)] capitalize">
+                {connType}
+              </span>
+            )}
+            {typeof downlink === "number" && (
+              <span className="text-[10px] text-[var(--text-muted)]">
+                {downlink.toFixed(1)} Mbps
+              </span>
+            )}
+            {typeof rtt === "number" && (
+              <span className="text-[10px] text-[var(--text-muted)]">
+                {rtt} ms
+              </span>
+            )}
+          </div>
+        )}
+        {!supported && (
+          <p className="text-[10px] text-[var(--text-muted)] mt-0.5">
+            Network API unavailable
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export function BatteryStatusRow({
+  level,
+  charging,
+  chargingTime,
+  dischargingTime,
+  supported,
+}: ReturnType<typeof useBatteryStatus>) {
+  if (!supported || level === null) {
+    return (
+      <div className="flex items-center gap-2.5 px-2 py-1.5 rounded-md">
+        <BatteryMedium className="w-4 h-4 text-[var(--text-secondary)]" />
+        <span className="text-[12px] text-[var(--text-muted)]">
+          Battery status unavailable
+        </span>
+      </div>
+    );
+  }
+
+  const BatteryIcon = charging
+    ? BatteryCharging
+    : level <= 0.1
+      ? BatteryWarning
+      : level <= 0.3
+        ? BatteryLow
+        : level >= 0.8
+          ? BatteryFull
+          : BatteryMedium;
+
+  const batteryColor = charging
+    ? "text-[var(--accent-green)]"
+    : level <= 0.3
+      ? "text-[var(--accent-red)]"
+      : level >= 0.8
+        ? "text-[var(--accent-green)]"
+        : "text-[var(--text-secondary)]";
+
+  const barColor =
+    level <= 0.2
+      ? "bg-[var(--accent-red)]"
+      : level >= 0.8
+        ? "bg-[var(--accent-green)]"
+        : "bg-[var(--accent-blue)]";
+
+  return (
+    <div className="px-2 py-1.5 rounded-md space-y-1.5">
+      <div className="flex items-center gap-2.5">
+        <BatteryIcon className={cn("w-4 h-4 shrink-0", batteryColor)} />
+        <div className="flex-1 flex items-center justify-between">
+          <span className="text-[12px] font-medium text-[var(--text-heading)]">
+            {Math.round(level * 100)}%
+          </span>
+          <span className="text-[10px] text-[var(--text-muted)]">
+            {charging ? "Charging" : "On Battery"}
+          </span>
+        </div>
+      </div>
+      <div className="w-full h-1.5 rounded-full bg-[var(--bg-tertiary)] overflow-hidden">
+        <div
+          className={cn(
+            "h-full rounded-full transition-all duration-500",
+            barColor,
+          )}
+          style={{ width: `${Math.round(level * 100)}%` }}
+        />
+      </div>
+      {charging && Number.isFinite(chargingTime) && chargingTime > 0 && (
+        <p className="text-[10px] text-[var(--accent-green)]">
+          {formatTimeSeconds(chargingTime)} to full
+        </p>
+      )}
+      {!charging && Number.isFinite(dischargingTime) && dischargingTime > 0 && (
+        <p className="text-[10px] text-[var(--text-muted)]">
+          {formatTimeSeconds(dischargingTime)} remaining
+        </p>
+      )}
+    </div>
+  );
+}
+
+export function VolumeControlRow({
+  volume,
+  muted,
+  toggleMute,
+  adjust,
+}: ReturnType<typeof useAppVolume>) {
+  const VolumeIcon =
+    muted || volume === 0 ? VolumeX : volume < 50 ? Volume1 : Volume2;
+  const volumeColor =
+    muted || volume === 0
+      ? "text-[var(--text-muted)]"
+      : "text-[var(--text-secondary)]";
+
+  return (
+    <div className="px-2 py-1.5 rounded-md space-y-1.5">
+      <div className="flex items-center gap-2.5">
+        <button
+          type="button"
+          onClick={toggleMute}
+          aria-label={muted ? "Unmute" : "Mute"}
+          className="p-0.5 rounded hover:bg-black/[0.06] transition-colors"
+        >
+          <VolumeIcon className={cn("w-4 h-4", volumeColor)} />
+        </button>
+        <span className="text-[12px] font-medium text-[var(--text-heading)] min-w-[2rem]">
+          {muted ? "Muted" : `${volume}%`}
+        </span>
+      </div>
+      <input
+        type="range"
+        min={0}
+        max={100}
+        value={muted ? 0 : volume}
+        onChange={(e) => adjust(Number(e.target.value))}
+        aria-label="Volume"
+        className="w-full accent-[var(--accent-blue)] h-1"
+      />
+    </div>
+  );
+}
+
+export function NotificationRow({
+  count,
+  clear,
+}: ReturnType<typeof useNotificationCount>) {
+  return (
+    <div className="flex items-center gap-2.5 px-2 py-1.5 rounded-md">
+      <div className="relative">
+        {count > 0 ? (
+          <BellDot className="w-4 h-4 text-[var(--text-secondary)]" />
+        ) : (
+          <Bell className="w-4 h-4 text-[var(--text-secondary)]" />
+        )}
+        {count > 0 && (
+          <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[14px] h-[14px] px-[3px] rounded-full bg-[var(--accent-red)] text-white text-[9px] font-bold leading-none">
+            {count}
+          </span>
+        )}
+      </div>
+      <span className="text-[12px] text-[var(--text-heading)] flex-1">
+        {count > 0
+          ? `${count} notification${count === 1 ? "" : "s"}`
+          : "No notifications"}
+      </span>
+      {count > 0 && (
+        <button
+          type="button"
+          onClick={clear}
+          aria-label="Clear notifications"
+          className="text-[10px] text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
+        >
+          Clear
+        </button>
+      )}
+    </div>
+  );
+}
+
+/* ─────────────────────────── SystemTrayPill ─────────────────────────── */
+
+export function SystemTrayPill() {
+  const network = useNetworkStatus();
+  const battery = useBatteryStatus();
+  const volume = useAppVolume();
+
+  const VolumeIcon =
+    volume.muted || volume.volume === 0
+      ? VolumeX
+      : volume.volume < 50
+        ? Volume1
+        : Volume2;
+  const volumeColor =
+    volume.muted || volume.volume === 0
+      ? "text-[var(--text-muted)]"
+      : "text-[var(--text-secondary)]";
+
+  const ConnIcon = !network.online ? WifiOff : Wifi;
+  const connColor = network.online
+    ? "text-[var(--accent-green)]"
+    : "text-[var(--accent-red)]";
+
+  const BatteryIcon = battery.charging
+    ? BatteryCharging
+    : (battery.level ?? 1) <= 0.1
+      ? BatteryWarning
+      : (battery.level ?? 1) <= 0.3
+        ? BatteryLow
+        : (battery.level ?? 1) >= 0.8
+          ? BatteryFull
+          : BatteryMedium;
+
+  const batteryColor = battery.charging
+    ? "text-[var(--accent-green)]"
+    : (battery.level ?? 1) <= 0.3
+      ? "text-[var(--accent-red)]"
+      : "text-[var(--text-secondary)]";
+
+  return (
+    <div className="flex items-center gap-1.5">
+      <Link
+        href="/drilling/tools?tab=tasks"
+        className={cn(
+          "flex items-center justify-center w-[26px] h-[26px] rounded-full",
+          "bg-black/[0.03] hover:bg-black/[0.06] border border-black/[0.05]",
+          "transition-colors",
+        )}
+        title="Task Manager"
+      >
+        <CheckSquare className="w-3.5 h-3.5 text-accent-green" />
+      </Link>
+
+      <button
+        type="button"
+        onClick={volume.toggleMute}
+        className={cn(
+          "flex items-center justify-center w-[26px] h-[26px] rounded-full",
+          "bg-black/[0.03] hover:bg-black/[0.06] border border-black/[0.05]",
+          "transition-colors",
+        )}
+        title={volume.muted ? "Unmute" : `Volume ${volume.volume}%`}
+      >
+        <VolumeIcon className={cn("w-3.5 h-3.5", volumeColor)} />
+      </button>
+
+      <div
+        className={cn(
+          "flex items-center justify-center w-[26px] h-[26px] rounded-full",
+          "bg-black/[0.03] hover:bg-black/[0.06] border border-black/[0.05]",
+          "transition-colors",
+        )}
+        title={network.online ? "Connected" : "Offline"}
+      >
+        <ConnIcon className={cn("w-3.5 h-3.5", connColor)} />
+      </div>
+
+      <div
+        className={cn(
+          "flex items-center justify-center gap-0.5 h-[26px] px-1.5 rounded-full",
+          "bg-black/[0.03] hover:bg-black/[0.06] border border-black/[0.05]",
+          "transition-colors",
+        )}
+        title={
+          battery.supported && battery.level !== null
+            ? `${Math.round(battery.level * 100)}%${battery.charging ? " — Charging" : ""}`
+            : "Battery status unavailable"
+        }
+      >
+        <BatteryIcon className={cn("w-3.5 h-3.5", batteryColor)} />
+        {battery.supported && battery.level !== null && (
+          <span className="text-[11px] font-medium text-[var(--text-heading)] leading-none">
+            {Math.round(battery.level * 100)}%
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}

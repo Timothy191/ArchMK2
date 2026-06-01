@@ -73,22 +73,46 @@ export const VARIANTS = {
     visible: { opacity: 1, scale: 1, transition: TRANSITIONS.entrance },
   },
   liquidGlass: {
-    hidden: { opacity: 0, y: 16, scale: 0.98, transition: { duration: 0.6, ease: EASINGS.decelerate } },
-    visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.7, ease: EASINGS.decelerate } },
-    hover: { y: -6, scale: 1.01, transition: { duration: 0.2, ease: EASINGS.decelerate } },
+    hidden: {
+      opacity: 0,
+      y: 16,
+      scale: 0.98,
+      transition: { duration: 0.6, ease: EASINGS.decelerate },
+    },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: { duration: 0.7, ease: EASINGS.decelerate },
+    },
+    hover: {
+      y: -6,
+      scale: 1.01,
+      transition: { duration: 0.2, ease: EASINGS.decelerate },
+    },
     tap: { scale: 0.98, y: -2, transition: { duration: 0.1 } },
   },
   magnetic: {
     idle: { scale: 1 },
-    hover: { scale: 1.02, transition: { duration: 0.3, ease: EASINGS.decelerate } },
+    hover: {
+      scale: 1.02,
+      transition: { duration: 0.3, ease: EASINGS.decelerate },
+    },
     tap: { scale: 0.96, transition: { duration: 0.05 } },
   },
   perpetual: {
     pulse: {
-      animate: { scale: [1, 0.98, 1], opacity: [1, 0.85, 1], transition: { duration: 2, repeat: Infinity, ease: [0.4, 0, 0.6, 1] } },
+      animate: {
+        scale: [1, 0.98, 1],
+        opacity: [1, 0.85, 1],
+        transition: { duration: 2, repeat: Infinity, ease: [0.4, 0, 0.6, 1] },
+      },
     },
     float: {
-      animate: { y: [0, -6, 0], transition: { duration: 3, repeat: Infinity, ease: [0.4, 0, 0.6, 1] } },
+      animate: {
+        y: [0, -6, 0],
+        transition: { duration: 3, repeat: Infinity, ease: [0.4, 0, 0.6, 1] },
+      },
     },
   },
 } as const;

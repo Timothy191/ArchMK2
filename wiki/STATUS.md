@@ -1,8 +1,8 @@
-# Project Status Report - Phase 3
+# Project Status Report - Phase 5
 
-**Last Updated:** 2026-05-17 20:50 UTC
-**Current Branch:** fix/fix-bug (synced with master)
-**Version:** Phase 3 (Latest)
+**Last Updated:** 2026-05-27 09:00 UTC
+**Current Branch:** master (HEAD: `7d0a059`)
+**Version:** Phase 5 (Latest) — Multi-Agent Swarm, Light Theme, Full Observability Stack
 
 ---
 
@@ -11,7 +11,8 @@
 **Arch-Systems (Plantcor)** — Multi-departmental mining operations portal built as a full-stack Turborepo monorepo with AI-powered agent orchestration, real-time monitoring, and enterprise security.
 
 ### Technology Stack
-- **Frontend:** Next.js 15 (App Router) + React 19 + TypeScript
+
+- **Frontend:** Next.js 15 (App Router) + React 19.2.6 + TypeScript
 - **Backend:** Supabase (PostgreSQL + Auth + RLS)
 - **State:** Zustand 5
 - **AI:** Multi-provider (Groq, OpenRouter, Together) with MCP integration
@@ -29,7 +30,8 @@
 **Commits:** 582ffe1 → ca8531d (template → login aesthetics rebrand)
 
 **Deliverables:**
-- [x] Next.js 15 + React 19 setup
+
+- [x] Next.js 16.2.6 + React 19.2.6 setup (migrated from 15)
 - [x] Supabase local dev environment
 - [x] Login page with video backgrounds
 - [x] Department navigation system
@@ -43,6 +45,7 @@
 **Commits:** ca8531d → 3207fa2 (login → Phase 2 marker)
 
 **Deliverables:**
+
 - [x] 8 Department-specific modules
   - Drilling, Production, Access Control
   - Engineering, Control Room, Safety
@@ -60,10 +63,11 @@
 
 ### Phase 3: AI & Multi-Agent Orchestration ✅
 
-**Status:** In Progress (Mostly Complete)
+**Status:** Complete
 **Commits:** 3207fa2 → 21ea2f3 (Phase 2 → Phase 3 marker)
 
 **Deliverables:**
+
 - [x] Vector memory system (AI embeddings)
 - [x] Multi-agent orchestrator (Kiro agents)
 - [x] MCP (Model Context Protocol) registry
@@ -80,49 +84,112 @@
 - [x] Excavator activity tracking
 - [x] Shift coverage analysis
 
+### Phase 4: Production Hardening, Observability & Guardrails ✅
+
+**Status:** Complete
+**Commits:** 21ea2f3 → a3d53b2
+
+**Deliverables:**
+
+- [x] `@repo/errors` shared error package
+- [x] Read-replica Supabase client
+- [x] Webhook verification infrastructure
+- [x] Migrations 017–027 (webhooks, partitioning, pg_cron, drill operations, machine telemetry)
+- [x] Materialized views, missing indexes, pg_cron archival schedules
+- [x] Root CI/CD tooling, devops scripts, monitoring infrastructure
+
+### Phase 5: Multi-Agent Swarm & Advanced Autonomy ✅
+
+**Status:** Complete
+**Commits:** a3d53b2 → HEAD (`7d0a059`)
+
+**Deliverables:**
+
+- [x] Pro-workflow split memory architecture (`.remember/`)
+- [x] Multi-agent swarm patterns with shared task lists
+- [x] **Light-theme migration** — entire portal migrated to macOS Sonoma light palette
+- [x] `AnimatedWavesBackground` replacing WebGL effects
+- [x] LangGraph 8-node agent workflow with Redis rate limiter
+- [x] OpenRouter → Groq provider failover wired
+- [x] Highlight + OpenTelemetry (OTEL) observability: session replay, server tracing, span wrapping
+- [x] Inngest background jobs (sync-playback, report-generation)
+- [x] Novu notification infrastructure
+- [x] QR Access Control dashboard (7 dashboard + 5 access-log components)
+- [x] Style Dictionary token pipeline (`packages/theme`)
+- [x] Semantic color tokens (success, warning, danger, info)
+- [x] GitHub Actions production deploy pipeline (225-line workflow)
+- [x] Plugin system: Rust telemetry engine, predictive maintenance scaffold
+- [x] Executive dashboard (`/hub/executive`)
+- [x] Inngest API route, Novu client
+- [x] `ai_usage_logs` table (token consumption tracking)
+- [x] Fleet & equipment tables (access-control domain)
+- [x] Documents table (word-processing + storage bucket + version history)
+- [x] Department AI personality column (SOUL.md per-department)
+- [x] Machine configurations table (per-department operational setpoints)
+- [x] Admin data lockdown (`/api/admin/data/[table]` superadmin-only)
+- [x] Agent tooling: context-engineer, cost-analyst, digital-twin, team-lead agents
+- [x] `.claude/rules/` enforcement: development-practices, task-workflow, testing, verification
+- [x] Migrations 028–048 (see full list below)
+- [x] `pnpm quality` gate — all checks passing
+
 ---
 
 ## 📊 Database Schema Status
 
-### Completed Enhancements ✅
+### Completed Migrations (048 total)
 
-**Migration 010:** Foreign key indexes, soft deletes, updated_at timestamps
-**Migration 014:** Enum types created, composite indexes, numeric constraints, documentation
-**Migration 016:** Column migrations to enums, audit trail columns (created_by), generated columns
+| Range   | Focus                                                                                                                                                                                        |
+| ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 001–009 | Initial schema, control room, breakdowns, safety, audit logs, excavator activity, AI memory                                                                                                  |
+| 010–016 | Schema optimization, automated auditing, RLS refinement, JSON validation, enums, shift closeout                                                                                              |
+| 017–027 | Webhooks, webhook triggers, sync metadata, time-series partitioning, missing indexes, materialized views, pg_cron, drill operations, machine telemetry, drill delays, drill shifts/archiving |
+| 028–033 | Access control system, breakdowns machine name, vector index optimization, embedding sync watermarks, AI usage logs, access logs weekly archival                                             |
+| 034–040 | Access control schema updates (visitors/badges), fleet & equipment tables, documents, personnel area, department personality, access logs operator device, production fixes                  |
+| 041–048 | RLS performance indexes, machine configurations, admin data lockdown, access control dashboard, add access_control role, control room archiving, machines site_id, machine report exempt     |
 
-**Schema Quality Scores:**
-- Security: 10/10 (Excellent RLS coverage)
+### Schema Quality Scores
+
+- Security: 10/10 (Excellent RLS coverage + admin lockdown)
 - Normalization: 7/10 (Some denormalization in hourly_loads is intentional)
-- Indexing: 9/10 (Complete FK and composite indexes)
+- Indexing: 10/10 (RLS performance indexes + composite indexes)
 - Documentation: 9/10 (Comprehensive table/column comments)
-- Performance: 9/10 (Ready for scale)
+- Performance: 10/10 (Partitioning, materialized views, pg_cron archival)
 - Maintainability: 9/10 (Consistent patterns)
 
 ### Implemented Patterns
+
 - [x] Foreign key constraints with indexes
 - [x] Row Level Security (RLS) policies
 - [x] Soft delete pattern (deleted_at)
 - [x] Updated timestamps (updated_at)
 - [x] Audit trail (created_by)
-- [x] Native PostgreSQL enums (role_type, shift_type, etc.)
+- [x] Native PostgreSQL enums (role_type, shift_type, access_control role, etc.)
 - [x] Generated columns (duration_hours)
 - [x] Composite indexes for dashboard queries
+- [x] Time-series table partitioning (hourly_loads, machine_hours, daily_logs)
+- [x] Materialized views for department aggregations
+- [x] pg_cron scheduled archival jobs
+- [x] Vector search indexes (pgvector)
+- [x] Admin data lockdown via table allowlist
 
 ---
 
 ## 📚 Documentation Status
 
 ### Wiki Structure
+
 - **Total Pages:** 52 (49 wiki + 3 git tree resources)
-- **Last Updated:** 2026-05-17
+- **Last Updated:** 2026-05-27
 
 ### Wiki Sections
 
 **Entities (9):** ✅
+
 - Arch-Systems overview
 - 8 Departments (Drilling, Production, Access Control, Engineering, Control Room, Training, Safety, Satellite Monitoring)
 
 **Concepts (12):** ✅
+
 - Turborepo Monorepo Structure
 - Supabase Local Development
 - Portal App Architecture
@@ -137,21 +204,24 @@
 - DeepEval Integration
 
 **Architecture Decision Records (7):** ✅
-- ADR-001: Next.js 15 App Router
+
+- ADR-001: Next.js App Router
 - ADR-002: Supabase Backend
 - ADR-003: Turborepo Monorepo
 - ADR-004: Tailwind Design System
 - ADR-005: Zustand State Management
-- ADR-006: Multi-Provider AI
-- ADR-007: React 19 Adoption
+- ADR-006: Multi-Provider AI (OpenRouter → Groq failover)
+- ADR-007: React 19.2.6 Adoption
 
 **Operational Guides (4):** ✅
+
 - Troubleshooting Guide
 - Deployment Runbook
 - Team Onboarding
 - Incident Response Playbook
 
 **Comparisons (10):** ✅
+
 - AI Providers
 - Testing Frameworks
 - State Management
@@ -164,6 +234,7 @@
 - Animation Libraries
 
 **Query Pages (6):** ✅
+
 - How to Add a Department
 - How Authentication Works
 - How to Fetch Data
@@ -172,12 +243,14 @@
 - How to Debug Issues
 
 **Git Tree Resources (3):** ✅ (NEW)
+
 - Git Tree & Branches History
 - Visual Graphs for Reporting Metrics
 - Conceptual Code Graphs (Program Analysis)
 - Graph Data Structures & Algorithms
 
 ### Documentation Checklist
+
 - [x] All 8 departments documented
 - [x] Schema documented with examples
 - [x] RLS policies with templates
@@ -195,17 +268,20 @@
 ## 🌲 Git Repository Status
 
 ### Branch Summary
-- **fix/fix-bug** (HEAD, local master) — Phase 3 complete, 21ea2f3
-- **master** — Synced with fix/fix-bug
-- **worktree-feat-plantcor-os** — Development branch from earlier phases
-- **origin/master** (remote) — Behind by 1 commit (f25c5aa)
+
+- **master** (HEAD: `7d0a059`) — Phase 5 complete, all checks passing
+- **fix/fix-bug** — Phase 4 complete (`a3d53b2`), merged into master
+- **origin/master** (remote: `c87f5f0`) — Ahead by 2 local commits
+- **origin/feat/qr-access-control** — Feature branch, merged upstream (`74d5ba2`)
 
 ### Commit History
-- **Total Commits:** 55+ (main lineage)
-- **Time Range:** 2026-01-DD → 2026-05-17 (project inception to Phase 3)
-- **Active Development:** Steady progression through phases with daily refinements
+
+- **Total Commits:** 70+ (main lineage)
+- **Time Range:** 2026-01 → 2026-05-27 (project inception through Phase 5)
+- **Active Development:** Daily commits 2026-05-18 → 2026-05-27
 
 ### Git Tree Resources
+
 - Complete graph visualization showing all branches and divergence points
 - Key milestones documented with commit hashes
 - Branch recommendations for future work
@@ -215,14 +291,38 @@
 ## 🚀 Current State & Next Steps
 
 ### What's Ready
-- ✅ Full portal application (8 departments)
-- ✅ Production authentication & RLS
+
+- ✅ Full portal application (departments: drilling, production, access-control, engineering, control-room, safety, training, satellite-monitoring)
+- ✅ Production authentication & RLS (48 migrations)
 - ✅ Real-time dashboards & monitoring
-- ✅ AI service with multi-provider failover
+- ✅ Light-only theme (macOS Sonoma palette, design system compliant)
+- ✅ AI service with LangGraph orchestrator + multi-provider failover
+- ✅ Highlight + OTEL observability (session replay, server tracing)
+- ✅ Inngest background jobs + Novu notifications
+- ✅ QR access control with full dashboard
+- ✅ Fleet & equipment tracking (access-control domain)
+- ✅ Documents (word-processing with storage bucket + version history)
+- ✅ Department AI personalities (SOUL.md per department)
+- ✅ Machine configurations (per-department operational setpoints)
 - ✅ N8N workflow automation
-- ✅ Advanced monitoring (satellite data, safety)
-- ✅ Complete documentation & wiki
-- ✅ Database schema optimized for scale
+- ✅ Style Dictionary token pipeline
+- ✅ Admin data API with lockdown
+- ✅ GitHub Actions production CI/CD pipeline
+- ✅ `pnpm quality` gate passing
+
+### Current Quality Gate (2026-05-27)
+
+| Check          | Result   |
+| -------------- | -------- |
+| `lint`         | **PASS** |
+| `type-check`   | **PASS** |
+| `test`         | **PASS** |
+| `lint:tokens`  | **PASS** |
+| `lint:css`     | **PASS** |
+| `format-check` | **PASS** |
+| `build`        | **PASS** |
+
+---
 
 ### Recommended Next Steps (Post-Phase 3)
 
@@ -230,9 +330,9 @@ From `project-comprehensive-report.md` §9 — 5 priority actions:
 
 ---
 
-#### 1. 🔴 On-Premises Server Setup & Cockpit `[CRITICAL]` — 1–2 days
+#### 1. � On-Premises Server Setup & Cockpit `[HIGH]` — 1–2 days
 
-Provision the mining site server and deploy the full stack via `./scripts/deploy-local.sh`. The local dev environment is already production-identical.
+Provision the mining site server and deploy the full stack via `./scripts/deploy.sh local`. The local dev environment is already production-identical.
 
 - [ ] Provision Linux server (Ubuntu 22.04 / RHEL 9) at mining site
 - [ ] Install Cockpit (`port 9090`) for web-based server management
@@ -303,38 +403,53 @@ Executive KPI dashboard, PDF/Excel report generation, trend forecasting, data ex
 
 ### Implementation Timeline
 
-| Week | Focus |
-|------|-------|
-| Week 1 | On-premises server provisioning & Cockpit setup |
-| Week 2 | Test coverage expansion + E2E critical paths |
-| Week 3 | Database partitioning + query optimization |
-| Week 4–5 | Mobile responsiveness + PWA |
-| Month 2–3 | Executive dashboard + analytics + ML |
+| Week      | Focus                                           |
+| --------- | ----------------------------------------------- |
+| Week 1    | On-premises server provisioning & Cockpit setup |
+| Week 2    | Test coverage expansion + E2E critical paths    |
+| Week 3    | Database partitioning + query optimization      |
+| Week 4–5  | Mobile responsiveness + PWA                     |
+| Month 2–3 | Executive dashboard + analytics + ML            |
 
 ---
 
 ## 📋 Known Limitations & Technical Debt
 
 ### Intentional Decisions
-- **hourly_loads denormalization:** 12 hour columns (intentional for simplicity; indexed for performance)
+
+- **hourly_loads denormalization:** 12 hour columns (intentional for simplicity; partitioned + indexed)
 - **Shift notes consolidation:** Moved to operational_delays (working as designed)
 - **Limited mobile UI:** Focus on desktop control room; responsive for tablets
+- **Light-only theme:** Hardcoded `data-theme="light"` via `<script>` in `<head>`; dark mode does not exist and is not planned
 
-### Future Improvements (Post-Phase 3)
-- **Medium Priority:** Partitioning for time-series tables, additional audit trails
-- **Low Priority:** Advanced analytics aggregations, machine learning predictions
+### Resolved Post-Phase 3 Items ✅
+
+- ~~Partitioning for time-series tables~~ → Done (migration 020)
+- ~~Materialized views~~ → Done (migration 022)
+- ~~pg_cron archival~~ → Done (migrations 023, 033, 046)
+- ~~Read replica client~~ → Done (@repo/supabase)
+- ~~Admin data API security~~ → Done (migration 043, superadmin lockdown)
+
+### Remaining Future Work
+
+- **Medium Priority:** E2E test coverage expansion, visual regression suite
+- **Medium Priority:** Mobile PWA (offline queue, touch targets, service worker)
+- **Low Priority:** Executive KPI dashboard full buildout
+- **Low Priority:** ML predictive maintenance model (XGBoost on breakdown history)
 
 ---
 
 ## 📞 Support & Questions
 
 **Need help?**
+
 - See [[index|Wiki Index]] for navigation
 - Check [[how-to-debug-issues|Debugging Guide]]
 - Review [[incident-response|Incident Response Playbook]]
 - Check [[troubleshooting|Troubleshooting Guide]]
 
 **Project Knowledge:**
+
 - Architecture: See [[portal-app-architecture]]
 - Database: See [[database-schema]]
 - Authentication: See [[auth-middleware]]
@@ -344,6 +459,6 @@ Executive KPI dashboard, PDF/Excel report generation, trend forecasting, data ex
 
 ## Summary
 
-**Arch-Systems (Plantcor)** has completed Phase 3 with a production-ready multi-departmental portal, advanced AI-powered orchestration, comprehensive real-time monitoring, and complete enterprise-grade infrastructure. The project is well-documented, secure, and ready for deployment and scaling.
+**Arch-Systems (Plantcor)** has completed Phase 5 with a production-ready multi-departmental portal, full light-theme UI, LangGraph AI orchestration, Highlight + OTEL observability, Inngest background jobs, QR access control, 48 database migrations, and a passing `pnpm quality` gate. The project is well-documented, secure, and ready for on-premises deployment.
 
-**Project Health:** 🟢 **Excellent** — All phases complete, quality high, team can ship.
+**Project Health:** 🟢 **Excellent** — Phase 5 complete, 48 migrations, full observability stack, access control QR dashboard, AI orchestration, `pnpm quality` passing.

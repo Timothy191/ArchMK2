@@ -2,12 +2,12 @@
 -- Seed Data: Core Departments
 -- ============================================
 INSERT INTO departments (name, display_name, icon, description, color) VALUES
-  ('drilling', 'Drilling', 'Drill', 'Drill rig operations & bit depth telemetry', 'amber'),
+  ('drilling', 'Drilling', 'Drill', 'Drill rig operations & bit depth telemetry', 'blue'),
   ('production', 'Production', 'Factory', 'Coal yield, tonnage & extraction tracking', 'emerald'),
   ('access-control', 'Access Control', 'ShieldCheck', 'Site access, badging & security', 'blue'),
   ('engineering', 'Engineering', 'Wrench', 'Equipment specs, maintenance & CAD', 'violet'),
   ('control-room', 'Control Room', 'Monitor', 'SCADA systems & real-time monitoring', 'red'),
-  ('safety', 'Safety', 'HardHat', 'Incident logs, compliance & inspections', 'orange'),
+  ('safety', 'Safety', 'HardHat', 'Incident logs, compliance & inspections', 'blue'),
   ('training', 'Training', 'GraduationCap', 'LMS, certifications & competency tracking', 'cyan'),
   ('satellite-monitoring', 'Satellite Monitoring', 'Satellite', 'SAR/InSAR, hyperspectral & high-resolution imagery', 'indigo')
 ON CONFLICT (name) DO UPDATE SET
@@ -76,11 +76,11 @@ ON CONFLICT (employee_code) DO NOTHING;
 INSERT INTO delay_categories (name, color, icon, sort_order) VALUES
   ('Equipment Breakdown', '#ef4444', 'Wrench', 1),
   ('Weather', '#3b82f6', 'CloudRain', 2),
-  ('Safety Incident', '#f59e0b', 'ShieldAlert', 3),
+  ('Safety Incident', '#007aff', 'ShieldAlert', 3),
   ('Maintenance', '#8b5cf6', 'Settings', 4),
   ('Material Shortage', '#6366f1', 'PackageX', 5),
   ('Shift Change', '#10b981', 'Users', 6),
-  ('Operator Unavailable', '#f59e0b', 'UserX', 7),
+  ('Operator Unavailable', '#007aff', 'UserX', 7),
   ('Other', '#6b7280', 'FileText', 99)
 ON CONFLICT (name) DO UPDATE SET
   color = EXCLUDED.color,

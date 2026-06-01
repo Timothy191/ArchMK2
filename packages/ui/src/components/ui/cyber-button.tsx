@@ -6,7 +6,7 @@ import { cn } from "@repo/ui/lib/utils";
 
 interface CyberButtonProps extends HTMLMotionProps<"button"> {
   children: React.ReactNode;
-  variant?: "cyan" | "amber" | "alert";
+  variant?: "cyan" | "blue" | "alert";
   size?: "default" | "sm" | "lg";
 }
 
@@ -27,14 +27,14 @@ export function CyberButton({
       bgHover: "hover:bg-[var(--accent-cyan)]/10",
       before: "before:bg-[var(--accent-cyan)]",
     },
-    amber: {
-      border: "border-[var(--accent-amber)]/40",
-      text: "text-[var(--accent-amber)]",
+    blue: {
+      border: "border-[var(--accent-blue)]/40",
+      text: "text-[var(--accent-blue)]",
       glow: "shadow-[0_0_12px_rgba(245,158,11,0.15)]",
       glowHover: "hover:shadow-[0_0_20px_rgba(245,158,11,0.25)]",
-      bg: "bg-[var(--accent-amber)]/5",
-      bgHover: "hover:bg-[var(--accent-amber)]/10",
-      before: "before:bg-[var(--accent-amber)]",
+      bg: "bg-[var(--accent-blue)]/5",
+      bgHover: "hover:bg-[var(--accent-blue)]/10",
+      before: "before:bg-[var(--accent-blue)]",
     },
     alert: {
       border: "border-[var(--accent-alert)]/40",

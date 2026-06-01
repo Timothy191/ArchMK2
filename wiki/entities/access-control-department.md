@@ -37,27 +37,27 @@ The Access Control department in Arch-Systems handles site access, badging, and 
 
 ## Database Tables
 
-| Table | Purpose | Key Columns |
-|-------|---------|-------------|
-| `daily_logs` | Shift-level access log | `department_id`, `log_date`, `shift` |
-| `machines` | Security equipment (cameras, gates, scanners) | `name`, `machine_type`, `serial_number`, `active` |
-| `employees` | Personnel registry with site access | `full_name`, `role`, `department_id`, `accessible_departments` |
-| `audit_logs` | All access events (inserts, updates, deletes) | `action`, `table_name`, `record_id`, `performed_by` |
+| Table        | Purpose                                       | Key Columns                                                    |
+| ------------ | --------------------------------------------- | -------------------------------------------------------------- |
+| `daily_logs` | Shift-level access log                        | `department_id`, `log_date`, `shift`                           |
+| `machines`   | Security equipment (cameras, gates, scanners) | `name`, `machine_type`, `serial_number`, `active`              |
+| `employees`  | Personnel registry with site access           | `full_name`, `role`, `department_id`, `accessible_departments` |
+| `audit_logs` | All access events (inserts, updates, deletes) | `action`, `table_name`, `record_id`, `performed_by`            |
 
 Access control data is doubly protected: RLS policies scope by `department_id`, and the `audit_logs` table captures every mutation.
 
 ## Completeness Status (Phase 3)
 
-| Feature | Status |
-|---------|--------|
-| Dashboard | 80% |
-| Forms (daily-log) | 75% |
-| Tables (machines, history) | 85% |
-| Charts | 65% |
-| Real-time updates | 60% |
-| AI Assistant | 75% |
-| Mobile responsiveness | 60% |
-| **Overall** | **71%** |
+| Feature                    | Status  |
+| -------------------------- | ------- |
+| Dashboard                  | 80%     |
+| Forms (daily-log)          | 75%     |
+| Tables (machines, history) | 85%     |
+| Charts                     | 65%     |
+| Real-time updates          | 60%     |
+| AI Assistant               | 75%     |
+| Mobile responsiveness      | 60%     |
+| **Overall**                | **71%** |
 
 **Mobile:** Access gate scanning and badge management workflows need touch-optimized form redesign for field officers. See [[mobile-pwa]].
 

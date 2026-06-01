@@ -4,7 +4,11 @@ created: 2026-05-14
 updated: 2026-05-16
 type: concept
 tags: [system, infrastructure, database, process]
-sources: [raw/articles/supabase-local-dev-guide.md, raw/articles/arch-systems-project-overview.md]
+sources:
+  [
+    raw/articles/supabase-local-dev-guide.md,
+    raw/articles/arch-systems-project-overview.md,
+  ]
 confidence: high
 ---
 

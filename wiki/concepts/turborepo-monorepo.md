@@ -33,6 +33,7 @@ packages/
 ```
 
 ## Key Conventions
+
 - Path aliases: `@/` and `~/` both map to `apps/portal/`
 - Shared components imported from `@repo/ui` (never direct shadcn paths)
 - All Tailwind config originates from `@repo/theme` — portal and @repo/ui both re-export it
@@ -43,10 +44,12 @@ packages/
 ## pnpm Workspace Catalogs
 
 Shared dependency versions centralized in `pnpm-workspace.yaml`:
+
 - `catalog:` — shared versions (framer-motion, tailwindcss, lucide-react, sonner, etc.)
-- `catalog:react19` — React 19 packages (react, react-dom, @types/*)
+- `catalog:react19` — React 19 packages (react, react-dom, @types/\*)
 
 ## Commands
+
 - `pnpm dev` → Start Next.js dev server (portal only, port 3000)
 - `pnpm build` → Build all packages via Turborepo
 - `pnpm lint` → Lint all packages
@@ -56,6 +59,7 @@ Shared dependency versions centralized in `pnpm-workspace.yaml`:
 - `pnpm deploy:local` → Full stack: Supabase + build + serve
 
 ## Related
+
 - [[arch-systems]] — the main product using this structure
 - [[design-system]] — @repo/theme and styling conventions
 - [[supabase-local-dev]] — database and auth in the monorepo

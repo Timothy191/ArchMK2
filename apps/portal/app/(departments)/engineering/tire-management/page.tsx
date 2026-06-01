@@ -29,7 +29,7 @@ export default async function TireManagementPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <GlassCard>
           <div className="flex items-center gap-2">
-            <CircleDot className="w-4 h-4 text-emerald-500" />
+            <CircleDot className="w-4 h-4 text-accent-green" />
             <p className="text-[var(--text-muted)] text-xs font-medium uppercase tracking-wider">
               Total Tires
             </p>
@@ -41,22 +41,22 @@ export default async function TireManagementPage() {
 
         <GlassCard>
           <div className="flex items-center gap-2">
-            <Wrench className="w-4 h-4 text-amber-500" />
+            <Wrench className="w-4 h-4 text-arch-accent-blue" />
             <p className="text-[var(--text-muted)] text-xs font-medium uppercase tracking-wider">
               Due for Service
             </p>
           </div>
-          <p className="text-2xl font-bold text-amber-500 mt-2">—</p>
+          <p className="text-2xl font-bold text-arch-accent-blue mt-2">—</p>
         </GlassCard>
 
         <GlassCard>
           <div className="flex items-center gap-2">
-            <ClipboardList className="w-4 h-4 text-red-500" />
+            <ClipboardList className="w-4 h-4 text-accent-red" />
             <p className="text-[var(--text-muted)] text-xs font-medium uppercase tracking-wider">
               Critical Alerts
             </p>
           </div>
-          <p className="text-2xl font-bold text-red-500 mt-2">—</p>
+          <p className="text-2xl font-bold text-accent-red mt-2">—</p>
         </GlassCard>
       </div>
 

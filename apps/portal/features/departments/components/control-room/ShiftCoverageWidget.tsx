@@ -9,6 +9,7 @@ import { CloseShiftModal } from "./CloseShiftModal";
 
 interface ShiftCoverageWidgetProps {
   departmentId: string;
+  departmentSlug: string;
 }
 
 interface MachineWithOp {
@@ -21,8 +22,8 @@ interface MachineWithOp {
 
 export function ShiftCoverageWidget({
   departmentId,
+  departmentSlug,
 }: ShiftCoverageWidgetProps) {
-  const supabase = createBrowserSupabaseClient();
   const [machines, setMachines] = useState<MachineWithOp[]>([]);
   const [isClosed, setIsClosed] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -34,6 +35,7 @@ export function ShiftCoverageWidget({
 
   useEffect(() => {
     let cancelled = false;
+    const supabase = createBrowserSupabaseClient();
 
     async function fetchData() {
       setLoading(true);
@@ -102,7 +104,7 @@ export function ShiftCoverageWidget({
     return () => {
       cancelled = true;
     };
-  }, [departmentId, today, currentShift, supabase]);
+  }, [departmentId, today, currentShift]);
 
   const reportedCount = machines.filter((m) => m.has_entry).length;
 
@@ -136,7 +138,7 @@ export function ShiftCoverageWidget({
           </h3>
           <Clock className="w-5 h-5 text-[var(--text-muted)]" />
         </div>
-        <p className="text-red-400 text-sm">{error}</p>
+        <p className="text-accent-red text-sm">{error}</p>
       </GlassCard>
     );
   }
@@ -150,7 +152,7 @@ export function ShiftCoverageWidget({
           </h3>
           <div className="flex items-center gap-2">
             {isClosed && (
-              <span className="text-[10px] uppercase tracking-wider text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full font-medium">
+              <span className="text-[10px] uppercase tracking-wider text-accent-green bg-accent-green/10 border border-accent-green/20 px-2 py-0.5 rounded-full font-medium">
                 Shift Closed
               </span>
             )}
@@ -213,11 +215,11 @@ export function ShiftCoverageWidget({
                         {m.has_entry &&
                         m.hours_worked !== null &&
                         m.hours_worked > 0 ? (
-                          <CheckCircle className="w-4 h-4 text-emerald-400 mx-auto" />
+                          <CheckCircle className="w-4 h-4 text-accent-green mx-auto" />
                         ) : m.has_entry && m.hours_worked === 0 ? (
-                          <AlertTriangle className="w-4 h-4 text-amber-400 mx-auto" />
+                          <AlertTriangle className="w-4 h-4 text-accent-blue mx-auto" />
                         ) : (
-                          <XCircle className="w-4 h-4 text-red-400 mx-auto" />
+                          <XCircle className="w-4 h-4 text-accent-red mx-auto" />
                         )}
                       </td>
                     </tr>
@@ -244,6 +246,7 @@ export function ShiftCoverageWidget({
         open={showModal}
         onClose={() => setShowModal(false)}
         departmentId={departmentId}
+        departmentSlug={departmentSlug}
         date={today}
         shiftType={currentShift}
         onComplete={() => setShowModal(false)}

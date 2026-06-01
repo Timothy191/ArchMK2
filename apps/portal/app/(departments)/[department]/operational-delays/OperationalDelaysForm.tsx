@@ -35,13 +35,32 @@ const DELAY_TYPES = [
 
 // Template buttons for quick entry
 const TEMPLATES = [
-  { label: "Equipment Break", type: "equipment", category: "Equipment Breakdown", minutes: 30 },
+  {
+    label: "Equipment Break",
+    type: "equipment",
+    category: "Equipment Breakdown",
+    minutes: 30,
+  },
   { label: "Rain Stop", type: "weather", category: "Weather", minutes: 60 },
-  { label: "Safety Stop", type: "safety", category: "Safety Incident", minutes: 15 },
-  { label: "Shift Handover", type: "shift_change", category: "Shift Change", minutes: 15 },
+  {
+    label: "Safety Stop",
+    type: "safety",
+    category: "Safety Incident",
+    minutes: 15,
+  },
+  {
+    label: "Shift Handover",
+    type: "shift_change",
+    category: "Shift Change",
+    minutes: 15,
+  },
 ];
 
-export function OperationalDelaysForm({ departmentId, machines, categories }: OperationalDelaysFormProps) {
+export function OperationalDelaysForm({
+  departmentId,
+  machines,
+  categories,
+}: OperationalDelaysFormProps) {
   const router = useRouter();
   const supabase = createBrowserSupabaseClient();
 
@@ -64,9 +83,9 @@ export function OperationalDelaysForm({ departmentId, machines, categories }: Op
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const handleTemplateClick = (template: typeof TEMPLATES[0]) => {
-    const category = categories.find(c => c.name === template.category);
-    setFormData(prev => ({
+  const handleTemplateClick = (template: (typeof TEMPLATES)[0]) => {
+    const category = categories.find((c) => c.name === template.category);
+    setFormData((prev) => ({
       ...prev,
       delayType: template.type,
       categoryId: category?.id || "",
@@ -149,7 +168,9 @@ export function OperationalDelaysForm({ departmentId, machines, categories }: Op
 
         {/* Template Buttons */}
         <div className="flex flex-wrap gap-2">
-          <span className="text-[var(--text-muted)] text-sm mr-2 py-2">Quick:</span>
+          <span className="text-[var(--text-muted)] text-sm mr-2 py-2">
+            Quick:
+          </span>
           {TEMPLATES.map((template) => (
             <button
               key={template.label}
@@ -166,12 +187,12 @@ export function OperationalDelaysForm({ departmentId, machines, categories }: Op
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <label className="text-[var(--text-secondary)] text-sm block">
-              Delay Type <span className="text-red-400">*</span>
+              Delay Type <span className="text-accent-red">*</span>
             </label>
             <select
               value={formData.delayType}
               onChange={(e) =>
-                setFormData(prev => ({ ...prev, delayType: e.target.value }))
+                setFormData((prev) => ({ ...prev, delayType: e.target.value }))
               }
               className="w-full bg-[var(--bg-secondary)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-blue)] transition-colors"
             >
@@ -183,12 +204,14 @@ export function OperationalDelaysForm({ departmentId, machines, categories }: Op
               ))}
             </select>
             {errors.delayType && (
-              <p className="text-red-400 text-xs">{errors.delayType}</p>
+              <p className="text-accent-red text-xs">{errors.delayType}</p>
             )}
           </div>
 
           <div className="space-y-2">
-            <label className="text-[var(--text-secondary)] text-sm block">Shift</label>
+            <label className="text-[var(--text-secondary)] text-sm block">
+              Shift
+            </label>
             <div className="flex gap-2">
               {["day", "night"].map((shift) => (
                 <button
@@ -217,12 +240,13 @@ export function OperationalDelaysForm({ departmentId, machines, categories }: Op
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <label className="text-[var(--text-secondary)] text-sm block">
-              Category <span className="text-[var(--text-muted)]">(Optional)</span>
+              Category{" "}
+              <span className="text-[var(--text-muted)]">(Optional)</span>
             </label>
             <select
               value={formData.categoryId}
               onChange={(e) =>
-                setFormData(prev => ({ ...prev, categoryId: e.target.value }))
+                setFormData((prev) => ({ ...prev, categoryId: e.target.value }))
               }
               className="w-full bg-[var(--bg-secondary)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-blue)] transition-colors"
             >
@@ -237,12 +261,16 @@ export function OperationalDelaysForm({ departmentId, machines, categories }: Op
 
           <div className="space-y-2">
             <label className="text-[var(--text-secondary)] text-sm block">
-              Affected Machine <span className="text-[var(--text-muted)]">(Optional)</span>
+              Affected Machine{" "}
+              <span className="text-[var(--text-muted)]">(Optional)</span>
             </label>
             <select
               value={formData.affectedMachineId}
               onChange={(e) =>
-                setFormData(prev => ({ ...prev, affectedMachineId: e.target.value }))
+                setFormData((prev) => ({
+                  ...prev,
+                  affectedMachineId: e.target.value,
+                }))
               }
               className="w-full bg-[var(--bg-secondary)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-blue)] transition-colors"
             >
@@ -259,7 +287,7 @@ export function OperationalDelaysForm({ departmentId, machines, categories }: Op
         {/* Delay Minutes */}
         <div className="space-y-2">
           <label className="text-[var(--text-secondary)] text-sm block">
-            Duration <span className="text-red-400">*</span>
+            Duration <span className="text-accent-red">*</span>
           </label>
           <div className="flex items-center gap-2">
             <input
@@ -268,7 +296,10 @@ export function OperationalDelaysForm({ departmentId, machines, categories }: Op
               max="720"
               value={formData.delayMinutes}
               onChange={(e) =>
-                setFormData((prev) => ({ ...prev, delayMinutes: e.target.value }))
+                setFormData((prev) => ({
+                  ...prev,
+                  delayMinutes: e.target.value,
+                }))
               }
               placeholder="Minutes"
               className="w-32 bg-[var(--bg-secondary)] border border-[var(--border-default)] rounded-lg px-3 py-2.5 text-[var(--text-heading)] text-sm focus:outline-none focus:border-[var(--accent-blue)]"
@@ -276,14 +307,14 @@ export function OperationalDelaysForm({ departmentId, machines, categories }: Op
             <span className="text-[var(--text-muted)] text-sm">minutes</span>
           </div>
           {errors.delayMinutes && (
-            <p className="text-red-400 text-xs">{errors.delayMinutes}</p>
+            <p className="text-accent-red text-xs">{errors.delayMinutes}</p>
           )}
         </div>
 
         {/* Description */}
         <div className="space-y-2">
           <label className="text-[var(--text-secondary)] text-sm block">
-            Description <span className="text-red-400">*</span>
+            Description <span className="text-accent-red">*</span>
           </label>
           <textarea
             value={formData.description}
@@ -297,7 +328,7 @@ export function OperationalDelaysForm({ departmentId, machines, categories }: Op
           />
           <div className="flex justify-between">
             {errors.description && (
-              <p className="text-red-400 text-xs">{errors.description}</p>
+              <p className="text-accent-red text-xs">{errors.description}</p>
             )}
             <p className="text-[var(--text-muted)] text-xs ml-auto">
               {formData.description.length}/300
@@ -313,7 +344,10 @@ export function OperationalDelaysForm({ departmentId, machines, categories }: Op
           <textarea
             value={formData.impactDescription}
             onChange={(e) =>
-              setFormData((prev) => ({ ...prev, impactDescription: e.target.value }))
+              setFormData((prev) => ({
+                ...prev,
+                impactDescription: e.target.value,
+              }))
             }
             placeholder="Impact on production/plan..."
             rows={2}
@@ -325,12 +359,16 @@ export function OperationalDelaysForm({ departmentId, machines, categories }: Op
         {/* Recovery Action */}
         <div className="space-y-2">
           <label className="text-[var(--text-secondary)] text-sm block">
-            Recovery Action <span className="text-[var(--text-muted)]">(Optional)</span>
+            Recovery Action{" "}
+            <span className="text-[var(--text-muted)]">(Optional)</span>
           </label>
           <textarea
             value={formData.recoveryAction}
             onChange={(e) =>
-              setFormData((prev) => ({ ...prev, recoveryAction: e.target.value }))
+              setFormData((prev) => ({
+                ...prev,
+                recoveryAction: e.target.value,
+              }))
             }
             placeholder="How was the delay resolved?"
             rows={2}
@@ -349,7 +387,7 @@ export function OperationalDelaysForm({ departmentId, machines, categories }: Op
             {isSubmitting ? "Saving..." : "Log Delay"}
           </button>
           {errors.submit && (
-            <p className="text-red-400 text-sm">{errors.submit}</p>
+            <p className="text-accent-red text-sm">{errors.submit}</p>
           )}
         </div>
       </form>

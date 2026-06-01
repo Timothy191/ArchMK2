@@ -2,6 +2,8 @@ import { createServerSupabaseClient } from "@repo/supabase/server";
 import { generateEmbedding, batchGenerateEmbeddings } from "./embeddings";
 import { DatabaseError } from "@repo/errors";
 import { logError } from "@/lib/errors/error-logger";
+import { withCache } from "@/lib/cache-utils";
+import { CacheCategory } from "@repo/redis";
 
 /**
  * Memory Service - Episodic, Semantic, and Procedural Memory for AI Chat
@@ -71,7 +73,10 @@ export async function storeMemory(
     .single();
 
   if (error) {
-    logError(new Error(error.message), { context: "memory_store", table: "memory_embeddings" });
+    logError(new Error(error.message), {
+      context: "memory_store",
+      table: "memory_embeddings",
+    });
     throw new DatabaseError("Memory storage failed", {
       operation: "insert",
       table: "memories",
@@ -112,7 +117,10 @@ export async function storeMemories(
     .select();
 
   if (error) {
-    logError(new Error(error.message), { context: "memory_batch_store", table: "memory_embeddings" });
+    logError(new Error(error.message), {
+      context: "memory_batch_store",
+      table: "memory_embeddings",
+    });
     throw new DatabaseError("Batch memory storage failed", {
       operation: "insert",
       table: "memories",
@@ -212,38 +220,50 @@ export async function getConversationHistory(
   userId: string,
   limit = 20,
 ): Promise<MemoryEntry[]> {
-  const supabase = await createServerSupabaseClient();
+  return withCache(
+    async () => {
+      const supabase = await createServerSupabaseClient();
 
-  const { data, error } = await supabase.rpc("get_conversation_history", {
-    p_session_id: sessionId,
-    p_user_id: userId,
-    message_limit: limit,
-  });
+      const { data, error } = await supabase.rpc("get_conversation_history", {
+        p_session_id: sessionId,
+        p_user_id: userId,
+        message_limit: limit,
+      });
 
-  if (error) {
-    logError(new Error(error.message), { context: "memory_conversation_history", sessionId });
-    // Fallback to direct query
-    const { data: fallbackData } = await supabase
-      .from("memory_embeddings")
-      .select("id, session_id, content, metadata, memory_type, created_at")
-      .eq("session_id", sessionId)
-      .eq("user_id", userId)
-      .eq("memory_type", "episodic")
-      .order("created_at", { ascending: false })
-      .limit(limit);
+      if (error) {
+        logError(new Error(error.message), {
+          context: "memory_conversation_history",
+          sessionId,
+        });
+        // Fallback to direct query
+        const { data: fallbackData } = await supabase
+          .from("memory_embeddings")
+          .select("id, session_id, content, metadata, memory_type, created_at")
+          .eq("session_id", sessionId)
+          .eq("user_id", userId)
+          .eq("memory_type", "episodic")
+          .order("created_at", { ascending: false })
+          .limit(limit);
 
-    return (fallbackData ?? []).map(mapRowToEntry);
-  }
+        return (fallbackData ?? []).map(mapRowToEntry);
+      }
 
-  return (data ?? []).map((row: Record<string, unknown>) => ({
-    id: row.id as string,
-    sessionId: sessionId,
-    userId: userId,
-    content: row.content as string,
-    metadata: row.metadata as Record<string, unknown>,
-    memoryType: "episodic",
-    createdAt: row.created_at as string,
-  }));
+      return (data ?? []).map((row: Record<string, unknown>) => ({
+        id: row.id as string,
+        sessionId: sessionId,
+        userId: userId,
+        content: row.content as string,
+        metadata: row.metadata as Record<string, unknown>,
+        memoryType: "episodic",
+        createdAt: row.created_at as string,
+      }));
+    },
+    {
+      category: CacheCategory.AI_MEMORY,
+      keyParts: [userId, sessionId, limit],
+      tags: [`ai:${userId}`, "table:memory_embeddings"],
+    },
+  );
 }
 
 // ============================================

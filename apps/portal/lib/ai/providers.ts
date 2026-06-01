@@ -44,7 +44,7 @@ export async function chat(
  *     // send chunk to client via encode/decode or SSE
  *   }
  */
-export async function streamChat(
+async function _streamChat(
   messages: OllamaMessage[],
   opts: OllamaChatOptions = {},
 ): Promise<AsyncIterable<string>> {
@@ -62,7 +62,7 @@ export async function streamChat(
  * Generate embeddings for one or more texts.
  * Returns an array of float vectors.
  */
-export async function embed(
+async function _embed(
   input: string | string[],
   opts: { model?: string } = {},
 ): Promise<number[][]> {
@@ -77,14 +77,14 @@ export async function embed(
 }
 
 /** Effective model being used. */
-export function getModel(): string {
+function _getModel(): string {
   return DEFAULT_MODEL;
 }
 
 /** Ollama base URL. */
-export function getBaseUrl(): string {
+function _getBaseUrl(): string {
   return OLLAMA_URL;
 }
 
 /** Default model name (re-exported for routes that import from providers). */
-export { DEFAULT_MODEL, OLLAMA_URL } from "./ollama";
+export { DEFAULT_MODEL } from "./ollama";

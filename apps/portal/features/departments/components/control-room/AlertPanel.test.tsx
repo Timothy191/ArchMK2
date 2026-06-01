@@ -6,8 +6,16 @@ jest.mock("@repo/supabase/client", () => ({
 }));
 
 jest.mock("@repo/ui/GlassCard", () => ({
-  GlassCard: ({ children, className }: { children: React.ReactNode; className?: string }) => (
-    <div data-testid="glass-card" className={className}>{children}</div>
+  GlassCard: ({
+    children,
+    className,
+  }: {
+    children: React.ReactNode;
+    className?: string;
+  }) => (
+    <div data-testid="glass-card" className={className}>
+      {children}
+    </div>
   ),
 }));
 
@@ -87,7 +95,9 @@ describe("AlertPanel", () => {
     fireEvent.click(screen.getByText("Dismiss"));
 
     await waitFor(() => {
-      expect(screen.queryByText(/Conveyor 1 is offline/)).not.toBeInTheDocument();
+      expect(
+        screen.queryByText(/Conveyor 1 is offline/),
+      ).not.toBeInTheDocument();
     });
   });
 });

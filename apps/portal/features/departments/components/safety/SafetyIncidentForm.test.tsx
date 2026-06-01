@@ -1,4 +1,10 @@
-import { render, screen, waitFor, fireEvent } from "@testing-library/react";
+import {
+  render,
+  screen,
+  waitFor,
+  fireEvent,
+  act,
+} from "@testing-library/react";
 import { SafetyIncidentForm } from "./SafetyIncidentForm";
 
 jest.mock("next/navigation", () => ({
@@ -245,8 +251,10 @@ describe("SafetyIncidentForm", () => {
       expect(button).toBeDisabled();
     });
 
-    // Resolve the insert to clean up
-    resolveInsert!({ error: null });
+    // Resolve the insert to clean up inside act to avoid state update warnings
+    await act(async () => {
+      resolveInsert!({ error: null });
+    });
   });
 
   it("validates injured parties range", async () => {

@@ -77,43 +77,45 @@ async function getTelemetryData(selectedMachineId?: string): Promise<{
 
   const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
 
-  // Get all drill rigs
-  const { data: drills } = await supabase
-    .from("machines")
-    .select("id, name")
-    .eq("department_id", dept.id)
-    .eq("machine_type", "Drill Rig")
-    .eq("active", true)
-    .order("name");
+  // Parallel fetch: drill rigs, telemetry, archives, and machine name map
+  const [
+    { data: drills },
+    { data: telemetry },
+    { data: archives },
+    { data: allMachines },
+  ] = await Promise.all([
+    supabase
+      .from("machines")
+      .select("id, name")
+      .eq("machine_type", "Drill Rig")
+      .eq("active", true)
+      .order("name"),
+    supabase.rpc("get_telemetry_summary", {
+      p_department_id: dept.id,
+      p_machine_id: selectedMachineId || null,
+      p_granularity: "day",
+    }),
+    supabase
+      .from("machine_telemetry_archive")
+      .select("id, year_month, archived_at, record_count, machine_id")
+      .eq("department_id", dept.id)
+      .order("archived_at", { ascending: false })
+      .limit(12),
+    supabase
+      .from("machines")
+      .select("id, name")
+      .eq("machine_type", "Drill Rig"),
+  ]);
 
-  // Get current month telemetry summary using the database function
-  const { data: telemetry } = await supabase.rpc("get_telemetry_summary", {
-    p_department_id: dept.id,
-    p_machine_id: selectedMachineId || null,
-    p_granularity: "day",
-  });
-
-  // Get archived months
-  const { data: archives } = await supabase
-    .from("machine_telemetry_archive")
-    .select(
-      `
-      id,
-      year_month,
-      archived_at,
-      record_count,
-      machines!inner(name)
-    `,
-    )
-    .eq("department_id", dept.id)
-    .order("archived_at", { ascending: false })
-    .limit(12);
+  const machineNameMap = new Map(
+    (allMachines || []).map((m: any) => [m.id, m.name]),
+  );
 
   const transformedArchives: ArchivedMonth[] = (archives || []).map(
     (a: any) => ({
       id: a.id,
       year_month: a.year_month,
-      machine_name: a.machines?.name || "Unknown",
+      machine_name: machineNameMap.get(a.machine_id) || "Unknown",
       archived_at: a.archived_at,
       record_count: a.record_count,
     }),
@@ -236,15 +238,17 @@ export default async function MachineTelemetryPage({
           <p className="text-[var(--text-muted)] text-xs font-medium uppercase tracking-wider">
             Avg Penetration
           </p>
-          <p className="text-2xl font-bold text-emerald-500 mt-1">
+          <p className="text-2xl font-bold text-accent-green mt-1">
             {formatNumber(avgPenetration, 2)} m/h
           </p>
         </GlassCard>
         <GlassCard>
-          <p className="text-[var(--text-muted)] text-xs font-medium uppercase tracking-wider text-red-400">
+          <p className="text-[var(--text-muted)] text-xs font-medium uppercase tracking-wider text-accent-red">
             Alerts
           </p>
-          <p className="text-2xl font-bold text-red-400 mt-1">{totalAlerts}</p>
+          <p className="text-2xl font-bold text-accent-red mt-1">
+            {totalAlerts}
+          </p>
         </GlassCard>
       </div>
 
@@ -291,10 +295,10 @@ export default async function MachineTelemetryPage({
             </form>
 
             <div className="flex items-center gap-2 border-l border-[var(--border-subtle)] pl-4">
-              <TrendingUp className="w-5 h-5 text-emerald-500" />
+              <TrendingUp className="w-5 h-5 text-accent-green" />
               <span className="text-sm text-[var(--text-body)]">
                 Max Depth:{" "}
-                <span className="font-semibold text-emerald-400">
+                <span className="font-semibold text-accent-green">
                   {formatNumber(maxBitDepth, 1)}m
                 </span>
               </span>
@@ -385,19 +389,19 @@ export default async function MachineTelemetryPage({
                         {record.machine_name}
                       </TableCell>
                       <TableCell
-                        className={`text-right font-medium ${isHighRPM ? "text-amber-400" : "text-[var(--text-body)]"}`}
+                        className={`text-right font-medium ${isHighRPM ? "text-accent-blue" : "text-[var(--text-body)]"}`}
                       >
                         {formatNumber(record.avg_engine_rpm, 0)} rpm
                       </TableCell>
                       <TableCell
-                        className={`text-right font-semibold ${isOverheating ? "text-red-400" : isWarm ? "text-amber-400" : "text-[var(--text-body)]"}`}
+                        className={`text-right font-semibold ${isOverheating ? "text-accent-red" : isWarm ? "text-accent-blue" : "text-[var(--text-body)]"}`}
                       >
                         {formatNumber(record.avg_engine_temp, 1)}°C
                       </TableCell>
                       <TableCell className="text-right text-[var(--text-body)] font-medium">
                         {formatNumber(record.avg_hydraulic_pressure, 0)} bar
                       </TableCell>
-                      <TableCell className="text-right font-semibold text-emerald-400">
+                      <TableCell className="text-right font-semibold text-accent-green">
                         {formatNumber(record.max_bit_depth, 1)}m
                       </TableCell>
                       <TableCell className="text-right font-semibold text-cyan-400">
@@ -408,11 +412,11 @@ export default async function MachineTelemetryPage({
                       </TableCell>
                       <TableCell className="text-center">
                         {record.total_alerts > 0 ? (
-                          <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-semibold bg-red-500/10 text-red-500">
+                          <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-semibold bg-accent-red/10 text-accent-red">
                             {record.total_alerts}
                           </span>
                         ) : (
-                          <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-500">
+                          <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-semibold bg-accent-green/10 text-accent-green">
                             0
                           </span>
                         )}
@@ -522,7 +526,7 @@ export default async function MachineTelemetryPage({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <GlassCard className="p-4">
           <h4 className="font-semibold text-[var(--text-heading)] mb-2 flex items-center gap-2">
-            <Activity className="w-4 h-4 text-emerald-500" />
+            <Activity className="w-4 h-4 text-accent-green" />
             How Archival Works
           </h4>
           <ul className="text-sm text-[var(--text-body)] space-y-1 list-disc list-inside">

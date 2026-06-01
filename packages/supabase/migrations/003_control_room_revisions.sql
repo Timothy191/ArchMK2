@@ -264,6 +264,6 @@ CREATE TRIGGER update_operational_delays_updated_at
 -- 7. Seed additional delay categories
 -- ============================================
 INSERT INTO delay_categories (name, color, icon, sort_order) VALUES
-  ('Operator Unavailable', '#f59e0b', 'UserX', 7),
+  ('Operator Unavailable', '#007aff', 'UserX', 7),
   ('Material Shortage', '#6366f1', 'Package', 8)
 ON CONFLICT DO NOTHING;

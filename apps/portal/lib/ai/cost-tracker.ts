@@ -17,7 +17,7 @@ export interface TokenUsage {
   totalTokens: number | undefined;
 }
 
-export interface UsageRecord {
+interface UsageRecord {
   id: string;
   sessionId: string;
   userId: string;

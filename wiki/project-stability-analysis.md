@@ -2,16 +2,16 @@
 
 ## Executive Summary
 
-| Metric | Status | Score |
-|--------|--------|-------|
-| **Build System** | ✅ Stable | 9/10 |
-| **CI/CD Pipeline** | ✅ Stable | 9/10 |
-| **Code Quality** | ✅ Good | 8/10 |
-| **Dependency Management** | ✅ Excellent | 10/10 |
-| **Error Handling** | ⚠️ Needs Work | 5/10 |
-| **Documentation** | ⚠️ Partial | 6/10 |
-| **Test Coverage** | ⚠️ Unknown | ?/10 |
-| **Overall Stability** | 🟡 **Stable with gaps** | **7.5/10** |
+| Metric                    | Status                  | Score      |
+| ------------------------- | ----------------------- | ---------- |
+| **Build System**          | ✅ Stable               | 9/10       |
+| **CI/CD Pipeline**        | ✅ Stable               | 9/10       |
+| **Code Quality**          | ✅ Good                 | 8/10       |
+| **Dependency Management** | ✅ Excellent            | 10/10      |
+| **Error Handling**        | ⚠️ Needs Work           | 5/10       |
+| **Documentation**         | ⚠️ Partial              | 6/10       |
+| **Test Coverage**         | ⚠️ Unknown              | ?/10       |
+| **Overall Stability**     | 🟡 **Stable with gaps** | **7.5/10** |
 
 ---
 
@@ -46,9 +46,9 @@
 
 ### GitHub Actions Workflows
 
-| Workflow | Purpose | Status |
-|----------|---------|--------|
-| `ci.yml` | Build, test, lint | ✅ Active |
+| Workflow        | Purpose             | Status          |
+| --------------- | ------------------- | --------------- |
+| `ci.yml`        | Build, test, lint   | ✅ Active       |
 | `reviewdog.yml` | PR linting comments | ✅ Active (new) |
 
 **Pipeline Steps**:
@@ -82,14 +82,14 @@
 
 ### Linting & Formatting
 
-| Tool | Status | Integration |
-|------|--------|-------------|
-| ESLint | ✅ Active | CI + Reviewdog |
-| Prettier | ✅ Active | CI + lint-staged |
-| markdownlint | ✅ Active | CI + Reviewdog (new) |
-| knip | ✅ Active | CI |
-| syncpack | ✅ Active | CI |
-| bundlesize | ⚠️ Configured, not in CI | Manual only |
+| Tool         | Status                   | Integration          |
+| ------------ | ------------------------ | -------------------- |
+| ESLint       | ✅ Active                | CI + Reviewdog       |
+| Prettier     | ✅ Active                | CI + lint-staged     |
+| markdownlint | ✅ Active                | CI + Reviewdog (new) |
+| knip         | ✅ Active                | CI                   |
+| syncpack     | ✅ Active                | CI                   |
+| bundlesize   | ⚠️ Configured, not in CI | Manual only          |
 
 ### Code Health Metrics
 
@@ -113,19 +113,19 @@
 
 ### Current Stack
 
-| Aspect | Tool | Status |
-|--------|------|--------|
-| Package Manager | pnpm 9.12.0 | ✅ Locked |
-| Workspaces | pnpm-workspace.yaml | ✅ Configured |
-| Catalogs | pnpm catalogs | ✅ Active |
-| Version Enforcement | syncpack | ✅ Active |
-| Node Version | 20.17.0 (volta) | ✅ Locked |
+| Aspect              | Tool                | Status        |
+| ------------------- | ------------------- | ------------- |
+| Package Manager     | pnpm 9.12.0         | ✅ Locked     |
+| Workspaces          | pnpm-workspace.yaml | ✅ Configured |
+| Catalogs            | pnpm catalogs       | ✅ Active     |
+| Version Enforcement | syncpack            | ✅ Active     |
+| Node Version        | 20.17.0 (volta)     | ✅ Locked     |
 
 **Strengths**:
 
 - Catalogs prevent version drift
 - syncpack enforces single version policy
-- workspace:* for internal packages
+- workspace:\* for internal packages
 - engines + volta for Node version
 
 **Score: 10/10**
@@ -186,16 +186,16 @@
 
 ### Internal Packages
 
-| Package | Purpose | Status |
-|---------|---------|--------|
-| @repo/ui | Components | ✅ Stable |
-| @repo/theme | Design tokens | ✅ Stable |
+| Package        | Purpose         | Status    |
+| -------------- | --------------- | --------- |
+| @repo/ui       | Components      | ✅ Stable |
+| @repo/theme    | Design tokens   | ✅ Stable |
 | @repo/supabase | Database client | ✅ Stable |
-| @repo/redis | Cache client | ✅ Stable |
-| @repo/errors | Error handling | 🆕 New |
-| @repo/types | Shared types | ✅ Stable |
-| @repo/utils | Utilities | ✅ Stable |
-| @repo/hooks | React hooks | ✅ Stable |
+| @repo/redis    | Cache client    | ✅ Stable |
+| @repo/errors   | Error handling  | 🆕 New    |
+| @repo/types    | Shared types    | ✅ Stable |
+| @repo/utils    | Utilities       | ✅ Stable |
+| @repo/hooks    | React hooks     | ✅ Stable |
 
 ### Package Exports
 
@@ -211,14 +211,14 @@
 
 ### Current Documentation
 
-| Location | Content | Status |
-|----------|---------|--------|
-| `wiki/` | Architecture, ADRs | ✅ Good |
-| `DESIGN.md` | Design system | ✅ Good |
-| `AGENTS.md` | Dev quickstart | ✅ Good |
-| `README.md` | Project overview | ✅ Good |
-| Inline code | JSDoc | ⚠️ Sparse |
-| Component docs | Storybook | ❌ None |
+| Location       | Content            | Status    |
+| -------------- | ------------------ | --------- |
+| `wiki/`        | Architecture, ADRs | ✅ Good   |
+| `DESIGN.md`    | Design system      | ✅ Good   |
+| `AGENTS.md`    | Dev quickstart     | ✅ Good   |
+| `README.md`    | Project overview   | ✅ Good   |
+| Inline code    | JSDoc              | ⚠️ Sparse |
+| Component docs | Storybook          | ❌ None   |
 
 **Areas for Improvement**:
 
@@ -234,13 +234,14 @@
 
 ### Test Infrastructure
 
-| Type | Tool | Status | Coverage Target |
-|------|------|--------|---------------|
-| Unit | Jest 30.x | ✅ Configured | **14%** (baseline) |
-| E2E | Playwright | ✅ Configured | Unknown |
-| Component | Storybook | ❌ Not set up | N/A |
+| Type      | Tool       | Status        | Coverage Target    |
+| --------- | ---------- | ------------- | ------------------ |
+| Unit      | Jest 30.x  | ✅ Configured | **14%** (baseline) |
+| E2E       | Playwright | ✅ Configured | Unknown            |
+| Component | Storybook  | ❌ Not set up | N/A                |
 
 **Test Configuration**:
+
 - Jest config: `apps/portal/jest.config.js`
 - Coverage collected from: `lib/`, `features/`, `app/`
 - Current threshold: **14% lines** (very low)
@@ -248,15 +249,16 @@
 
 ### Industry Standards Comparison
 
-| Metric | Arch Systems | Industry Avg | Best Practice | Gap |
-|--------|--------------|--------------|---------------|-----|
-| **Test Coverage** | **14%** | 60-70% | 80%+ | ⚠️ **-66%** |
-| **Unit Tests** | ✅ Jest | Jest/Vitest | Same | ✅ Good |
-| **E2E Tests** | ✅ Playwright | Cypress | Same | ✅ Good |
-| **Component Tests** | ❌ None | Storybook | Same | ❌ Missing |
-| **Test in CI** | ✅ Yes | Yes | Same | ✅ Good |
+| Metric              | Arch Systems  | Industry Avg | Best Practice | Gap         |
+| ------------------- | ------------- | ------------ | ------------- | ----------- |
+| **Test Coverage**   | **14%**       | 60-70%       | 80%+          | ⚠️ **-66%** |
+| **Unit Tests**      | ✅ Jest       | Jest/Vitest  | Same          | ✅ Good     |
+| **E2E Tests**       | ✅ Playwright | Cypress      | Same          | ✅ Good     |
+| **Component Tests** | ❌ None       | Storybook    | Same          | ❌ Missing  |
+| **Test in CI**      | ✅ Yes        | Yes          | Same          | ✅ Good     |
 
 **Recommendations**:
+
 - ⏳ Raise coverage threshold to 40% (immediate)
 - ⏳ Target 60% coverage by end of Phase 1
 - ⏳ Target 80% coverage by end of Phase 4
@@ -272,12 +274,12 @@
 
 ### Current Measures
 
-| Aspect | Status | Notes |
-|--------|--------|-------|
-| GitHub token permissions | ✅ Minimal | `contents: read` |
-| Secrets in passThroughEnv | ✅ Correct | Not in cache-busting env |
-| CI env vars | ✅ Dummy values | No real secrets in CI |
-| Dependencies | ✅ syncpack | Prevents version conflicts |
+| Aspect                    | Status          | Notes                      |
+| ------------------------- | --------------- | -------------------------- |
+| GitHub token permissions  | ✅ Minimal      | `contents: read`           |
+| Secrets in passThroughEnv | ✅ Correct      | Not in cache-busting env   |
+| CI env vars               | ✅ Dummy values | No real secrets in CI      |
+| Dependencies              | ✅ syncpack     | Prevents version conflicts |
 
 **Areas for Improvement**:
 
@@ -346,13 +348,14 @@
 **Full Plan**: [project-completion-roadmap.md](../.windsurf/plans/project-completion-roadmap.md)
 
 ### Quick Summary
-| Phase | Focus | Duration | Target Score |
-|-------|-------|----------|--------------|
-| 1 | Error handling + Testing | 1 week | 8.0/10 |
-| 2 | CI/CD enhancement | 1 week | 8.5/10 |
-| 3 | Documentation | 1 week | 8.8/10 |
-| 4 | Code quality | 1 week | 9.0/10 |
-| 5 | Advanced features | 1 month | 9.2/10 |
+
+| Phase | Focus                    | Duration | Target Score |
+| ----- | ------------------------ | -------- | ------------ |
+| 1     | Error handling + Testing | 1 week   | 8.0/10       |
+| 2     | CI/CD enhancement        | 1 week   | 8.5/10       |
+| 3     | Documentation            | 1 week   | 8.8/10       |
+| 4     | Code quality             | 1 week   | 9.0/10       |
+| 5     | Advanced features        | 1 month  | 9.2/10       |
 
 **Total Effort**: ~80 developer hours over 6 weeks
 
@@ -378,16 +381,16 @@ Month 3 (target): █████████░ 9.0/10
 
 ### Overall Comparison
 
-| Category | Arch Systems Score | Industry Standard | Grade |
-|----------|-------------------|-------------------|-------|
-| **Build System** | 9/10 | 7/10 | 🟢 **A+** (Above) |
-| **CI/CD** | 9/10 | 7/10 | 🟢 **A+** (Above) |
-| **Dependencies** | 10/10 | 6/10 | 🟢 **A+** (Excellent) |
-| **Code Quality** | 8/10 | 7/10 | 🟢 **A** (Good) |
-| **Error Handling** | 5/10 | 6/10 | 🟡 **C** (Below) |
-| **Documentation** | 6/10 | 5/10 | 🟢 **B** (Good) |
-| **Test Coverage** | 3/10 (14%) | 7/10 (70%) | 🔴 **F** (Critical) |
-| **Overall** | **7.5/10** | **6.5/10** | 🟢 **B+** (Above) |
+| Category           | Arch Systems Score | Industry Standard | Grade                 |
+| ------------------ | ------------------ | ----------------- | --------------------- |
+| **Build System**   | 9/10               | 7/10              | 🟢 **A+** (Above)     |
+| **CI/CD**          | 9/10               | 7/10              | 🟢 **A+** (Above)     |
+| **Dependencies**   | 10/10              | 6/10              | 🟢 **A+** (Excellent) |
+| **Code Quality**   | 8/10               | 7/10              | 🟢 **A** (Good)       |
+| **Error Handling** | 5/10               | 6/10              | 🟡 **C** (Below)      |
+| **Documentation**  | 6/10               | 5/10              | 🟢 **B** (Good)       |
+| **Test Coverage**  | 3/10 (14%)         | 7/10 (70%)        | 🔴 **F** (Critical)   |
+| **Overall**        | **7.5/10**         | **6.5/10**        | 🟢 **B+** (Above)     |
 
 ### Where Arch Systems Excels 🏆
 
@@ -415,12 +418,12 @@ Month 3 (target): █████████░ 9.0/10
 
 ### Peer Comparison
 
-| Company | Setup | Coverage | Our Advantage |
-|---------|-------|----------|---------------|
-| Typical Startup | npm + CRA | 30% | Our tooling is superior |
-| Mid-size Company | yarn + custom | 50% | Our deps management |
-| Enterprise | Nx/Rush | 70% | Our agility vs their complexity |
-| **Arch Systems** | **pnpm + Turbo** | **14%** | **Coverage is the gap** |
+| Company          | Setup            | Coverage | Our Advantage                   |
+| ---------------- | ---------------- | -------- | ------------------------------- |
+| Typical Startup  | npm + CRA        | 30%      | Our tooling is superior         |
+| Mid-size Company | yarn + custom    | 50%      | Our deps management             |
+| Enterprise       | Nx/Rush          | 70%      | Our agility vs their complexity |
+| **Arch Systems** | **pnpm + Turbo** | **14%**  | **Coverage is the gap**         |
 
 ---
 
@@ -433,6 +436,7 @@ The Arch Systems monorepo is **stable and well-architected** with excellent depe
 3. **Test coverage visibility** (needs assessment)
 
 The recent additions (knip, markdownlint, reviewdog, @repo/errors) significantly improve the codebase quality. Focus should now shift to:
+
 - Migrating 53 error throws to @repo/errors
 - Improving test coverage visibility
 - Expanding documentation
@@ -444,15 +448,16 @@ The recent additions (knip, markdownlint, reviewdog, @repo/errors) significantly
 
 ### Priority Matrix
 
-| Priority | Item | Impact | Effort | Industry Gap |
-|----------|------|--------|--------|--------------|
-| 🔴 **P0** | Test coverage 14% → 60% | **Critical** | High | **-66% vs standard** |
-| 🟡 **P1** | Error migration | High | Medium | -1pt vs standard |
-| 🟡 **P1** | Documentation | Medium | Low | +1pt (ahead) |
-| 🟢 **P2** | Bundle size CI | Medium | Low | On par |
-| 🟢 **P2** | Storybook | Low | High | Missing |
+| Priority  | Item                    | Impact       | Effort | Industry Gap         |
+| --------- | ----------------------- | ------------ | ------ | -------------------- |
+| 🔴 **P0** | Test coverage 14% → 60% | **Critical** | High   | **-66% vs standard** |
+| 🟡 **P1** | Error migration         | High         | Medium | -1pt vs standard     |
+| 🟡 **P1** | Documentation           | Medium       | Low    | +1pt (ahead)         |
+| 🟢 **P2** | Bundle size CI          | Medium       | Low    | On par               |
+| 🟢 **P2** | Storybook               | Low          | High   | Missing              |
 
 ### Next Actions
+
 1. 🔴 **Run test coverage report** — `pnpm test --coverage` (today)
 2. 🔴 **Set coverage threshold to 40%** — Update jest.config.js (today)
 3. 🟡 Start error migration spreadsheet (this week)
@@ -463,6 +468,7 @@ The recent additions (knip, markdownlint, reviewdog, @repo/errors) significantly
 ## Detailed Metrics
 
 ### Error Handling
+
 - **53 generic `throw new Error()`** in portal app (18 files)
 - Top offenders:
   - `lib/ai/serpapi.ts`: 12 throws

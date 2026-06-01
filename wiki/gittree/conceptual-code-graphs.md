@@ -13,11 +13,13 @@ Conceptual code graphs are intermediate representations used by compilers, linte
 **Definition:** Hierarchical, syntactic representation of source code structure
 
 **Purpose:**
+
 - Represent the grammatical structure of code
 - Enable parsers and compilers to understand code
 - Foundation for all other program analysis tools
 
 **Structure:**
+
 ```
 AST Example: `const x = 5 + 3;`
 
@@ -31,6 +33,7 @@ AST Example: `const x = 5 + 3;`
 ```
 
 **Applications:**
+
 - Code formatting (Prettier)
 - Linting (ESLint)
 - Refactoring tools (TypeScript Language Server)
@@ -38,6 +41,7 @@ AST Example: `const x = 5 + 3;`
 - Syntax validation
 
 **Tools Using ASTs:**
+
 - Babel (JavaScript transpilation)
 - TypeScript (type checking via AST)
 - ESLint (code quality rules)
@@ -48,6 +52,7 @@ AST Example: `const x = 5 + 3;`
 **Definition:** Maps all possible execution paths a program can take during runtime
 
 **Purpose:**
+
 - Identify unreachable code
 - Detect infinite loops
 - Understand branch coverage
@@ -55,6 +60,7 @@ AST Example: `const x = 5 + 3;`
 - Debug execution flow
 
 **Structure:**
+
 ```
 CFG Example: if-else statement
 
@@ -71,6 +77,7 @@ CFG Example: if-else statement
 ```
 
 **Applications:**
+
 - Branch coverage analysis
 - Dead code detection
 - Loop analysis
@@ -78,6 +85,7 @@ CFG Example: if-else statement
 - Security vulnerability detection (e.g., unreachable exception handlers)
 
 **Complexity Metrics:**
+
 - Cyclomatic complexity (number of independent paths)
 - Every decision point increases complexity
 - High complexity = harder to test
@@ -87,6 +95,7 @@ CFG Example: if-else statement
 **Definition:** Shows calling relationships between functions/methods
 
 **Purpose:**
+
 - Trace execution paths
 - Identify performance bottlenecks
 - Detect unused code
@@ -94,6 +103,7 @@ CFG Example: if-else statement
 - Analyze memory leaks
 
 **Structure:**
+
 ```
 Call Graph Example:
 
@@ -107,6 +117,7 @@ Call Graph Example:
 ```
 
 **Applications:**
+
 - Function dependency analysis
 - Finding deeply nested call stacks (performance bottleneck)
 - Identifying circular dependencies
@@ -114,6 +125,7 @@ Call Graph Example:
 - API surface analysis
 
 **Usage in Arch-Mk2:**
+
 - Trace agent orchestrator execution paths
 - Analyze MCP workflow calls
 - Identify hot paths in N8N integration
@@ -124,12 +136,14 @@ Call Graph Example:
 **Definition:** Unified representation merging ASTs, CFGs, and dependency graphs
 
 **Purpose:**
+
 - Advanced code analysis combining multiple representations
 - Security vulnerability detection
 - Architectural pattern identification
 - Cross-cutting concern analysis
 
 **Components:**
+
 ```
 CPG = AST + CFG + Dependency Graph + Data Flow Graph
 
@@ -140,12 +154,14 @@ Enables queries like:
 ```
 
 **Applications:**
+
 - Security scanning (OWASP vulnerabilities)
 - Architectural analysis
 - Impact analysis (which files affected by a change?)
 - Compliance checking (e.g., data handling)
 
 **Tools:**
+
 - Joern (program analysis platform)
 - Semgrep (semantic code search)
 - Snyk (vulnerability detection)
@@ -156,6 +172,7 @@ Enables queries like:
 ### Example 1: Finding Performance Bottlenecks
 
 Using call graphs and CFG:
+
 ```
 Query: "Functions called >100 times per request?"
 
@@ -171,6 +188,7 @@ Solution: Cache results, optimize query, batch operations
 ### Example 2: Dead Code Detection
 
 Using CFG:
+
 ```
 Query: "Unreachable code paths?"
 
@@ -185,6 +203,7 @@ Result:
 ### Example 3: Security Vulnerability Detection
 
 Using CPG:
+
 ```
 Query: "User input flowing to SQL without sanitization?"
 
@@ -201,22 +220,26 @@ Alert: Add input validation middleware
 ### For Arch-Mk2
 
 **AST Usage:**
+
 - ESLint configuration for code quality rules
 - Babel/TypeScript transformations
 - Component structure analysis in React 19
 
 **CFG Usage:**
+
 - Identify complex agent orchestration paths
 - Test coverage for agentic loop logic
 - Branch coverage in workflow engine
 
 **Call Graphs:**
+
 - N8N workflow step sequencing
 - MCP handler invocations
 - Agent function calling patterns
 - React component render chains
 
 **CPG Potential:**
+
 - Security audit of Supabase RLS policies
 - Data flow analysis from auth → storage
 - Service isolation verification
@@ -238,6 +261,7 @@ Alert: Add input validation middleware
 ### Integration with Arch-Mk2
 
 The `codebase-memory-mcp` tool already implements:
+
 - Custom knowledge graph building
 - Call graph extraction
 - Cross-service analysis (HTTP calls, async calls)

@@ -30,7 +30,7 @@ export function SafetyCharts({
           data={trendData}
           index="date"
           categories={["incidents", "severity"]}
-          colors={["emerald", "amber"] as Color[]}
+          colors={["emerald", "blue"] as Color[]}
           valueFormatter={(number: number) => `${number}`}
           showLegend={true}
           showGridLines={false}
@@ -48,7 +48,7 @@ export function SafetyCharts({
           data={distributionData}
           category="value"
           index="name"
-          colors={["emerald", "amber", "rose", "cyan", "indigo"] as Color[]}
+          colors={["emerald", "blue", "rose", "cyan", "indigo"] as Color[]}
           variant="donut"
           showAnimation={true}
         />
@@ -56,7 +56,7 @@ export function SafetyCharts({
           {distributionData.map((item, idx) => (
             <div key={idx} className="flex items-center gap-1.5">
               <div
-                className={`w-2 h-2 rounded-full bg-${["emerald", "amber", "rose", "cyan", "indigo"][idx % 5]}-500`}
+                className={`w-2 h-2 rounded-full bg-${["emerald", "blue", "rose", "cyan", "indigo"][idx % 5]}-500`}
               />
               <span className="text-[var(--text-secondary)] text-[10px] uppercase tracking-wider">
                 {item.name}

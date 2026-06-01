@@ -12,11 +12,13 @@ confidence: high
 # ADR-005: Zustand for Client State Management
 
 ## Status
+
 **Accepted** — Implemented May 2024
 
 ## Context
 
 We needed state management for:
+
 - Client-side UI state (sidebar, modals, toast notifications)
 - Minimal global state (most data server-rendered)
 - RSC-compatible solution (no context providers)
@@ -58,35 +60,39 @@ We will use **Zustand 5** for the minimal client state that exists.
 
 ## When to Use Zustand vs Server State
 
-| Use Case | Solution | Example |
-|----------|----------|---------|
-| UI chrome state | Zustand | Sidebar open/closed, active modal |
-| Toast notifications | Zustand | Notification queue |
-| Form draft (auto-save) | Zustand | localStorage + Zustand |
-| Application data | Server props | Machine list, logs, reports |
-| Real-time updates | Supabase subscriptions | Live alerts, SCADA data |
-| User preferences | Server + cookies | Theme, department default |
+| Use Case               | Solution               | Example                           |
+| ---------------------- | ---------------------- | --------------------------------- |
+| UI chrome state        | Zustand                | Sidebar open/closed, active modal |
+| Toast notifications    | Zustand                | Notification queue                |
+| Form draft (auto-save) | Zustand                | localStorage + Zustand            |
+| Application data       | Server props           | Machine list, logs, reports       |
+| Real-time updates      | Supabase subscriptions | Live alerts, SCADA data           |
+| User preferences       | Server + cookies       | Theme, department default         |
 
 ## Alternatives Considered
 
 ### Redux Toolkit (REJECTED)
+
 - Excellent for complex client workflows
 - Overkill for our dashboard-heavy, server-rendered app
 - Larger bundle size unjustified for minimal client state
 - Would consider if building offline-first features
 
 ### React Context + useReducer (REJECTED)
+
 - Built-in but has performance issues
 - Provider cascade re-renders
 - No devtools integration
 - More boilerplate than Zustand
 
 ### Jotai / Recoil (REJECTED)
+
 - Good atomic state libraries
 - Zustand simpler for our use case
 - No compelling advantage over Zustand
 
 ### XState (REJECTED)
+
 - Excellent for complex state machines
 - Overkill for sidebar/modal state
 - Would use for complex workflow UIs
@@ -95,26 +101,28 @@ We will use **Zustand 5** for the minimal client state that exists.
 
 ```typescript
 // apps/portal/lib/stores/app-store.ts
-import { create } from 'zustand'
+import { create } from "zustand";
 
 interface AppState {
-  sidebarOpen: boolean
-  activeModal: string | null
-  toggleSidebar: () => void
-  openModal: (id: string) => void
+  sidebarOpen: boolean;
+  activeModal: string | null;
+  toggleSidebar: () => void;
+  openModal: (id: string) => void;
 }
 
 export const useAppStore = create<AppState>((set) => ({
   sidebarOpen: false,
   activeModal: null,
-  toggleSidebar: () => set((state) => ({ 
-    sidebarOpen: !state.sidebarOpen 
-  })),
+  toggleSidebar: () =>
+    set((state) => ({
+      sidebarOpen: !state.sidebarOpen,
+    })),
   openModal: (id) => set({ activeModal: id }),
-}))
+}));
 ```
 
 Usage:
+
 ```typescript
 'use client'
 import { useAppStore } from '~/lib/stores/app-store'

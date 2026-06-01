@@ -4,7 +4,12 @@ created: 2026-05-15
 updated: 2026-05-15
 type: query
 tags: [troubleshooting, rls, database, quick-reference]
-sources: [wiki/concepts/rls-policy.md, wiki/concepts/troubleshooting.md, wiki/concepts/database-schema.md]
+sources:
+  [
+    wiki/concepts/rls-policy.md,
+    wiki/concepts/troubleshooting.md,
+    wiki/concepts/database-schema.md,
+  ]
 confidence: high
 ---
 
@@ -51,8 +56,8 @@ SELECT COUNT(*) FROM machines;
 
 ```sql
 -- Check if RLS is enabled on the table
-SELECT relname, relrowsecurity 
-FROM pg_class 
+SELECT relname, relrowsecurity
+FROM pg_class
 WHERE relname = 'machines';
 
 -- Expected: relrowsecurity = true
@@ -68,25 +73,29 @@ WHERE relname = 'machines';
 This is the #1 cause of empty queries!
 
 In your app code (debugging):
+
 ```typescript
-const { data: { user } } = await supabase.auth.getUser()
-console.log('Auth user:', user?.id)
+const {
+  data: { user },
+} = await supabase.auth.getUser();
+console.log("Auth user:", user?.id);
 
 const { data: employee } = await supabase
-  .from('employees')
-  .select('*')
-  .eq('auth_id', user?.id)
-  .single()
+  .from("employees")
+  .select("*")
+  .eq("auth_id", user?.id)
+  .single();
 
-console.log('Employee record:', employee)
-console.log('Department ID:', employee?.department_id)
-console.log('Role:', employee?.role)
+console.log("Employee record:", employee);
+console.log("Department ID:", employee?.department_id);
+console.log("Role:", employee?.role);
 ```
 
 In SQL:
+
 ```sql
 -- Check if employees row exists for auth user
-SELECT * FROM employees 
+SELECT * FROM employees
 WHERE auth_id = 'user-auth-id-here';
 
 -- If empty, the trigger didn't fire or was deleted
@@ -94,6 +103,7 @@ WHERE auth_id = 'user-auth-id-here';
 ```
 
 **Fix**: If no employee row:
+
 ```sql
 INSERT INTO employees (auth_id, department_id, full_name, role)
 VALUES (
@@ -113,7 +123,7 @@ VALUES (
 SELECT auth.user_department_id();
 
 -- Check if machines exist for that department
-SELECT * FROM machines 
+SELECT * FROM machines
 WHERE department_id = auth.user_department_id();
 ```
 
@@ -125,7 +135,7 @@ WHERE department_id = auth.user_department_id();
 
 ```sql
 -- Test the exact policy condition
-SELECT * FROM machines 
+SELECT * FROM machines
 WHERE department_id = auth.user_department_id()
    OR auth.is_admin()
    OR department_id = ANY(auth.has_department_access());
@@ -146,15 +156,13 @@ WHERE department_id = auth.user_department_id()
 // Create service role client (bypasses all RLS)
 const serviceClient = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!  // Server-only!
-)
+  process.env.SUPABASE_SERVICE_ROLE_KEY!, // Server-only!
+);
 
 // Test if data exists without RLS
-const { data } = await serviceClient
-  .from('machines')
-  .select('*')
+const { data } = await serviceClient.from("machines").select("*");
 
-console.log('All machines (no RLS):', data)
+console.log("All machines (no RLS):", data);
 ```
 
 If service role returns data but normal client doesn't → **RLS issue confirmed**.
@@ -172,10 +180,10 @@ SELECT accessible_departments FROM employees WHERE auth_id = 'user-id';
 -- Should return array like: {uuid1, uuid2}
 
 -- Check if machine's department is in that array
-SELECT * FROM machines 
+SELECT * FROM machines
 WHERE department_id = ANY(
-  SELECT accessible_departments 
-  FROM employees 
+  SELECT accessible_departments
+  FROM employees
   WHERE auth_id = 'user-id'
 );
 ```
@@ -187,11 +195,13 @@ WHERE department_id = ANY(
 ### Scenario A: "It worked yesterday, now returns empty"
 
 **Possible causes**:
+
 - Employee record was deleted
 - User changed departments
 - RLS policy was modified
 
 **Fix**:
+
 ```sql
 -- Re-create employee row if missing
 SELECT * FROM handle_new_user();
@@ -207,11 +217,13 @@ SELECT * FROM handle_new_user();
 ### Scenario C: "Works in local dev, fails in production"
 
 **Possible causes**:
+
 - Migrations not applied to production
 - RLS enabled in prod but not local
 - Different seed data
 
-**Fix**: 
+**Fix**:
+
 ```bash
 # Check production migration status
 cd packages/database
@@ -224,11 +236,13 @@ pnpm supabase:push
 ### Scenario D: "Query was working, now hangs/timeout"
 
 **Possible causes**:
+
 - Missing index on department_id
 - Too many rows being scanned
 - Connection pool exhausted
 
 **Fix**:
+
 ```sql
 -- Add index if missing
 CREATE INDEX idx_machines_department_id ON machines(department_id);
@@ -246,28 +260,30 @@ Add this to your component/page for debugging:
 ```typescript
 async function debugDataFetching(supabase: any) {
   // 1. Auth status
-  const { data: { user } } = await supabase.auth.getUser()
-  console.log('1. Auth user:', user?.id ?? 'NOT AUTHENTICATED')
-  
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  console.log("1. Auth user:", user?.id ?? "NOT AUTHENTICATED");
+
   // 2. Employee record
   const { data: employee } = await supabase
-    .from('employees')
-    .select('*')
-    .eq('auth_id', user?.id)
-    .single()
-  console.log('2. Employee:', employee ?? 'NO EMPLOYEE ROW')
-  
+    .from("employees")
+    .select("*")
+    .eq("auth_id", user?.id)
+    .single();
+  console.log("2. Employee:", employee ?? "NO EMPLOYEE ROW");
+
   // 3. Department access
-  console.log('3. Department ID:', employee?.department_id)
-  console.log('4. Accessible departments:', employee?.accessible_departments)
-  
+  console.log("3. Department ID:", employee?.department_id);
+  console.log("4. Accessible departments:", employee?.accessible_departments);
+
   // 5. RLS test query
   const { data: testData, error } = await supabase
-    .from('machines')
-    .select('*')
-    .limit(5)
-  console.log('5. Query result:', testData?.length ?? 0, 'rows')
-  console.log('6. Query error:', error ?? 'none')
+    .from("machines")
+    .select("*")
+    .limit(5);
+  console.log("5. Query result:", testData?.length ?? 0, "rows");
+  console.log("6. Query error:", error ?? "none");
 }
 ```
 

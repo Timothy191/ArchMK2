@@ -40,7 +40,7 @@ export class AppError extends Error {
       statusCode?: number;
       context?: Record<string, unknown>;
       cause?: Error;
-    }
+    },
   ) {
     super(message);
     this.name = this.constructor.name;
@@ -87,9 +87,9 @@ export class ValidationError extends AppError {
       field?: string;
       value?: unknown;
       context?: Record<string, unknown>;
-    }
+    },
   ) {
-    super(message, 'VALIDATION_ERROR', {
+    super(message, "VALIDATION_ERROR", {
       statusCode: 400,
       context: {
         ...options?.context,
@@ -106,12 +106,12 @@ export class ValidationError extends AppError {
  */
 export class AuthError extends AppError {
   constructor(
-    message: string = 'Unauthorized',
+    message: string = "Unauthorized",
     options?: {
       context?: Record<string, unknown>;
-    }
+    },
   ) {
-    super(message, 'AUTH_ERROR', {
+    super(message, "AUTH_ERROR", {
       statusCode: 401,
       context: options?.context,
     });
@@ -124,14 +124,14 @@ export class AuthError extends AppError {
  */
 export class ForbiddenError extends AppError {
   constructor(
-    message: string = 'Forbidden',
+    message: string = "Forbidden",
     options?: {
       resource?: string;
       action?: string;
       context?: Record<string, unknown>;
-    }
+    },
   ) {
-    super(message, 'FORBIDDEN_ERROR', {
+    super(message, "FORBIDDEN_ERROR", {
       statusCode: 403,
       context: {
         ...options?.context,
@@ -148,14 +148,14 @@ export class ForbiddenError extends AppError {
  */
 export class NotFoundError extends AppError {
   constructor(
-    message: string = 'Not found',
+    message: string = "Not found",
     options?: {
       resource?: string;
       id?: string;
       context?: Record<string, unknown>;
-    }
+    },
   ) {
-    super(message, 'NOT_FOUND_ERROR', {
+    super(message, "NOT_FOUND_ERROR", {
       statusCode: 404,
       context: {
         ...options?.context,
@@ -172,14 +172,14 @@ export class NotFoundError extends AppError {
  */
 export class ConflictError extends AppError {
   constructor(
-    message: string = 'Conflict',
+    message: string = "Conflict",
     options?: {
       resource?: string;
       field?: string;
       context?: Record<string, unknown>;
-    }
+    },
   ) {
-    super(message, 'CONFLICT_ERROR', {
+    super(message, "CONFLICT_ERROR", {
       statusCode: 409,
       context: {
         ...options?.context,
@@ -202,9 +202,9 @@ export class APIError extends AppError {
       endpoint?: string;
       context?: Record<string, unknown>;
       cause?: Error;
-    }
+    },
   ) {
-    super(message, 'API_ERROR', {
+    super(message, "API_ERROR", {
       statusCode: options?.statusCode ?? 500,
       context: {
         ...options?.context,
@@ -221,15 +221,15 @@ export class APIError extends AppError {
  */
 export class DatabaseError extends AppError {
   constructor(
-    message: string = 'Database error',
+    message: string = "Database error",
     options?: {
       operation?: string;
       table?: string;
       context?: Record<string, unknown>;
       cause?: Error;
-    }
+    },
   ) {
-    super(message, 'DATABASE_ERROR', {
+    super(message, "DATABASE_ERROR", {
       statusCode: 500,
       context: {
         ...options?.context,
@@ -247,14 +247,14 @@ export class DatabaseError extends AppError {
  */
 export class RateLimitError extends AppError {
   constructor(
-    message: string = 'Rate limit exceeded',
+    message: string = "Rate limit exceeded",
     options?: {
       retryAfter?: number; // seconds
       limit?: number;
       context?: Record<string, unknown>;
-    }
+    },
   ) {
-    super(message, 'RATE_LIMIT_ERROR', {
+    super(message, "RATE_LIMIT_ERROR", {
       statusCode: 429,
       context: {
         ...options?.context,

@@ -18,7 +18,6 @@ export interface UIMessage {
   parts?: Array<{ type: string; text?: string }>;
 }
 
-
 export interface LLMResponse {
   text: PromiseLike<string>;
   usage: PromiseLike<TokenUsage>;
@@ -71,6 +70,7 @@ export interface AgentState {
   // Control flow
   shouldContinue: boolean;
   nextNode: AgentNodeName;
+  selectedModel?: string;
 }
 
 export type AgentNodeName =
@@ -94,6 +94,7 @@ export function createInitialAgentState(
   ip: string,
   messages: UIMessage[],
   context?: string,
+  selectedModel?: string,
 ): AgentState {
   return {
     userId,
@@ -114,6 +115,7 @@ export function createInitialAgentState(
     provider: "primary",
     shouldContinue: true,
     nextNode: "authenticate",
+    selectedModel,
   };
 }
 

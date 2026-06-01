@@ -165,7 +165,7 @@ export const DEPARTMENTS = [
     name: "Control Room",
     slug: "control-room",
     description: "Central monitoring and alert management",
-    color: "#f59e0b",
+    color: "#007aff",
     routes: [
       {
         path: "/control-room",
@@ -283,7 +283,7 @@ export const DEPARTMENTS = [
 ];
 
 // Navigation graph nodes and edges for XYFlow
-export const NAVIGATION_GRAPH = {
+const _NAVIGATION_GRAPH = {
   nodes: [
     // Root
     { id: "hub", type: "root", label: "Hub", x: 400, y: 50 },
@@ -326,7 +326,7 @@ export const NAVIGATION_GRAPH = {
       id: "control-room",
       type: "department",
       label: "Control Room",
-      color: "#f59e0b",
+      color: "#007aff",
       x: 700,
       y: 200,
     },
@@ -420,7 +420,7 @@ export const TECH_STACK = [
   },
   {
     category: "DevOps",
-    color: "#f59e0b",
+    color: "#007aff",
     items: [
       {
         name: "pnpm",
@@ -546,7 +546,7 @@ export const DATABASE_SCHEMA = [
   },
 ];
 
-export const DB_RELATIONSHIPS = [
+const _DB_RELATIONSHIPS = [
   { from: "employees", to: "departments", type: "many-to-one" },
   { from: "machines", to: "departments", type: "many-to-one" },
   { from: "daily_logs", to: "departments", type: "many-to-one" },

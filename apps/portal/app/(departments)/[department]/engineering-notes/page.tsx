@@ -16,21 +16,41 @@ export default async function EngineeringNotesPage({
     department,
   });
 
-  // Fetch machines for dropdown
-  const { data: machines } = await supabase
-    .from("machines")
-    .select("id, name, machine_type")
-    .eq("department_id", deptId)
-    .eq("active", true)
-    .order("name");
+  // Resolve the Engineering department ID for cross-dept breakdown query
+  const { data: engDept } = await supabase
+    .from("departments")
+    .select("id")
+    .eq("name", "engineering")
+    .single();
 
-  // Fetch today's engineering notes
-  const { data: todayNotes } = await supabase
-    .from("engineering_notes")
-    .select("*, machine:machines(name)")
-    .eq("department_id", deptId)
-    .eq("note_date", today)
-    .order("created_at", { ascending: false });
+  // Parallel fetches — machines, today's notes, and Engineering breakdowns
+  const [{ data: machines }, { data: todayNotes }, { data: engBreakdowns }] =
+    await Promise.all([
+      supabase
+        .from("machines")
+        .select("id, name, machine_type")
+        .eq("active", true)
+        .order("name"),
+      supabase
+        .from("engineering_notes")
+        .select("*, machine:machines(name, sites(name))")
+        .eq("department_id", deptId)
+        .eq("note_date", today)
+        .order("created_at", { ascending: false }),
+      engDept
+        ? supabase
+            .from("breakdowns")
+            .select(
+              "id, fleet_id, machine_name, machine_type, reason, date_in, time_in, date_out, status",
+            )
+            .eq("department_id", engDept.id)
+            .is("deleted_at", null)
+            .or(
+              `status.eq.active,and(status.eq.completed,date_out.eq.${today})`,
+            )
+            .order("created_at", { ascending: false })
+        : Promise.resolve({ data: [] }),
+    ]);
 
   // Calculate statistics
   const criticalCount =
@@ -49,12 +69,16 @@ export default async function EngineeringNotesPage({
 
       <KPIGrid cols={4}>
         <KPICard label="Critical" value={criticalCount} color="red" />
-        <KPICard label="Open" value={openCount} color="amber" />
+        <KPICard label="Open" value={openCount} color="blue" />
         <KPICard label="Resolved" value={resolvedCount} color="green" />
         <KPICard label="Follow-up" value={followUpCount} color="blue" />
       </KPIGrid>
 
-      <EngineeringNotesForm departmentId={deptId} machines={machines || []} />
+      <EngineeringNotesForm
+        departmentId={deptId}
+        machines={machines || []}
+        breakdownDrafts={engBreakdowns || []}
+      />
 
       <div className="space-y-4">
         <h3 className="text-lg font-medium text-[var(--text-heading)]">

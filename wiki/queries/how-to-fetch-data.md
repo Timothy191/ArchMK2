@@ -4,7 +4,12 @@ created: 2026-05-15
 updated: 2026-05-15
 type: query
 tags: [how-to, data-fetching, rsc, quick-reference]
-sources: [wiki/concepts/portal-app-architecture.md, wiki/concepts/state-management.md, wiki/concepts/ai-service.md]
+sources:
+  [
+    wiki/concepts/portal-app-architecture.md,
+    wiki/concepts/state-management.md,
+    wiki/concepts/ai-service.md,
+  ]
 confidence: high
 ---
 
@@ -45,21 +50,21 @@ import { getDepartmentContext } from '~/lib/dept-context'
 export default async function ProductionDashboard({ params }: { params: { department: string } }) {
   // Get department context (validates slug, gets dept ID)
   const { dept, supabase } = await getDepartmentContext(params)
-  
+
   // Fetch data directly in Server Component
   const { data: machines } = await supabase
     .from('machines')
     .select('*')
     .eq('department_id', dept.id)
     .order('name')
-  
+
   const { data: todayLogs } = await supabase
     .from('daily_logs')
     .select('*, machine_hours(*)')
     .eq('department_id', dept.id)
     .eq('log_date', new Date().toISOString().split('T')[0])
     .single()
-  
+
   return (
     <div>
       <KPIGrid>
@@ -87,31 +92,31 @@ export default async function ProductionDashboard({ params }: { params: { depart
 
 ```typescript
 // Server Action — can be in separate file or inline
-'use server'
+"use server";
 
-import { createServerSupabaseClient } from '@repo/supabase/server'
-import { revalidatePath } from 'next/cache'
+import { createServerSupabaseClient } from "@repo/supabase/server";
+import { revalidatePath } from "next/cache";
 
 export async function addMachine(formData: FormData) {
-  const supabase = createServerSupabaseClient()
-  
+  const supabase = createServerSupabaseClient();
+
   // Get current user
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Not authenticated')
-  
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+
   // Insert data
-  const { error } = await supabase
-    .from('machines')
-    .insert({
-      name: formData.get('name'),
-      machine_type: formData.get('type'),
-      department_id: formData.get('department_id'),
-    })
-  
-  if (error) throw new Error(error.message)
-  
+  const { error } = await supabase.from("machines").insert({
+    name: formData.get("name"),
+    machine_type: formData.get("type"),
+    department_id: formData.get("department_id"),
+  });
+
+  if (error) throw new Error(error.message);
+
   // Revalidate the page to show new data
-  revalidatePath('/[department]/machines')
+  revalidatePath("/[department]/machines");
 }
 ```
 
@@ -149,7 +154,7 @@ import { useEffect, useState } from 'react'
 export function AlertPanel({ departmentId }: { departmentId: string }) {
   const [alerts, setAlerts] = useState([])
   const supabase = createClient()
-  
+
   useEffect(() => {
     // Initial fetch
     const fetchAlerts = async () => {
@@ -161,7 +166,7 @@ export function AlertPanel({ departmentId }: { departmentId: string }) {
       setAlerts(data ?? [])
     }
     fetchAlerts()
-    
+
     // Real-time subscription
     const channel = supabase
       .channel('alerts')
@@ -180,12 +185,12 @@ export function AlertPanel({ departmentId }: { departmentId: string }) {
         }
       )
       .subscribe()
-    
+
     return () => {
       supabase.removeChannel(channel)
     }
   }, [departmentId])
-  
+
   return <AlertList alerts={alerts} />
 }
 ```
@@ -205,10 +210,10 @@ import { useState } from 'react'
 export function PredictiveAnalysis({ machineData }: { machineData: any }) {
   const [analysis, setAnalysis] = useState('')
   const [loading, setLoading] = useState(false)
-  
+
   const getAnalysis = async () => {
     setLoading(true)
-    
+
     const response = await fetch('/api/ai/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -220,13 +225,13 @@ export function PredictiveAnalysis({ machineData }: { machineData: any }) {
         template: 'predictiveMaintenance'
       })
     })
-    
+
     const reader = response.body?.getReader()
     // Handle streaming response...
-    
+
     setLoading(false)
   }
-  
+
   return (
     <div>
       <button onClick={getAnalysis} disabled={loading}>
@@ -246,11 +251,12 @@ export function PredictiveAnalysis({ machineData }: { machineData: any }) {
 
 ```typescript
 // Fetch multiple datasets in parallel
-const [{ data: machines }, { data: operators }, { data: sites }] = await Promise.all([
-  supabase.from('machines').select('*').eq('department_id', dept.id),
-  supabase.from('operators').select('*').eq('department_id', dept.id),
-  supabase.from('sites').select('*').eq('department_id', dept.id),
-])
+const [{ data: machines }, { data: operators }, { data: sites }] =
+  await Promise.all([
+    supabase.from("machines").select("*").eq("department_id", dept.id),
+    supabase.from("operators").select("*").eq("department_id", dept.id),
+    supabase.from("sites").select("*").eq("department_id", dept.id),
+  ]);
 ```
 
 ### Pattern: Nested Data
@@ -258,46 +264,48 @@ const [{ data: machines }, { data: operators }, { data: sites }] = await Promise
 ```typescript
 // Include related data in single query
 const { data: logs } = await supabase
-  .from('daily_logs')
-  .select(`
+  .from("daily_logs")
+  .select(
+    `
     *,
     machine_hours(*),
     fuel_logs(*),
     production_logs(*)
-  `)
-  .eq('department_id', dept.id)
-  .eq('log_date', today)
+  `,
+  )
+  .eq("department_id", dept.id)
+  .eq("log_date", today);
 ```
 
 ### Pattern: Caching
 
 ```typescript
 // Cache data for 5 minutes (ISR)
-export const revalidate = 300  // 5 minutes
+export const revalidate = 300; // 5 minutes
 
 // Or use Next.js cache with tags
-import { unstable_cache } from 'next/cache'
+import { unstable_cache } from "next/cache";
 
 const getCachedMachines = unstable_cache(
   async (deptId) => {
-    const supabase = createServerSupabaseClient()
-    return supabase.from('machines').select('*').eq('department_id', deptId)
+    const supabase = createServerSupabaseClient();
+    return supabase.from("machines").select("*").eq("department_id", deptId);
   },
-  ['machines'],
-  { revalidate: 300 }
-)
+  ["machines"],
+  { revalidate: 300 },
+);
 ```
 
 ---
 
 ## When NOT to Use Each Method
 
-| Method | Don't Use When |
-|--------|---------------|
-| Server Component | Real-time data needed; User interaction required |
-| Server Actions | Large data transfers; Long-running operations |
-| Client + Real-time | Static data that doesn't change |
-| AI Service | Simple CRUD; When latency is critical |
+| Method             | Don't Use When                                   |
+| ------------------ | ------------------------------------------------ |
+| Server Component   | Real-time data needed; User interaction required |
+| Server Actions     | Large data transfers; Long-running operations    |
+| Client + Real-time | Static data that doesn't change                  |
+| AI Service         | Simple CRUD; When latency is critical            |
 
 ---
 

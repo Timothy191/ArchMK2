@@ -18,7 +18,7 @@
     --arch8: #a1a1a6;
     --accent-blue: #007aff;
     --accent-green: #34c759;
-    --accent-orange: #ff9f0a;
+    --accent-blue: #007aff;
     --accent-red: #ff3b30;
     --mac-red: #ff5f56;
     --mac-yellow: #ffbd2e;
@@ -266,7 +266,7 @@
   }
   .tag-blue    { background: rgba(0,122,255,0.08);    border-color: rgba(0,122,255,0.20);    color: #007aff; }
   .tag-green   { background: rgba(52,199,89,0.08);    border-color: rgba(52,199,89,0.20);    color: #25a244; }
-  .tag-amber   { background: rgba(255,159,10,0.08);   border-color: rgba(255,159,10,0.20);   color: #b86800; }
+  .tag-blue   { background: rgba(255,159,10,0.08);   border-color: rgba(255,159,10,0.20);   color: #b86800; }
   .tag-violet  { background: rgba(139,92,246,0.08);   border-color: rgba(139,92,246,0.20);   color: #7c3aed; }
   .tag-red     { background: rgba(255,59,48,0.08);    border-color: rgba(255,59,48,0.20);    color: #c0392b; }
   .tag-gray    { background: rgba(0,0,0,0.05);        border-color: rgba(0,0,0,0.10);        color: var(--arch9); }
@@ -488,7 +488,7 @@
   }
   .section-badge.blue   { background: rgba(0,122,255,0.08);   color: #007aff;  border: 1px solid rgba(0,122,255,0.20); }
   .section-badge.green  { background: rgba(52,199,89,0.08);   color: #25a244;  border: 1px solid rgba(52,199,89,0.20); }
-  .section-badge.amber  { background: rgba(255,159,10,0.08);  color: #b86800;  border: 1px solid rgba(255,159,10,0.20); }
+  .section-badge.blue  { background: rgba(255,159,10,0.08);  color: #b86800;  border: 1px solid rgba(255,159,10,0.20); }
   .section-badge.red    { background: rgba(255,59,48,0.08);   color: #c0392b;  border: 1px solid rgba(255,59,48,0.20); }
   .section-badge.violet { background: rgba(139,92,246,0.08);  color: #7c3aed;  border: 1px solid rgba(139,92,246,0.20); }
   .section-badge.cyan   { background: rgba(6,182,212,0.08);   color: #0891b2;  border: 1px solid rgba(6,182,212,0.20); }
@@ -618,7 +618,7 @@
             </div>
             <div class="sub-bars" style="margin-top:10px;">
               <div class="sub-bar">All OK state: bg-emerald-500/5 border-emerald-500/10 — green pulse dot</div>
-              <div class="sub-bar">Incidents link → /safety/daily-log — text-amber-400 — AnimatedNumber</div>
+              <div class="sub-bar">Incidents link → /safety/daily-log — text-blue-400 — AnimatedNumber</div>
               <div class="sub-bar">Breakdowns link → /engineering/breakdowns — text-red-400 — AnimatedNumber</div>
               <div class="sub-bar">Offline machines — text-[var(--text-muted)] — AnimatedNumber</div>
             </div>
@@ -635,12 +635,12 @@
         <div class="diagram-bar bar-depts">
           <div style="flex:1;">
             <div class="diagram-bar-label">
-              <div class="icon" style="background:rgba(255,159,10,0.1);color:#ff9f0a;">🏭</div>
+              <div class="icon" style="background:rgba(255,159,10,0.1);color:#007aff;">🏭</div>
               <div>
                 <div style="color:#1d1d1f;font-size:13px;font-weight:700;">③ Core Operational Modules</div>
                 <div style="color:#6e6e73;font-size:11px;font-weight:400;margin-top:1px;">Horizontal scroll of DepartmentCard — filtered by employee.accessible_departments</div>
               </div>
-              <span class="section-badge amber">Client</span>
+              <span class="section-badge blue">Client</span>
             </div>
             <div class="sub-bars" style="margin-top:10px;">
               <div class="sub-bar">Container: overflow-x-auto snap-x -mx-4 px-4 sm:-mx-8 sm:px-8</div>
@@ -649,7 +649,7 @@
               <div class="sub-bar">DepartmentCard (status=maintenance): GlowBorderCard colorPreset="aurora" — conic gradient border animation</div>
               <div class="sub-bar">DepartmentCard (status=alert): GlowBorderCard colorPreset="sunset"</div>
               <div class="sub-bar">Card icon: dept color badge (bg-{color}-500/5 border-{color}-500/20) — scale on hover</div>
-              <div class="sub-bar">Status badge: animate-pulse dot — emerald/amber/red</div>
+              <div class="sub-bar">Status badge: animate-pulse dot — emerald/blue/red</div>
               <div class="sub-bar">Stats row: text-lg font-mono with dept accent color</div>
             </div>
           </div>
@@ -797,7 +797,7 @@
               <span class="tag tag-green">var(--bg-secondary)/60</span>
               <span class="tag tag-green">backdrop-blur-md</span>
               <span class="tag tag-blue">conic-gradient animation</span>
-              <span class="tag tag-amber">presets: nature/ocean/sunset/aurora/custom</span>
+              <span class="tag tag-blue">presets: nature/ocean/sunset/aurora/custom</span>
             </td>
             <td><span class="badge-ok">✓ Light</span></td>
           </tr>
@@ -810,8 +810,8 @@
               <span class="tag tag-green">GlowBorderCard</span>
               <span class="tag tag-green">Badge @repo/ui</span>
               <span class="tag tag-blue">framer-motion stagger</span>
-              <span class="tag tag-amber">text-[#fafafa] hardcoded</span>
-              <span class="tag tag-amber">var(--text-muted) partial</span>
+              <span class="tag tag-blue">text-[#fafafa] hardcoded</span>
+              <span class="tag tag-blue">var(--text-muted) partial</span>
             </td>
             <td><span class="badge-warn">⚠ Partial</span></td>
           </tr>
@@ -849,7 +849,7 @@
               <span class="tag tag-red">bg-[#171717]</span>
               <span class="tag tag-red">text-[#898989]</span>
               <span class="tag tag-red">text-[#fafafa]</span>
-              <span class="tag tag-amber">Static mock data</span>
+              <span class="tag tag-blue">Static mock data</span>
             </td>
             <td><span class="badge-err">✗ Dark</span></td>
           </tr>
@@ -886,7 +886,7 @@
               <span class="tag tag-green">GlassCard shell</span>
               <span class="tag tag-red">panel: bg-[#171717], [#242424]</span>
               <span class="tag tag-red">borders: [#363636]</span>
-              <span class="tag tag-amber">FAB: bg-[#3ecf8e] (Supabase teal, not macOS blue)</span>
+              <span class="tag tag-blue">FAB: bg-[#3ecf8e] (Supabase teal, not macOS blue)</span>
               <span class="tag tag-blue">@ai-sdk/react useChat</span>
             </td>
             <td><span class="badge-err">✗ Dark</span></td>
@@ -917,7 +917,7 @@
        ═══════════════════════════════════════════ -->
   <section class="section" id="tokens">
     <p class="section-heading">
-      <span class="dot" style="background:#ff9f0a"></span>
+      <span class="dot" style="background:#007aff"></span>
       Theme Token Reference
     </p>
     <p class="section-sub">All tokens defined in <code>packages/theme/src/css/variables.css</code> and registered in <code>packages/theme/src/tailwind/preset.ts</code>. Source of truth: macOS Ventura/Sonoma light palette.</p>
@@ -991,8 +991,8 @@
           <div class="swatch-info"><div class="swatch-name">accent-green</div><div class="swatch-var">--accent-green / --arch14</div><div class="swatch-hex">#34c759 — success</div></div>
         </div>
         <div class="swatch">
-          <div class="swatch-color"><div class="swatch-inner" style="background:#ff9f0a;"></div></div>
-          <div class="swatch-info"><div class="swatch-name">accent-orange</div><div class="swatch-var">--accent-orange / --arch13</div><div class="swatch-hex">#ff9f0a — warning</div></div>
+          <div class="swatch-color"><div class="swatch-inner" style="background:#007aff;"></div></div>
+          <div class="swatch-info"><div class="swatch-name">accent-blue</div><div class="swatch-var">--accent-blue / #007aff</div><div class="swatch-hex">#007aff — warning</div></div>
         </div>
         <div class="swatch">
           <div class="swatch-color"><div class="swatch-inner" style="background:#ff3b30;"></div></div>

@@ -1,6 +1,11 @@
 export type Shift = "day" | "night";
 
-export type EmployeeRole = "admin" | "supervisor" | "operator" | "maintenance" | "viewer";
+export type EmployeeRole =
+  | "admin"
+  | "supervisor"
+  | "operator"
+  | "maintenance"
+  | "viewer";
 
 export type DelayCategory = {
   id: string;
@@ -166,7 +171,12 @@ export interface EngineeringNote {
   department_id: string;
   note_date: string;
   shift_type: Shift;
-  issue_type: "mechanical" | "electrical" | "structural" | "hydraulic" | "other";
+  issue_type:
+    | "mechanical"
+    | "electrical"
+    | "structural"
+    | "hydraulic"
+    | "other";
   severity: "low" | "medium" | "high" | "critical";
   machine_id: string | null;
   description: string;
@@ -185,7 +195,14 @@ export interface OperationalDelay {
   delay_date: string;
   shift_type: Shift;
   delay_category_id: string | null;
-  delay_type: "equipment" | "weather" | "safety" | "material" | "shift_change" | "operator" | "other";
+  delay_type:
+    | "equipment"
+    | "weather"
+    | "safety"
+    | "material"
+    | "shift_change"
+    | "operator"
+    | "other";
   affected_machine_id: string | null;
   delay_minutes: number;
   description: string;
@@ -434,4 +451,3 @@ export interface WebhookEventPayload {
 }
 
 export * from "./database.types";
-

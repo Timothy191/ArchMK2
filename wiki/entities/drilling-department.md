@@ -36,27 +36,27 @@ The Drilling department in Arch-Systems handles drill rig operations and bit dep
 
 ## Database Tables
 
-|    Table     |         Purpose          | Key Columns |
-|--------------|--------------------------|-------------|
-| `daily_logs` | Shift-level drilling log | `department_id`, `log_date`, `shift`, `machine_id` |
-| `machines` | Drill rig inventory | `name`, `machine_type`, `serial_number`, `active` |
-| `machine_hours` | Per-rig utilization per shift | `machine_id`, `shift_date`, `hours_worked` |
-| `fuel_logs` | Fuel consumption per rig | `machine_id`, `shift`, `litres_used` |
+| Table           | Purpose                       | Key Columns                                        |
+| --------------- | ----------------------------- | -------------------------------------------------- |
+| `daily_logs`    | Shift-level drilling log      | `department_id`, `log_date`, `shift`, `machine_id` |
+| `machines`      | Drill rig inventory           | `name`, `machine_type`, `serial_number`, `active`  |
+| `machine_hours` | Per-rig utilization per shift | `machine_id`, `shift_date`, `hours_worked`         |
+| `fuel_logs`     | Fuel consumption per rig      | `machine_id`, `shift`, `litres_used`               |
 
 All tables use `department_id`-scoped RLS policies. See [[rls-policy]] for the policy template.
 
 ## Completeness Status (Phase 3)
 
-| Feature | Status |
-|---------|--------|
-| Dashboard | 80% |
-| Forms (daily-log) | 75% |
-| Tables (machines, history) | 85% |
-| Charts | 70% |
-| Real-time updates | 60% |
-| AI Assistant | 75% |
-| Mobile responsiveness | 60% |
-| **Overall** | **72%** |
+| Feature                    | Status  |
+| -------------------------- | ------- |
+| Dashboard                  | 80%     |
+| Forms (daily-log)          | 75%     |
+| Tables (machines, history) | 85%     |
+| Charts                     | 70%     |
+| Real-time updates          | 60%     |
+| AI Assistant               | 75%     |
+| Mobile responsiveness      | 60%     |
+| **Overall**                | **72%** |
 
 **Mobile:** Current mobile layout is desktop-first. Field operators on tablets need responsive form improvements. See [[mobile-pwa]] for the improvement roadmap.
 

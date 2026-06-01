@@ -15,7 +15,8 @@ export function linearForecast(data: number[], periods: number): number[] {
   const ssXY = data.reduce((acc, y, x) => acc + (x - xMean) * (y - yMean), 0);
   const slope = ssXX === 0 ? 0 : ssXY / ssXX;
 
-  return Array.from({ length: periods }, (_, i) => yMean + slope * (n + i - xMean));
+  return Array.from(
+    { length: periods },
+    (_, i) => yMean + slope * (n + i - xMean),
+  );
 }
-
-

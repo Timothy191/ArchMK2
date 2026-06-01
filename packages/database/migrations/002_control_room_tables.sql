@@ -529,7 +529,7 @@ CREATE POLICY "generated_reports_select_department"
 INSERT INTO delay_categories (name, color, icon, sort_order) VALUES
   ('Equipment Breakdown', '#ef4444', 'Wrench', 1),
   ('Weather', '#3b82f6', 'CloudRain', 2),
-  ('Safety Incident', '#f59e0b', 'ShieldAlert', 3),
+  ('Safety Incident', '#007aff', 'ShieldAlert', 3),
   ('Maintenance', '#8b5cf6', 'Settings', 4),
   ('Material Shortage', '#6366f1', 'PackageX', 5),
   ('Shift Change', '#10b981', 'Users', 6),

@@ -121,13 +121,13 @@ pnpm --filter portal test   # Unit tests
 
 Choose one based on your interests:
 
-| Interest | Starter Task | Location |
-|----------|--------------|----------|
-| UI/UX | Add a new KPI variant | `packages/ui/src/KPI.tsx` |
-| Backend | Add machine hours API | `apps/portal/lib/` |
-| Full-stack | Add a department tab | `apps/portal/app/(departments)/` |
-| DevOps | Add a CI check | `.github/workflows/` |
-| Docs | Improve wiki | `wiki/concepts/` |
+| Interest   | Starter Task          | Location                         |
+| ---------- | --------------------- | -------------------------------- |
+| UI/UX      | Add a new KPI variant | `packages/ui/src/KPI.tsx`        |
+| Backend    | Add machine hours API | `apps/portal/lib/`               |
+| Full-stack | Add a department tab  | `apps/portal/app/(departments)/` |
+| DevOps     | Add a CI check        | `.github/workflows/`             |
+| Docs       | Improve wiki          | `wiki/concepts/`                 |
 
 ### Development Workflow
 
@@ -201,14 +201,14 @@ Practice database operations:
 
 Bookmark these for daily reference:
 
-| When you need... | Go to |
-|------------------|-------|
-| Quick issue fix | [[troubleshooting]] |
-| Deploy something | [[deployment]] |
+| When you need...      | Go to                  |
+| --------------------- | ---------------------- |
+| Quick issue fix       | [[troubleshooting]]    |
+| Deploy something      | [[deployment]]         |
 | Understand a decision | [[comparisons]] folder |
-| Add a component | [[design-system]] |
-| Database questions | [[database-schema]] |
-| Auth confusion | [[auth-middleware]] |
+| Add a component       | [[design-system]]      |
+| Database questions    | [[database-schema]]    |
+| Auth confusion        | [[auth-middleware]]    |
 
 ### Tools You'll Use Daily
 
@@ -230,6 +230,7 @@ Bookmark these for daily reference:
 ## Common New-Team-Member Mistakes
 
 ### 1. Wrong Package Manager
+
 ```bash
 # Don't do this
 npm install  # Wrong!
@@ -240,15 +241,17 @@ pnpm add package
 ```
 
 ### 2. Direct Supabase Imports
+
 ```typescript
 // Don't do this
-import { createClient } from '@supabase/supabase-js'
+import { createClient } from "@supabase/supabase-js";
 
 // Do this
-import { createServerSupabaseClient } from '@repo/supabase/server'
+import { createServerSupabaseClient } from "@repo/supabase/server";
 ```
 
 ### 3. Forbidden Tailwind Classes
+
 ```tsx
 // Don't do this
 <div className="font-bold shadow-lg">
@@ -258,12 +261,13 @@ import { createServerSupabaseClient } from '@repo/supabase/server'
 ```
 
 ### 4. Cross-App Imports
+
 ```typescript
 // Don't do this (React 18 vs 19 conflict)
-import { Component } from '../../overview/components'
+import { Component } from "../../overview/components";
 
 // Do this
-import { Component } from '@repo/ui'
+import { Component } from "@repo/ui";
 ```
 
 ---
@@ -271,21 +275,25 @@ import { Component } from '@repo/ui'
 ## Your First Month Goals
 
 ### Week 1
+
 - [ ] Environment set up and running
 - [ ] First PR merged
 - [ ] Understood department system
 
 ### Week 2
+
 - [ ] Contributed to 2+ features
 - [ ] Written a database migration
 - [ ] Understood RLS policies
 
 ### Week 3
+
 - [ ] Implemented a Server Action
 - [ ] Added real-time subscription feature
 - [ ] Reviewed team member's PR
 
 ### Week 4
+
 - [ ] Deployed a feature to production
 - [ ] Onboarded a concept page to wiki
 - [ ] Identified and fixed a bug independently

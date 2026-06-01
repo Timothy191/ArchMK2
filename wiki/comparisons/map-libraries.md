@@ -4,7 +4,8 @@ created: 2026-05-15
 updated: 2026-05-15
 type: comparison
 tags: [gis, visualization, decision]
-sources: [apps/portal/package.json, CLAUDE.md, apps/portal/lib/monitoring-api.ts]
+sources:
+  [apps/portal/package.json, CLAUDE.md, apps/portal/lib/monitoring-api.ts]
 confidence: high
 ---
 
@@ -16,18 +17,18 @@ Selection of mapping library stack for satellite monitoring (SAR/InSAR), site vi
 
 ## Dimensions of Comparison
 
-| Dimension | react-map-gl + MapLibre | Google Maps React | Leaflet |
-|-----------|-------------------------|-------------------|---------|
-| **Base Engine** | MapLibre GL JS (open source) | Google Maps Platform | Leaflet (open source) |
-| **License** | BSD / MIT | Paid (API key required, usage limits) | BSD |
-| **Vector Tiles** | Native | Native | Plugin (Mapbox GL Leaflet) |
-| **WebGL Rendering** | Yes | Yes | Canvas/SVG (slower) |
-| **React Integration** | Official react-map-gl | @react-google-maps/api | react-leaflet (community) |
-| **Custom Styling** | Full style JSON control | Limited (Google styles only) | CSS-based |
-| **Offline/On-Prem** | Self-hosted tiles possible | No | Self-hosted tiles possible |
-| **Satellite Imagery** | Via third-party (Copernicus, Planet) | Google Satellite | Via plugins |
-| **Bundle Size** | Moderate (WebGL) | Large | Small (but slower) |
-| **Performance** | Excellent (GPU-accelerated) | Excellent | Good (DOM/Canvas) |
+| Dimension             | react-map-gl + MapLibre              | Google Maps React                     | Leaflet                    |
+| --------------------- | ------------------------------------ | ------------------------------------- | -------------------------- |
+| **Base Engine**       | MapLibre GL JS (open source)         | Google Maps Platform                  | Leaflet (open source)      |
+| **License**           | BSD / MIT                            | Paid (API key required, usage limits) | BSD                        |
+| **Vector Tiles**      | Native                               | Native                                | Plugin (Mapbox GL Leaflet) |
+| **WebGL Rendering**   | Yes                                  | Yes                                   | Canvas/SVG (slower)        |
+| **React Integration** | Official react-map-gl                | @react-google-maps/api                | react-leaflet (community)  |
+| **Custom Styling**    | Full style JSON control              | Limited (Google styles only)          | CSS-based                  |
+| **Offline/On-Prem**   | Self-hosted tiles possible           | No                                    | Self-hosted tiles possible |
+| **Satellite Imagery** | Via third-party (Copernicus, Planet) | Google Satellite                      | Via plugins                |
+| **Bundle Size**       | Moderate (WebGL)                     | Large                                 | Small (but slower)         |
+| **Performance**       | Excellent (GPU-accelerated)          | Excellent                             | Good (DOM/Canvas)          |
 
 ## Project Implementation
 
@@ -52,6 +53,7 @@ import 'maplibre-gl/dist/maplibre-gl.css'
 ```
 
 Data sources:
+
 - Copernicus STAC API for satellite scenes
 - Custom vector tiles for site boundaries
 - Real-time WebSocket for machine positions
@@ -67,6 +69,7 @@ Data sources:
 ## Why Not Google Maps
 
 Google Maps would require:
+
 - API key management and quota monitoring
 - Costs scale with control room displays (24/7 operation)
 - Limited custom styling for dark theme match
@@ -75,6 +78,7 @@ Google Maps would require:
 ## Why Not Leaflet
 
 Leaflet is excellent for simple maps but:
+
 - Canvas/SVG rendering is slower than WebGL for heavy data layers
 - Vector tile support requires plugin integration
 - React integration is community-maintained (react-leaflet)

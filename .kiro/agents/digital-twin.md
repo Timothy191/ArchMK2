@@ -82,6 +82,7 @@ For batch tool calls or parallel data fetching:
 ```
 
 Available webhooks:
+
 - `tool-batcher` — batch multiple tool calls in one round-trip
 - `orchestrator-worker` — decompose task into parallel workers
 - `parallel-executor` — fetch multiple data sources simultaneously
@@ -96,6 +97,7 @@ For tasks touching 5+ files or requiring multiple skills:
 2. Team-lead decomposes, dispatches parallel subagents, merges results
 3. Final validation pass by reviewer
 ```
+
 Use the `team-lead` agent instead of doing manual fan-out for large work.
 
 ### Pattern 1: Research-First (most common)
@@ -221,6 +223,7 @@ After completing a task:
 ## Safety System
 
 Every tool call passes through the 7-layer safety gate (`.kiro/safety/index.js`):
+
 1. **Budget** — session-level tool call limits (warn 40, block 80)
 2. **Permission** — allow/deny rules from `settings.local.json`
 3. **Isolation** — dangerous command patterns blocked
@@ -235,6 +238,7 @@ Set via `SAFETY_MODE=strict` env var.
 ## Agentic Loop
 
 The loop state machine (`.kiro/loop/index.js`) tracks: `idle → analyze → plan → execute → verify → report → idle`.
+
 - State persists across sessions in `.kiro/loop/state.json`
 - Task queue (`queue.js`) supports priority sorting and dependency resolution
 - Scheduler (`scheduler.js`) manages subagent dispatch with stagger delays
@@ -244,6 +248,7 @@ The loop state machine (`.kiro/loop/index.js`) tracks: `idle → analyze → pla
 ## Vector Memory (Semantic Recall)
 
 The LTM now supports semantic search via TF-IDF vector similarity:
+
 - `python3 ltm/bin/vector.py index` — index all events and checkpoints
 - `python3 ltm/bin/vector.py search <query>` — find relevant memories by meaning
 - `python3 ltm/bin/vector.py status` — view index stats
@@ -255,6 +260,7 @@ Use `/recall <query>` to search project memory from agent context.
 ## Multi-Agent Orchestrator
 
 For complex multi-file work, the orchestrator spawns subagents as subprocesses:
+
 - `.kiro/orchestrator/index.js` — decomposes tasks, spawns agents, aggregates results
 - `.kiro/orchestrator/worktree.js` — git worktree isolation per subagent
 - `.kiro/orchestrator/aggregator.js` — result merging and conflict resolution
@@ -266,6 +272,7 @@ Input format: `{ "units": [{ "id": "scout-1", "harness": "opencode", "instructio
 ## MCP Tool Registry
 
 Unified MCP tool catalog at `.kiro/mcp/registry.json`:
+
 - `node .kiro/mcp/index.js discover` — query all MCP servers for tool lists
 - `node .kiro/mcp/index.js status` — view cached tool registry
 - `node .kiro/mcp/index.js find <tool>` — locate which server provides a tool
@@ -273,6 +280,7 @@ Unified MCP tool catalog at `.kiro/mcp/registry.json`:
 ## Evaluator-Optimizer Workflow
 
 End-to-end deep task workflow for automated PR generation:
+
 - `.kiro/evaluator-optimizer/index.js` — analyze → generate → evaluate → optimize → PR
 - Max 3 optimization iterations before stopping
 - Creates git branch, runs tests/lint/typecheck, generates PR description
@@ -280,11 +288,11 @@ End-to-end deep task workflow for automated PR generation:
 
 ## Advanced Tools
 
-| Tool | Location | Usage |
-|------|----------|-------|
+| Tool          | Location                       | Usage                                                                     |
+| ------------- | ------------------------------ | ------------------------------------------------------------------------- |
 | Shell Sandbox | `.kiro/tools/shell-sandbox.js` | Command allowlist, dangerous pattern blocking, output limits (100KB, 30s) |
-| File Diff | `.kiro/tools/file-diff.js` | Git-based diff preview, inline content comparison, 200-line truncation |
-| Composer | `.kiro/tools/composer.js` | Chain Read→Edit→Lint→Typecheck as single operation |
+| File Diff     | `.kiro/tools/file-diff.js`     | Git-based diff preview, inline content comparison, 200-line truncation    |
+| Composer      | `.kiro/tools/composer.js`      | Chain Read→Edit→Lint→Typecheck as single operation                        |
 
 ## Output Format
 

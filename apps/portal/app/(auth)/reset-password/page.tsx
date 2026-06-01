@@ -61,7 +61,7 @@ export default function ResetPasswordPage() {
             <span className="w-3 h-3 rounded-full bg-[var(--mac-green)] border border-[var(--border-subtle)]" />
           </div>
           <span className="flex-1 text-center text-[13px] font-medium text-[var(--text-secondary)] select-none pr-14">
-            Plantcor — Reset Password
+            Arch — Reset Password
           </span>
         </div>
 
@@ -128,7 +128,7 @@ export default function ResetPasswordPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     variant="login"
-                    placeholder="admin@plantcor.os"
+                    placeholder="admin@arch.os"
                     autoComplete="username"
                     aria-describedby={error ? "reset-error" : undefined}
                   />
@@ -137,7 +137,7 @@ export default function ResetPasswordPage() {
                 {error && (
                   <p
                     id="reset-error"
-                    className="text-sm text-red-400 flex items-center gap-2"
+                    className="text-sm text-accent-red flex items-center gap-2"
                     role="alert"
                   >
                     <IconAlertHexagon
