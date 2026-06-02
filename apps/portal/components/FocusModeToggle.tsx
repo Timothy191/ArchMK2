@@ -20,10 +20,8 @@ export function FocusModeToggle({
       <button
         onClick={toggle}
         className={cn(
-          "relative w-11 h-6 rounded-full transition-colors duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)]",
-          enabled
-            ? "bg-accent-amber/20 border border-accent-amber/30"
-            : "bg-black/[0.06] border border-black/[0.08] hover:bg-black/[0.10]",
+          "relative w-10 h-[22px] rounded-full transition-colors duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)]/50",
+          enabled ? "bg-[#007aff]" : "bg-black/[0.15] hover:bg-black/[0.20]",
           className,
         )}
         aria-pressed={enabled}
@@ -31,17 +29,15 @@ export function FocusModeToggle({
       >
         <span
           className={cn(
-            "absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-black shadow-sm transition-transform duration-200 ease-out",
-            enabled ? "translate-x-5" : "translate-x-0",
+            "absolute top-[2px] left-[2px] w-[18px] h-[18px] rounded-full bg-white shadow-card transition-transform duration-200 ease-out flex items-center justify-center",
+            enabled ? "translate-x-[18px]" : "translate-x-0",
           )}
         >
-          <span className="absolute inset-0 flex items-center justify-center">
-            {enabled ? (
-              <EyeOff className="w-3 h-3 text-white" />
-            ) : (
-              <Eye className="w-3 h-3 text-white" />
-            )}
-          </span>
+          {enabled ? (
+            <EyeOff className="w-2.5 h-2.5 text-[#007aff]" />
+          ) : (
+            <Eye className="w-2.5 h-2.5 text-gray-500" />
+          )}
         </span>
       </button>
     );

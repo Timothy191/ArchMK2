@@ -22,19 +22,22 @@ const TABS = [
 ];
 
 interface AdminTabsProps {
-  defaultValue: string;
+  defaultValue?: string;
+  value?: string;
   onValueChange: (_value: string) => void;
   children: React.ReactNode;
 }
 
 export function AdminTabs({
   defaultValue,
+  value,
   onValueChange,
   children,
 }: AdminTabsProps) {
   return (
     <Tabs
       defaultValue={defaultValue}
+      value={value}
       onValueChange={onValueChange}
       className="w-full"
     >

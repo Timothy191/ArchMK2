@@ -3,13 +3,14 @@
 import { useState, useEffect } from "react";
 import { GlassCard } from "@repo/ui/GlassCard";
 import { createBrowserSupabaseClient } from "@repo/supabase/client";
-import { getCurrentShift } from "@repo/ui/ShiftToggle";
 import { Clock, CheckCircle, XCircle, AlertTriangle } from "lucide-react";
 import { CloseShiftModal } from "./CloseShiftModal";
 
 interface ShiftCoverageWidgetProps {
   departmentId: string;
   departmentSlug: string;
+  today: string;
+  currentShift: "day" | "night";
 }
 
 interface MachineWithOp {
@@ -23,15 +24,14 @@ interface MachineWithOp {
 export function ShiftCoverageWidget({
   departmentId,
   departmentSlug,
+  today,
+  currentShift,
 }: ShiftCoverageWidgetProps) {
   const [machines, setMachines] = useState<MachineWithOp[]>([]);
   const [isClosed, setIsClosed] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
-
-  const today = new Date().toISOString().split("T")[0] || "";
-  const currentShift = getCurrentShift();
 
   useEffect(() => {
     let cancelled = false;

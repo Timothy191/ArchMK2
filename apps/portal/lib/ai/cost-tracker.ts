@@ -88,7 +88,11 @@ export async function getUsageSummary(
     .lte("created_at", endDate.toISOString());
 
   if (error) {
-    throw new DatabaseError(error.message);
+    throw new DatabaseError(error.message, {
+      operation: "select",
+      table: "ai_usage_logs",
+      context: { error: error.message },
+    });
   }
 
   const rows = data ?? [];

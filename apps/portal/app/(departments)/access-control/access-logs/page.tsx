@@ -9,7 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@repo/ui/components/ui/table";
-import { ShieldCheck, ShieldOff, AlertTriangle, Clock } from "lucide-react";
+import { ShieldOff, Clock } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -92,7 +92,7 @@ export default async function AccessLogsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-semibold text-[var(--text-heading)]">
+          <h2 className="text-2xl font-bold text-[var(--text-heading)]">
             Access Logs
           </h2>
           <p className="text-sm text-[var(--text-muted)] mt-1">
@@ -103,7 +103,7 @@ export default async function AccessLogsPage() {
 
       <GlassCard className="p-0 overflow-hidden">
         <div className="p-4 border-b border-[var(--border-default)] bg-[var(--bg-secondary)]/50 flex justify-between items-center">
-          <h3 className="font-medium text-[var(--text-heading)] flex items-center">
+          <h3 className="font-semibold text-[var(--text-heading)] flex items-center">
             <Clock className="w-4 h-4 mr-2 text-[var(--text-muted)]" />
             Recent Events
           </h3>
@@ -170,23 +170,22 @@ export default async function AccessLogsPage() {
                 </TableCell>
                 <TableCell className="text-right">
                   {log.status === "Granted" ? (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-accent-green/10 text-accent-green border border-accent-green/20">
-                      <ShieldCheck className="w-3 h-3 mr-1" />
+                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2 py-0.5 rounded-full border bg-emerald-50/70 border-emerald-200/50 text-emerald-700">
+                      <span className="badge-pulse-dot bg-emerald-500" />
                       Granted
                     </span>
                   ) : log.status === "Denied" ? (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-accent-red/10 text-accent-red border border-accent-red/20">
-                      <ShieldOff className="w-3 h-3 mr-1" />
+                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2 py-0.5 rounded-full border bg-red-50/70 border-red-200/50 text-red-700">
+                      <ShieldOff className="w-3 h-3" />
                       Denied
                     </span>
                   ) : log.status === "Expired Credential" ? (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-arch-accent-blue/10 text-arch-accent-blue border border-arch-accent-blue/20">
-                      <Clock className="w-3 h-3 mr-1" />
+                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2 py-0.5 rounded-full border bg-amber-50/70 border-amber-200/50 text-amber-700">
+                      <Clock className="w-3 h-3" />
                       Expired
                     </span>
                   ) : (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-accent-red/10 text-accent-red border border-accent-red/20">
-                      <AlertTriangle className="w-3 h-3 mr-1" />
+                    <span className="text-xs text-[var(--text-muted)] font-mono">
                       {log.status}
                     </span>
                   )}

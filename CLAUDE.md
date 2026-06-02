@@ -12,6 +12,7 @@ Authoritative docs at repository root that complement this file:
 ## Commands
 
 - `pnpm dev` — Start the portal dev server (Next.js on :3000). Requires `apps/portal/.env` (copy from `.env.example`) and a running Supabase local instance.
+- `pnpm dev:up` — One-command dev bootstrap: cleans caches, starts Supabase + Next.js, runs smoke tests, and opens a status terminal. Use `--quick` (or `-q`) to skip Docker/Supabase and start the portal only.
 - `pnpm build` — Build all packages and apps via Turborepo.
 - `pnpm lint` — Lint all packages via Turborepo.
 - `pnpm test` — Run Jest unit tests across all packages.

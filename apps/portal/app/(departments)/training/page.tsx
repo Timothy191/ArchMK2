@@ -1,8 +1,6 @@
 import { GlassCard } from "@repo/ui/GlassCard";
 import { GraduationCap, Award, Calendar, Clock } from "lucide-react";
 
-export const dynamic = "force-dynamic";
-
 export default async function TrainingDashboardPage() {
   const stats = [
     {

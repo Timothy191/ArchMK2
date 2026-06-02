@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
+import * as Popover from "@radix-ui/react-popover";
 import { cn } from "@repo/ui/lib/utils";
 import {
   Wifi,
@@ -20,6 +21,13 @@ import {
   SignalMedium,
   SignalLow,
   CheckSquare,
+  Database,
+  HardDrive,
+  Zap,
+  AlertCircle,
+  CheckCircle2,
+  MinusCircle,
+  Clock,
 } from "lucide-react";
 
 /* ------------------------------------------------------------------ */
@@ -252,6 +260,87 @@ export function useNotificationCount() {
 }
 
 /* ------------------------------------------------------------------ */
+//  useServerHealth
+/* ------------------------------------------------------------------ */
+interface HealthState {
+  status: "healthy" | "error" | "degraded";
+  db: "ok" | "unavailable";
+  pooler: "ok" | "unavailable" | "disabled";
+  redis: "ok" | "unavailable";
+  aiRouter: "ok" | "unavailable" | "disabled";
+  responseTime: number;
+  timestamp: string;
+  loading: boolean;
+  lastFetched: number | null;
+}
+
+export function useServerHealth() {
+  const [health, setHealth] = useState<HealthState>({
+    status: "healthy",
+    db: "ok",
+    pooler: "ok",
+    redis: "ok",
+    aiRouter: "ok",
+    responseTime: 0,
+    timestamp: "",
+    loading: true,
+    lastFetched: null,
+  });
+
+  useEffect(() => {
+    let cancelled = false;
+    let intervalId: ReturnType<typeof setInterval> | null = null;
+
+    const fetchHealth = async () => {
+      try {
+        const res = await fetch("/api/health", {
+          method: "GET",
+          cache: "no-store",
+        });
+        const data = await res.json();
+        if (!cancelled) {
+          setHealth({
+            status: data.status ?? "error",
+            db: data.db ?? "unavailable",
+            pooler: data.pooler ?? "disabled",
+            redis: data.redis ?? "unavailable",
+            aiRouter: data.aiRouter ?? "unavailable",
+            responseTime: data.responseTime ?? 0,
+            timestamp: data.timestamp ?? "",
+            loading: false,
+            lastFetched: Date.now(),
+          });
+        }
+      } catch {
+        if (!cancelled) {
+          setHealth((prev) => ({
+            ...prev,
+            status: "error",
+            loading: false,
+            lastFetched: Date.now(),
+          }));
+        }
+      }
+    };
+
+    fetchHealth();
+
+    intervalId = setInterval(() => {
+      if (document.visibilityState === "visible") {
+        fetchHealth();
+      }
+    }, 30000);
+
+    return () => {
+      cancelled = true;
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, []);
+
+  return health;
+}
+
+/* ------------------------------------------------------------------ */
 //  Row Components
 /* ------------------------------------------------------------------ */
 
@@ -351,18 +440,19 @@ export function BatteryStatusRow({
 
   const batteryColor = charging
     ? "text-[var(--accent-green)]"
-    : level <= 0.3
+    : level < 0.5
       ? "text-[var(--accent-red)]"
-      : level >= 0.8
-        ? "text-[var(--accent-green)]"
-        : "text-[var(--text-secondary)]";
+      : level < 0.7
+        ? "text-[var(--accent-amber)]"
+        : "text-[var(--accent-green)]";
 
-  const barColor =
-    level <= 0.2
+  const barColor = charging
+    ? "bg-[var(--accent-green)]"
+    : level < 0.5
       ? "bg-[var(--accent-red)]"
-      : level >= 0.8
-        ? "bg-[var(--accent-green)]"
-        : "bg-[var(--accent-blue)]";
+      : level < 0.7
+        ? "bg-[var(--accent-amber)]"
+        : "bg-[var(--accent-green)]";
 
   return (
     <div className="px-2 py-1.5 rounded-md space-y-1.5">
@@ -411,7 +501,7 @@ export function VolumeControlRow({
   const volumeColor =
     muted || volume === 0
       ? "text-[var(--text-muted)]"
-      : "text-[var(--text-secondary)]";
+      : "text-[var(--accent-blue)]";
 
   return (
     <div className="px-2 py-1.5 rounded-md space-y-1.5">
@@ -478,12 +568,112 @@ export function NotificationRow({
   );
 }
 
+/* ------------------------------------------------------------------ */
+//  ServerHealthRow
+/* ------------------------------------------------------------------ */
+function HealthSubRow({
+  label,
+  status,
+  icon: Icon,
+}: {
+  label: string;
+  status: "ok" | "unavailable" | "disabled";
+  icon: React.ComponentType<{ className?: string }>;
+}) {
+  const config = {
+    ok: { color: "text-[var(--accent-green)]", label: "OK" },
+    unavailable: { color: "text-[var(--accent-red)]", label: "Unavailable" },
+    disabled: { color: "text-[var(--text-muted)]", label: "Disabled" },
+  };
+  const c = config[status] ?? config.ok;
+
+  return (
+    <div className="flex items-center gap-2">
+      <Icon className={cn("w-3 h-3 shrink-0", c.color)} />
+      <span className="text-[11px] text-[var(--text-secondary)] flex-1">
+        {label}
+      </span>
+      <span className={cn("text-[10px] font-medium", c.color)}>{c.label}</span>
+    </div>
+  );
+}
+
+export function ServerHealthRow({
+  status,
+  db,
+  redis,
+  aiRouter,
+  responseTime,
+  loading,
+}: Omit<HealthState, "timestamp" | "pooler" | "lastFetched">) {
+  const statusConfig = {
+    healthy: {
+      icon: CheckCircle2,
+      color: "text-[var(--accent-green)]",
+      label: "Healthy",
+    },
+    degraded: {
+      icon: MinusCircle,
+      color: "text-[var(--accent-blue)]",
+      label: "Degraded",
+    },
+    error: {
+      icon: AlertCircle,
+      color: "text-[var(--accent-red)]",
+      label: "Error",
+    },
+  };
+
+  const current = statusConfig[status] ?? statusConfig.healthy;
+
+  return (
+    <div className="px-2 py-1.5 rounded-md space-y-1.5">
+      <div className="flex items-center gap-2.5">
+        <current.icon className={cn("w-4 h-4 shrink-0", current.color)} />
+        <span className="text-[12px] font-medium text-[var(--text-heading)] flex-1">
+          Server Health
+        </span>
+        <span className={cn("text-[10px] font-medium", current.color)}>
+          {current.label}
+        </span>
+      </div>
+
+      <div className="space-y-1">
+        <HealthSubRow label="Database" status={db} icon={Database} />
+        <HealthSubRow label="Redis" status={redis} icon={HardDrive} />
+        <HealthSubRow label="AI Router" status={aiRouter} icon={Zap} />
+      </div>
+
+      <div className="flex items-center gap-1.5 text-[var(--text-muted)]">
+        <Clock className="w-3 h-3" />
+        <span className="text-[10px]">
+          {loading
+            ? "Checking…"
+            : responseTime > 0
+              ? `${responseTime}ms`
+              : "Unavailable"}
+        </span>
+      </div>
+    </div>
+  );
+}
+
 /* ─────────────────────────── SystemTrayPill ─────────────────────────── */
 
 export function SystemTrayPill() {
   const network = useNetworkStatus();
   const battery = useBatteryStatus();
   const volume = useAppVolume();
+  const notifications = useNotificationCount();
+  const health = useServerHealth();
+
+  const healthDotColor = health.loading
+    ? "bg-[var(--text-muted)]"
+    : health.status === "healthy"
+      ? "bg-[var(--accent-green)]"
+      : health.status === "degraded"
+        ? "bg-[var(--accent-blue)]"
+        : "bg-[var(--accent-red)]";
 
   const VolumeIcon =
     volume.muted || volume.volume === 0
@@ -494,7 +684,7 @@ export function SystemTrayPill() {
   const volumeColor =
     volume.muted || volume.volume === 0
       ? "text-[var(--text-muted)]"
-      : "text-[var(--text-secondary)]";
+      : "text-[var(--accent-blue)]";
 
   const ConnIcon = !network.online ? WifiOff : Wifi;
   const connColor = network.online
@@ -513,9 +703,13 @@ export function SystemTrayPill() {
 
   const batteryColor = battery.charging
     ? "text-[var(--accent-green)]"
-    : (battery.level ?? 1) <= 0.3
-      ? "text-[var(--accent-red)]"
-      : "text-[var(--text-secondary)]";
+    : battery.level === null
+      ? "text-[var(--text-secondary)]"
+      : battery.level < 0.5
+        ? "text-[var(--accent-red)]"
+        : battery.level < 0.7
+          ? "text-[var(--accent-amber)]"
+          : "text-[var(--accent-green)]";
 
   return (
     <div className="flex items-center gap-1.5">
@@ -524,56 +718,99 @@ export function SystemTrayPill() {
         className={cn(
           "flex items-center justify-center w-[26px] h-[26px] rounded-full",
           "bg-black/[0.03] hover:bg-black/[0.06] border border-black/[0.05]",
-          "transition-colors",
+          "transition-colors active:scale-[0.97]",
         )}
         title="Task Manager"
       >
-        <CheckSquare className="w-3.5 h-3.5 text-accent-green" />
+        <CheckSquare className="w-3.5 h-3.5 text-[var(--text-secondary)]" />
       </Link>
 
-      <button
-        type="button"
-        onClick={volume.toggleMute}
-        className={cn(
-          "flex items-center justify-center w-[26px] h-[26px] rounded-full",
-          "bg-black/[0.03] hover:bg-black/[0.06] border border-black/[0.05]",
-          "transition-colors",
-        )}
-        title={volume.muted ? "Unmute" : `Volume ${volume.volume}%`}
-      >
-        <VolumeIcon className={cn("w-3.5 h-3.5", volumeColor)} />
-      </button>
+      <Popover.Root>
+        <Popover.Trigger asChild>
+          <button
+            type="button"
+            aria-label="System Tray Popover"
+            title="System status & options"
+            className={cn(
+              "flex items-center gap-2 h-[26px] px-2.5 rounded-full select-none cursor-default outline-none",
+              "bg-black/[0.03] hover:bg-black/[0.06] border border-black/[0.05]",
+              "transition-colors active:scale-[0.97] focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)]/50",
+            )}
+          >
+            {/* Server health dot */}
+            <span className="relative flex h-2 w-2">
+              {health.status === "healthy" && !health.loading && (
+                <span className="animate-pulse absolute inline-flex h-full w-full rounded-full bg-[var(--accent-green)] opacity-75" />
+              )}
+              <span
+                className={cn(
+                  "relative inline-flex rounded-full h-2 w-2",
+                  healthDotColor,
+                )}
+              />
+            </span>
+            <span className="w-[1px] h-3 bg-black/[0.08]" />
 
-      <div
-        className={cn(
-          "flex items-center justify-center w-[26px] h-[26px] rounded-full",
-          "bg-black/[0.03] hover:bg-black/[0.06] border border-black/[0.05]",
-          "transition-colors",
-        )}
-        title={network.online ? "Connected" : "Offline"}
-      >
-        <ConnIcon className={cn("w-3.5 h-3.5", connColor)} />
-      </div>
+            <VolumeIcon className={cn("w-3.5 h-3.5", volumeColor)} />
+            <span className="w-[1px] h-3 bg-black/[0.08]" />
+            <ConnIcon className={cn("w-3.5 h-3.5", connColor)} />
+            <span className="w-[1px] h-3 bg-black/[0.08]" />
+            <div className="flex items-center gap-0.5">
+              <BatteryIcon className={cn("w-3.5 h-3.5", batteryColor)} />
+              {battery.supported && battery.level !== null && (
+                <span className="text-[11px] font-medium text-[var(--text-heading)] leading-none">
+                  {Math.round(battery.level * 100)}%
+                </span>
+              )}
+            </div>
+          </button>
+        </Popover.Trigger>
+        <Popover.Portal>
+          <Popover.Content
+            align="end"
+            sideOffset={6}
+            className={cn(
+              "w-64 bg-white/95 backdrop-blur-2xl border border-black/[0.08] shadow-window rounded-xl p-3 z-[120]",
+              "flex flex-col gap-2 select-none focus:outline-none",
+            )}
+          >
+            <div className="space-y-3">
+              {/* Server Health Section */}
+              <ServerHealthRow
+                status={health.status}
+                db={health.db}
+                redis={health.redis}
+                aiRouter={health.aiRouter}
+                responseTime={health.responseTime}
+                loading={health.loading}
+              />
 
-      <div
-        className={cn(
-          "flex items-center justify-center gap-0.5 h-[26px] px-1.5 rounded-full",
-          "bg-black/[0.03] hover:bg-black/[0.06] border border-black/[0.05]",
-          "transition-colors",
-        )}
-        title={
-          battery.supported && battery.level !== null
-            ? `${Math.round(battery.level * 100)}%${battery.charging ? " — Charging" : ""}`
-            : "Battery status unavailable"
-        }
-      >
-        <BatteryIcon className={cn("w-3.5 h-3.5", batteryColor)} />
-        {battery.supported && battery.level !== null && (
-          <span className="text-[11px] font-medium text-[var(--text-heading)] leading-none">
-            {Math.round(battery.level * 100)}%
-          </span>
-        )}
-      </div>
+              <div className="h-[1px] bg-black/[0.05]" />
+
+              {/* Volume Slider Section */}
+              <VolumeControlRow {...volume} />
+
+              <div className="h-[1px] bg-black/[0.05]" />
+
+              {/* Network details Section */}
+              <NetworkStatusRow {...network} />
+
+              <div className="h-[1px] bg-black/[0.05]" />
+
+              {/* Battery details Section */}
+              <BatteryStatusRow {...battery} />
+
+              <div className="h-[1px] bg-black/[0.05]" />
+
+              {/* Notifications Section */}
+              <NotificationRow
+                count={notifications.count}
+                clear={notifications.clear}
+              />
+            </div>
+          </Popover.Content>
+        </Popover.Portal>
+      </Popover.Root>
     </div>
   );
 }

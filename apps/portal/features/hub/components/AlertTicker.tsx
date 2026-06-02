@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import { AlertTriangle, Wrench, Clock } from "lucide-react";
 import { cn } from "@repo/ui/lib/utils";

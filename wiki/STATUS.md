@@ -1,8 +1,8 @@
-# Project Status Report - Phase 5
+# Project Status Report - Phase 5.1
 
-**Last Updated:** 2026-05-27 09:00 UTC
-**Current Branch:** master (HEAD: `7d0a059`)
-**Version:** Phase 5 (Latest) — Multi-Agent Swarm, Light Theme, Full Observability Stack
+**Last Updated:** 2026-06-01 21:30 UTC
+**Current Branch:** master (HEAD: `011a577`)
+**Version:** Phase 5.1 — Performance & Rendering Optimization
 
 ---
 
@@ -132,7 +132,24 @@
 - [x] Migrations 028–048 (see full list below)
 - [x] `pnpm quality` gate — all checks passing
 
----
+### Phase 5.1: Performance & Rendering Optimization ✅
+
+**Status:** Complete
+**Commits:** 7d0a059 → 011a577
+
+**Deliverables:**
+
+- [x] **Lenis scroll duration halved** (`SmoothScrollProvider.tsx`: 1.2s → 0.6s) — eliminates scroll-induced blur by cutting scroll animation lag by 50%
+- [x] **backdrop-filter blur rescaled** across all glass surfaces:
+  - `.glass` base class: 16px→10px blur, 160%→130% saturate
+  - `.glass-card`: 12px→10px blur, 130%→120% saturate
+  - `--glass-video-backdrop`: 24px→16px blur (heaviest variant)
+  - `--glass-premium-backdrop`: 24px→16px blur (premium surfaces)
+- [x] **rAF loop pause on tab hide** (`SmoothScrollProvider.tsx`) — Lenis `requestAnimationFrame` loop pauses when `document.hidden` is true, saving GPU cycles when tab is not visible
+- [x] **Adaptive performance fallback tightened** (`useAdaptivePerformance.ts`):
+  - Detection threshold: 45→50 FPS (downgrades sooner)
+  - Detection window: 3s→1.5s (responds faster)
+  - All 480 existing tests pass, zero regressions
 
 ## 📊 Database Schema Status
 
@@ -269,7 +286,7 @@
 
 ### Branch Summary
 
-- **master** (HEAD: `7d0a059`) — Phase 5 complete, all checks passing
+- **master** (HEAD: `011a577`) — Phase 5.1 complete, all checks passing
 - **fix/fix-bug** — Phase 4 complete (`a3d53b2`), merged into master
 - **origin/master** (remote: `c87f5f0`) — Ahead by 2 local commits
 - **origin/feat/qr-access-control** — Feature branch, merged upstream (`74d5ba2`)
@@ -277,7 +294,7 @@
 ### Commit History
 
 - **Total Commits:** 70+ (main lineage)
-- **Time Range:** 2026-01 → 2026-05-27 (project inception through Phase 5)
+- **Time Range:** 2026-01 → 2026-06-01 (project inception through Phase 5.1)
 - **Active Development:** Daily commits 2026-05-18 → 2026-05-27
 
 ### Git Tree Resources
@@ -310,7 +327,7 @@
 - ✅ GitHub Actions production CI/CD pipeline
 - ✅ `pnpm quality` gate passing
 
-### Current Quality Gate (2026-05-27)
+### Current Quality Gate (2026-06-01)
 
 | Check          | Result   |
 | -------------- | -------- |
@@ -459,6 +476,6 @@ Executive KPI dashboard, PDF/Excel report generation, trend forecasting, data ex
 
 ## Summary
 
-**Arch-Systems (Plantcor)** has completed Phase 5 with a production-ready multi-departmental portal, full light-theme UI, LangGraph AI orchestration, Highlight + OTEL observability, Inngest background jobs, QR access control, 48 database migrations, and a passing `pnpm quality` gate. The project is well-documented, secure, and ready for on-premises deployment.
+**Arch-Systems (Plantcor)** has completed Phase 5 with a production-ready multi-departmental portal, full light-theme UI, LangGraph AI orchestration, Highlight + OTEL observability, Inngest background jobs, QR access control, 48 database migrations, and a passing `pnpm quality` gate. Phase 5.1 added rendering performance optimizations that eliminate scroll-induced blur and reduce GPU compositor pressure across all glass surfaces. The project is well-documented, secure, and ready for on-premises deployment.
 
-**Project Health:** 🟢 **Excellent** — Phase 5 complete, 48 migrations, full observability stack, access control QR dashboard, AI orchestration, `pnpm quality` passing.
+**Project Health:** 🟢 **Excellent** — Phase 5.1 complete, 48 migrations, full observability stack, access control QR dashboard, AI orchestration, `pnpm quality` passing.

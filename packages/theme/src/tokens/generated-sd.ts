@@ -883,12 +883,12 @@ module.exports = {
   glass: {
     surface: {
       key: "{glass.surface}",
-      value: "#ffffffb8",
+      value: "#ffffffb3",
       type: "color",
       filePath: "tokens.json",
       isSource: true,
       original: {
-        value: "rgba(255, 255, 255, 0.72)",
+        value: "rgba(255, 255, 255, 0.7)",
         type: "color",
         key: "{glass.surface}",
       },
@@ -901,12 +901,12 @@ module.exports = {
     },
     "surface-hover": {
       key: "{glass.surface-hover}",
-      value: "#ffffffe0",
+      value: "#ffffffd9",
       type: "color",
       filePath: "tokens.json",
       isSource: true,
       original: {
-        value: "rgba(255, 255, 255, 0.88)",
+        value: "rgba(255, 255, 255, 0.85)",
         type: "color",
         key: "{glass.surface-hover}",
       },
@@ -937,12 +937,12 @@ module.exports = {
     },
     border: {
       key: "{glass.border}",
-      value: "#00000014",
+      value: "#ffffff26",
       type: "color",
       filePath: "tokens.json",
       isSource: true,
       original: {
-        value: "rgba(0, 0, 0, 0.08)",
+        value: "rgba(255, 255, 255, 0.15)",
         type: "color",
         key: "{glass.border}",
       },
@@ -955,12 +955,12 @@ module.exports = {
     },
     "border-top": {
       key: "{glass.border-top}",
-      value: "#fffffff2",
+      value: "#ffffff40",
       type: "color",
       filePath: "tokens.json",
       isSource: true,
       original: {
-        value: "rgba(255, 255, 255, 0.95)",
+        value: "rgba(255, 255, 255, 0.25)",
         type: "color",
         key: "{glass.border-top}",
       },
@@ -970,6 +970,26 @@ module.exports = {
         type: "border-top",
       },
       path: ["glass", "border-top"],
+    },
+    "border-gradient": {
+      key: "{glass.border-gradient}",
+      value:
+        "linear-gradient(to bottom, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.05))",
+      type: "color",
+      filePath: "tokens.json",
+      isSource: true,
+      original: {
+        value:
+          "linear-gradient(to bottom, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.05))",
+        type: "color",
+        key: "{glass.border-gradient}",
+      },
+      name: "GlassBorderGradient",
+      attributes: {
+        category: "glass",
+        type: "border-gradient",
+      },
+      path: ["glass", "border-gradient"],
     },
     text: {
       key: "{glass.text}",
@@ -1027,14 +1047,15 @@ module.exports = {
     },
     shadow: {
       key: "{glass.shadow}",
-      value: "#00000014",
-      type: "color",
+      value:
+        "0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 20px 25px -5px rgba(0, 0, 0, 0.03), inset 0 1px 0 0 rgba(255, 255, 255, 0.8)",
+      type: "shadow",
       filePath: "tokens.json",
       isSource: true,
       original: {
         value:
-          "0 8px 32px rgba(0, 0, 0, 0.08), inset 0 0 0 1px rgba(255, 255, 255, 0.4)",
-        type: "color",
+          "0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 20px 25px -5px rgba(0, 0, 0, 0.03), inset 0 1px 0 0 rgba(255, 255, 255, 0.8)",
+        type: "shadow",
         key: "{glass.shadow}",
       },
       name: "GlassShadow",
@@ -1846,13 +1867,13 @@ module.exports = {
   "shadow-card": {
     key: "{shadow-card}",
     value:
-      "0 2px 12px -2px rgba(0, 0, 0, 0.1), 0 1px 0 0 rgba(255, 255, 255, 0.95), inset 0 1px 0 0 rgba(255, 255, 255, 0.9)",
+      "0 1px 2px rgba(0,0,0,0.02), 0 4px 12px rgba(0,0,0,0.03), 0 12px 32px rgba(0,0,0,0.03), 0 20px 48px rgba(0,0,0,0.04), inset 0 0 0 0.5px rgba(255, 255, 255, 0.7)",
     type: "shadow",
     filePath: "tokens.json",
     isSource: true,
     original: {
       value:
-        "0 2px 12px -2px rgba(0, 0, 0, 0.1), 0 1px 0 0 rgba(255, 255, 255, 0.95), inset 0 1px 0 0 rgba(255, 255, 255, 0.9)",
+        "0 1px 2px rgba(0,0,0,0.02), 0 4px 12px rgba(0,0,0,0.03), 0 12px 32px rgba(0,0,0,0.03), 0 20px 48px rgba(0,0,0,0.04), inset 0 0 0 0.5px rgba(255, 255, 255, 0.7)",
       type: "shadow",
       key: "{shadow-card}",
     },
@@ -1865,13 +1886,13 @@ module.exports = {
   "shadow-card-hover": {
     key: "{shadow-card-hover}",
     value:
-      "0 6px 24px -4px rgba(0, 0, 0, 0.14), 0 1px 0 0 rgba(255, 255, 255, 0.95)",
+      "0 2px 4px rgba(0,0,0,0.02), 0 6px 16px rgba(0,0,0,0.04), 0 16px 40px rgba(0,0,0,0.04), 0 28px 64px rgba(0,0,0,0.05), inset 0 0 0 0.5px rgba(255, 255, 255, 0.8)",
     type: "shadow",
     filePath: "tokens.json",
     isSource: true,
     original: {
       value:
-        "0 6px 24px -4px rgba(0, 0, 0, 0.14), 0 1px 0 0 rgba(255, 255, 255, 0.95)",
+        "0 2px 4px rgba(0,0,0,0.02), 0 6px 16px rgba(0,0,0,0.04), 0 16px 40px rgba(0,0,0,0.04), 0 28px 64px rgba(0,0,0,0.05), inset 0 0 0 0.5px rgba(255, 255, 255, 0.8)",
       type: "shadow",
       key: "{shadow-card-hover}",
     },
@@ -1884,13 +1905,13 @@ module.exports = {
   "shadow-elevated": {
     key: "{shadow-elevated}",
     value:
-      "0 12px 40px -8px rgba(0, 0, 0, 0.18), 0 2px 8px -4px rgba(0, 0, 0, 0.1)",
+      "0 2px 4px rgba(0,0,0,0.02), 0 8px 20px rgba(0,0,0,0.03), 0 20px 48px rgba(0,0,0,0.03), 0 32px 72px rgba(0,0,0,0.04), inset 0 0 0 0.5px rgba(255, 255, 255, 0.7)",
     type: "shadow",
     filePath: "tokens.json",
     isSource: true,
     original: {
       value:
-        "0 12px 40px -8px rgba(0, 0, 0, 0.18), 0 2px 8px -4px rgba(0, 0, 0, 0.1)",
+        "0 2px 4px rgba(0,0,0,0.02), 0 8px 20px rgba(0,0,0,0.03), 0 20px 48px rgba(0,0,0,0.03), 0 32px 72px rgba(0,0,0,0.04), inset 0 0 0 0.5px rgba(255, 255, 255, 0.7)",
       type: "shadow",
       key: "{shadow-elevated}",
     },
@@ -1936,8 +1957,8 @@ module.exports = {
     },
     path: ["shadow-glow-primary"],
   },
-  "shadow-glow-electric: ": {
-    key: "{shadow-glow-electric: }",
+  "shadow-glow-electric": {
+    key: "{shadow-glow-electric}",
     value: "0 0 24px rgba(0, 122, 255, 0.28), 0 0 80px rgba(0, 122, 255, 0.1)",
     type: "shadow",
     filePath: "tokens.json",
@@ -1946,24 +1967,24 @@ module.exports = {
       value:
         "0 0 24px rgba(0, 122, 255, 0.28), 0 0 80px rgba(0, 122, 255, 0.1)",
       type: "shadow",
-      key: "{shadow-glow-electric: }",
+      key: "{shadow-glow-electric}",
     },
     name: "ShadowGlowElectric",
     attributes: {
-      category: "shadow-glow-electric: ",
+      category: "shadow-glow-electric",
     },
-    path: ["shadow-glow-electric: "],
+    path: ["shadow-glow-electric"],
   },
   "shadow-window": {
     key: "{shadow-window}",
     value:
-      "0 20px 60px -10px rgba(0, 0, 0, 0.2), 0 8px 24px -8px rgba(0, 0, 0, 0.12), inset 0 1px 0 0 rgba(255, 255, 255, 0.9)",
+      "0 2px 4px rgba(0,0,0,0.02), 0 8px 24px rgba(0,0,0,0.03), 0 24px 56px rgba(0,0,0,0.04), 0 40px 96px rgba(0,0,0,0.05), inset 0 0 0 0.5px rgba(255, 255, 255, 0.8)",
     type: "shadow",
     filePath: "tokens.json",
     isSource: true,
     original: {
       value:
-        "0 20px 60px -10px rgba(0, 0, 0, 0.2), 0 8px 24px -8px rgba(0, 0, 0, 0.12), inset 0 1px 0 0 rgba(255, 255, 255, 0.9)",
+        "0 2px 4px rgba(0,0,0,0.02), 0 8px 24px rgba(0,0,0,0.03), 0 24px 56px rgba(0,0,0,0.04), 0 40px 96px rgba(0,0,0,0.05), inset 0 0 0 0.5px rgba(255, 255, 255, 0.8)",
       type: "shadow",
       key: "{shadow-window}",
     },
@@ -1976,13 +1997,13 @@ module.exports = {
   "shadow-diffusion-sm": {
     key: "{shadow-diffusion-sm}",
     value:
-      "0 2px 8px -2px rgba(0, 0, 0, 0.08), 0 1px 2px -1px rgba(0, 0, 0, 0.04)",
+      "0 2px 4px -1px rgba(0, 0, 0, 0.04), 0 8px 12px -4px rgba(0, 0, 0, 0.03)",
     type: "shadow",
     filePath: "tokens.json",
     isSource: true,
     original: {
       value:
-        "0 2px 8px -2px rgba(0, 0, 0, 0.08), 0 1px 2px -1px rgba(0, 0, 0, 0.04)",
+        "0 2px 4px -1px rgba(0, 0, 0, 0.04), 0 8px 12px -4px rgba(0, 0, 0, 0.03)",
       type: "shadow",
       key: "{shadow-diffusion-sm}",
     },
@@ -1995,13 +2016,13 @@ module.exports = {
   "shadow-diffusion-md": {
     key: "{shadow-diffusion-md}",
     value:
-      "0 4px 16px -4px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06)",
+      "0 3px 5px -1px rgba(0, 0, 0, 0.04), 0 14px 18px -5px rgba(0, 0, 0, 0.03)",
     type: "shadow",
     filePath: "tokens.json",
     isSource: true,
     original: {
       value:
-        "0 4px 16px -4px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06)",
+        "0 3px 5px -1px rgba(0, 0, 0, 0.04), 0 14px 18px -5px rgba(0, 0, 0, 0.03)",
       type: "shadow",
       key: "{shadow-diffusion-md}",
     },
@@ -2014,13 +2035,13 @@ module.exports = {
   "shadow-diffusion-lg": {
     key: "{shadow-diffusion-lg}",
     value:
-      "0 8px 32px -8px rgba(0, 0, 0, 0.14), 0 4px 8px -4px rgba(0, 0, 0, 0.08)",
+      "0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 20px 25px -5px rgba(0, 0, 0, 0.03)",
     type: "shadow",
     filePath: "tokens.json",
     isSource: true,
     original: {
       value:
-        "0 8px 32px -8px rgba(0, 0, 0, 0.14), 0 4px 8px -4px rgba(0, 0, 0, 0.08)",
+        "0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 20px 25px -5px rgba(0, 0, 0, 0.03)",
       type: "shadow",
       key: "{shadow-diffusion-lg}",
     },
@@ -2033,13 +2054,13 @@ module.exports = {
   "shadow-diffusion-xl": {
     key: "{shadow-diffusion-xl}",
     value:
-      "0 16px 48px -12px rgba(0, 0, 0, 0.18), 0 8px 16px -8px rgba(0, 0, 0, 0.1)",
+      "0 4px 8px -2px rgba(0, 0, 0, 0.05), 0 28px 40px -8px rgba(0, 0, 0, 0.04)",
     type: "shadow",
     filePath: "tokens.json",
     isSource: true,
     original: {
       value:
-        "0 16px 48px -12px rgba(0, 0, 0, 0.18), 0 8px 16px -8px rgba(0, 0, 0, 0.1)",
+        "0 4px 8px -2px rgba(0, 0, 0, 0.05), 0 28px 40px -8px rgba(0, 0, 0, 0.04)",
       type: "shadow",
       key: "{shadow-diffusion-xl}",
     },
@@ -2249,12 +2270,12 @@ module.exports = {
   },
   "radius-card": {
     key: "{radius-card}",
-    value: "16px",
+    value: "20px",
     type: "dimension",
     filePath: "tokens.json",
     isSource: true,
     original: {
-      value: "16px",
+      value: "20px",
       type: "dimension",
       key: "{radius-card}",
     },

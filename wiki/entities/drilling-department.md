@@ -45,7 +45,7 @@ The Drilling department in Arch-Systems handles drill rig operations and bit dep
 
 All tables use `department_id`-scoped RLS policies. See [[rls-policy]] for the policy template.
 
-## Completeness Status (Phase 3)
+## Current Completeness Status
 
 | Feature                    | Status  |
 | -------------------------- | ------- |

@@ -4,6 +4,7 @@
 
 import { POST } from "./route";
 import { resetRateLimits } from "@/lib/ai/rate-limiter";
+import { resetMiddlewareRateLimits } from "@/lib/api/rate-limit-middleware";
 
 jest.mock("@repo/supabase/server", () => ({
   createServerSupabaseClient: jest.fn().mockResolvedValue({
@@ -49,15 +50,10 @@ jest.mock("@/lib/ai/memory", () => ({
   formatMemoriesForContext: jest.fn().mockReturnValue(""),
 }));
 
-// In-memory mock for Redis cache so rate limiter state is fully controllable
-const mockCache = new Map<string, unknown>();
-jest.mock("@repo/redis/cache", () => ({
-  cacheGet: jest.fn(async (key: string) => mockCache.get(key) ?? null),
-  cacheSet: jest.fn(async (key: string, value: unknown) => {
-    mockCache.set(key, value);
-  }),
-  cacheDelete: jest.fn(async (key: string) => {
-    mockCache.delete(key);
+// Mock @repo/redis to avoid actual connections in test environment, falling back to MemoryStore
+jest.mock("@repo/redis", () => ({
+  getRedisClient: jest.fn(() => {
+    throw new Error("Redis mock not configured");
   }),
 }));
 
@@ -70,8 +66,8 @@ const { ollamaChatStream } = jest.requireMock("@/lib/ai/ollama");
 describe("POST /api/ai/chat", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockCache.clear();
     resetRateLimits();
+    resetMiddlewareRateLimits();
     createServerSupabaseClient.mockResolvedValue({
       auth: {
         getUser: jest
@@ -91,7 +87,7 @@ describe("POST /api/ai/chat", () => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-forwarded-for": "127.0.0.1",
+        "x-forwarded-for": "10.0.0.1",
         ...headers,
       },
       body: JSON.stringify(body),

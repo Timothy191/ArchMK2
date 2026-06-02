@@ -1,16 +1,13 @@
-"use client";
-
-import React, { useState } from "react";
 import { GlassCard } from "@repo/ui/GlassCard";
 import {
   Award,
-  Search,
   CheckCircle,
   AlertTriangle,
   AlertOctagon,
   Plus,
-  Filter,
 } from "lucide-react";
+import { SearchForm } from "../components/SearchForm";
+import { FilterTabs } from "../components/FilterTabs";
 
 interface Certification {
   id: number;
@@ -97,25 +94,32 @@ const initialCertifications: Certification[] = [
   },
 ];
 
-export default function CertificationsPage() {
-  const [certs] = useState<Certification[]>(initialCertifications);
-  const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState<string>("All");
+export default async function CertificationsPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ q?: string; status?: string }>;
+}) {
+  const { q, status } = (await searchParams) ?? {};
 
-  const filteredCerts = certs.filter((c) => {
+  const filteredCerts = initialCertifications.filter((c) => {
     const matchesSearch =
-      c.employee.toLowerCase().includes(search.toLowerCase()) ||
-      c.certification.toLowerCase().includes(search.toLowerCase()) ||
-      c.role.toLowerCase().includes(search.toLowerCase());
-    const matchesFilter = filter === "All" || c.status === filter;
+      !q ||
+      c.employee.toLowerCase().includes(q.toLowerCase()) ||
+      c.certification.toLowerCase().includes(q.toLowerCase()) ||
+      c.role.toLowerCase().includes(q.toLowerCase());
+    const matchesFilter = !status || status === "All" || c.status === status;
     return matchesSearch && matchesFilter;
   });
 
-  const activeCount = certs.filter((c) => c.status === "Active").length;
-  const expiringCount = certs.filter(
+  const activeCount = initialCertifications.filter(
+    (c) => c.status === "Active",
+  ).length;
+  const expiringCount = initialCertifications.filter(
     (c) => c.status === "Expiring Soon",
   ).length;
-  const expiredCount = certs.filter((c) => c.status === "Expired").length;
+  const expiredCount = initialCertifications.filter(
+    (c) => c.status === "Expired",
+  ).length;
 
   return (
     <div className="space-y-6">
@@ -183,32 +187,17 @@ export default function CertificationsPage() {
       {/* Search & Table list */}
       <GlassCard className="space-y-4">
         <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
-          <div className="relative w-full sm:w-80">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-[var(--text-muted)]" />
-            <input
-              type="text"
-              placeholder="Search employee, cert, or role..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-9 w-full h-9 bg-black/[0.02] border border-black/[0.08] rounded-lg text-sm text-[var(--text-heading)] focus:outline-none focus:border-[var(--accent-blue)]"
-            />
-          </div>
-          <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto">
-            <Filter className="w-4 h-4 text-[var(--text-muted)] shrink-0" />
-            {["All", "Active", "Expiring Soon", "Expired"].map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setFilter(tab)}
-                className={`text-xs px-3 py-1.5 rounded-lg border font-medium transition-all shrink-0 ${
-                  filter === tab
-                    ? "bg-black text-white dark:bg-white dark:text-black border-transparent"
-                    : "bg-black/[0.01] hover:bg-black/[0.04] text-[var(--text-secondary)] border-black/[0.08]"
-                }`}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
+          <SearchForm
+            value={q}
+            placeholder="Search employee, cert, or role..."
+            hiddenParams={status && status !== "All" ? { status } : {}}
+          />
+          <FilterTabs
+            paramName="status"
+            options={["All", "Active", "Expiring Soon", "Expired"]}
+            currentValue={status || "All"}
+            hiddenParams={q ? { q } : {}}
+          />
         </div>
 
         <div className="overflow-x-auto pt-2">

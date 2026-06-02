@@ -15,7 +15,7 @@ export function SmoothScrollProvider({
     if (mq.matches) return;
 
     const lenis = new Lenis({
-      duration: 1.2,
+      duration: 0.6,
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       orientation: "vertical",
       gestureOrientation: "vertical",
@@ -24,14 +24,29 @@ export function SmoothScrollProvider({
 
     lenisRef.current = lenis;
 
+    let rafId: number;
+    let ticking = true;
+
     function raf(time: number) {
+      if (!ticking) return;
       lenis.raf(time);
-      requestAnimationFrame(raf);
+      rafId = requestAnimationFrame(raf);
     }
 
-    requestAnimationFrame(raf);
+    rafId = requestAnimationFrame(raf);
+
+    function onVisibilityChange() {
+      ticking = !document.hidden;
+      if (ticking) {
+        rafId = requestAnimationFrame(raf);
+      }
+    }
+
+    document.addEventListener("visibilitychange", onVisibilityChange);
 
     return () => {
+      cancelAnimationFrame(rafId);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
       lenis.destroy();
       lenisRef.current = null;
     };

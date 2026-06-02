@@ -223,10 +223,13 @@ export const CONTROL_ROOM_TABS = [
   { name: "hourly-loads", label: "Hourly Loads", icon: "Clock" },
   { name: "machine-operations", label: "Machine Ops", icon: "Cpu" },
   { name: "operational-delays", label: "Delays", icon: "AlertTriangle" },
+  { name: "engineering-notes", label: "Eng Notes", icon: "ClipboardList" },
   { name: "excavator-activity", label: "Excavator", icon: "Pickaxe" },
+  { name: "shift-coverage", label: "Shift Coverage", icon: "Users" },
   { name: "roll-over", label: "Roll Over", icon: "GitCommit" },
   { name: "machines", label: "Machine DB", icon: "Database" },
   { name: "reports", label: "Reports", icon: "FileText" },
+  { name: "satellite", label: "Satellite", icon: "Satellite" },
 ] as const;
 
 export const ENGINEERING_TABS = [

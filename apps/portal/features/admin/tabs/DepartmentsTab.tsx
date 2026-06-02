@@ -68,7 +68,13 @@ export function DepartmentsTab() {
     setShowEditDialog(true);
   };
 
-  const handleSave = async (formData: any) => {
+  const handleSave = async (formData: {
+    name: string;
+    display_name: string;
+    icon: string;
+    color: string;
+    description: string;
+  }) => {
     if (editingDept) {
       const { error } = await supabase
         .from("departments")
@@ -255,7 +261,13 @@ function DepartmentForm({
   onCancel,
 }: {
   department: Department | null;
-  onSubmit: (_data: any) => void;
+  onSubmit: (_data: {
+    name: string;
+    display_name: string;
+    icon: string;
+    color: string;
+    description: string;
+  }) => void;
   onCancel: () => void;
 }) {
   const [name, setName] = useState(department?.name || "");

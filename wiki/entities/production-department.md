@@ -47,7 +47,7 @@ The Production department in Arch-Systems handles coal yield, tonnage, and extra
 
 All tables use `department_id`-scoped RLS. Strip ratio (`waste_tonnes / coal_tonnes`) is typically computed at query time.
 
-## Completeness Status (Phase 3)
+## Current Completeness Status
 
 | Feature                    | Status  |
 | -------------------------- | ------- |

@@ -6,16 +6,28 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { createBrowserSupabaseClient } from "@repo/supabase/client";
 import { Input } from "@repo/ui/Input";
 import { AnimatedButton } from "@repo/ui/AnimatedButton";
-import { Eye, EyeOff } from "lucide-react";
-import { IconLock } from "@tabler/icons-react";
+import { Eye, EyeOff, Lock } from "lucide-react";
 
+/**
+ * Validates whether a redirect path is internal to the application to prevent open redirects.
+ * Ensures the path starts with a single slash and does not contain protocol bypass backslashes or double slashes.
+ *
+ * @param path - The target redirect path to validate.
+ * @returns True if the path is an internal relative URL, otherwise false.
+ */
 function isInternalRedirect(path: string): boolean {
   return (
     path.startsWith("/") && !path.startsWith("//") && !path.startsWith("/\\")
   );
 }
 
-/** Filter out non-page paths (assets, manifests, etc.) that should never be redirect targets */
+/**
+ * Filter out non-page paths (assets, manifests, static files, etc.) that should never be redirect targets.
+ * Ensures redirect targets only resolve to internal application route paths.
+ *
+ * @param path - The target redirect path to filter.
+ * @returns True if the path points to a valid internal route page, otherwise false.
+ */
 function isValidPageRedirect(path: string): boolean {
   return (
     isInternalRedirect(path) &&
@@ -25,6 +37,13 @@ function isValidPageRedirect(path: string): boolean {
   );
 }
 
+/**
+ * Maps raw Supabase Auth error messages into user-friendly, localized, and security-hardened error strings.
+ * Discloses generic credential messages instead of revealing account existence, and warns about Caps Lock.
+ *
+ * @param rawMessage - The raw error message returned from the Supabase auth API.
+ * @returns A safe, simplified user-facing error message.
+ */
 function mapAuthError(rawMessage: string): string {
   const lower = rawMessage.toLowerCase();
   if (lower.includes("invalid login")) {
@@ -126,7 +145,7 @@ export function LoginForm() {
       <div className="space-y-2">
         <label
           htmlFor="email"
-          className="block text-sm text-[var(--text-secondary)] transition-colors duration-200"
+          className="block text-sm text-[var(--text-secondary)] transition-colors duration-200 liquid-text-lift"
         >
           Employee ID / Email
         </label>
@@ -139,18 +158,21 @@ export function LoginForm() {
           value={employeeId}
           onChange={(e) => setEmployeeId(e.target.value)}
           variant="login"
-          className="px-4 py-2.5 transition-all duration-200 focus:scale-[1.01]"
+          className="px-4 py-2.5 transition-all duration-200 focus:ring-0 liquid-glass-input"
           placeholder="e.g., admin@arch.os"
           aria-label="Employee ID / Email"
           autoComplete="username"
-          aria-describedby={error ? "login-error" : undefined}
+          aria-describedby={error ? "login-error email-hint" : "email-hint"}
         />
+        <p id="email-hint" className="text-[10px] text-arch-text-tertiary select-none">
+          Your employee ID is on your badge.
+        </p>
       </div>
 
       <div className="space-y-2">
         <label
           htmlFor="password"
-          className="block text-sm text-[var(--text-secondary)] transition-colors duration-200"
+          className="block text-sm text-[var(--text-secondary)] transition-colors duration-200 liquid-text-lift"
         >
           Password
         </label>
@@ -167,7 +189,7 @@ export function LoginForm() {
             onKeyDown={handleCapsLockKey}
             onKeyUp={handleCapsLockKey}
             variant="login"
-            className="px-4 py-2.5 pr-10 transition-all duration-200 focus:scale-[1.01]"
+            className="px-4 py-2.5 pr-10 transition-all duration-200 focus:ring-0 liquid-glass-input"
             placeholder="Enter your password"
             aria-label="Password"
             autoComplete="current-password"
@@ -193,7 +215,7 @@ export function LoginForm() {
             className="flex items-center gap-1.5 text-[11px] text-arch-accent-amber animate-fade-up"
             role="alert"
           >
-            <IconLock className="w-3 h-3" stroke={1.5} />
+            <Lock className="w-3 h-3" strokeWidth={1.5} />
             <span>Caps Lock is on</span>
           </div>
         )}
@@ -219,8 +241,8 @@ export function LoginForm() {
       <AnimatedButton
         type="submit"
         disabled={loading || failedAttempts >= 5}
-        className="w-full"
-        hoverScale={1.02}
+        className="w-full liquid-glass-button"
+        hoverScale={1}
         tapScale={0.97}
       >
         {loading ? "Signing in..." : "Sign In"}
@@ -244,7 +266,7 @@ export function LoginForm() {
               className={`w-3.5 h-3.5 rounded-sm border transition-all duration-150 flex items-center justify-center ${
                 rememberMe
                   ? "bg-arch-accent-blue border-arch-accent-blue"
-                  : "border-arch-border-primary bg-transparent"
+                  : "border-arch-border-emphasis bg-transparent"
               }`}
             >
               {rememberMe && (
@@ -264,13 +286,13 @@ export function LoginForm() {
               )}
             </div>
           </div>
-          <span className="text-xs text-[var(--text-muted)] group-hover:text-[var(--text-secondary)] transition-colors">
+          <span className="text-xs text-[var(--text-muted)] group-hover:text-[var(--text-secondary)] transition-colors liquid-text-lift">
             Remember me
           </span>
         </label>
         <Link
           href="/reset-password"
-          className="text-xs text-[var(--text-muted)] hover:text-[var(--accent-cyan)] transition-colors duration-200"
+          className="text-xs text-[var(--text-muted)] hover:text-[var(--accent-cyan)] transition-colors duration-200 liquid-text-lift"
         >
           Forgot password?
         </Link>

@@ -2,6 +2,7 @@
 
 import { cacheInvalidateTags } from "@repo/redis";
 import { createServerSupabaseClient } from "@repo/supabase/server";
+import { AuthError } from "@repo/errors";
 
 type AuditAction = "insert" | "update" | "delete";
 
@@ -19,12 +20,18 @@ export async function logAuditEvent(input: AuditLogInput) {
 
   const {
     data: { user },
+    error: authError,
   } = await supabase.auth.getUser();
+  if (authError || !user) {
+    throw new AuthError("Unauthorized: valid session required", {
+      context: { operation: "logAuditEvent" },
+    });
+  }
 
   const { data: employee } = await supabase
     .from("employees")
     .select("id")
-    .eq("auth_id", user?.id)
+    .eq("auth_id", user.id)
     .maybeSingle();
 
   await supabase.from("audit_logs").insert({

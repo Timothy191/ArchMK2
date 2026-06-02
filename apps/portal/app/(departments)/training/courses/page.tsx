@@ -1,8 +1,7 @@
-"use client";
-
-import React, { useState } from "react";
 import { GlassCard } from "@repo/ui/GlassCard";
-import { BookOpen, Search, Clock, Users, PlayCircle, Plus } from "lucide-react";
+import { BookOpen, Clock, Users, PlayCircle, Plus } from "lucide-react";
+import { SearchForm } from "../components/SearchForm";
+import { FilterTabs } from "../components/FilterTabs";
 
 interface Course {
   id: number;
@@ -91,17 +90,20 @@ const initialCourses: Course[] = [
   },
 ];
 
-export default function CoursesPage() {
-  const [courses] = useState<Course[]>(initialCourses);
-  const [search, setSearch] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("All");
+export default async function CoursesPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ q?: string; category?: string }>;
+}) {
+  const { q, category } = (await searchParams) ?? {};
 
-  const filteredCourses = courses.filter((c) => {
+  const filteredCourses = initialCourses.filter((c) => {
     const matchesSearch =
-      c.title.toLowerCase().includes(search.toLowerCase()) ||
-      c.description.toLowerCase().includes(search.toLowerCase());
+      !q ||
+      c.title.toLowerCase().includes(q.toLowerCase()) ||
+      c.description.toLowerCase().includes(q.toLowerCase());
     const matchesCategory =
-      selectedCategory === "All" || c.category === selectedCategory;
+      !category || category === "All" || c.category === category;
     return matchesSearch && matchesCategory;
   });
 
@@ -125,33 +127,17 @@ export default function CoursesPage() {
 
       {/* Filters & Search */}
       <GlassCard className="flex flex-col md:flex-row gap-3 items-center justify-between">
-        <div className="relative w-full md:w-80">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-[var(--text-muted)]" />
-          <input
-            type="text"
-            placeholder="Search courses..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-9 w-full h-9 bg-black/[0.02] border border-black/[0.08] rounded-lg text-sm text-[var(--text-heading)] focus:outline-none focus:border-[var(--accent-blue)]"
-          />
-        </div>
-        <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto">
-          {["All", "Safety", "Equipment", "Induction", "Compliance"].map(
-            (cat) => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`text-xs px-3 py-1.5 rounded-lg border font-medium transition-all shrink-0 ${
-                  selectedCategory === cat
-                    ? "bg-black text-white dark:bg-white dark:text-black border-transparent"
-                    : "bg-black/[0.01] hover:bg-black/[0.04] text-[var(--text-secondary)] border-black/[0.08]"
-                }`}
-              >
-                {cat}
-              </button>
-            ),
-          )}
-        </div>
+        <SearchForm
+          value={q}
+          placeholder="Search courses..."
+          hiddenParams={category && category !== "All" ? { category } : {}}
+        />
+        <FilterTabs
+          paramName="category"
+          options={["All", "Safety", "Equipment", "Induction", "Compliance"]}
+          currentValue={category || "All"}
+          hiddenParams={q ? { q } : {}}
+        />
       </GlassCard>
 
       {/* Courses Grid */}

@@ -157,17 +157,17 @@ export function AIAssistantSidebar() {
         <>
           <div
             onClick={closeSidebar}
-            className={`fixed inset-0 bg-arch-surface-primary/60 backdrop-blur-sm z-[60] transition-opacity duration-250 ${
+            className={`fixed inset-0 bg-arch-surface-primary/60 backdrop-blur-sm z-overlay transition-opacity duration-250 ${
               isVisible ? "opacity-100" : "opacity-0 pointer-events-none"
             }`}
           />
           <div
-            className={`fixed top-0 right-0 h-screen w-full max-w-md bg-arch-surface-secondary border-l border-arch-border-subtle z-[70] flex flex-col shadow-window transition-transform duration-250 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+            className={`fixed top-0 right-0 h-screen w-full max-w-md liquid-glass-light rounded-none border-l border-white/40 z-overlay flex flex-col shadow-window transition-transform duration-300 ease-glass ${
               isVisible ? "translate-x-0" : "translate-x-full"
             }`}
           >
             {/* Header */}
-            <div className="p-6 border-b border-arch-border-subtle flex items-center justify-between bg-arch-surface-secondary/80 backdrop-blur-md sticky top-0 z-10">
+            <div className="p-6 border-b border-white/20 flex items-center justify-between bg-transparent sticky top-0 z-10">
               <div className="flex items-center gap-3">
                 <div className="p-2 rounded-lg bg-arch-accent-blue/10 text-arch-accent-blue">
                   <Bot className="w-6 h-6" />
@@ -272,7 +272,7 @@ export function AIAssistantSidebar() {
             </div>
 
             {/* Input Area */}
-            <div className="p-6 border-t border-arch-border-subtle bg-arch-surface-secondary/80 backdrop-blur-md">
+            <div className="p-6 border-t border-white/20 bg-transparent">
               <form
                 onSubmit={(e) => {
                   e.preventDefault();

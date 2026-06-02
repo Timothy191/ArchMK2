@@ -272,25 +272,51 @@ async function callLLMNode(state: AgentState): Promise<Partial<AgentState>> {
       maxTokens: 4096,
     });
 
-    // Collect stream into a single string and build a fake LLMResponse
     let fullText = "";
-    for await (const chunk of streamGen) {
-      fullText += chunk;
-    }
+    let resolveText: (_value: string) => void;
+    const textPromise = new Promise<string>((resolve) => {
+      resolveText = resolve;
+    });
 
-    // Build the response stream once (capture fullText in closure)
+    const iterator = streamGen[Symbol.asyncIterator]();
+
+    // Pipe Ollama chunks to the client with natural backpressure:
+    // `pull()` is called when the client (browser) is ready for more data,
+    // so we only ask Ollama for the next chunk then. No background loop,
+    // no unbounded queue, and cancellation tears down the iterator.
     const streamResponse = new Response(
       new ReadableStream({
-        start(controller) {
-          controller.enqueue(new TextEncoder().encode(`0: ${fullText}\n`));
-          controller.close();
+        async pull(controller) {
+          try {
+            const { value, done } = await iterator.next();
+            if (done) {
+              resolveText(fullText);
+              controller.close();
+              return;
+            }
+            if (value) {
+              fullText += value;
+              controller.enqueue(new TextEncoder().encode(`0: ${value}\n`));
+            }
+          } catch (err) {
+            resolveText(fullText);
+            controller.error(
+              err instanceof Error ? err : new Error(String(err)),
+            );
+          }
+        },
+        cancel() {
+          resolveText(fullText);
+          // Tear down the Ollama iterator so generation stops immediately
+          // when the client disconnects (saves GPU / worker time).
+          iterator.return?.();
         },
       }),
       { headers: { "Content-Type": "text/event-stream" } },
     );
 
     const result: LLMResponse = {
-      text: Promise.resolve(fullText),
+      text: textPromise,
       usage: Promise.resolve({
         inputTokens: 0,
         outputTokens: 0,

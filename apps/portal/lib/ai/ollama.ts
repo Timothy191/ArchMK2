@@ -120,26 +120,34 @@ export async function* ollamaChatStream(
   const decoder = new TextDecoder();
   let buffer = "";
 
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
 
-    buffer += decoder.decode(value, { stream: true });
-    const lines = buffer.split("\n");
-    buffer = lines.pop() ?? "";
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split("\n");
+      buffer = lines.pop() ?? "";
 
-    for (const line of lines) {
-      const trimmed = line.trim();
-      if (!trimmed) continue;
-      try {
-        const chunk = JSON.parse(trimmed);
-        const content = chunk.message?.content;
-        if (content) yield content;
-        if (chunk.done) return;
-      } catch {
-        // skip malformed chunk
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed) continue;
+        try {
+          const chunk = JSON.parse(trimmed);
+          const content = chunk.message?.content;
+          if (content) yield content;
+          if (chunk.done) return;
+        } catch {
+          // skip malformed chunk
+        }
       }
     }
+  } finally {
+    // Ensure the fetch reader is released when the generator is disposed
+    // (e.g. client disconnects and ReadableStream.cancel() calls iterator.return()).
+    reader.cancel().catch(() => {
+      // ignore cancel errors
+    });
   }
 }
 

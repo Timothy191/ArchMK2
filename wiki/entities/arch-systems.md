@@ -78,19 +78,12 @@ Specialized routes:
 - React version divergence: `apps/overview` uses React 18, `apps/portal` uses React 19 — no cross-app component sharing
 - All Tailwind config originates from `@repo/theme` — never add theme values directly in portal
 
-## Phase 4 Roadmap (Post Phase 3)
+## Current Status (Phase 5.1)
 
-All three phases are complete. Next recommended actions in priority order:
+- **Previous milestones:** Foundation → Phase 2 (Safety & Agentic Loop) → Phase 3 (Advanced Agent Infrastructure) — all complete.
+- **Phase 5.1 complete:** Rendering performance optimization — Lenis scroll duration halved (1.2→0.6), backdrop-filter blur reduced (16px→10px), adaptive FPS threshold tightened (45→50 FPS, 3s→1.5s window), rAF pause on tab hide. Light-only macOS Sonoma theme finalized.
 
-| #   | Area                               | Priority | Est.     | Page                       |
-| --- | ---------------------------------- | -------- | -------- | -------------------------- |
-| 1   | On-Premises Server Setup & Cockpit | CRITICAL | 1–2 days | [[on-premises-deployment]] |
-| 2   | Comprehensive Testing & QA         | HIGH     | 1 week   | [[testing-qa-strategy]]    |
-| 3   | Database Optimization & Scaling    | HIGH     | 3–4 days | [[database-optimization]]  |
-| 4   | Mobile Responsiveness & PWA        | MEDIUM   | 1 week   | [[mobile-pwa]]             |
-| 5   | Advanced Analytics & Reporting     | MEDIUM   | 2 weeks  | [[analytics-reporting]]    |
-
-### Current Metrics (Phase 3 Complete)
+### Current Metrics
 
 | Metric                | Value                 |
 | --------------------- | --------------------- |

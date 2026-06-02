@@ -82,7 +82,7 @@ detect_compose_cmd() {
 COMPOSE_CMD=$(detect_compose_cmd)
 
 banner() {
-  clear
+  clear 2>/dev/null || true
   echo
   echo -e "  ${BOLD}${CYAN}    ___    _   _    ___    _   _   ___   _____   ___   ___ ${NC}"
   echo -e "  ${BOLD}${CYAN}   / _ \  | | | |  / __|  | | | | / __| |_   _| | _ \ / __|${NC}"
@@ -228,15 +228,22 @@ clean_dir_cache() {
 
 FORCE_KILL=false
 START_TOOLS=false
+QUICK_MODE=false
 while [ $# -gt 0 ]; do
   case "$1" in
     --force|-f) FORCE_KILL=true; shift ;;
     --tools|-t) START_TOOLS=true; shift ;;
+    --quick|-q) QUICK_MODE=true; shift ;;
     *) shift ;;
   esac
 done
 
 banner
+
+if [ "$QUICK_MODE" = "true" ]; then
+  echo -e "  ${YELLOW}${BOLD}⚡ Quick mode${NC} — skipping Docker/Supabase, starting portal only"
+  echo
+fi
 
 # ── Phase 0: Pre-flight (Cache & Stale Artifacts) ────────
 phase 0 "Pre-flight"
@@ -299,7 +306,6 @@ if [ "$FORCE_RESTART" = "true" ]; then
   clean_dir_cache "$REPO_ROOT/.turbo" "Turborepo cache"
   clean_dir_cache "$REPO_ROOT/.venv" "Python virtual environment (.venv)"
   clean_dir_cache "$REPO_ROOT/.vercel" "Vercel cache (.vercel)"
-  clean_dir_cache "$REPO_ROOT/.vscode" "VS Code settings (.vscode)"
   
   if [ -f "$REPO_ROOT/skills-lock.json" ]; then
     rm -f "$REPO_ROOT/skills-lock.json"
@@ -336,33 +342,37 @@ env_pass=true
 node -v > /dev/null 2>&1 && check "Node.js" "pass" "$(node -v)" || { check "Node.js" "fail"; env_pass=false; }
 pnpm -v > /dev/null 2>&1 && check "pnpm" "pass" "$(pnpm -v)" || { check "pnpm" "fail"; env_pass=false; }
 
-# 1a. Check & Fix Docker
-if ! docker info > /dev/null 2>&1; then
-  echo -e "  ${INFO} Docker is not running. Attempting to start docker..."
-  local started=false
-  if [[ "$OSTYPE" == "darwin"* ]]; then
-    open -a Docker >/dev/null 2>&1 || true
-    for i in {1..15}; do
-      if docker info >/dev/null 2>&1; then
-        started=true
-        break
-      fi
-      sleep 1
-    done
-  elif [[ "$OSTYPE" == "linux-gnu"* ]] || [[ "$OSTYPE" == "linux"* ]]; then
-    if command -v systemctl >/dev/null 2>&1 && sudo systemctl start docker >/dev/null 2>&1; then
-      started=true
-    fi
-  fi
-  
-  if [ "$started" = "true" ] && docker info >/dev/null 2>&1; then
-    check "Docker" "pass" "started successfully"
-  else
-    check "Docker" "fail" "could not be started automatically — please start Docker Desktop manually."
-    env_pass=false
-  fi
+# 1a. Check & Fix Docker (skip in quick mode)
+if [ "$QUICK_MODE" = "true" ]; then
+  check "Docker" "skip" "quick mode"
 else
-  check "Docker" "pass"
+  if ! docker info > /dev/null 2>&1; then
+    echo -e "  ${INFO} Docker is not running. Attempting to start docker..."
+    local started=false
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+      open -a Docker >/dev/null 2>&1 || true
+      for i in {1..15}; do
+        if docker info >/dev/null 2>&1; then
+          started=true
+          break
+        fi
+        sleep 1
+      done
+    elif [[ "$OSTYPE" == "linux-gnu"* ]] || [[ "$OSTYPE" == "linux"* ]]; then
+      if command -v systemctl >/dev/null 2>&1 && sudo systemctl start docker >/dev/null 2>&1; then
+        started=true
+      fi
+    fi
+
+    if [ "$started" = "true" ] && docker info >/dev/null 2>&1; then
+      check "Docker" "pass" "started successfully"
+    else
+      check "Docker" "fail" "could not be started automatically — please start Docker Desktop manually."
+      env_pass=false
+    fi
+  else
+    check "Docker" "pass"
+  fi
 fi
 
 # 1b. Check & Fix Port Conflicts
@@ -416,10 +426,14 @@ check_and_fix_port() {
   fi
 }
 
-check_and_fix_port 5432 "PostgreSQL" "postgresql"
-check_and_fix_port 6379 "Redis" "redis-server"
-check_and_fix_port 54321 "Supabase API" ""
-check_and_fix_port 8000 "Kong Gateway" ""
+if [ "$QUICK_MODE" = "true" ]; then
+  check_and_fix_port "$PORT" "Next.js portal" ""
+else
+  check_and_fix_port 5432 "PostgreSQL" "postgresql"
+  check_and_fix_port 6379 "Redis" "redis-server"
+  check_and_fix_port 54321 "Supabase API" ""
+  check_and_fix_port 8000 "Kong Gateway" ""
+fi
 
 # 1c. Check & Fix Environment files
 if [ ! -f "$REPO_ROOT/apps/portal/.env" ] && [ ! -f "$REPO_ROOT/apps/portal/.env.local" ]; then
@@ -448,66 +462,73 @@ fi
 [ "$env_pass" = false ] && { echo -e "\n  ${RED}Environment checks failed. Aborting.${NC}\n"; exit 1; }
 
 # ── Phase 2: Infrastructure (Supabase) ───────────────────
-phase 2 "Infrastructure"
-
-if curl -fs "http://127.0.0.1:54321/rest/v1/" > /dev/null 2>&1; then
-  check "Supabase API" "pass" "http://localhost:54321"
+if [ "$QUICK_MODE" = "true" ]; then
+  phase 2 "Infrastructure"
+  check "Supabase API" "skip" "quick mode"
+  check "Database" "skip" "quick mode"
+  check "Studio" "skip" "quick mode"
 else
-  echo -e "  ${INFO} Starting Supabase (Docker)..."
-  cd "$REPO_ROOT/packages/database"
-  mkdir -p "$REPO_ROOT/packages/supabase/supabase/migrations"
-  cp -r migrations/* "$REPO_ROOT/packages/supabase/supabase/migrations/" 2>/dev/null || true
-  pnpx supabase start > /dev/null 2>&1 &
-  SUPAPID=$!
-  spinner "$SUPAPID" "Booting Supabase containers"
-  cd "$REPO_ROOT"
-  if wait_for "http://127.0.0.1:54321/rest/v1/" "Supabase API" 30; then
+  phase 2 "Infrastructure"
+
+  if curl -fs "http://127.0.0.1:54321/rest/v1/" > /dev/null 2>&1; then
     check "Supabase API" "pass" "http://localhost:54321"
   else
-    check "Supabase API" "fail" "timed out — check 'docker ps'"
-    exit 1
+    echo -e "  ${INFO} Starting Supabase (Docker)..."
+    cd "$REPO_ROOT/packages/database"
+    mkdir -p "$REPO_ROOT/packages/supabase/supabase/migrations"
+    cp -r migrations/* "$REPO_ROOT/packages/supabase/supabase/migrations/" 2>/dev/null || true
+    pnpx supabase start > /dev/null 2>&1 &
+    SUPAPID=$!
+    spinner "$SUPAPID" "Booting Supabase containers"
+    cd "$REPO_ROOT"
+    if wait_for "http://127.0.0.1:54321/rest/v1/" "Supabase API" 30; then
+      check "Supabase API" "pass" "http://localhost:54321"
+    else
+      check "Supabase API" "fail" "timed out — check 'docker ps'"
+      exit 1
+    fi
   fi
-fi
 
-# Verify database connection
-if curl -fs "http://127.0.0.1:54321/rest/v1/" -o /dev/null -w "%{http_code}" 2>/dev/null | grep -q 200; then
-  check "Database" "pass" "Postgres responding"
-else
-  check "Database" "warn" "API up but unexpected response"
-fi
-
-# 2b. Optional Tools
-if [ "$START_TOOLS" = "true" ]; then
-  if [ -f "$REPO_ROOT/docker-compose.tools.yml" ]; then
-    echo -e "  ${INFO} Starting Docker Tools..."
-    $COMPOSE_CMD -f "$REPO_ROOT/docker-compose.tools.yml" up -d > /dev/null 2>&1
-    
-    local services=("plantcor-redis" "plantcor-n8n" "plantcor-flowise" "plantcor-langfuse-db" "plantcor-langfuse" "plantcor-qdrant")
-    for service in "${services[@]}"; do
-      printf "  ${CYAN}⏳${NC} Gating on $service health... "
-      local attempts=0
-      while [ $attempts -lt 30 ]; do
-        local status
-        status=$(docker inspect --format='{{.State.Health.Status}}' "$service" 2>/dev/null || echo "starting")
-        if [ "$status" = "healthy" ]; then
-          echo -e "${GREEN}healthy${NC}"
-          break
-        fi
-        sleep 2
-        ((attempts++))
-      done
-      if [ $attempts -eq 30 ]; then
-        echo -e "${YELLOW}timeout (continuing)${NC}"
-      fi
-    done
-    check "Docker Tools" "pass" "booted"
+  # Verify database connection
+  if curl -fs "http://127.0.0.1:54321/rest/v1/" -o /dev/null -w "%{http_code}" 2>/dev/null | grep -q 200; then
+    check "Database" "pass" "Postgres responding"
   else
-    check "Docker Tools" "skip" "compose file missing"
+    check "Database" "warn" "API up but unexpected response"
   fi
-fi
 
-# Studio check
-curl -fs "http://127.0.0.1:54323" > /dev/null 2>&1 && check "Studio" "pass" "http://localhost:54323" || check "Studio" "skip" "not required"
+  # 2b. Optional Tools
+  if [ "$START_TOOLS" = "true" ]; then
+    if [ -f "$REPO_ROOT/docker-compose.tools.yml" ]; then
+      echo -e "  ${INFO} Starting Docker Tools..."
+      $COMPOSE_CMD -f "$REPO_ROOT/docker-compose.tools.yml" up -d > /dev/null 2>&1
+
+      local services=("plantcor-redis" "plantcor-n8n" "plantcor-flowise" "plantcor-langfuse-db" "plantcor-langfuse" "plantcor-qdrant")
+      for service in "${services[@]}"; do
+        printf "  ${CYAN}⏳${NC} Gating on $service health... "
+        local attempts=0
+        while [ $attempts -lt 30 ]; do
+          local status
+          status=$(docker inspect --format='{{.State.Health.Status}}' "$service" 2>/dev/null || echo "starting")
+          if [ "$status" = "healthy" ]; then
+            echo -e "${GREEN}healthy${NC}"
+            break
+          fi
+          sleep 2
+          ((attempts++))
+        done
+        if [ $attempts -eq 30 ]; then
+          echo -e "${YELLOW}timeout (continuing)${NC}"
+        fi
+      done
+      check "Docker Tools" "pass" "booted"
+    else
+      check "Docker Tools" "skip" "compose file missing"
+    fi
+  fi
+
+  # Studio check
+  curl -fs "http://127.0.0.1:54323" > /dev/null 2>&1 && check "Studio" "pass" "http://localhost:54323" || check "Studio" "skip" "not required"
+fi
 
 # ── Phase 3: Portal (Start + Wait) ────────────────────────
 phase 3 "Portal"
@@ -569,7 +590,9 @@ else
 fi
 
 # 4d. Supabase RLS / anon key check
-if [ -n "${SUPABASE_ANON_KEY:-}" ] || grep -q 'SUPABASE_ANON_KEY' "$REPO_ROOT/.env" 2>/dev/null; then
+if [ "$QUICK_MODE" = "true" ]; then
+  check "Auth config" "skip" "quick mode"
+elif [ -n "${SUPABASE_ANON_KEY:-}" ] || grep -q 'SUPABASE_ANON_KEY' "$REPO_ROOT/.env" 2>/dev/null; then
   check "Auth config" "pass" "anon key present"
 else
   check "Auth config" "warn" "no SUPABASE_ANON_KEY in .env"

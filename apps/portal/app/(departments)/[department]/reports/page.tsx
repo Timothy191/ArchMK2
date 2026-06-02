@@ -198,7 +198,7 @@ export default async function ReportsPage({
       return (
         <div className="space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-medium text-[var(--text-heading)]">
+            <h2 className="text-2xl font-bold text-[var(--text-heading)]">
               Reports
             </h2>
           </div>
@@ -254,7 +254,7 @@ export default async function ReportsPage({
     return (
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-medium text-[var(--text-heading)]">
+          <h2 className="text-2xl font-bold text-[var(--text-heading)]">
             Reports
           </h2>
           <div className="flex items-center gap-2">
@@ -525,7 +525,7 @@ export default async function ReportsPage({
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-medium text-[var(--text-heading)]">
+        <h2 className="text-2xl font-bold text-[var(--text-heading)]">
           Reports
         </h2>
         <div className="flex items-center gap-2">

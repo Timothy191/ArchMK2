@@ -97,15 +97,7 @@ export const tokens = {
     sm: "var(--shadow-sm)",
     md: "var(--shadow-md)",
   },
-  radius: {
-    sm: "var(--radius-sm)",
-    md: "var(--radius-md)",
-    lg: "var(--radius-lg)",
-    xl: "var(--radius-xl)",
-    card: "var(--radius-card)",
-    button: "var(--radius-button)",
-    full: "var(--radius-full)",
-  },
+  radius: {},
   wave: {
     intensity: "0.2",
     speedMult: "0.5",

@@ -23,13 +23,13 @@ Direct, industrial, functional. No marketing fluff. Labels are terse ("Hourly Lo
 - Not a generic admin dashboard template. No identical card grids with icon + heading + text repeated endlessly.
 - Not a terminal-native dark mode. We are not chasing the "engineering tool" aesthetic reflex of pure green-on-black or monospace-everything.
 - Not glassmorphism-heavy. Glass cards are not the default; use only where they genuinely improve hierarchy.
-- Not a light-themed office app. Mining control rooms run in low-light conditions; the interface is dark by default.
+- Dark mode does not exist. The product is macOS Sonoma-inspired: light-only, white/glass surfaces, soft shadows.
 
 ## Strategy
 
 - **Register**: product (design serves the product; this is a tool, not a brand experience).
-- **Color strategy**: Restrained. Tinted neutrals + one functional accent ≤10%. Mining is dirty, physical, heavy; the UI should feel controlled and calm by contrast.
-- **Theme**: Dark. Scene: an operator sits in a dimly lit control room at 2 AM, multiple screens glowing, monitoring heavy equipment across a vast pit. Ambient light is minimal; the screen must not blast their night-adapted eyes. Mood: focused vigilance.
+- **Color strategy**: Restrained. Tinted neutrals + one functional accent ≤10%. macOS Sonoma-inspired light palette. Glass cards with white/70 backdrop, backdrop-blur, and delicate borders use the `shadow-window` / `shadow-card` / `shadow-diffusion-*` token suite. Mining is dirty, physical, heavy; the UI should feel clean and calm by contrast.
+- **Theme**: Light-only. No dark mode. Scene: a manager reviews daily operations at a standing desk in a bright field office mid-morning. Sunlight through windows, whiteboard on the wall, tablets and monitors showing real-time pit data. The screen must be legible in all ambient lighting conditions — direct sun, overcast, and twilight. Mood: operational clarity.
 - **Information density**: High. Tables, grids, forms, and maps dominate. White space is a luxury we use sparingly and deliberately.
 - **Interaction model**: Tab-based department navigation. Sidebar for sub-tabs. Most actions are inline or form-based; modals are a last resort.
 - **Motion**: Minimal, purposeful. Transitions that orient the user (page changes, tab switches), not decoration. No bounce, no elastic.

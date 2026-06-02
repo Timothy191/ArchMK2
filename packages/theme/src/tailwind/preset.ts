@@ -229,7 +229,8 @@ const archTheme: Config = {
         "focus-dim": "var(--blur-focus-dim)",
       },
       backdropBlur: {
-        xl: "var(--blur-focus-dim)",
+        xl: "24px",
+        "focus-dim": "var(--blur-focus-dim)",
       },
       boxShadow: {
         sm: "var(--shadow-sm)",
@@ -241,6 +242,8 @@ const archTheme: Config = {
         "diffusion-md": "var(--shadow-diffusion-md)",
         "diffusion-lg": "var(--shadow-diffusion-lg)",
         "diffusion-xl": "var(--shadow-diffusion-xl)",
+        "diffusion-cyan":
+          "0 0 20px rgba(0, 122, 255, 0.18), 0 0 60px rgba(0, 122, 255, 0.06)",
         card: "var(--shadow-card)",
         "card-hover": "var(--shadow-card-hover)",
         elevated: "var(--shadow-elevated)",
@@ -252,6 +255,19 @@ const archTheme: Config = {
           "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)",
         "tremor-dropdown":
           "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
+        // Custom volumetric glass shadows
+        "glass-depth":
+          "0 1px 2px rgba(0,0,0,0.02), 0 4px 12px rgba(0,0,0,0.03), 0 12px 32px rgba(0,0,0,0.03), 0 20px 48px rgba(0,0,0,0.04), inset 0 0.5px 0 rgba(255,255,255,0.7)",
+        "glass-depth-hover":
+          "0 2px 4px rgba(0,0,0,0.02), 0 6px 16px rgba(0,0,0,0.04), 0 16px 40px rgba(0,0,0,0.04), 0 28px 64px rgba(0,0,0,0.05), inset 0 0.5px 0 rgba(255,255,255,0.7), inset 0 -0.5px 0 rgba(255,255,255,0.15)",
+        "glass-depth-active":
+          "0 1px 2px rgba(0,0,0,0.02), 0 2px 6px rgba(0,0,0,0.03), 0 6px 16px rgba(0,0,0,0.03), 0 10px 24px rgba(0,0,0,0.04), inset 0 0.5px 0 rgba(255,255,255,0.7), inset 0 -0.5px 0 rgba(255,255,255,0.15)",
+        "liquid-depth-hover":
+          "0 4px 6px -1px rgba(0,0,0,0.01), 0 24px 48px -8px rgba(0,0,0,0.03), 0 48px 96px -12px rgba(0,0,0,0.05)",
+      },
+      transitionTimingFunction: {
+        glass: "cubic-bezier(0.2, 0, 0, 1)",
+        "liquid-inertia": "cubic-bezier(0.25, 1.15, 0.45, 1)",
       },
       fontSize: {
         "tremor-label": ["0.75rem", { lineHeight: "1rem" }],
@@ -264,6 +280,7 @@ const archTheme: Config = {
         md: "var(--radius-md)",
         lg: "var(--radius-lg)",
         xl: "var(--radius-xl)",
+        card: "var(--radius-card)",
         full: "var(--radius-full)",
       },
       keyframes: {
@@ -324,6 +341,34 @@ const archTheme: Config = {
           "50%": { transform: "translate(-15px, -40px)" },
           "75%": { transform: "translate(20px, -60px)" },
         },
+        "liquid-swell": {
+          "0%, 100%": { borderRadius: "20px" },
+          "50%": { borderRadius: "24px 18px 26px 16px" },
+        },
+        "liquid-sheen": {
+          "0%": { transform: "translate3d(-100%, -100%, 0) rotate(25deg)" },
+          "100%": { transform: "translate3d(100%, 100%, 0) rotate(25deg)" },
+        },
+        "mercury-flow": {
+          "0%, 100%": {
+            transform: "translate3d(0, 0, 0) scale(1)",
+            filter: "saturate(1)",
+          },
+          "50%": {
+            transform: "translate3d(1px, -2px, 0) scale(1.02)",
+            filter: "saturate(1.15)",
+          },
+        },
+        "status-glow-pulse": {
+          "0%, 100%": {
+            boxShadow:
+              "0 0 8px rgba(0, 122, 255, 0.2), inset 0 0 4px rgba(0, 122, 255, 0.1)",
+          },
+          "50%": {
+            boxShadow:
+              "0 0 20px rgba(0, 122, 255, 0.6), inset 0 0 10px rgba(0, 122, 255, 0.3)",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -339,6 +384,10 @@ const archTheme: Config = {
         float: "float 15s ease-in-out infinite",
         "window-open": "window-open 0.25s cubic-bezier(0.16, 1, 0.3, 1) both",
         "traffic-pulse": "traffic-pulse 2s ease-in-out infinite",
+        "liquid-swell": "liquid-swell 8s ease-in-out infinite",
+        "liquid-sheen": "liquid-sheen 6s cubic-bezier(0.2, 0, 0, 1) infinite",
+        "mercury-flow": "mercury-flow 12s ease-in-out infinite",
+        "status-glow": "status-glow-pulse 3s ease-in-out infinite",
       },
     },
   },

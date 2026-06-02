@@ -142,50 +142,6 @@
     }
   }
 
-  /* ── Wave Canvas (RouteBackground) ── */
-  @keyframes wave-canvas-drift-a {
-    0%,
-    100% {
-      transform: translate3d(0, 0, 0) scale(1);
-      opacity: 0.55;
-    }
-    35% {
-      transform: translate3d(8%, 6%, 0) scale(1.1);
-      opacity: 0.75;
-    }
-    70% {
-      transform: translate3d(-4%, 10%, 0) scale(0.92);
-      opacity: 0.5;
-    }
-  }
-
-  @keyframes wave-canvas-drift-b {
-    0%,
-    100% {
-      transform: translate3d(0, 0, 0) scale(1.05);
-      opacity: 0.4;
-    }
-    40% {
-      transform: translate3d(-6%, -8%, 0) scale(0.95);
-      opacity: 0.6;
-    }
-    80% {
-      transform: translate3d(5%, -5%, 0) scale(1.08);
-      opacity: 0.35;
-    }
-  }
-
-  @keyframes wave-canvas-drift-c {
-    0%,
-    100% {
-      transform: translate3d(0, 0, 0) scale(1);
-      opacity: 0.3;
-    }
-    50% {
-      transform: translate3d(10%, -12%, 0) scale(1.15);
-      opacity: 0.5;
-    }
-  }
 }
 
 @layer utilities {
@@ -320,26 +276,26 @@
      FOCUS MODE — dark atmospheric theme (active over focused.jpeg)
      All tokens shift to dark glass palette so every surface reads cleanly
      against the blue-grey atmospheric background image.
+     ──────────────────────────────────────────────────────────────────────
+     Cosmetic overrides (background, border, color, box-shadow, animation,
+     backdrop-filter) use `:is()` to boost specificity instead of !important.
+     !important is kept only for layout properties (display).
      ══════════════════════════════════════════════════════════════════════ */
-  body.focus-mode {
-    /* Surface tokens — deep dark translucent glass */
-    --bg-primary: rgba(18, 22, 32, 0); /* transparent — show the image */
+  :is(body.focus-mode) {
+    --bg-primary: rgba(18, 22, 32, 0);
     --bg-secondary: rgba(20, 26, 40, 0.55);
     --bg-tertiary: rgba(24, 30, 46, 0.65);
 
-    /* Text tokens — bright for dark background legibility */
     --text-heading: rgba(255, 255, 255, 0.96);
     --text-primary: rgba(255, 255, 255, 0.9);
     --text-body: rgba(255, 255, 255, 0.82);
     --text-secondary: rgba(220, 228, 245, 0.72);
     --text-muted: rgba(180, 195, 220, 0.55);
 
-    /* Border tokens — subtle white edge for dark glass */
     --border-default: rgba(255, 255, 255, 0.12);
     --border-subtle: rgba(255, 255, 255, 0.07);
     --border-emphasis: rgba(255, 255, 255, 0.2);
 
-    /* Glass surface tokens (used by .glass, .glass-card, etc.) */
     --glass-surface: rgba(20, 28, 45, 0.5);
     --glass-surface-hover: rgba(24, 34, 56, 0.62);
     --glass-border: rgba(255, 255, 255, 0.1);
@@ -349,133 +305,133 @@
       inset 0 1px 0 rgba(255, 255, 255, 0.1);
     --text-on-glass: rgba(255, 255, 255, 0.9);
 
-    /* Vibrancy sidebar */
     --vibrancy-surface: rgba(15, 20, 35, 0.6);
 
-    /* Accent — keep sky-blue accent, but slightly more vivid over dark */
     --accent-blue: #4da6ff;
     --accent-blue-hover: #67b8ff;
   }
 
-  /* ── Taskbar — dark frosted glass over focused image ── */
-  body.focus-mode .fixed.z-\[100\] {
-    background: rgba(12, 16, 28, 0.72) !important;
-    border-bottom-color: rgba(255, 255, 255, 0.08) !important;
-    -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-    backdrop-filter: blur(24px) saturate(180%) !important;
+  :is(body.focus-mode) .fixed.z-\[100\],
+  :is(body.focus-mode) .fixed.z-navigation,
+  :is(body.focus-mode) .z-navigation {
+    background: rgba(12, 16, 28, 0.72);
+    border-color: rgba(255, 255, 255, 0.08);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    backdrop-filter: blur(24px) saturate(180%);
   }
 
-  /* ── Dropdown menus — match dark theme ── */
-  body.focus-mode [data-radix-popper-content-wrapper] [role="menu"],
-  body.focus-mode .bg-white\/95 {
-    background: rgba(16, 20, 36, 0.88) !important;
-    border-color: rgba(255, 255, 255, 0.1) !important;
-    -webkit-backdrop-filter: blur(32px) saturate(200%) !important;
-    backdrop-filter: blur(32px) saturate(200%) !important;
-    color: rgba(255, 255, 255, 0.9) !important;
+  :is(body.focus-mode) .z-navigation button.bg-white {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.12);
   }
 
-  /* ── Glass cards over dark image — keep blur, increase contrast ── */
-  body.focus-mode [class*="backdrop-blur"] {
-    /* RESTORE blur — it's critical for glass-over-dark aesthetics */
-    -webkit-backdrop-filter: blur(20px) saturate(160%) !important;
-    backdrop-filter: blur(20px) saturate(160%) !important;
+  :is(body.focus-mode) .z-navigation button:hover,
+  :is(body.focus-mode) .z-navigation a:hover,
+  :is(body.focus-mode) .z-navigation [data-state="open"] {
+    background-color: rgba(255, 255, 255, 0.08);
   }
 
-  /* ── Surface backgrounds — shift to dark translucent glass ── */
-  body.focus-mode .bg-white\/70,
-  body.focus-mode .bg-white\/80,
-  body.focus-mode .bg-white\/90,
-  body.focus-mode .bg-white\/95 {
-    background-color: rgba(16, 22, 38, 0.65) !important;
+  :is(body.focus-mode) [data-radix-popper-content-wrapper] [role="menu"],
+  :is(body.focus-mode) .bg-white\/95 {
+    background: rgba(16, 20, 36, 0.88);
+    border-color: rgba(255, 255, 255, 0.1);
+    -webkit-backdrop-filter: blur(32px) saturate(200%);
+    backdrop-filter: blur(32px) saturate(200%);
+    color: rgba(255, 255, 255, 0.9);
   }
 
-  body.focus-mode .bg-black\/\[0\.01\],
-  body.focus-mode .bg-black\/\[0\.02\] {
-    background-color: rgba(255, 255, 255, 0.02) !important;
+  :is(body.focus-mode) [class*="backdrop-blur"] {
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    backdrop-filter: blur(20px) saturate(160%);
   }
 
-  /* ── Borders — flip to white/subtle for dark backgrounds ── */
-  body.focus-mode .border-black\/\[0\.06\],
-  body.focus-mode .border-black\/\[0\.08\] {
-    border-color: rgba(255, 255, 255, 0.08) !important;
+  :is(body.focus-mode) .bg-white\/70,
+  :is(body.focus-mode) .bg-white\/80,
+  :is(body.focus-mode) .bg-white\/90,
+  :is(body.focus-mode) .bg-white\/95 {
+    background-color: rgba(16, 22, 38, 0.65);
   }
 
-  body.focus-mode .border-black\/\[0\.04\] {
-    border-color: rgba(255, 255, 255, 0.05) !important;
+  :is(body.focus-mode) .bg-black\/\[0\.01\],
+  :is(body.focus-mode) .bg-black\/\[0\.02\] {
+    background-color: rgba(255, 255, 255, 0.02);
   }
 
-  /* ── Hover backgrounds — lighter for dark mode ── */
-  body.focus-mode .hover\:bg-black\/\[0\.04\]:hover {
-    background-color: rgba(255, 255, 255, 0.06) !important;
+  :is(body.focus-mode) .border-black\/\[0\.06\],
+  :is(body.focus-mode) .border-black\/\[0\.08\] {
+    border-color: rgba(255, 255, 255, 0.08);
   }
 
-  body.focus-mode .hover\:bg-black\/10:hover,
-  body.focus-mode [data-state="open"].data-\[state\=open\]\:bg-black\/10 {
-    background-color: rgba(255, 255, 255, 0.1) !important;
+  :is(body.focus-mode) .border-black\/\[0\.04\] {
+    border-color: rgba(255, 255, 255, 0.05);
   }
 
-  /* ── Separators ── */
-  body.focus-mode .bg-black\/\[0\.06\] {
-    background-color: rgba(255, 255, 255, 0.08) !important;
+  :is(body.focus-mode) .hover\:bg-black\/\[0\.04\]:hover {
+    background-color: rgba(255, 255, 255, 0.06);
   }
 
-  /* ── Text colour overrides for hard-coded classes ── */
-  body.focus-mode .text-\[var\(--text-heading\)\] {
-    color: rgba(255, 255, 255, 0.96) !important;
-  }
-  body.focus-mode .text-\[var\(--text-secondary\)\],
-  body.focus-mode .text-\[var\(--text-body\)\] {
-    color: rgba(220, 228, 245, 0.75) !important;
-  }
-  body.focus-mode .text-\[var\(--text-muted\)\] {
-    color: rgba(180, 195, 220, 0.5) !important;
+  :is(body.focus-mode) .hover\:bg-black\/10:hover,
+  :is(body.focus-mode) [data-state="open"].data-\[state\=open\]\:bg-black\/10 {
+    background-color: rgba(255, 255, 255, 0.1);
   }
 
-  /* ── Decorative animations — silence in focus mode ── */
-  body.focus-mode .animate-fade-up,
-  body.focus-mode .animate-pulse {
-    animation: none !important;
+  :is(body.focus-mode) .bg-black\/\[0\.06\] {
+    background-color: rgba(255, 255, 255, 0.08);
   }
 
-  body.focus-mode .aurora-shadow::after {
-    animation: none !important;
-    box-shadow: none !important;
+  :is(body.focus-mode) .text-\[var\(--text-heading\)\] {
+    color: rgba(255, 255, 255, 0.96);
+  }
+  :is(body.focus-mode) .text-\[var\(--text-secondary\)\],
+  :is(body.focus-mode) .text-\[var\(--text-body\)\] {
+    color: rgba(220, 228, 245, 0.75);
+  }
+  :is(body.focus-mode) .text-\[var\(--text-muted\)\] {
+    color: rgba(180, 195, 220, 0.5);
   }
 
-  body.focus-mode .caustic-glow-optimal,
-  body.focus-mode .caustic-glow-warning,
-  body.focus-mode .caustic-glow-critical {
-    animation: none !important;
-    background: none !important;
+  :is(body.focus-mode) .animate-fade-up,
+  :is(body.focus-mode) .animate-pulse {
+    animation: none;
   }
 
-  body.focus-mode [class*="motion-reduce:hidden"] {
+  :is(body.focus-mode) .aurora-shadow::after {
+    animation: none;
+    box-shadow: none;
+  }
+
+  :is(body.focus-mode) .caustic-glow-optimal,
+  :is(body.focus-mode) .caustic-glow-warning,
+  :is(body.focus-mode) .caustic-glow-critical {
+    animation: none;
+    background: none;
+  }
+
+  :is(body.focus-mode) [class*="motion-reduce:hidden"] {
     display: none !important;
   }
 
-  /* ── Shadows — deeper for dark glass cards ── */
-  body.focus-mode .shadow-window,
-  body.focus-mode .shadow-diffusion-sm,
-  body.focus-mode .shadow-card {
+  :is(body.focus-mode) .shadow-window,
+  :is(body.focus-mode) .shadow-diffusion-sm,
+  :is(body.focus-mode) .shadow-card {
     box-shadow:
       0 8px 32px -4px rgba(0, 0, 0, 0.55),
-      inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
   }
 
   /* stylelint-disable selector-class-pattern */
-  body.focus-mode .bg-arch-surface-secondary\/85,
-  body.focus-mode .bg-arch-surface-secondary\/70,
-  body.focus-mode .bg-arch-surface-secondary\/50,
-  body.focus-mode .bg-arch-surface-tertiary\/40,
-  body.focus-mode .bg-arch-surface-tertiary\/50,
-  body.focus-mode .bg-arch-surface-tertiary\/60 {
-    background-color: rgba(20, 28, 45, 0.6) !important;
+  :is(body.focus-mode) .bg-arch-surface-secondary\/85,
+  :is(body.focus-mode) .bg-arch-surface-secondary\/70,
+  :is(body.focus-mode) .bg-arch-surface-secondary\/50,
+  :is(body.focus-mode) .bg-arch-surface-tertiary\/40,
+  :is(body.focus-mode) .bg-arch-surface-tertiary\/50,
+  :is(body.focus-mode) .bg-arch-surface-tertiary\/60 {
+    background-color: rgba(20, 28, 45, 0.6);
   }
 
-  body.focus-mode .hover\:bg-arch-surface-secondary\/50:hover,
-  body.focus-mode .hover\:bg-arch-surface-tertiary:hover {
-    background-color: rgba(24, 34, 56, 0.75) !important;
+  :is(body.focus-mode) .hover\:bg-arch-surface-secondary\/50:hover,
+  :is(body.focus-mode) .hover\:bg-arch-surface-tertiary:hover {
+    background-color: rgba(24, 34, 56, 0.75);
   }
   /* stylelint-enable selector-class-pattern */
 }

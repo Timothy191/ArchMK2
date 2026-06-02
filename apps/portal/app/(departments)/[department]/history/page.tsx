@@ -119,7 +119,7 @@ export default async function HistoryPage({
     return (
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-medium text-[var(--text-heading)]">
+          <h2 className="text-2xl font-bold text-[var(--text-heading)]">
             Shift History
           </h2>
           <Link
@@ -183,12 +183,15 @@ export default async function HistoryPage({
                       </td>
                       <td className="px-6 py-4">
                         <span
-                          className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${
+                          className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2 py-0.5 rounded-full border ${
                             ss.status === "closed"
-                              ? "bg-accent-green/10 text-accent-green border border-accent-green/20"
-                              : "bg-yellow-500/10 text-yellow-400 border border-yellow-500/20"
+                              ? "bg-emerald-50/70 border-emerald-200/50 text-emerald-700"
+                              : "bg-amber-50/70 border-amber-200/50 text-amber-700"
                           }`}
                         >
+                          {ss.status === "closed" && (
+                            <span className="badge-pulse-dot bg-emerald-500" />
+                          )}
                           {ss.status}
                         </span>
                       </td>
@@ -251,7 +254,7 @@ export default async function HistoryPage({
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-medium text-[var(--text-heading)]">
+        <h2 className="text-2xl font-bold text-[var(--text-heading)]">
           History
         </h2>
         <Link

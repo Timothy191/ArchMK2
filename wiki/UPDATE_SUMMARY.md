@@ -283,4 +283,28 @@ Total: 52 pages, 2,546 lines of documentation
 
 ---
 
+---
+
+## Performance Optimization — 2026-06-01
+
+**Session:** Root-caused and fixed blurry rendering across the entire portal.
+
+### Changes
+
+| File | Change | Impact |
+|---|---|---|
+| `apps/portal/components/SmoothScrollProvider.tsx` | Lenis `duration: 1.2` → `0.6` | Half the scroll animation lag |
+| `apps/portal/components/SmoothScrollProvider.tsx` | Added `visibilitychange` listener to pause rAF when tab hidden | Saves GPU cycles when not visible |
+| `packages/theme/src/css/glass.css` | `.glass` blur(16px)→blur(10px), saturate(160%)→saturate(130%) | ~40% cheaper backdrop-filter |
+| `packages/theme/src/css/glass.css` | `.glass-card` blur(12px)→blur(10px), 130%→120% | Consistent with base glass |
+| `packages/theme/src/css/variables.css` | `--glass-video-backdrop` blur(24px)→blur(16px) | Heaviest variant reduced |
+| `packages/theme/src/css/variables.css` | `--glass-premium-backdrop` blur(24px)→blur(16px) | Premium surfaces reduced |
+| `apps/portal/hooks/useAdaptivePerformance.ts` | Fallback threshold 45→50 FPS, window 3s→1.5s | Degrades sooner, before user notices |
+
+### Verification
+
+- 51 test suites / 480 tests pass
+- Lint: 0 errors
+- TypeScript: 0 errors
+
 **Summary:** Wiki has been updated to reflect current project status (Phase 3 complete), schema enhancements finalized, and new resources added for git history visualization and graph-based analysis. All completed tasks have been marked and removed from pending lists. Total documentation now covers 52 pages across all project areas.

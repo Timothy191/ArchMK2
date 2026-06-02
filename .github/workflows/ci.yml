@@ -47,7 +47,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20.17.0
+          node-version: 22
           cache: pnpm
 
       - name: Turborepo Cache
@@ -75,6 +75,9 @@ jobs:
 
       - name: Lint & Type Check
         run: pnpm turbo run lint type-check
+
+      - name: Token & CSS Lint
+        run: pnpm turbo run lint:tokens lint:css
 
       - name: Test with Coverage
         run: pnpm test -- --coverage --passWithNoTests

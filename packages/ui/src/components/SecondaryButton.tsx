@@ -30,7 +30,7 @@ const SecondaryButton = forwardRef<HTMLButtonElement, SecondaryButtonProps>(
         className={cn(
           variant === "rounded-lg" ? "rounded-lg" : "rounded-full",
           size === "sm" ? "px-4 py-2" : "px-6 py-2.5",
-          "bg-[var(--bg-primary)] text-[var(--text-heading)] text-sm font-medium border border-[var(--border-default)] hover:bg-[var(--bg-tertiary)] transition-colors disabled:opacity-50",
+          "bg-white/80 text-[var(--text-heading)] text-sm font-medium border border-[var(--border-default)] hover:bg-white transition-colors disabled:opacity-50",
           className,
         )}
         {...props}

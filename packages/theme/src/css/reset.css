@@ -6,6 +6,10 @@
   @apply border-border;
 }
 
+body, button, input, select, textarea {
+  font-family: var(--font-sans);
+}
+
 body {
   @apply bg-background text-foreground;
 }

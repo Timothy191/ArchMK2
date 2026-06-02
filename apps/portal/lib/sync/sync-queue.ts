@@ -6,11 +6,11 @@
 import { DatabaseError } from "@repo/errors";
 import { logError } from "@/lib/errors/error-logger";
 
-export interface QueuedAction {
+export interface QueuedAction<T = unknown> {
   id?: number;
   idempotencyKey: string;
   actionType: string;
-  payload: any;
+  payload: T;
   departmentId: string;
   status: "pending" | "synced" | "failed";
   retryCount: number;
@@ -73,9 +73,9 @@ class SyncQueue {
   /**
    * Enqueue a new mutation action
    */
-  public async enqueueAction(
+  public async enqueueAction<T = unknown>(
     actionType: string,
-    payload: any,
+    payload: T,
     departmentId: string,
   ): Promise<string> {
     const idempotencyKey = crypto.randomUUID();

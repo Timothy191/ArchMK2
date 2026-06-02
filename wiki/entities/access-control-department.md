@@ -46,7 +46,7 @@ The Access Control department in Arch-Systems handles site access, badging, and 
 
 Access control data is doubly protected: RLS policies scope by `department_id`, and the `audit_logs` table captures every mutation.
 
-## Completeness Status (Phase 3)
+## Current Completeness Status
 
 | Feature                    | Status  |
 | -------------------------- | ------- |

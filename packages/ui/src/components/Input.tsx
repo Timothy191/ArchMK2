@@ -14,10 +14,10 @@ export function Input({
   return (
     <input
       className={cn(
-        "w-full rounded-lg border text-[var(--text-heading)] placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-blue)]/30 transition-colors",
+        "w-full rounded-lg border text-[var(--text-heading)] placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-0 transition-colors",
         variant === "default"
-          ? "border-[var(--border-default)] bg-[var(--bg-secondary)]"
-          : "border-[var(--border-default)] bg-[var(--bg-tertiary)]",
+          ? "border-[var(--border-emphasis)] bg-[var(--bg-secondary)]"
+          : "border-[var(--border-emphasis)] bg-[var(--bg-tertiary)]",
         className,
       )}
       {...props}

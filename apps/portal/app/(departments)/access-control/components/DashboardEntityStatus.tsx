@@ -1,5 +1,3 @@
-"use client";
-
 import React from "react";
 import { Users, Car, Wrench, ChevronRight } from "lucide-react";
 

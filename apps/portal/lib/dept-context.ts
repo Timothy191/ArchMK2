@@ -2,6 +2,7 @@ import { createServerSupabaseClient } from "@repo/supabase/server";
 import { cacheGet, cacheSet } from "@repo/redis/cache";
 import { DEPARTMENTS } from "./departments";
 import { notFound } from "next/navigation";
+import { getOperationalToday } from "@repo/utils";
 
 /**
  * Resolves department context for a server component page.
@@ -39,7 +40,7 @@ export async function getDepartmentContext(params: {
     await cacheSet(cacheKey, deptId, 3600); // 1 hour
   }
 
-  const today = new Date().toISOString().split("T")[0] ?? "";
+  const today = getOperationalToday();
 
   return {
     dept,

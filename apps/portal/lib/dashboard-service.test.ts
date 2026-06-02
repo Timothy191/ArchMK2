@@ -43,7 +43,10 @@ describe("getMonolithizedDashboard", () => {
     const mockRpc = jest
       .fn()
       .mockResolvedValue({ data: MOCK_PAYLOAD, error: null });
-    createServerSupabaseClient.mockResolvedValue({ rpc: mockRpc });
+    createServerSupabaseClient.mockResolvedValue({
+      auth: { getUser: jest.fn().mockResolvedValue({ data: { user: { id: "u1" } }, error: null }) },
+      rpc: mockRpc,
+    });
 
     await getMonolithizedDashboard("dept-drilling");
 
@@ -71,7 +74,10 @@ describe("getMonolithizedDashboard", () => {
     const mockRpc = jest
       .fn()
       .mockResolvedValue({ data: MOCK_PAYLOAD, error: null });
-    createServerSupabaseClient.mockResolvedValue({ rpc: mockRpc });
+    createServerSupabaseClient.mockResolvedValue({
+      auth: { getUser: jest.fn().mockResolvedValue({ data: { user: { id: "u1" } }, error: null }) },
+      rpc: mockRpc,
+    });
 
     const result = await getMonolithizedDashboard("dept-drilling");
 
@@ -91,7 +97,10 @@ describe("getMonolithizedDashboard", () => {
       data: null,
       error: { message: "RPC not found" },
     });
-    createServerSupabaseClient.mockResolvedValue({ rpc: mockRpc });
+    createServerSupabaseClient.mockResolvedValue({
+      auth: { getUser: jest.fn().mockResolvedValue({ data: { user: { id: "u1" } }, error: null }) },
+      rpc: mockRpc,
+    });
 
     await expect(getMonolithizedDashboard("dept-bad")).rejects.toThrow(
       "Failed to query dashboard data",
@@ -110,7 +119,10 @@ describe("getMonolithizedDashboard", () => {
     const mockRpc = jest
       .fn()
       .mockResolvedValue({ data: MOCK_PAYLOAD, error: null });
-    createServerSupabaseClient.mockResolvedValue({ rpc: mockRpc });
+    createServerSupabaseClient.mockResolvedValue({
+      auth: { getUser: jest.fn().mockResolvedValue({ data: { user: { id: "u1" } }, error: null }) },
+      rpc: mockRpc,
+    });
 
     await getMonolithizedDashboard("dept-drilling");
     await getMonolithizedDashboard("dept-production");

@@ -48,8 +48,8 @@ export default function AuthLayout({
   }, []);
 
   return (
-    <div className="relative min-h-[calc(100vh-28px)] flex items-start lg:items-center justify-center lg:justify-start p-6 lg:p-12 overflow-y-auto">
-      <div className="relative z-10 w-full max-w-md">{children}</div>
+    <div className="relative min-h-[calc(100vh-28px)] w-full h-full flex overflow-hidden">
+      {children}
     </div>
   );
 }

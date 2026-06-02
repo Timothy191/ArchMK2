@@ -3,13 +3,13 @@
 import dynamic from "next/dynamic";
 import { useState } from "react";
 import { GlassCard } from "@repo/ui/GlassCard";
-import { SARLayerPanel } from "@/components/monitoring/SARLayer";
+import { SARLayerPanel } from "./SARLayer";
 import {
   HyperspectralLayer,
   type SpectralComposite,
-} from "@/components/monitoring/HyperspectralLayer";
-import { HighResPanel } from "@/components/monitoring/HighResPanel";
-import { DeformationSummary } from "@/components/monitoring/DeformationAlertCard";
+} from "./HyperspectralLayer";
+import { HighResPanel } from "./HighResPanel";
+import { DeformationSummary } from "./DeformationAlertCard";
 import {
   generateDeformationReadings,
   DEFAULT_MINE_CENTER,

@@ -23,7 +23,7 @@ export function GlassSkeleton({
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-2xl",
+        "relative overflow-hidden rounded-card",
         "border border-[var(--glass-border)] border-t-white/95",
         "bg-white/40 backdrop-blur-xl saturate-[160%]",
         "shadow-[inset_0_0_0_1px_rgba(255,255,255,0.6)]",

@@ -19,3 +19,13 @@ export function getCurrentShift(): "day" | "night" {
   // Day shift usually 06:00 to 18:00
   return hour >= 6 && hour < 18 ? "day" : "night";
 }
+
+/**
+ * Returns the current date in the mine's operational timezone as YYYY-MM-DD.
+ * Use this on the SERVER only – never on the client.
+ */
+export function getOperationalToday(
+  timeZone: string = "Africa/Johannesburg",
+): string {
+  return new Date().toLocaleDateString("en-CA", { timeZone });
+}

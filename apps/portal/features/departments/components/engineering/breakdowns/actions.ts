@@ -5,6 +5,7 @@ import { createServerSupabaseClient } from "@repo/supabase/server";
 import { revalidatePath } from "next/cache";
 import { logAuditEvent } from "@/lib/audit";
 import { AuthError, DatabaseError } from "@repo/errors";
+import { logError } from "@/lib/errors/error-logger";
 import type {
   CreateBreakdownInput,
   BookOutInput,
@@ -70,8 +71,9 @@ export async function bookOutBreakdown(
   } = await supabase.auth.getUser();
 
   if (!user) {
+    logError(new Error("Unauthorized"), { context: "createBreakdown" });
     throw new AuthError("Unauthorized", {
-      context: { action: "bookOutBreakdown" },
+      context: { action: "createBreakdown" },
     });
   }
 
@@ -129,8 +131,9 @@ export async function directCheckout(
   } = await supabase.auth.getUser();
 
   if (!user) {
+    logError(new Error("Unauthorized"), { context: "bookOutBreakdown" });
     throw new AuthError("Unauthorized", {
-      context: { action: "directCheckout" },
+      context: { action: "bookOutBreakdown" },
     });
   }
 
@@ -182,8 +185,9 @@ export async function softDeleteBreakdown(breakdownId: string) {
   } = await supabase.auth.getUser();
 
   if (!user) {
+    logError(new Error("Unauthorized"), { context: "softDeleteBreakdown" });
     throw new AuthError("Unauthorized", {
-      context: { action: "createBreakdown" },
+      context: { action: "softDeleteBreakdown" },
     });
   }
 

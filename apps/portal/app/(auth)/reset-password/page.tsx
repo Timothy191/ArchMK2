@@ -5,8 +5,15 @@ import Link from "next/link";
 import { createBrowserSupabaseClient } from "@repo/supabase/client";
 import { Input } from "@repo/ui/Input";
 import { AnimatedButton } from "@repo/ui/AnimatedButton";
-import { IconLock, IconCheck, IconAlertHexagon } from "@tabler/icons-react";
+import { Lock, Check, AlertTriangle } from "lucide-react";
 
+/**
+ * Maps raw Supabase reset password errors to clear, localized user-facing validation and status messages.
+ * Handles rate limits, invalid emails, and generic request errors.
+ *
+ * @param raw - The raw error message string from the database/auth provider.
+ * @returns A user-friendly error message.
+ */
 function mapResetError(raw: string): string {
   const lower = raw.toLowerCase();
   if (lower.includes("rate limit")) {
@@ -69,9 +76,9 @@ export default function ResetPasswordPage() {
           {sent ? (
             <div className="space-y-4 text-center">
               <div className="flex items-center justify-center w-12 h-12 rounded-full bg-[var(--accent-green)]/10 mx-auto">
-                <IconCheck
+                <Check
                   className="w-6 h-6 text-[var(--accent-green)]"
-                  stroke={1.5}
+                  strokeWidth={1.5}
                 />
               </div>
               <div className="space-y-1">
@@ -96,9 +103,9 @@ export default function ResetPasswordPage() {
           ) : (
             <>
               <div className="flex items-center justify-center w-12 h-12 rounded-full bg-[var(--accent-blue)]/10 mx-auto">
-                <IconLock
+                <Lock
                   className="w-6 h-6 text-[var(--accent-blue)]"
-                  stroke={1.5}
+                  strokeWidth={1.5}
                 />
               </div>
 
@@ -128,6 +135,7 @@ export default function ResetPasswordPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     variant="login"
+                    className="focus:ring-0 liquid-glass-input"
                     placeholder="admin@arch.os"
                     autoComplete="username"
                     aria-describedby={error ? "reset-error" : undefined}
@@ -140,9 +148,9 @@ export default function ResetPasswordPage() {
                     className="text-sm text-accent-red flex items-center gap-2"
                     role="alert"
                   >
-                    <IconAlertHexagon
+                    <AlertTriangle
                       className="w-4 h-4 shrink-0"
-                      stroke={1.5}
+                      strokeWidth={1.5}
                     />
                     {error}
                   </p>
@@ -151,8 +159,8 @@ export default function ResetPasswordPage() {
                 <AnimatedButton
                   type="submit"
                   disabled={loading}
-                  className="w-full"
-                  hoverScale={1.02}
+                  className="w-full liquid-glass-button"
+                  hoverScale={1}
                   tapScale={0.97}
                 >
                   {loading ? "Sending..." : "Send Reset Link"}

@@ -6,59 +6,58 @@ import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { MacTitleBar } from "./MacTitleBar";
 import {
-  ChartBar,
+  BarChart3,
   Clock,
   Cpu,
-  Warning,
+  AlertTriangle,
   Wrench,
-  Shovel,
+  Pickaxe,
   GitCommit,
   Database,
   FileText,
-  Broadcast,
-  ClipboardText,
-  ClockCounterClockwise,
+  Satellite,
+  ClipboardList,
+  Undo2,
   Radio,
-  Stack,
-  MagnifyingGlass,
+  Layers,
+  Search,
   CheckSquare,
-  Pulse,
+  Activity,
   ShieldCheck,
   Users,
   CreditCard,
   Factory,
-  Gear,
+  Settings,
   Circle,
   Monitor,
   HardHat,
   GraduationCap,
-} from "@phosphor-icons/react";
-import type { IconProps } from "@phosphor-icons/react";
+} from "lucide-react";
 
-const ICON_MAP: Record<string, React.ComponentType<IconProps>> = {
-  BarChart2: ChartBar,
+const ICON_MAP: Record<string, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
+  BarChart2: BarChart3,
   Clock,
   Cpu,
-  AlertTriangle: Warning,
+  AlertTriangle,
   Wrench,
-  Pickaxe: Shovel,
+  Pickaxe,
   GitCommit,
   Database,
   FileText,
-  Satellite: Broadcast,
-  ClipboardList: ClipboardText,
-  History: ClockCounterClockwise,
+  Satellite,
+  ClipboardList,
+  History: Undo2,
   Radio,
-  Layers: Stack,
-  ScanSearch: MagnifyingGlass,
+  Layers,
+  ScanSearch: Search,
   CheckSquare,
-  Drill: Shovel,
-  Activity: Pulse,
+  Drill: Pickaxe,
+  Activity,
   ShieldCheck,
   Users,
   CreditCard,
   Factory,
-  Settings: Gear,
+  Settings,
   CircleDot: Circle,
   Monitor,
   HardHat,
@@ -137,7 +136,7 @@ export function DepartmentLayout({
                 "bg-indigo-500/10 text-indigo-600",
             )}
           >
-            <ChartBar className="w-3.5 h-3.5" />
+            <BarChart3 className="w-3.5 h-3.5" />
           </div>
           <span className="text-[12px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider">
             {department.displayName}

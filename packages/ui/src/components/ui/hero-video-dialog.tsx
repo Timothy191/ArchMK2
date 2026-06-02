@@ -90,11 +90,11 @@ export function HeroVideoDialog({
           alt={thumbnailAlt}
           width={1920}
           height={1080}
-          className="w-full rounded-md border border-[var(--border-default)] shadow-lg transition-all duration-200 ease-out group-hover:brightness-[0.8]"
+          className="w-full rounded-md border border-[var(--border-default)] shadow-diffusion-md transition-all duration-200 ease-out group-hover:brightness-[0.8]"
         />
         <div className="absolute inset-0 flex scale-[0.9] items-center justify-center rounded-2xl transition-all duration-200 ease-out group-hover:scale-100">
           <div className="flex size-28 items-center justify-center rounded-full bg-[var(--accent-cyan)]/10 backdrop-blur-md">
-            <div className="relative flex size-20 scale-100 items-center justify-center rounded-full bg-[var(--accent-cyan)]/30 shadow-md transition-all duration-200 ease-out group-hover:scale-[1.2]">
+            <div className="relative flex size-20 scale-100 items-center justify-center rounded-full bg-[var(--accent-cyan)]/30 shadow-window transition-all duration-200 ease-out group-hover:scale-[1.2]">
               <Play
                 className="size-8 scale-100 fill-white text-white transition-transform duration-200 ease-out group-hover:scale-105"
                 style={{

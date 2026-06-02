@@ -1,5 +1,3 @@
-"use client";
-
 import { GlassCard } from "@repo/ui/GlassCard";
 
 interface MachineOperation {
