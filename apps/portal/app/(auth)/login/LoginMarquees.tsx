@@ -1,13 +1,15 @@
 "use client";
 
 import { Marquee } from "@repo/ui/Marquee";
-import { Users, Wrench, Zap } from "lucide-react";
 import {
-  IconActivityHeartbeat,
-  IconAlertTriangle,
-  IconShieldCheck,
-  IconTruck,
-} from "@tabler/icons-react";
+  Users,
+  Wrench,
+  Zap,
+  Activity as IconActivityHeartbeat,
+  AlertTriangle as IconAlertTriangle,
+  ShieldCheck as IconShieldCheck,
+  Truck as IconTruck,
+} from "lucide-react";
 
 interface LoginMarqueesProps {
   activeBreakdowns?: number;
@@ -28,21 +30,21 @@ export function LoginMarquees({
           <div className="flex items-center gap-2 text-[var(--text-muted)] text-xs shrink-0">
             <IconActivityHeartbeat
               className="w-3.5 h-3.5 text-[var(--accent-green)] shrink-0"
-              stroke={1.5}
+              stroke="1.5"
             />
             <span className="whitespace-nowrap">24/7 Operations</span>
           </div>
           <div className="flex items-center gap-2 text-[var(--text-muted)] text-xs shrink-0">
             <IconShieldCheck
               className="w-3.5 h-3.5 text-[var(--accent-blue)] shrink-0"
-              stroke={1.5}
+              stroke="1.5"
             />
             <span className="whitespace-nowrap">Safety First</span>
           </div>
           <div className="flex items-center gap-2 text-[var(--text-muted)] text-xs shrink-0">
             <IconTruck
               className="w-3.5 h-3.5 text-[var(--accent-green)] shrink-0"
-              stroke={1.5}
+              stroke="1.5"
             />
             <span className="whitespace-nowrap">Fleet Active</span>
           </div>
@@ -59,7 +61,7 @@ export function LoginMarquees({
             <div className="flex items-center gap-2 text-[var(--text-muted)] text-xs shrink-0">
               <IconAlertTriangle
                 className="w-3.5 h-3.5 text-arch-accent-amber shrink-0"
-                stroke={1.5}
+                stroke="1.5"
               />
               <span className="whitespace-nowrap text-arch-accent-amber">
                 {totalAlerts} Active Alert{totalAlerts !== 1 ? "s" : ""}

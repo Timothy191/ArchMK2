@@ -5,7 +5,11 @@ import Link from "next/link";
 import { createBrowserSupabaseClient } from "@repo/supabase/client";
 import { Input } from "@repo/ui/Input";
 import { AnimatedButton } from "@repo/ui/AnimatedButton";
-import { IconLock, IconCheck, IconAlertHexagon } from "@tabler/icons-react";
+import {
+  Lock as IconLock,
+  Check as IconCheck,
+  AlertOctagon as IconAlertHexagon,
+} from "lucide-react";
 
 function mapResetError(raw: string): string {
   const lower = raw.toLowerCase();
@@ -71,7 +75,7 @@ export default function ResetPasswordPage() {
               <div className="flex items-center justify-center w-12 h-12 rounded-full bg-[var(--accent-green)]/10 mx-auto">
                 <IconCheck
                   className="w-6 h-6 text-[var(--accent-green)]"
-                  stroke={1.5}
+                  stroke="1.5"
                 />
               </div>
               <div className="space-y-1">
@@ -98,7 +102,7 @@ export default function ResetPasswordPage() {
               <div className="flex items-center justify-center w-12 h-12 rounded-full bg-[var(--accent-blue)]/10 mx-auto">
                 <IconLock
                   className="w-6 h-6 text-[var(--accent-blue)]"
-                  stroke={1.5}
+                  stroke="1.5"
                 />
               </div>
 
@@ -142,7 +146,7 @@ export default function ResetPasswordPage() {
                   >
                     <IconAlertHexagon
                       className="w-4 h-4 shrink-0"
-                      stroke={1.5}
+                      stroke="1.5"
                     />
                     {error}
                   </p>

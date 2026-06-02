@@ -4,11 +4,11 @@ import { useState, useEffect, useCallback } from "react";
 import type { WeatherData } from "@/lib/weather-api";
 import { getWindDirection } from "@/lib/weather-api";
 import {
-  IconDroplets,
-  IconRefresh,
-  IconThermometer,
-  IconWind,
-} from "@tabler/icons-react";
+  Droplets as IconDroplets,
+  RefreshCw as IconRefresh,
+  Thermometer as IconThermometer,
+  Wind as IconWind,
+} from "lucide-react";
 
 const REFRESH_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
 
@@ -61,7 +61,7 @@ export function WeatherCard({ initialWeather }: WeatherCardProps) {
           >
             <IconRefresh
               className={`w-3 h-3 transition-transform ${refreshing ? "animate-spin" : "hover:rotate-180 duration-500"}`}
-              stroke={1.5}
+              stroke="1.5"
             />
           </button>
           <span className="flex items-center gap-1 text-[10px] text-arch-accent-green">
@@ -76,7 +76,7 @@ export function WeatherCard({ initialWeather }: WeatherCardProps) {
         <div className="flex items-center gap-2">
           <IconThermometer
             className="w-5 h-5 text-arch-accent-blue"
-            stroke={1.5}
+            stroke="1.5"
           />
           <div>
             <span className="text-sm font-semibold text-arch-text-primary">
@@ -89,7 +89,7 @@ export function WeatherCard({ initialWeather }: WeatherCardProps) {
         </div>
         <div className="w-px h-8 bg-arch-border-primary" />
         <div className="flex items-center gap-2">
-          <IconWind className="w-5 h-5 text-arch-accent-blue" stroke={1.5} />
+          <IconWind className="w-5 h-5 text-arch-accent-blue" stroke="1.5" />
           <div>
             <span className="text-sm font-semibold text-arch-text-primary">
               {weather
@@ -103,7 +103,7 @@ export function WeatherCard({ initialWeather }: WeatherCardProps) {
         <div className="flex items-center gap-2">
           <IconDroplets
             className="w-5 h-5 text-arch-accent-blue"
-            stroke={1.5}
+            stroke="1.5"
           />
           <div>
             <span className="text-sm font-semibold text-arch-text-primary">

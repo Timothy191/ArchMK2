@@ -9,7 +9,11 @@ import { LoginForm } from "./LoginForm";
 import { LoginIntroOverlay } from "./LoginIntroOverlay";
 import { AsyncLoginData } from "./AsyncLoginData";
 import { LoginCardShell } from "./LoginCardShell";
-import { IconAlertHexagon, IconClock, IconLock } from "@tabler/icons-react";
+import {
+  AlertOctagon as IconAlertHexagon,
+  Clock as IconClock,
+  Lock as IconLock,
+} from "lucide-react";
 
 const PORTAL_VERSION = "2.4.1";
 
@@ -90,7 +94,7 @@ export default async function LoginPage() {
           <div className="p-6 space-y-4 text-center">
             <IconAlertHexagon
               className="w-8 h-8 text-arch-accent-red mx-auto"
-              stroke={1.5}
+              stroke="1.5"
             />
             <h1 className="text-lg font-semibold text-arch-text-primary">
               System Unavailable
@@ -133,7 +137,7 @@ export default async function LoginPage() {
               </span>
             </div>
             <div className="flex items-center gap-1.5 text-[10px] text-arch-accent-green">
-              <IconLock className="w-3 h-3" stroke={1.5} />
+              <IconLock className="w-3 h-3" stroke="1.5" />
               <span>Secure</span>
             </div>
           </div>
@@ -184,7 +188,7 @@ export default async function LoginPage() {
             <span>Arch Systems v{PORTAL_VERSION}</span>
             <span className="w-1 h-1 rounded-full bg-arch-text-tertiary" />
             <span className="flex items-center gap-1" data-testid="footer-date">
-              <IconClock className="w-3 h-3" stroke={1.5} />
+              <IconClock className="w-3 h-3" stroke="1.5" />
               Updated{" "}
               {new Date().toLocaleDateString("en-GB", {
                 timeZone: "Africa/Johannesburg",

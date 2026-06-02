@@ -10,8 +10,8 @@ import {
   Monitor,
   HardHat,
   GraduationCap,
-  Broadcast,
-} from "@phosphor-icons/react";
+  Radio as Broadcast,
+} from "lucide-react";
 import { GlassCard } from "@repo/ui/GlassCard";
 import { Badge } from "@repo/ui/components/ui/badge";
 import { cn } from "@repo/ui/lib/utils";

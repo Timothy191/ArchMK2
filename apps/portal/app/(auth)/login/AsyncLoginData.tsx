@@ -7,7 +7,7 @@ import {
 import { WeatherCard } from "./WeatherCard";
 import { LoginMarquees } from "./LoginMarquees";
 import { Marquee } from "@repo/ui/Marquee";
-import { IconAlertHexagon } from "@tabler/icons-react";
+import { AlertOctagon as IconAlertHexagon } from "lucide-react";
 
 type Breakdown = {
   fleet_id: string;
@@ -141,7 +141,7 @@ export async function AsyncLoginData() {
           >
             <IconAlertHexagon
               className={`w-4 h-4 ${alertStyle.icon}`}
-              stroke={1.5}
+              stroke="1.5"
             />
           </div>
           <div className="flex-1 min-w-0 overflow-hidden">

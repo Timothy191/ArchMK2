@@ -6,8 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { createBrowserSupabaseClient } from "@repo/supabase/client";
 import { Input } from "@repo/ui/Input";
 import { AnimatedButton } from "@repo/ui/AnimatedButton";
-import { Eye, EyeOff } from "lucide-react";
-import { IconLock } from "@tabler/icons-react";
+import { Eye, EyeOff, Lock as IconLock } from "lucide-react";
 
 function isInternalRedirect(path: string): boolean {
   return (
@@ -193,7 +192,7 @@ export function LoginForm() {
             className="flex items-center gap-1.5 text-[11px] text-arch-accent-amber animate-fade-up"
             role="alert"
           >
-            <IconLock className="w-3 h-3" stroke={1.5} />
+            <IconLock className="w-3 h-3" stroke="1.5" />
             <span>Caps Lock is on</span>
           </div>
         )}
