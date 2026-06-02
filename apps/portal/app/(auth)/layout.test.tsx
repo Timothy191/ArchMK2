@@ -22,7 +22,7 @@ describe("AuthLayout", () => {
     expect(getByText("Test Child")).toBeInTheDocument();
   });
 
-  it("applies responsive glass sizing classes to prevent viewport edge overlap on small screens", () => {
+  it("applies container layout classes", () => {
     const { container } = render(
       <AuthLayout>
         <div>Test Child</div>
@@ -30,13 +30,12 @@ describe("AuthLayout", () => {
     );
 
     const outerContainer = container.firstChild;
-    expect(outerContainer).toHaveClass("p-6");
-    expect(outerContainer).toHaveClass("lg:p-12");
-    expect(outerContainer).toHaveClass("overflow-y-auto");
-
-    const innerContainer = outerContainer?.firstChild;
-    expect(innerContainer).toHaveClass("w-full");
-    expect(innerContainer).toHaveClass("max-w-md");
+    expect(outerContainer).toHaveClass("relative");
+    expect(outerContainer).toHaveClass("min-h-[calc(100vh-28px)]");
+    expect(outerContainer).toHaveClass("w-full");
+    expect(outerContainer).toHaveClass("h-full");
+    expect(outerContainer).toHaveClass("flex");
+    expect(outerContainer).toHaveClass("overflow-hidden");
   });
 
   it("suppresses console.error messages containing 'Invalid Refresh Token' or 'Refresh Token Not Found'", () => {
