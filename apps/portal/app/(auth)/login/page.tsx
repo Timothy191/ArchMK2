@@ -39,13 +39,16 @@ export default async function LoginPage() {
         loop
         muted
         playsInline
-        className="fixed inset-0 w-full h-full object-cover -z-20"
+        className="fixed inset-0 w-full h-full object-cover -z-20 [image-rendering:high-quality] [image-rendering:-webkit-optimize-contrast] [transform:translate3d(0,0,0)]"
       >
         <source src="/background/light_mode.mp4" type="video/mp4" />
       </video>
 
       {/* Subtle overlay to ensure the login card pops against the video without blurring it */}
       <div className="fixed inset-0 bg-black/10 -z-10" />
+
+      {/* Ambient Film Grain overlay to prevent banding and add crisp visual texture */}
+      <div className="route-bg-grain" aria-hidden="true" />
 
       {/* Login Card wrapper */}
       <div className="relative z-10 w-[380px] max-w-full animate-fade-up">

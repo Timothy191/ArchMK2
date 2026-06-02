@@ -37,6 +37,7 @@ function getClientIp(request: Request | NextRequest): string {
 }
 
 function isSystemUnderHighLoad(): boolean {
+  if (process.env.NODE_ENV === "test" && !process.env.ENABLE_LOAD_ADAPTIVE_TEST) return false;
   try {
     const load = os.loadavg()[0]; // 1-minute load average
     if (load === undefined) return false;

@@ -138,6 +138,7 @@ describe("withRateLimit", () => {
   });
 
   it("halves request limits when system is under high load", async () => {
+    process.env.ENABLE_LOAD_ADAPTIVE_TEST = "true";
     const os = require("os");
     const originalLoadavg = os.loadavg;
     const originalCpus = os.cpus;
@@ -159,6 +160,7 @@ describe("withRateLimit", () => {
     // Restore original functions
     os.loadavg = originalLoadavg;
     os.cpus = originalCpus;
+    delete process.env.ENABLE_LOAD_ADAPTIVE_TEST;
   });
 });
 

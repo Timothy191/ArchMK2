@@ -987,6 +987,9 @@
   z-index: -10;
   background-color: #f5f5f7;
   will-change: transform;
+  transform: translate3d(0, 0, 0);
+  image-rendering: high-quality;
+  image-rendering: -webkit-optimize-contrast;
 }
 
 /* Tint overlay — always visible (including prefers-reduced-motion).
@@ -1001,6 +1004,23 @@
   pointer-events: none;
 }
 
+/* Ambient Film Grain overlay to eliminate H.264 banding and add crisp texture */
+.route-bg-grain {
+  position: fixed;
+  inset: 0;
+  z-index: -8;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size: 140px 140px;
+  opacity: 0.024; /* extremely subtle but prevents gradient banding and feels sharp */
+  animation: grain-dance 8s steps(10) infinite;
+  pointer-events: none;
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+body.focus-mode .route-bg-grain {
+  opacity: 0.042; /* slightly more pronounced film grain against dark colors */
+}
+
 /* Focus-mode: full-screen atmospheric image */
 .route-bg-focus {
   position: fixed;
@@ -1013,6 +1033,7 @@
   /* Desaturate + darken slightly so the UI colours pop */
   filter: brightness(0.88) saturate(0.9);
   will-change: transform;
+  transform: translate3d(0, 0, 0);
 }
 
 /* Focus-mode: full-screen atmospheric video */
@@ -1027,6 +1048,9 @@
   /* Desaturate + darken slightly so the UI colours pop */
   filter: brightness(0.88) saturate(0.9);
   will-change: transform;
+  transform: translate3d(0, 0, 0);
+  image-rendering: high-quality;
+  image-rendering: -webkit-optimize-contrast;
   /* Hidden by default — light mode is the default. Visibility is
      toggled via body.focus-mode below. Keeping the element mounted
      preserves the decoder state and avoids a black-flash remount. */

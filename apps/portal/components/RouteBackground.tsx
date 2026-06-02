@@ -66,6 +66,9 @@ export function RouteBackground() {
       {/* ── Tint overlay — always visible for legibility scrim ── */}
       <div className="route-bg-tint" aria-hidden="true" />
 
+      {/* ── Ambient Film Grain overlay — masks banding and adds crisp visual texture ── */}
+      <div className="route-bg-grain" aria-hidden="true" />
+
       {/* ── Focus scrim — only painted when focus mode is active ── */}
       <div className="route-bg-focus-scrim" aria-hidden="true" />
     </>

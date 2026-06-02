@@ -11,7 +11,8 @@
     "NOVU_API_KEY",
     "OTEL_SERVICE_NAME",
     "PORTAL_VERSION",
-    "RATE_LIMIT_IP_WHITELIST"
+    "RATE_LIMIT_IP_WHITELIST",
+    "ENABLE_LOAD_ADAPTIVE_TEST"
   ],
   "globalPassThroughEnv": [
     "HOME",
