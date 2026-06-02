@@ -139,7 +139,7 @@ describe("proxy", () => {
     buildProxyMock({ user: null });
     const req = makeRequest("/login");
     const res = await proxy(req);
-    // Returns the raw middleware response (not a redirect)
+    // Returns the raw proxy response (not a redirect)
     expect(res.status).not.toBe(307);
   });
 
