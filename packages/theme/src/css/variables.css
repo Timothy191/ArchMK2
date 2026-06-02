@@ -65,6 +65,10 @@
   --accent-blue: var(--arch13);
   --accent-green: var(--arch14);
 
+  /* Corporate Brand Colors */
+  --arch-brand-blue: #007aff;
+  --arch-brand-blue-hover: #0066eb;
+
   /* ─── Extended Action & Status Palette ────────────────────────────────────
      These complement the macOS system blue with vivid action tokens that
      align with the premium glassmorphism spec. Components must use semantic

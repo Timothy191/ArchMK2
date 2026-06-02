@@ -106,6 +106,7 @@
         "NEXT_RUNTIME",
         "SENTRY_DSN",
         "ALLOWED_SCANNER_SOURCES",
+        "SCANNER_API_KEY",
         "OPENAI_API_KEY",
         "TOGETHER_API_KEY",
         "DATABASE_POOLER_URL",
@@ -138,7 +139,7 @@
     },
     "test": {
       "dependsOn": [],
-      "env": ["NEXT_PUBLIC_*", "SUPABASE_*", "NEXT_RUNTIME", "SENTRY_DSN"],
+      "env": ["NEXT_PUBLIC_*", "SUPABASE_*", "NEXT_RUNTIME", "SENTRY_DSN", "SCANNER_API_KEY"],
       "passThroughEnv": ["TEST_DB_URL", "MOCK_SERVER_PORT"],
       "inputs": [
         "$TURBO_DEFAULT$",

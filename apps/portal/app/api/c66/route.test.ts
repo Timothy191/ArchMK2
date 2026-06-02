@@ -1,29 +1,14 @@
 /**
  * @jest-environment node
  *
- * Reproducer for P0 #1: /api/c66 header-only auth bypass.
+ * Security tests for P0 #1: /api/c66 header-only auth bypass.
  *
- * The middleware short-circuits the c66 endpoint entirely (no Supabase session
- * check). The route handler relies on an `x-scanner-source` header compared
- * against a hard-coded allowlist that ships as the documented default in
- * `apps/portal/.env.example` (C66-HARDWARE, C66-SCANNER, GATE-TERMINAL).
- *
- * Net effect: a remote attacker who reads the public repo can forge any
- * `x-scanner-source` value, send an arbitrary badge code, and either enumerate
- * personnel/visitor names or pollute the access_logs table — without ever
- * holding a Supabase session or a real magic token.
- *
- * Each test below is an "exploit" — it asserts that the bypass STILL WORKS
- * today. The fix is the responsibility of the next session; this test pins
- * the current (broken) behaviour so we know when the fix has actually taken
- * effect.
+ * Verifies that the scanner endpoint requires a valid `x-scanner-token`
+ * and rejects unauthenticated callers.
  */
 
 import { POST } from "./route";
 
-// `createServiceRoleClient` is the only external dep the route uses. We mock
-// it with a chainable Supabase client so the handler reaches the auth/lookup
-// path and the test can observe the actual bypass.
 jest.mock("@repo/supabase/service-role", () => ({
   createServiceRoleClient: jest.fn(),
 }));
@@ -35,10 +20,8 @@ jest.mock("@/lib/errors/error-logger", () => ({
 const { createServiceRoleClient } = jest.requireMock(
   "@repo/supabase/service-role",
 );
-// Track the most recent client returned by the service-role factory so
-// assertions can inspect what the route did with it.
-let lastServiceRoleClient: ReturnType<typeof buildServiceRoleMock> | null =
-  null;
+
+let lastServiceRoleClient: ReturnType<typeof buildServiceRoleMock> | null = null;
 
 const PUBLICLY_DOCUMENTED_SCANNER_SOURCES = [
   "C66-HARDWARE",
@@ -46,11 +29,6 @@ const PUBLICLY_DOCUMENTED_SCANNER_SOURCES = [
   "GATE-TERMINAL",
 ];
 
-/**
- * Build a service-role client whose badge/personnel/visitor lookups return
- * realistic data. The point is to exercise the route past the (trivial)
- * `x-scanner-source` check.
- */
 function buildServiceRoleMock() {
   const badge = {
     id: "badge-1",
@@ -76,9 +54,7 @@ function buildServiceRoleMock() {
         return {
           select: jest.fn().mockReturnValue({
             eq: jest.fn().mockReturnValue({
-              single: jest
-                .fn()
-                .mockResolvedValue({ data: person, error: null }),
+              single: jest.fn().mockResolvedValue({ data: person, error: null }),
             }),
           }),
         };
@@ -105,6 +81,7 @@ function buildServiceRoleMock() {
 
 function makeRequest(opts: {
   source?: string | null;
+  token?: string | null;
   body?: unknown;
   raw?: string;
 }) {
@@ -113,6 +90,9 @@ function makeRequest(opts: {
   };
   if (opts.source !== null && opts.source !== undefined) {
     headers["x-scanner-source"] = opts.source;
+  }
+  if (opts.token !== null && opts.token !== undefined) {
+    headers["x-scanner-token"] = opts.token;
   }
   const init: RequestInit = {
     method: "POST",
@@ -126,60 +106,60 @@ function makeRequest(opts: {
   return new Request("http://localhost/api/c66", init);
 }
 
+const ORIGINAL_ENV = process.env;
+const TEST_TOKEN = "secure-test-token";
+
 beforeEach(() => {
+  jest.resetModules();
+  process.env = { ...ORIGINAL_ENV, SCANNER_API_KEY: TEST_TOKEN };
   jest.clearAllMocks();
   buildServiceRoleMock();
 });
 
-// ---------------------------------------------------------------------------
-// THE P0: a remote attacker with no Supabase session can call /api/c66 by
-// sending any of the three header values that are committed to the public
-// repo (see apps/portal/.env.example line 45).
-// ---------------------------------------------------------------------------
+afterEach(() => {
+  process.env = ORIGINAL_ENV;
+});
 
-describe("P0 /api/c66 header-only auth bypass (RED — must fail once fixed)", () => {
+describe("P0 /api/c66 secure access checks", () => {
   it.each(PUBLICLY_DOCUMENTED_SCANNER_SOURCES)(
-    "forged x-scanner-source=%s succeeds WITHOUT a Supabase session (bypass)",
+    "forged x-scanner-source=%s WITHOUT valid token is rejected with 401",
     async (source) => {
-      // No Supabase auth header, no API key, no service-role context — just
-      // a header value lifted from the public .env.example file.
-      const res = await POST(makeRequest({ source }));
-
-      // The bypass is real as long as the route reaches the success branch.
-      // When the fix lands, the route should reject unauthenticated callers
-      // (e.g. 401/403) and these tests will fail — which is the desired RED
-      // → GREEN signal.
+      const res = await POST(makeRequest({ source, token: "wrong-token" }));
+      expect(res.status).toBe(401);
       const body = await res.json();
-      expect(res.status).toBe(200);
-      expect(body.success).toBe(true);
-      expect(body.name).toBe("Test User");
+      expect(body.success).toBe(false);
+      expect(body.error).toBe("Unauthorized scanner token");
     },
   );
 
-  it("no x-scanner-source header at all is currently accepted as 'unknown' (still bypasses middleware)", async () => {
-    // The route maps the missing header to the literal string "unknown",
-    // which is NOT in the default allowlist — so this should return 403.
-    // We assert that to pin the *current* behaviour, because changing this
-    // branch is part of the fix.
-    const res = await POST(makeRequest({ source: null }));
+  it.each(PUBLICLY_DOCUMENTED_SCANNER_SOURCES)(
+    "valid token with valid source=%s succeeds",
+    async (source) => {
+      const res = await POST(makeRequest({ source, token: TEST_TOKEN }));
+      expect(res.status).toBe(200);
+      const body = await res.json();
+      expect(body.success).toBe(true);
+      expect(body.name).toBe("Test User");
+      expect(lastServiceRoleClient).not.toBeNull();
+      expect(lastServiceRoleClient!.from).toHaveBeenCalledWith("access_logs");
+    },
+  );
+
+  it("missing token is rejected with 401", async () => {
+    const res = await POST(makeRequest({ source: "C66-HARDWARE", token: null }));
+    expect(res.status).toBe(401);
+  });
+
+  it("invalid source with valid token is rejected with 403", async () => {
+    const res = await POST(makeRequest({ source: "INVALID-SOURCE", token: TEST_TOKEN }));
     expect(res.status).toBe(403);
     const body = await res.json();
     expect(body.error).toBe("Unauthorized scanner source");
   });
 
-  it("a forged but wrong header value is rejected with 403", async () => {
-    const res = await POST(makeRequest({ source: "ATTACKER-FORGED" }));
-    expect(res.status).toBe(403);
-  });
-
-  it("read-replica / read-only route does not exist — c66 is a mutating endpoint that writes access_logs", async () => {
-    // Defence-in-depth assertion: confirm the route actually does call
-    // supabase.from('access_logs').insert when the bypass succeeds. If the
-    // fix turns the endpoint into a no-op, this assertion will fail — which
-    // is correct: the fix MUST keep the legitimate hardware path working.
-    const res = await POST(makeRequest({ source: "C66-HARDWARE" }));
-    expect(res.status).toBe(200);
-    expect(lastServiceRoleClient).not.toBeNull();
-    expect(lastServiceRoleClient!.from).toHaveBeenCalledWith("access_logs");
+  it("unconfigured SCANNER_API_KEY environment variable rejects all requests", async () => {
+    delete process.env.SCANNER_API_KEY;
+    const res = await POST(makeRequest({ source: "C66-HARDWARE", token: TEST_TOKEN }));
+    expect(res.status).toBe(401);
   });
 });

@@ -3,7 +3,6 @@ import {
   createServerSupabaseClient,
   getUserSafely,
 } from "@repo/supabase/server";
-import { redirect } from "next/navigation";
 import { LoginForm } from "./LoginForm";
 import { AlertTriangle, Lock } from "lucide-react";
 import { getThreeShift } from "@repo/utils";
@@ -22,9 +21,8 @@ export default async function LoginPage() {
 
   if (hasAuthCookie) {
     const supabase = await createServerSupabaseClient();
-    let user = null;
     try {
-      user = await getUserSafely(supabase);
+      await getUserSafely(supabase);
     } catch {
       // Catastrophic failure (network, misconfiguration) — show unavailable state
       systemUnavailable = true;

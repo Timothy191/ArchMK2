@@ -9,6 +9,15 @@ const ALLOWED_SCANNER_SOURCES = process.env.ALLOWED_SCANNER_SOURCES?.split(
 export async function POST(request: Request) {
   try {
     const source = request.headers.get("x-scanner-source") || "unknown";
+    const token = request.headers.get("x-scanner-token");
+    const expectedToken = process.env.SCANNER_API_KEY;
+
+    if (!expectedToken || token !== expectedToken) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized scanner token" },
+        { status: 401 },
+      );
+    }
 
     if (!ALLOWED_SCANNER_SOURCES.includes(source)) {
       return NextResponse.json(

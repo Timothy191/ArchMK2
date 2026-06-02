@@ -31,7 +31,6 @@ describe("useSystemMetrics hook", () => {
 
   it("should update latency after latency interval", () => {
     const { result } = renderHook(() => useSystemMetrics());
-    const initialLatency = result.current.websocketLatency;
 
     act(() => {
       jest.advanceTimersByTime(3000);
