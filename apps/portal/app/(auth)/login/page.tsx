@@ -115,9 +115,9 @@ export default async function LoginPage() {
               {/* Title */}
               <div className="flex items-center gap-4">
                 <img
-                  src="/logo.png"
+                  src="/logo-large.png"
                   alt="Arch Logo"
-                  className="w-12 h-12 object-contain shrink-0"
+                  className="w-16 h-16 object-contain shrink-0"
                 />
                 <div className="space-y-1">
                   <h1 className="text-2xl font-bold tracking-tight text-[var(--text-heading)]">

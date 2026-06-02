@@ -348,7 +348,7 @@ if [ "$QUICK_MODE" = "true" ]; then
 else
   if ! docker info > /dev/null 2>&1; then
     echo -e "  ${INFO} Docker is not running. Attempting to start docker..."
-    local started=false
+    started=false
     if [[ "$OSTYPE" == "darwin"* ]]; then
       open -a Docker >/dev/null 2>&1 || true
       for i in {1..15}; do
