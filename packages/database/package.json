@@ -11,7 +11,8 @@
     "supabase:dev": "pnpx supabase start",
     "supabase:push": "pnpx supabase db push",
     "supabase:reset": "pnpx supabase db reset",
-    "supabase:gen": "pnpx supabase gen types typescript --local > ../types/src/database.types.ts"
+    "supabase:gen": "pnpx supabase gen types typescript --local > ../types/src/database.types.ts",
+    "test:security:p0-signup-role": "PGPASSWORD=${SUPABASE_DB_PASSWORD:-postgres} psql -h ${SUPABASE_DB_HOST:-localhost} -p ${SUPABASE_DB_PORT:-54322} -U ${SUPABASE_DB_USER:-postgres} -d ${SUPABASE_DB_NAME:-postgres} -v ON_ERROR_STOP=1 -f tests/p0_signup_role_self_elevation.sql"
   },
   "dependencies": {},
   "devDependencies": {
