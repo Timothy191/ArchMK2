@@ -83,7 +83,7 @@ describe("LoginForm", () => {
     ).toBeInTheDocument();
     expect(screen.getByTestId("nfc-icon")).toBeInTheDocument();
 
-    const signInBtn = screen.getByRole("button", { name: /sign in/i });
+    const signInBtn = screen.getByRole("button", { name: /^Sign In$/i });
     expect(signInBtn).toBeInTheDocument();
     expect(signInBtn.className).toContain("bg-gradient-to-b");
     expect(signInBtn.className).toContain("from-blue-400");
@@ -200,14 +200,18 @@ describe("LoginForm", () => {
 
     // Button should be disabled while loading
     await waitFor(() => {
-      expect(screen.getByRole("button", { name: /sign/i })).toBeDisabled();
+      expect(
+        screen.getByRole("button", { name: /^Sign In$|^Signing in\.\.\.$/i }),
+      ).toBeDisabled();
     });
 
     resolveSignIn!({ error: null });
 
     // After resolution, button should be enabled
     await waitFor(() => {
-      expect(screen.getByRole("button", { name: /sign/i })).not.toBeDisabled();
+      expect(
+        screen.getByRole("button", { name: /^Sign In$|^Signing in\.\.\.$/i }),
+      ).not.toBeDisabled();
     });
   });
 
@@ -328,7 +332,7 @@ describe("LoginForm", () => {
     });
 
     // The submit button is disabled
-    expect(screen.getByRole("button", { name: /sign/i })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /^Sign In$/i })).toBeDisabled();
     // signInWithPassword was NOT called a 6th time
     expect(mockSignIn).toHaveBeenCalledTimes(5);
   });

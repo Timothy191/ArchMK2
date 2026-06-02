@@ -23,10 +23,21 @@ export function useAdaptivePerformance(): boolean {
 
     let frameTimes: number[] = [];
     let animationFrameId: number;
+    let firstFrameTime: number | null = null;
     let startTime: number | null = null;
     let isDegraded = false;
 
     const checkFrame = (timestamp: number) => {
+      if (firstFrameTime === null) {
+        firstFrameTime = timestamp;
+      }
+
+      // Warm up period of 2.5 seconds to ignore hydration lag
+      if (timestamp - firstFrameTime < 2500) {
+        animationFrameId = requestAnimationFrame(checkFrame);
+        return;
+      }
+
       if (startTime === null) {
         startTime = timestamp;
       }

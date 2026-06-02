@@ -4,19 +4,44 @@ import { logError } from "@/lib/errors/error-logger";
 
 /**
  * Embedding service for the AI memory system.
- * Primary: OpenAI text-embedding-3-small (1536 dims, cheap, high quality)
- * Fallback: Together AI BAAI/bge-large-en-v1.5 (1024 dims)
+ *
+ * Primary: OpenAI text-embedding-3-small (1536 dims — matches pgvector schema)
+ *
+ * A per-process cache (Map, size-capped at 512) eliminates redundant API
+ * calls within a single request, e.g. when the agent graph embeds the same
+ * user message 3× during one turn (store + 2 retrievals).
  */
 
 const EMBEDDING_DIMENSIONS = 1536;
 
-interface EmbeddingProvider {
-  name: string;
-  generate(_text: string): Promise<number[]>;
-  batchGenerate(_texts: string[]): Promise<number[][]>;
+// ------------------------------------------------------------------
+// Per-process embedding cache (text → vector).
+// ------------------------------------------------------------------
+
+const EMBEDDING_CACHE_MAX = 512;
+const embeddingCache = new Map<string, number[]>();
+
+function getCachedEmbedding(text: string): number[] | undefined {
+  return embeddingCache.get(text);
 }
 
-class OpenAIProvider implements EmbeddingProvider {
+function setCachedEmbedding(text: string, vector: number[]): void {
+  if (embeddingCache.size >= EMBEDDING_CACHE_MAX && !embeddingCache.has(text)) {
+    const firstKey = embeddingCache.keys().next().value;
+    if (firstKey !== undefined) embeddingCache.delete(firstKey);
+  }
+  embeddingCache.set(text, vector);
+}
+
+export function clearEmbeddingCache(): void {
+  embeddingCache.clear();
+}
+
+// ------------------------------------------------------------------
+// Primary provider
+// ------------------------------------------------------------------
+
+class OpenAIProvider {
   name = "openai";
   private client: OpenAI;
 
@@ -58,85 +83,9 @@ class OpenAIProvider implements EmbeddingProvider {
   }
 }
 
-class TogetherProvider implements EmbeddingProvider {
-  name = "together";
-  private apiKey: string;
-  private baseUrl = "https://api.together.xyz/v1/embeddings";
+let primaryProvider: OpenAIProvider | null = null;
 
-  constructor() {
-    const apiKey = process.env.TOGETHER_API_KEY;
-    if (!apiKey) {
-      throw new APIError("TOGETHER_API_KEY is not set", {
-        statusCode: 500,
-        context: { reason: "missing_api_key", provider: "together" },
-      });
-    }
-    this.apiKey = apiKey;
-  }
-
-  async generate(text: string): Promise<number[]> {
-    const response = await fetch(this.baseUrl, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${this.apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "BAAI/bge-large-en-v1.5",
-        input: text,
-      }),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new APIError(`Together embedding failed: ${errorText}`, {
-        statusCode: response.status,
-        context: {
-          provider: "together",
-          endpoint: "embeddings",
-          statusText: response.statusText,
-        },
-      });
-    }
-
-    const data = await response.json();
-    return data.data[0].embedding;
-  }
-
-  async batchGenerate(texts: string[]): Promise<number[][]> {
-    const response = await fetch(this.baseUrl, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${this.apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "BAAI/bge-large-en-v1.5",
-        input: texts,
-      }),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new APIError(`Together embedding failed: ${errorText}`, {
-        statusCode: response.status,
-        context: {
-          provider: "together",
-          endpoint: "embeddings",
-          statusText: response.statusText,
-        },
-      });
-    }
-
-    const data = await response.json();
-    return data.data.map((d: { embedding: number[] }) => d.embedding);
-  }
-}
-
-let primaryProvider: EmbeddingProvider | null = null;
-let fallbackProvider: EmbeddingProvider | null = null;
-
-function getPrimaryProvider(): EmbeddingProvider {
+function getPrimaryProvider(): OpenAIProvider {
   if (!primaryProvider) {
     try {
       primaryProvider = new OpenAIProvider();
@@ -145,50 +94,41 @@ function getPrimaryProvider(): EmbeddingProvider {
     }
   }
   if (!primaryProvider) {
-    throw new APIError(
-      "No embedding provider available. Set OPENAI_API_KEY or TOGETHER_API_KEY.",
-      {
-        statusCode: 503,
-        context: { reason: "no_provider_available" },
-      },
-    );
+    throw new APIError("No embedding provider available. Set OPENAI_API_KEY.", {
+      statusCode: 503,
+      context: { reason: "no_provider_available" },
+    });
   }
   return primaryProvider;
 }
 
-function getFallbackProvider(): EmbeddingProvider | null {
-  if (!fallbackProvider) {
-    try {
-      fallbackProvider = new TogetherProvider();
-    } catch {
-      fallbackProvider = null;
-    }
-  }
-  return fallbackProvider;
-}
+// ------------------------------------------------------------------
+// Public API
+// ------------------------------------------------------------------
 
 /**
  * Generate an embedding vector for a single text string.
- * Tries primary provider, falls back on failure.
+ * Per-process cache eliminates redundant API calls within the same request.
  */
 export async function generateEmbedding(text: string): Promise<number[]> {
+  const cached = getCachedEmbedding(text);
+  if (cached !== undefined) return cached;
+
   try {
-    return await getPrimaryProvider().generate(text);
+    const vector = await getPrimaryProvider().generate(text);
+    setCachedEmbedding(text, vector);
+    return vector;
   } catch (err) {
     logError(err instanceof Error ? err : new Error(String(err)), {
       context: "embedding_primary_failed",
     });
-    const fallback = getFallbackProvider();
-    if (fallback) {
-      return await fallback.generate(text);
-    }
     throw err;
   }
 }
 
 /**
  * Generate embeddings for multiple texts in one batch call.
- * Falls back to individual calls if batch fails.
+ * Individual calls are cached via generateEmbedding() fallback.
  */
 export async function batchGenerateEmbeddings(
   texts: string[],
@@ -196,25 +136,34 @@ export async function batchGenerateEmbeddings(
   if (texts.length === 0) return [];
 
   try {
-    return await getPrimaryProvider().batchGenerate(texts);
+    // Deduplicate against the per-process cache to minimise API spend
+    const uncached: string[] = [];
+    const cacheHits: number[][] = [];
+    for (const text of texts) {
+      const hit = getCachedEmbedding(text);
+      if (hit !== undefined) {
+        cacheHits.push(hit);
+      } else {
+        uncached.push(text);
+      }
+    }
+
+    if (uncached.length > 0) {
+      const fresh = await getPrimaryProvider().batchGenerate(uncached);
+      uncached.forEach((text, i) => {
+        if (text !== undefined && fresh[i] !== undefined) {
+          setCachedEmbedding(text, fresh[i]);
+        }
+      });
+      return [...cacheHits, ...fresh];
+    }
+
+    return cacheHits;
   } catch (err) {
     logError(err instanceof Error ? err : new Error(String(err)), {
       context: "embedding_batch_primary_failed",
     });
-    const fallback = getFallbackProvider();
-    if (fallback) {
-      try {
-        return await fallback.batchGenerate(texts);
-      } catch (fallbackErr) {
-        logError(
-          fallbackErr instanceof Error
-            ? fallbackErr
-            : new Error(String(fallbackErr)),
-          { context: "embedding_batch_fallback_failed" },
-        );
-      }
-    }
-    // Fallback: generate individually
+    // Graceful per-item fallback (each goes through the cache)
     return Promise.all(texts.map((t) => generateEmbedding(t)));
   }
 }

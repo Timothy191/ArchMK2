@@ -1,8 +1,8 @@
 import { create } from "zustand";
 
-export type SplitService = "github" | "whatsapp";
+type SplitService = "github" | "whatsapp";
 
-export interface Tab {
+interface Tab {
   id: string;
   service: SplitService;
 }

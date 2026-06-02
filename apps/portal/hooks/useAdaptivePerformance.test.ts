@@ -53,6 +53,10 @@ describe("useAdaptivePerformance", () => {
       // Trigger initial rAF frame
       if (rafCallback) rafCallback(time);
 
+      // Advance past the 2.5s warm-up period
+      time += 2500;
+      if (rafCallback) rafCallback(time);
+
       // Simulate 1.6 seconds of frames every 30ms (~53 frames)
       for (let i = 0; i < 55; i++) {
         time += 30;

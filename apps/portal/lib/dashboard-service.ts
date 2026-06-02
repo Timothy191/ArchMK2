@@ -3,6 +3,7 @@
 import { createServerSupabaseClient } from "@repo/supabase/server";
 import { cacheWrap } from "@repo/redis";
 import { AuthError, DatabaseError } from "@repo/errors";
+import { withSpan } from "@repo/supabase";
 import { logError } from "@/lib/errors/error-logger";
 
 interface MonolithizedDashboardPayload {
@@ -41,51 +42,58 @@ interface MonolithizedDashboardPayload {
   }>;
 }
 
+async function fetchDashboard(
+  departmentId: string,
+): Promise<MonolithizedDashboardPayload> {
+  const supabase = await createServerSupabaseClient();
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+  if (authError || !user) {
+    logError(new Error("Unauthorized: valid session required"), {
+      context: "dashboard_rpc",
+    });
+    throw new AuthError("Unauthorized: valid session required", {
+      context: { operation: "getMonolithizedDashboard" },
+    });
+  }
+
+  const { data, error } = await supabase.rpc(
+    "get_monolithized_department_dashboard_payload",
+    { dept_id: departmentId },
+  );
+
+  if (error) {
+    logError(new Error(error.message), { context: "dashboard_rpc" });
+    throw new DatabaseError("Failed to query dashboard data", {
+      operation: "query",
+      context: { error: error.message },
+    });
+  }
+
+  return data as unknown as MonolithizedDashboardPayload;
+}
+
 /**
  * Get highly optimized, monolithized department dashboard data payload.
- * Pulls from local in-memory L1 cache first, falls back to Redis L2,
- * and on miss, queries PostgreSQL C-Native pre-aggregated JSONB in exactly ONE database roundtrip.
+ * Auth is resolved once per call (outside the cache); the RPC itself is
+ * cached for 15 seconds per department.
  */
 export async function getMonolithizedDashboard(
   departmentId: string,
 ): Promise<MonolithizedDashboardPayload> {
   const cacheKey = `dept:dashboard:monolith:${departmentId}`;
 
-  // Wrap query in hybrid L1/L2 cache with a conservative 15-second TTL
-  return cacheWrap<MonolithizedDashboardPayload>(
-    cacheKey,
-    async () => {
-      const supabase = await createServerSupabaseClient();
-
-      const {
-        data: { user },
-        error: authError,
-      } = await supabase.auth.getUser();
-      if (authError || !user) {
-        logError(new Error("Unauthorized: valid session required"), {
-          context: "dashboard_rpc",
-        });
-        throw new AuthError("Unauthorized: valid session required", {
-          context: { operation: "getMonolithizedDashboard" },
-        });
-      }
-
-      const { data, error } = await supabase.rpc(
-        "get_monolithized_department_dashboard_payload",
-        { dept_id: departmentId },
-      );
-
-      if (error) {
-        logError(new Error(error.message), { context: "dashboard_rpc" });
-        throw new DatabaseError("Failed to query dashboard data", {
-          operation: "query",
-          context: { error: error.message },
-        });
-      }
-
-      // Return raw parsed JSONB payload
-      return data as unknown as MonolithizedDashboardPayload;
-    },
-    15,
+  return withSpan(
+    "dashboard.getMonolithizedDashboard",
+    async () =>
+      cacheWrap<MonolithizedDashboardPayload>(
+        cacheKey,
+        async () => fetchDashboard(departmentId),
+        15,
+      ),
+    { departmentId },
   );
 }

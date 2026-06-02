@@ -53,5 +53,3 @@ export function LiveMetricsTicker({ className }: LiveMetricsTickerProps) {
     </div>
   );
 }
-
-export default LiveMetricsTicker;

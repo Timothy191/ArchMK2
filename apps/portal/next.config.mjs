@@ -44,12 +44,6 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ["lucide-react", "framer-motion", "@tremor/react"],
   },
-  turbopack: {
-    resolveAlias: {
-      ".js": [".ts", ".tsx", ".js"],
-      ".mjs": [".mts", ".mjs"],
-    },
-  },
   async headers() {
     return [
       {

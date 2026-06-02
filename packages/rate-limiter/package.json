@@ -14,9 +14,7 @@
     "type-check": "tsc --noEmit",
     "clean": "rm -rf dist .turbo"
   },
-  "dependencies": {
-    "redis": "^4.7.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
     "@types/node": "catalog:",

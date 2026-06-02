@@ -1463,3 +1463,9 @@ body:not(.focus-mode) .route-bg-focus-scrim {
   opacity: 0;
   pointer-events: none;
 }
+
+.low-perf-fallback .login-card-container .liquid-glass-pane-rounded {
+  background: rgba(255, 255, 255, 0.15) !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}

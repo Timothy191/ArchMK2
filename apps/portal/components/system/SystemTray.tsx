@@ -274,7 +274,7 @@ interface HealthState {
   lastFetched: number | null;
 }
 
-export function useServerHealth() {
+function useServerHealth() {
   const [health, setHealth] = useState<HealthState>({
     status: "healthy",
     db: "ok",

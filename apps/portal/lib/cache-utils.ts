@@ -50,9 +50,14 @@ export async function withCache<T>(
       throw err;
     }
 
-    // Fallback to stale cached value if available
-    if (fallback && cached.value !== null) {
-      return cached.value;
+    // Fallback: if Redis was unreachable on the initial lookup we may have
+    // skipped L2. Re-check L1 now (it may have been populated by another
+    // request in the meantime), otherwise rethrow.
+    if (fallback) {
+      const l1Retry = await cacheGetWithStats<T>(key);
+      if (l1Retry.value !== null && l1Retry.source === "l1") {
+        return l1Retry.value;
+      }
     }
 
     throw err;

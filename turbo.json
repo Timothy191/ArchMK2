@@ -65,7 +65,9 @@
         "SENTRY_PROJECT",
         "TURBO_SUMMARIZE",
         "SKIP_TYPE_CHECK",
-        "ENABLE_HEAVY_PLUGINS"
+        "ENABLE_HEAVY_PLUGINS",
+        "OLLAMA_URL",
+        "OLLAMA_TIMEOUT_MS"
       ],
       "passThroughEnv": ["ANALYZE"],
       "inputs": [
@@ -110,7 +112,9 @@
         "OPENAI_API_KEY",
         "TOGETHER_API_KEY",
         "DATABASE_POOLER_URL",
-        "INTERNAL_API_SECRET"
+        "INTERNAL_API_SECRET",
+        "OLLAMA_URL",
+        "OLLAMA_TIMEOUT_MS"
       ],
       "inputs": [
         "$TURBO_DEFAULT$",
@@ -139,7 +143,15 @@
     },
     "test": {
       "dependsOn": [],
-      "env": ["NEXT_PUBLIC_*", "SUPABASE_*", "NEXT_RUNTIME", "SENTRY_DSN", "SCANNER_API_KEY"],
+      "env": [
+        "NEXT_PUBLIC_*",
+        "SUPABASE_*",
+        "NEXT_RUNTIME",
+        "SENTRY_DSN",
+        "SCANNER_API_KEY",
+        "OLLAMA_URL",
+        "OLLAMA_TIMEOUT_MS"
+      ],
       "passThroughEnv": ["TEST_DB_URL", "MOCK_SERVER_PORT"],
       "inputs": [
         "$TURBO_DEFAULT$",

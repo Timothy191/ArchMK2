@@ -78,6 +78,11 @@ export default function RootLayout({
         />
       </head>
       <body className="text-[var(--text-heading)] min-h-screen font-sans antialiased selection:bg-[var(--accent-blue)]/30 selection:text-[var(--accent-blue)] relative overflow-x-hidden bg-[var(--bg-primary)]">
+        {/* Skip navigation link for keyboard users */}
+        <a href="#main-content" className="skip-link">
+          Skip to main content
+        </a>
+
         <ArchThemeProvider>
           <ClientProviders>
             <FocusModeProvider>
@@ -86,25 +91,37 @@ export default function RootLayout({
               <OfflineBanner />
               <AIAssistantSidebarWrapper />
 
-              {/* Global Navigation Header */}
-              <MacMenuBar
-                rightSlot={
-                  <div className="flex items-center gap-3">
-                    <FocusModeToggle variant="icon" />
-                    <SystemTrayPill />
-                    <WeatherWidget variant="header" />
-                    <SystemClock />
-                    <ServicesDropdown />
-                  </div>
-                }
-              />
+              {/* Global Navigation Header with proper landmark */}
+              <header role="banner" className="flex items-center gap-3">
+                <MacMenuBar
+                  rightSlot={
+                    <nav role="navigation" aria-label="Global">
+                      <div className="flex items-center gap-3">
+                        <FocusModeToggle variant="icon" />
+                        <SystemTrayPill />
+                        <WeatherWidget variant="header" />
+                        <SystemClock />
+                        <ServicesDropdown />
+                      </div>
+                    </nav>
+                  }
+                />
+              </header>
 
-              {/* Content wrapper */}
-              <div className="relative z-primary-card pt-16">
+              {/* Content wrapper with main landmark */}
+              <main
+                id="main-content"
+                role="main"
+                className="relative z-primary-card pt-16"
+              >
                 <SplitWindowLayout>{children}</SplitWindowLayout>
-              </div>
+              </main>
+
               <CommandBar />
               <ViewportBoundaries />
+
+              {/* Footer landmark - if exists, otherwise contentinfo on body or create footer */}
+              {/* We'll add a proper footer or ensure contentinfo is on appropriate element */}
             </FocusModeProvider>
           </ClientProviders>
         </ArchThemeProvider>

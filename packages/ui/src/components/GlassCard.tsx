@@ -36,7 +36,139 @@ export interface GlassCardProps extends HTMLMotionProps<"div"> {
   gradientColors?: string[];
   colorPreset?: "nature" | "ocean" | "sunset" | "aurora" | "custom";
   paused?: boolean;
+  blur?: boolean;
+  backgroundOpacity?: number;
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Liquid Glass Refraction Math Helpers (adapted from vaso & liquid-glass-react)
+// ─────────────────────────────────────────────────────────────────────────────
+
+function smoothStep(a: number, b: number, t: number): number {
+  t = Math.max(0, Math.min(1, (t - a) / (b - a)));
+  return t * t * (3 - 2 * t);
+}
+
+function getLength(x: number, y: number): number {
+  return Math.sqrt(x * x + y * y);
+}
+
+function roundedRectSDF(
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  radius: number,
+): number {
+  const absWidth = Math.abs(width);
+  const absHeight = Math.abs(height);
+  const absRadius = Math.abs(radius);
+
+  const qx = Math.abs(x) - absWidth + absRadius;
+  const qy = Math.abs(y) - absHeight + absRadius;
+  return (
+    Math.min(Math.max(qx, qy), 0) +
+    getLength(Math.max(qx, 0), Math.max(qy, 0)) -
+    absRadius
+  );
+}
+
+function createDisplacementFragment(
+  uv: { x: number; y: number },
+  intensity: number,
+  depth: number,
+  shapeWidth: number,
+  shapeHeight: number,
+  roundness: number,
+) {
+  const ix = uv.x - 0.5;
+  const iy = uv.y - 0.5;
+
+  const distanceToEdge = roundedRectSDF(
+    ix,
+    iy,
+    shapeWidth,
+    shapeHeight,
+    roundness,
+  );
+  const displacement = smoothStep(0.8, 0, distanceToEdge - Math.abs(intensity));
+  const scaled = smoothStep(0, 1, displacement);
+
+  const depthReverse = depth < 0;
+  const intensityReverse = intensity < 0;
+  const widthReverse = shapeWidth < 0;
+  const heightReverse = shapeHeight < 0;
+
+  let effectMultiplier = scaled;
+
+  if (depthReverse || intensityReverse) {
+    effectMultiplier = 1 - scaled * 0.7;
+  }
+
+  const finalX = widthReverse
+    ? ix * (2 - effectMultiplier) + 0.5
+    : ix * effectMultiplier + 0.5;
+  const finalY = heightReverse
+    ? iy * (2 - effectMultiplier) + 0.5
+    : iy * effectMultiplier + 0.5;
+
+  return {
+    x: finalX,
+    y: finalY,
+  };
+}
+
+const generateDisplacementData = (
+  width: number,
+  height: number,
+  intensity = 0.15,
+  shapeWidth = 0.35,
+  shapeHeight = 0.35,
+  depth = 1.2,
+  roundness = 0.1,
+) => {
+  const w = Math.floor(width);
+  const h = Math.floor(height);
+  const data = new Uint8ClampedArray(w * h * 4);
+  const rawValues: number[] = [];
+
+  let maxScale = 0;
+
+  for (let i = 0; i < data.length; i += 4) {
+    const x = (i / 4) % w;
+    const y = Math.floor(i / 4 / w);
+    const uv = { x: x / w, y: y / h };
+
+    const pos = createDisplacementFragment(
+      uv,
+      intensity,
+      depth,
+      shapeWidth,
+      shapeHeight,
+      roundness,
+    );
+    const dx = pos.x * w - x;
+    const dy = pos.y * h - y;
+
+    maxScale = Math.max(maxScale, Math.abs(dx), Math.abs(dy));
+    rawValues.push(dx, dy);
+  }
+
+  maxScale *= 0.5; // Normalize factor
+  if (maxScale === 0) maxScale = 1;
+
+  let index = 0;
+  for (let i = 0; i < data.length; i += 4) {
+    const r = (rawValues[index++] ?? 0) / maxScale + 0.5;
+    const g = (rawValues[index++] ?? 0) / maxScale + 0.5;
+    data[i] = r * 255;
+    data[i + 1] = g * 255;
+    data[i + 2] = 0;
+    data[i + 3] = 255;
+  }
+
+  return { data, maxScale };
+};
 
 const ACCENT_COLORS = {
   green: "hover:border-[var(--accent-green)]/40 hover:shadow-card-hover",
@@ -123,6 +255,7 @@ function MacTrafficLights() {
 }
 
 export function GlassCard({
+  ref,
   children,
   className,
   hover,
@@ -140,6 +273,8 @@ export function GlassCard({
   gradientColors,
   colorPreset = "custom",
   paused = false,
+  blur = true,
+  backgroundOpacity,
 
   ...props
 }: GlassCardProps) {
@@ -190,8 +325,127 @@ export function GlassCard({
   // Let's determine if glow animation should be paused
   const isGlowPaused = paused || prefersReduced;
 
+  // ─────────────────────────────────────────────────────────────────────────
+  // Liquid Glass Refraction Engine setup
+  // ─────────────────────────────────────────────────────────────────────────
+  const filterId = React.useId();
+  const localRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const feImageRef = useRef<SVGFEImageElement>(null);
+  const feDisplacementMapRef = useRef<SVGFEDisplacementMapElement>(null);
+
+  const [size, setSize] = useState({ width: 0, height: 0 });
+
+  useEffect(() => {
+    if (!isLiquid) return;
+    const target = localRef.current;
+    if (!target) return;
+
+    if (typeof ResizeObserver === "undefined") {
+      // Safely fallback for JSDOM/Node test environments
+      setSize({ width: 300, height: 200 });
+      return;
+    }
+
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const width =
+          entry.borderBoxSize?.[0]?.inlineSize ?? entry.contentRect.width;
+        const height =
+          entry.borderBoxSize?.[0]?.blockSize ?? entry.contentRect.height;
+        setSize({ width, height });
+      }
+    });
+
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [isLiquid]);
+
+  useEffect(() => {
+    if (!isLiquid || size.width === 0 || size.height === 0) return;
+
+    const canvas = canvasRef.current;
+    const feImage = feImageRef.current;
+    const feDisplacementMap = feDisplacementMapRef.current;
+    if (!canvas || !feImage || !feDisplacementMap) return;
+
+    const canvasDPI = 0.75;
+    const finalWidth = size.width;
+    const finalHeight = size.height;
+    const canvasWidth = Math.max(1, Math.floor(finalWidth * canvasDPI));
+    const canvasHeight = Math.max(1, Math.floor(finalHeight * canvasDPI));
+
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    try {
+      // Calculate normalized SDF shape dimensions to position the refraction border precisely at the edges
+      const borderWidth = 12; // width of the edge refraction band in pixels
+      const sw = Math.max(0.01, 0.5 - borderWidth / finalWidth);
+      const sh = Math.max(0.01, 0.5 - borderWidth / finalHeight);
+
+      // Compute roundness relative to sizes (matching border-radius: 16px)
+      const roundness = Math.min(
+        sw,
+        sh,
+        16 / Math.min(finalWidth, finalHeight),
+      );
+
+      const { data, maxScale } = generateDisplacementData(
+        canvasWidth,
+        canvasHeight,
+        0.15, // intensity
+        sw,
+        sh,
+        1.2, // depth
+        roundness,
+      );
+
+      if (data.length >= 4 && typeof ImageData !== "undefined") {
+        const imageData = new ImageData(data, canvasWidth, canvasHeight);
+        ctx.putImageData(imageData, 0, 0);
+
+        feImage.setAttributeNS(
+          "http://www.w3.org/1999/xlink",
+          "href",
+          canvas.toDataURL(),
+        );
+        feImage.setAttribute("width", `${finalWidth}`);
+        feImage.setAttribute("height", `${finalHeight}`);
+
+        const finalScale = Math.max(0, (maxScale * 1.2) / canvasDPI);
+        feDisplacementMap.setAttribute("scale", finalScale.toString());
+        feDisplacementMap.parentElement?.setAttribute("width", `${finalWidth}`);
+        feDisplacementMap.parentElement?.setAttribute(
+          "height",
+          `${finalHeight}`,
+        );
+      }
+    } catch (err) {
+      console.error("Error generating liquid glass displacement:", err);
+    }
+  }, [isLiquid, size]);
+
+  const backdropStyle = isLiquid
+    ? {
+        WebkitBackdropFilter: `url(#${filterId})${blur ? " blur(24px)" : ""} saturate(160%) contrast(110%)`,
+        backdropFilter: `url(#${filterId})${blur ? " blur(24px)" : ""} saturate(160%) contrast(110%)`,
+      }
+    : undefined;
+
   return (
     <motion.div
+      ref={(node) => {
+        localRef.current = node;
+        if (typeof ref === "function") {
+          ref(node);
+        } else if (ref) {
+          (ref as React.MutableRefObject<HTMLDivElement | null>).current = node;
+        }
+      }}
       whileHover={
         hover && !prefersReduced && !isLiquid ? { scale: 1.01 } : undefined
       }
@@ -343,7 +597,87 @@ export function GlassCard({
 
       {/* Liquid Glass Background Layer (separate from content wrapper to prevent font blurring issues) */}
       {isLiquid && (
-        <div className="absolute inset-0 -z-10 rounded-[inherit] liquid-glass-pane-rounded pointer-events-none" />
+        <>
+          <div
+            className="absolute inset-0 -z-10 rounded-[inherit] liquid-glass-pane-rounded pointer-events-none"
+            style={{
+              ...backdropStyle,
+              ...(backgroundOpacity !== undefined
+                ? {
+                    backgroundImage: `linear-gradient(135deg, rgba(255, 255, 255, ${backgroundOpacity * 1.5}) 0%, rgba(255, 255, 255, ${backgroundOpacity}) 100%), linear-gradient(135deg, rgba(255, 255, 255, 0.75) 0%, rgba(240, 240, 240, 0.15) 50%, rgba(255, 255, 255, 0.45) 100%)`,
+                  }
+                : {}),
+            }}
+          />
+          <svg
+            width="0"
+            height="0"
+            className="absolute pointer-events-none overflow-hidden"
+            aria-hidden="true"
+          >
+            <defs>
+              <filter
+                id={filterId}
+                filterUnits="userSpaceOnUse"
+                colorInterpolationFilters="sRGB"
+                x="-10%"
+                y="-10%"
+                width="120%"
+                height="120%"
+              >
+                <feImage ref={feImageRef} id={`${filterId}_map`} />
+                <feDisplacementMap
+                  ref={feDisplacementMapRef}
+                  in="SourceGraphic"
+                  in2={`${filterId}_map`}
+                  xChannelSelector="R"
+                  yChannelSelector="G"
+                  result="displaced"
+                />
+
+                {/* Chromatic aberration / dispersion (using offset-isolation-recombine additive blending) */}
+                <feOffset dx="1.5" dy="1.5" in="displaced" result="redShift" />
+                <feOffset dx="0" dy="0" in="displaced" result="greenCenter" />
+                <feOffset
+                  dx="-1.5"
+                  dy="-1.5"
+                  in="displaced"
+                  result="blueShift"
+                />
+                <feColorMatrix
+                  in="redShift"
+                  type="matrix"
+                  values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0"
+                  result="redOnly"
+                />
+                <feColorMatrix
+                  in="greenCenter"
+                  type="matrix"
+                  values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0"
+                  result="greenOnly"
+                />
+                <feColorMatrix
+                  in="blueShift"
+                  type="matrix"
+                  values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0"
+                  result="blueOnly"
+                />
+                <feComposite
+                  in="redOnly"
+                  in2="greenOnly"
+                  operator="lighter"
+                  result="redGreen"
+                />
+                <feComposite in="redGreen" in2="blueOnly" operator="lighter" />
+              </filter>
+            </defs>
+          </svg>
+          <canvas
+            ref={canvasRef}
+            className="hidden pointer-events-none"
+            aria-hidden="true"
+          />
+        </>
       )}
 
       {/* Liquid Glass Specular Sheen Sweep Layer */}
@@ -357,7 +691,7 @@ export function GlassCard({
             className="absolute inset-0 will-change-transform liquid-sheen-sweep"
             style={{
               background:
-                "linear-gradient(110deg, transparent 35%, rgba(255,255,255,0.4) 45%, rgba(255,255,255,0.7) 50%, rgba(255,255,255,0.4) 55%, transparent 65%)",
+                "linear-gradient(110deg, transparent 35%, rgba(255, 255, 255, 0.4) 45%, rgba(255, 255, 255, 0.7) 50%, rgba(255, 255, 255, 0.4) 55%, transparent 65%)",
               mixBlendMode: "screen",
               pointerEvents: "none",
               animationName: "liquid-sheen-sweep-mount",

@@ -244,29 +244,21 @@
 }
 
 @layer components {
-  /* RevoGrid visible borders - Hourly Loads grid styling */
-  .revo-grid-visible revo-grid {
-    --cell-border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.06));
+  /* Skip link – hidden but becomes visible on focus */
+  .skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: var(--color-bg-elevated);
+    color: var(--color-text-primary);
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-md);
+    z-index: 1000;
+    transition: top 0.3s ease;
   }
-  .revo-grid-visible revo-grid .row {
-    border-bottom: var(--cell-border);
-  }
-  .revo-grid-visible revo-grid .row:last-child {
-    border-bottom: none;
-  }
-  .revo-grid-visible revo-grid .data-cell {
-    border-right: var(--cell-border);
-  }
-  .revo-grid-visible revo-grid .data-cell:last-child {
-    border-right: none;
-  }
-  .revo-grid-visible revo-grid .header-cell {
-    border-right: var(--cell-border);
-    border-bottom: var(--cell-border);
-    background: var(--bg-secondary, rgba(0, 0, 0, 0.03));
-  }
-  .revo-grid-visible revo-grid .header-cell:last-child {
-    border-right: none;
+  .skip-link:focus,
+  .skip-link:active {
+    top: 0;
   }
 }
 

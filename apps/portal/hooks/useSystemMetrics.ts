@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { getThreeShift } from "@repo/utils";
 
-export interface SystemMetrics {
+interface SystemMetrics {
   websocketLatency: number; // mock latency in ms
   serverTimeSAST: string; // SAST formatted time string HH:MM:SS
   currentShift: {
@@ -100,5 +100,3 @@ export function useSystemMetrics(): SystemMetrics {
 
   return metrics;
 }
-
-export default useSystemMetrics;

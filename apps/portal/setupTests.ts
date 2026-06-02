@@ -20,3 +20,42 @@ global.Response =
       this.status = _init?.status ?? 200;
     }
   };
+
+// Global mock for redis to avoid database connection timeout/hangs in tests
+jest.mock("@repo/redis", () => {
+  const actual = jest.requireActual("@repo/redis");
+  const mockCache = new Map<string, string>();
+  const mockRedisClient = {
+    get: jest.fn(async (key: string) => mockCache.get(key) ?? null),
+    set: jest.fn(async (key: string, value: string) => {
+      mockCache.set(key, value);
+    }),
+    del: jest.fn(async (key: string) => {
+      mockCache.delete(key);
+    }),
+    isOpen: true,
+  };
+  return {
+    ...actual,
+    getRedisClient: jest.fn(async () => mockRedisClient),
+    closeRedis: jest.fn(async () => {}),
+  };
+});
+
+jest.mock("../../packages/redis/src/client", () => {
+  const mockCache = new Map<string, string>();
+  const mockRedisClient = {
+    get: jest.fn(async (key: string) => mockCache.get(key) ?? null),
+    set: jest.fn(async (key: string, value: string) => {
+      mockCache.set(key, value);
+    }),
+    del: jest.fn(async (key: string) => {
+      mockCache.delete(key);
+    }),
+    isOpen: true,
+  };
+  return {
+    getRedisClient: jest.fn(async () => mockRedisClient),
+    closeRedis: jest.fn(async () => {}),
+  };
+});

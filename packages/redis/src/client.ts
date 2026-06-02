@@ -1,24 +1,50 @@
-import { createClient, RedisClientType } from "redis";
+import { createClient, type RedisClientType } from "redis";
 
 const REDIS_URL = process.env.REDIS_URL || "redis://localhost:6379";
 
 let client: RedisClientType | null = null;
+let connecting: Promise<RedisClientType> | null = null;
 
 /**
  * Get or create the singleton Redis client.
- * Reuses the same connection across calls.
+ *
+ * Reconnection behaviour:
+ *  - Existing open socket → returned immediately.
+ *  - In-flight connect → awaited (prevents thundering herd).
+ *  - On connect/disconnect error → reset state so the next caller retries.
  */
 export async function getRedisClient(): Promise<RedisClientType> {
   if (client?.isOpen) return client;
+  if (connecting) return connecting;
 
-  client = createClient({ url: REDIS_URL });
+  connecting = (async () => {
+    // @ts-ignore — pnpm hoists two copies of @redis/client types, causing
+    // spurious "Two different types with this name exist" errors. Cast to
+    // any so TS uses structural typing instead of nominal.
+    const next: RedisClientType = createClient({
+      url: REDIS_URL,
+      socket: {
+        keepAlive: true,
+      },
+    } as any);
 
-  client.on("error", (err) => {
-    console.error("Redis Client Error", err);
-  });
+    next.on("error", () => {
+      if (client === next) client = null;
+      connecting = null;
+    });
 
-  await client.connect();
-  return client;
+    next.on("end", () => {
+      if (client === next) client = null;
+      connecting = null;
+    });
+
+    await next.connect();
+    client = next;
+    connecting = null;
+    return client;
+  })();
+
+  return connecting;
 }
 
 /**
@@ -30,4 +56,5 @@ export async function closeRedis(): Promise<void> {
     await client.quit();
     client = null;
   }
+  connecting = null;
 }

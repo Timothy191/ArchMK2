@@ -140,12 +140,12 @@ export function LoginForm() {
     <form
       data-testid="login-form"
       onSubmit={handleSubmit}
-      className="space-y-4"
+      className="space-y-8"
     >
       <div className="space-y-2">
         <label
           htmlFor="email"
-          className="block text-sm text-[var(--text-secondary)] transition-colors duration-200 liquid-text-lift"
+          className="block text-xs font-medium text-[var(--text-secondary)] transition-colors duration-200 liquid-text-lift select-none"
         >
           Employee ID / Email
         </label>
@@ -159,16 +159,18 @@ export function LoginForm() {
             value={employeeId}
             onChange={(e) => setEmployeeId(e.target.value)}
             variant="login"
-            className="px-4 py-2.5 pr-10 transition-all duration-200 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 liquid-glass-input focus-ring-arch-blue"
+            className="px-4 py-3.5 pr-10 transition-all duration-200 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 liquid-glass-input focus-ring-arch-blue"
             placeholder="e.g., admin@arch.os"
             aria-label="Employee ID / Email"
             autoComplete="username"
             aria-describedby={error ? "login-error email-hint" : "email-hint"}
+            aria-invalid={error ? "true" : "false"}
           />
           {/* RFID/NFC Reader badge scanning SVG icon */}
           <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none">
             <svg
               data-testid="nfc-icon"
+              aria-hidden="true"
               className="w-4 h-4 text-[var(--text-muted)] opacity-60 transition-all duration-300 ease-glass group-hover:opacity-85 group-focus-within:opacity-100 group-hover:scale-110 group-focus-within:scale-110"
               viewBox="0 0 24 24"
               fill="none"
@@ -197,7 +199,7 @@ export function LoginForm() {
       <div className="space-y-2">
         <label
           htmlFor="password"
-          className="block text-sm text-[var(--text-secondary)] transition-colors duration-200 liquid-text-lift"
+          className="block text-xs font-medium text-[var(--text-secondary)] transition-colors duration-200 liquid-text-lift select-none"
         >
           Password
         </label>
@@ -214,17 +216,17 @@ export function LoginForm() {
             onKeyDown={handleCapsLockKey}
             onKeyUp={handleCapsLockKey}
             variant="login"
-            className="px-4 py-2.5 pr-10 transition-all duration-200 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 liquid-glass-input focus-ring-arch-blue"
+            className="px-4 py-3.5 pr-10 transition-all duration-200 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 liquid-glass-input focus-ring-arch-blue"
             placeholder="Enter your password"
             aria-label="Password"
             autoComplete="current-password"
             aria-describedby={error ? "login-error" : undefined}
+            aria-invalid={error ? "true" : "false"}
           />
           <button
             type="button"
-            tabIndex={-1}
             onClick={() => setShowPassword((s) => !s)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-arch-accent-blue/50 rounded-sm"
             aria-label={showPassword ? "Hide password" : "Show password"}
           >
             {showPassword ? (
@@ -263,20 +265,59 @@ export function LoginForm() {
         </p>
       )}
 
-      <AnimatedButton
-        type="submit"
-        disabled={loading || failedAttempts >= 5}
-        className="w-full liquid-glass-button bg-gradient-to-b from-blue-400 to-blue-600 hover:from-blue-500 hover:to-blue-700 text-white font-medium shadow-md relative overflow-hidden flex items-center justify-center border-t border-white/20"
-        hoverScale={1}
-        tapScale={0.97}
-      >
-        {/* Top edge hardware sheen */}
-        <div className="absolute top-0 left-0 right-0 h-px bg-white/25 pointer-events-none" />
-        {loading ? "Signing in..." : "Sign In"}
-      </AnimatedButton>
+      <div className="flex flex-col gap-4">
+        <AnimatedButton
+          type="submit"
+          disabled={loading || failedAttempts >= 5}
+          className="w-full h-12 liquid-glass-button bg-gradient-to-b from-blue-400 to-blue-600 hover:from-blue-500 hover:to-blue-700 text-white font-medium shadow-md relative overflow-hidden flex items-center justify-center border-t border-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 focus-visible:ring-offset-1"
+          hoverScale={1}
+          tapScale={0.97}
+        >
+          {/* Top edge hardware sheen */}
+          <div className="absolute top-0 left-0 right-0 h-px bg-white/25 pointer-events-none" />
+          {loading ? "Signing in..." : "Sign In"}
+        </AnimatedButton>
+
+        {/* SSO Divider */}
+        <div className="relative flex items-center py-1">
+          <div className="flex-grow border-t border-black/[0.06]" />
+          <span className="flex-shrink mx-4 text-[9px] font-bold tracking-wider text-[var(--text-muted)] uppercase select-none">
+            or
+          </span>
+          <div className="flex-grow border-t border-black/[0.06]" />
+        </div>
+
+        {/* SSO Button */}
+        <AnimatedButton
+          type="button"
+          disabled={loading}
+          onClick={() => {
+            alert("Redirecting to corporate Single Sign-On portal...");
+          }}
+          className="w-full h-11 border border-black/[0.06] bg-black/[0.02] hover:bg-black/[0.04] text-[var(--text-secondary)] font-medium text-xs rounded-lg flex items-center justify-center gap-2 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-arch-accent-blue/50 focus-visible:ring-offset-1"
+          hoverScale={1}
+          tapScale={0.98}
+        >
+          <svg
+            className="w-4 h-4 text-[var(--text-muted)] opacity-80"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <circle cx="7.5" cy="15.5" r="5.5" />
+            <path d="m21 2-9.6 9.6" />
+            <path d="m15.5 7.5 3 3" />
+            <path d="M18.5 4.5 21 7" />
+          </svg>
+          Sign in with Single Sign-On (SSO)
+        </AnimatedButton>
+      </div>
 
       {/* Remember Me + Forgot Password row */}
-      <div className="flex items-center justify-between pt-1">
+      <div className="flex items-center justify-between pt-3">
         <label
           htmlFor="remember-me"
           className="flex items-center gap-2 cursor-pointer select-none group"
@@ -287,10 +328,10 @@ export function LoginForm() {
               type="checkbox"
               checked={rememberMe}
               onChange={(e) => setRememberMe(e.target.checked)}
-              className="sr-only"
+              className="sr-only peer"
             />
             <div
-              className={`w-3.5 h-3.5 rounded-sm border transition-all duration-150 flex items-center justify-center ${
+              className={`w-3.5 h-3.5 rounded-sm border transition-all duration-150 flex items-center justify-center peer-focus-visible:ring-2 peer-focus-visible:ring-arch-accent-blue/50 peer-focus-visible:ring-offset-1 ${
                 rememberMe
                   ? "bg-arch-accent-blue border-arch-accent-blue"
                   : "border-arch-border-emphasis bg-transparent"
@@ -319,7 +360,7 @@ export function LoginForm() {
         </label>
         <Link
           href="/reset-password"
-          className="text-xs text-[var(--text-muted)] hover:text-[var(--accent-cyan)] transition-colors duration-200 liquid-text-lift"
+          className="text-xs text-[var(--text-muted)] hover:text-[var(--accent-cyan)] transition-colors duration-200 liquid-text-lift focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-arch-accent-blue/50 rounded px-1 py-0.5 -mx-1"
         >
           Forgot password?
         </Link>

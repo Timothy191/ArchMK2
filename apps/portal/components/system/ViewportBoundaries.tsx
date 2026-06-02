@@ -111,5 +111,3 @@ export function ViewportBoundaries({ className }: ViewportBoundariesProps) {
     </div>
   );
 }
-
-export default ViewportBoundaries;
