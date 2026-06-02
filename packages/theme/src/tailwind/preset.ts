@@ -78,6 +78,10 @@ const archTheme: Config = {
         "accent-violet": "var(--accent-blue)", // @deprecated → use accent-blue
         "accent-alert": "var(--accent-red)", // @deprecated → use accent-red
 
+        // Corporate Brand Colors
+        "brand-blue": "var(--arch-brand-blue)",
+        "brand-blue-hover": "var(--arch-brand-blue-hover)",
+
         // macOS system accent colors
         "accent-blue": "var(--accent-blue)",
         "accent-red": "var(--accent-red)",
@@ -268,6 +272,7 @@ const archTheme: Config = {
       transitionTimingFunction: {
         glass: "cubic-bezier(0.2, 0, 0, 1)",
         "liquid-inertia": "cubic-bezier(0.25, 1.15, 0.45, 1)",
+        "ease-out-smooth": "cubic-bezier(0.16, 1, 0.3, 1)",
       },
       fontSize: {
         "tremor-label": ["0.75rem", { lineHeight: "1rem" }],

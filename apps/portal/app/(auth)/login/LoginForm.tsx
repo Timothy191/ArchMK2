@@ -149,22 +149,47 @@ export function LoginForm() {
         >
           Employee ID / Email
         </label>
-        <Input
-          id="email"
-          type="email"
-          required
-          maxLength={254}
-          disabled={loading}
-          value={employeeId}
-          onChange={(e) => setEmployeeId(e.target.value)}
-          variant="login"
-          className="px-4 py-2.5 transition-all duration-200 focus:ring-0 liquid-glass-input"
-          placeholder="e.g., admin@arch.os"
-          aria-label="Employee ID / Email"
-          autoComplete="username"
-          aria-describedby={error ? "login-error email-hint" : "email-hint"}
-        />
-        <p id="email-hint" className="text-[10px] text-arch-text-tertiary select-none">
+        <div className="relative group">
+          <Input
+            id="email"
+            type="email"
+            required
+            maxLength={254}
+            disabled={loading}
+            value={employeeId}
+            onChange={(e) => setEmployeeId(e.target.value)}
+            variant="login"
+            className="px-4 py-2.5 pr-10 transition-all duration-200 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 liquid-glass-input focus-ring-arch-blue"
+            placeholder="e.g., admin@arch.os"
+            aria-label="Employee ID / Email"
+            autoComplete="username"
+            aria-describedby={error ? "login-error email-hint" : "email-hint"}
+          />
+          {/* RFID/NFC Reader badge scanning SVG icon */}
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none">
+            <svg
+              data-testid="nfc-icon"
+              className="w-4 h-4 text-[var(--text-muted)] opacity-60 transition-all duration-300 ease-glass group-hover:opacity-85 group-focus-within:opacity-100 group-hover:scale-110 group-focus-within:scale-110"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <rect x="3" y="4" width="18" height="16" rx="2" />
+              <path d="M7 8h10" />
+              <path d="M7 12h10" />
+              <path d="M7 16h6" />
+              <path d="M17 15a3 3 0 0 0 0-4" />
+              <path d="M19 17a5 5 0 0 0 0-8" />
+            </svg>
+          </div>
+        </div>
+        <p
+          id="email-hint"
+          className="text-[10px] text-arch-text-tertiary select-none"
+        >
           Your employee ID is on your badge.
         </p>
       </div>
@@ -189,7 +214,7 @@ export function LoginForm() {
             onKeyDown={handleCapsLockKey}
             onKeyUp={handleCapsLockKey}
             variant="login"
-            className="px-4 py-2.5 pr-10 transition-all duration-200 focus:ring-0 liquid-glass-input"
+            className="px-4 py-2.5 pr-10 transition-all duration-200 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 liquid-glass-input focus-ring-arch-blue"
             placeholder="Enter your password"
             aria-label="Password"
             autoComplete="current-password"
@@ -241,10 +266,12 @@ export function LoginForm() {
       <AnimatedButton
         type="submit"
         disabled={loading || failedAttempts >= 5}
-        className="w-full liquid-glass-button"
+        className="w-full liquid-glass-button bg-gradient-to-b from-blue-400 to-blue-600 hover:from-blue-500 hover:to-blue-700 text-white font-medium shadow-md relative overflow-hidden flex items-center justify-center border-t border-white/20"
         hoverScale={1}
         tapScale={0.97}
       >
+        {/* Top edge hardware sheen */}
+        <div className="absolute top-0 left-0 right-0 h-px bg-white/25 pointer-events-none" />
         {loading ? "Signing in..." : "Sign In"}
       </AnimatedButton>
 

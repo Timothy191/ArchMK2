@@ -16,6 +16,7 @@ import { SystemTrayPill } from "@/components/system/SystemTray";
 import { MacMenuBar } from "@repo/ui/MacMenuBar";
 import { SplitWindowLayout } from "@/components/system/SplitWindowLayout";
 import { RouteBackground } from "@/components/RouteBackground";
+import { ViewportBoundaries } from "@/components/system/ViewportBoundaries";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -103,6 +104,7 @@ export default function RootLayout({
                 <SplitWindowLayout>{children}</SplitWindowLayout>
               </div>
               <CommandBar />
+              <ViewportBoundaries />
             </FocusModeProvider>
           </ClientProviders>
         </ArchThemeProvider>

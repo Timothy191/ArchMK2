@@ -6,6 +6,7 @@ import {
 import { redirect } from "next/navigation";
 import { LoginForm } from "./LoginForm";
 import { AlertTriangle, Lock } from "lucide-react";
+import { getThreeShift } from "@repo/utils";
 
 const PORTAL_VERSION = process.env.PORTAL_VERSION ?? "2.4.1";
 
@@ -28,8 +29,9 @@ export default async function LoginPage() {
       // Catastrophic failure (network, misconfiguration) — show unavailable state
       systemUnavailable = true;
     }
-    if (user) redirect("/");
   }
+
+  const shiftInfo = getThreeShift();
 
   return (
     <main className="relative w-full h-full min-h-[calc(100vh-28px)] flex items-center justify-start px-8 md:px-16 lg:px-32 overflow-hidden">
@@ -53,7 +55,13 @@ export default async function LoginPage() {
       {/* Login Card wrapper */}
       <div className="relative z-10 w-[380px] max-w-full animate-fade-up">
         {systemUnavailable ? (
-          <div className="liquid-glass-light rounded-2xl overflow-hidden shadow-window w-full">
+          <div
+            className="bg-white/70 backdrop-blur-lg border border-white/40 rounded-2xl overflow-hidden w-full"
+            style={{
+              boxShadow:
+                "0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 20px 40px -5px rgba(0, 0, 0, 0.1)",
+            }}
+          >
             <div className="flex items-center gap-3 px-4 py-2.5 border-b border-arch-border-subtle bg-white/5">
               <div className="flex items-center gap-1.5 shrink-0">
                 <span className="w-3 h-3 rounded-full bg-mac-red border border-arch-border-subtle" />
@@ -73,13 +81,19 @@ export default async function LoginPage() {
                 System Unavailable
               </h1>
               <p className="text-sm text-arch-text-tertiary">
-                Unable to reach authentication services. Please try again shortly
-                or contact IT Support.
+                Unable to reach authentication services. Please try again
+                shortly or contact IT Support.
               </p>
             </div>
           </div>
         ) : (
-          <div className="liquid-glass-light rounded-2xl overflow-hidden shadow-window w-full flex flex-col min-h-[600px]">
+          <div
+            className="bg-white/70 backdrop-blur-lg border border-white/40 rounded-2xl overflow-hidden w-full flex flex-col min-h-[600px]"
+            style={{
+              boxShadow:
+                "0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 20px 40px -5px rgba(0, 0, 0, 0.1)",
+            }}
+          >
             {/* Title bar */}
             <div className="flex items-center gap-3 px-4 py-2.5 border-b border-arch-border-subtle bg-white/5">
               <div className="flex items-center gap-1.5 shrink-0">
@@ -100,9 +114,17 @@ export default async function LoginPage() {
                     Welcome Back
                   </span>
                 </div>
-                <div className="flex items-center gap-1.5 text-[10px] text-arch-accent-green">
-                  <Lock className="w-3 h-3" strokeWidth={1.5} />
-                  <span>Secure</span>
+                <div className="flex items-center gap-2.5">
+                  <div
+                    data-testid="login-shift-badge"
+                    className="px-2 py-0.5 rounded text-[9.5px] font-mono font-semibold bg-black/[0.03] text-[var(--text-secondary)] border border-black/[0.04]"
+                  >
+                    {shiftInfo.label} ({shiftInfo.start}-{shiftInfo.end})
+                  </div>
+                  <div className="flex items-center gap-1.5 text-[10px] text-arch-accent-green">
+                    <Lock className="w-3 h-3" strokeWidth={1.5} />
+                    <span>Secure</span>
+                  </div>
                 </div>
               </div>
 
@@ -129,7 +151,9 @@ export default async function LoginPage() {
             {/* Enterprise Footer */}
             <div className="px-4 py-3 flex items-center justify-between text-[10px] text-[var(--text-muted)] bg-white/5 border-t border-arch-border-subtle">
               <span>Arch Systems v{PORTAL_VERSION}</span>
-              <span className="uppercase tracking-wider font-medium">Arch OS</span>
+              <span className="uppercase tracking-wider font-medium">
+                Arch OS
+              </span>
             </div>
           </div>
         )}

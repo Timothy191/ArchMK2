@@ -81,7 +81,14 @@ describe("LoginForm", () => {
     expect(
       screen.getByPlaceholderText("Enter your password"),
     ).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /sign/i })).toBeInTheDocument();
+    expect(screen.getByTestId("nfc-icon")).toBeInTheDocument();
+
+    const signInBtn = screen.getByRole("button", { name: /sign in/i });
+    expect(signInBtn).toBeInTheDocument();
+    expect(signInBtn.className).toContain("bg-gradient-to-b");
+    expect(signInBtn.className).toContain("from-blue-400");
+    expect(signInBtn.className).toContain("to-blue-600");
+    expect(signInBtn.className).toContain("border-t");
   });
 
   it("submits form and redirects on success", async () => {
@@ -314,7 +321,9 @@ describe("LoginForm", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText("Too many failed attempts. Please wait before trying again.")
+        screen.getByText(
+          "Too many failed attempts. Please wait before trying again.",
+        ),
       ).toBeInTheDocument();
     });
 
@@ -340,13 +349,19 @@ describe("LoginForm", () => {
     };
     const sessionStore: Record<string, string> = {};
 
-    const spyLocalGet = jest.spyOn(Storage.prototype, "getItem").mockImplementation((key) => localStore[key] || null);
-    const spyLocalRemove = jest.spyOn(Storage.prototype, "removeItem").mockImplementation((key) => {
-      delete localStore[key];
-    });
-    const spySessionSet = jest.spyOn(Storage.prototype, "setItem").mockImplementation((key, val) => {
-      sessionStore[key] = val;
-    });
+    const spyLocalGet = jest
+      .spyOn(Storage.prototype, "getItem")
+      .mockImplementation((key) => localStore[key] || null);
+    const spyLocalRemove = jest
+      .spyOn(Storage.prototype, "removeItem")
+      .mockImplementation((key) => {
+        delete localStore[key];
+      });
+    const spySessionSet = jest
+      .spyOn(Storage.prototype, "setItem")
+      .mockImplementation((key, val) => {
+        sessionStore[key] = val;
+      });
 
     const localStoreKeys = ["sb-access-token", "sb-refresh-token", "other-key"];
     const originalKeys = Object.keys;
@@ -390,7 +405,7 @@ describe("LoginForm", () => {
 
   it("rejects invalid page redirects (external or static files) and defaults to '/'", async () => {
     const { useSearchParams } = jest.requireMock("next/navigation");
-    
+
     const testRedirect = async (path: string, expectedTarget: string) => {
       useSearchParams.mockReturnValue({
         get: jest.fn((key) => (key === "redirect" ? path : null)),
