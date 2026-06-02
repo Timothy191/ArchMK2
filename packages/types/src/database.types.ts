@@ -2577,6 +2577,7 @@ export type Database = {
         Row: {
           block_drilled: string | null;
           close_hours: number | null;
+          comments: string | null;
           created_at: string;
           created_by: string | null;
           delay_blasting: number | null;
@@ -2591,6 +2592,8 @@ export type Database = {
           delay_safety_talks: number | null;
           delay_tramming: number | null;
           department_id: string;
+          engineering_delays_minutes: number | null;
+          external_delays_minutes: number | null;
           holes: number | null;
           id: string;
           machine_id: string;
@@ -2600,8 +2603,11 @@ export type Database = {
           operation_date: string;
           operator_id: string | null;
           operator_name: string | null;
+          production_delays_minutes: number | null;
           shift_id: string | null;
           shift_type: string | null;
+          site: string | null;
+          standard_delays_hours: number | null;
           status: string | null;
           total_hours: number | null;
           updated_at: string;
@@ -2610,6 +2616,7 @@ export type Database = {
         Insert: {
           block_drilled?: string | null;
           close_hours?: number | null;
+          comments?: string | null;
           created_at?: string;
           created_by?: string | null;
           delay_blasting?: number | null;
@@ -2624,6 +2631,8 @@ export type Database = {
           delay_safety_talks?: number | null;
           delay_tramming?: number | null;
           department_id: string;
+          engineering_delays_minutes?: number | null;
+          external_delays_minutes?: number | null;
           holes?: number | null;
           id?: string;
           machine_id: string;
@@ -2633,8 +2642,11 @@ export type Database = {
           operation_date?: string;
           operator_id?: string | null;
           operator_name?: string | null;
+          production_delays_minutes?: number | null;
           shift_id?: string | null;
           shift_type?: string | null;
+          site?: string | null;
+          standard_delays_hours?: number | null;
           status?: string | null;
           total_hours?: number | null;
           updated_at?: string;
@@ -2643,6 +2655,7 @@ export type Database = {
         Update: {
           block_drilled?: string | null;
           close_hours?: number | null;
+          comments?: string | null;
           created_at?: string;
           created_by?: string | null;
           delay_blasting?: number | null;
@@ -2657,6 +2670,8 @@ export type Database = {
           delay_safety_talks?: number | null;
           delay_tramming?: number | null;
           department_id?: string;
+          engineering_delays_minutes?: number | null;
+          external_delays_minutes?: number | null;
           holes?: number | null;
           id?: string;
           machine_id?: string;
@@ -2666,8 +2681,11 @@ export type Database = {
           operation_date?: string;
           operator_id?: string | null;
           operator_name?: string | null;
+          production_delays_minutes?: number | null;
           shift_id?: string | null;
           shift_type?: string | null;
+          site?: string | null;
+          standard_delays_hours?: number | null;
           status?: string | null;
           total_hours?: number | null;
           updated_at?: string;
@@ -8268,6 +8286,18 @@ export type Database = {
           isOneToOne: false;
           isSetofReturn: true;
         };
+      };
+      get_drill_monthly_summary: {
+        Args: { p_department_id: string; p_year_month: string };
+        Returns: {
+          availability_pct: number;
+          downtime_hours: number;
+          machine_id: string;
+          machine_name: string;
+          productive_hours: number;
+          scheduled_hours: number;
+          utilization_pct: number;
+        }[];
       };
       get_machine_utilization_weekly: {
         Args: never;

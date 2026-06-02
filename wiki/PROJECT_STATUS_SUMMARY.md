@@ -1,7 +1,7 @@
 # Project Status Summary
 
-**Date**: May 27, 2026  
-**Overall Score**: 8.5/10 (Well Above Industry Average of 6.5/10)
+**Date**: June 1, 2026  
+**Overall Score**: 8.6/10 (Well Above Industry Average of 6.5/10)
 
 ---
 
@@ -18,16 +18,17 @@
 | Test Coverage         | 6/10 (40%+ target met) | 🟡 B   |
 | Observability         | 9/10                   | 🟢 A+  |
 
-**Gap Closed**: Phase 5 complete — light theme, LangGraph AI, Highlight+OTEL observability, 48 migrations, all quality gates passing
+**Gap Closed**: Phase 5.1 complete — light theme, LangGraph AI, Highlight+OTEL observability, 48 migrations, rendering performance optimization, all quality gates passing
 
 ---
 
-## Cumulative Accomplishments (Phase 4–5, 2026-05-18 → 2026-05-27)
+## Cumulative Accomplishments (Phase 4–5.1, 2026-05-18 → 2026-06-01)
 
 ### Portal & UI ✅
 
 - Light-theme migration: entire portal from dark to macOS Sonoma light palette
 - `AnimatedWavesBackground` replacing all WebGL effects
+- **Rendering performance optimization**: Lenis scroll 1.2s→0.6s, backdrop-filter blur 16px→10px, rAF pause on tab hide, adaptive perf threshold 45→50 FPS
 - `ClientProviders.tsx` wrapping `HighlightInit` + `SmoothScrollProvider` (ssr: false fix)
 - Static department layouts for drilling, access-control, engineering (with `DepartmentLayout` re-export)
 - New sub-routes: tire-management, drilling-operations, machine-telemetry
@@ -174,81 +175,16 @@
 
 ## Phase Completion
 
-| Phase   | Status  | Score Achieved | Key Deliverables                                           |
-| ------- | ------- | -------------- | ---------------------------------------------------------- |
-| Phase 1 | ✅ Done | 8.0/10         | Coverage 40%+, @repo/errors, quality gates                 |
-| Phase 2 | ✅ Done | 8.3/10         | Bundle CI, Deployment pipeline, @repo/theme token pipeline |
-| Phase 3 | ✅ Done | 8.5/10         | LangGraph AI, MCP registry, N8N, agent teams               |
-| Phase 4 | ✅ Done | 8.5/10         | Webhooks, partitioning, OTEL, read replica                 |
-| Phase 5 | ✅ Done | 8.5/10         | Light theme, QR access control, Highlight, Inngest, Novu   |
+| Phase     | Status  | Score Achieved | Key Deliverables                                           |
+| --------- | ------- | -------------- | ---------------------------------------------------------- |
+| Phase 1   | ✅ Done | 8.0/10         | Coverage 40%+, @repo/errors, quality gates                 |
+| Phase 2   | ✅ Done | 8.3/10         | Bundle CI, Deployment pipeline, @repo/theme token pipeline |
+| Phase 3   | ✅ Done | 8.5/10         | LangGraph AI, MCP registry, N8N, agent teams               |
+| Phase 4   | ✅ Done | 8.5/10         | Webhooks, partitioning, OTEL, read replica                 |
+| Phase 5   | ✅ Done | 8.5/10         | Light theme, QR access control, Highlight, Inngest, Novu   |
+| Phase 5.1 | ✅ Done | 8.6/10         | Rendering performance: Lenis/blur/rAF/adaptive FPS         |
 
----
-
-## Priority Matrix
-
-| Priority  | Item                        | Impact       | Gap vs Industry |
-| --------- | --------------------------- | ------------ | --------------- |
-| � **P0**  | Test coverage 14% → 40%+    | **Complete** | **Met**         |
-| 🟡 **P1** | Error migration (53 throws) | High         | -1pt            |
-| 🟡 **P1** | Documentation standards     | Medium       | +1pt (ahead)    |
-| 🟢 **P2** | Bundle size CI              | Medium       | On par          |
-| 🟢 **P2** | Storybook                   | Low          | Missing         |
-
----
-
-## Files Modified Today
-
-### New Files Created
-
-- `apps/portal/app/ClientProviders.tsx` - Client component wrapper for `next/dynamic` + `ssr: false` providers
-- `packages/errors/` - Error handling package
-- `.github/workflows/reviewdog.yml` - PR linting
-- `knip.json` - Dead code detection config
-- `.markdownlint.json` - Markdown lint config
-- `.bundlesize.json` - Bundle size limits
-- `wiki/project-stability-analysis.md` - Stability report
-- `wiki/PROJECT_STATUS_SUMMARY.md` - This file
-- `.windsurf/plans/project-completion-roadmap.md` - Completion plan
-
-### Files Updated
-
-- `apps/portal/app/layout.tsx` - Replaced dynamic imports with `<ClientProviders>` wrapper
-- `package.json` - Added knip, markdownlint-cli, bundlesize
-- `turbo.json` - Added knip to globalDependencies
-- `.github/workflows/ci.yml` - Added PR write permissions
-- `apps/portal/jest.config.js` - Raised coverage to 40%
-- `packages/errors/tsconfig.json` - Added forceConsistentCasingInFileNames
-- `packages/ui/src/components/MacMenuBar.tsx` - Added aria-label
-- `apps/portal/app/(auth)/login/page.tsx` - Documented inline styles
-- `apps/portal/app/(hub)/page.tsx` - Documented inline styles
-- `packages/ui/src/components/DepartmentLayout.tsx` - Documented inline styles
-
----
-
-## Commands Available
-
-```bash
-# Quality checks
-pnpm quality          # Full quality gate
-pnpm knip            # Dead code detection
-pnpm md:lint         # Markdown lint
-pnpm size            # Bundle size check
-
-# Testing
-pnpm test            # Run tests
-pnpm test --coverage # Coverage report (target: 40% lines)
-
-# Dependencies
-pnpm deps:lint       # Check version consistency
-pnpm deps:fix        # Auto-fix version issues
-
-# Error handling (new)
-import { ValidationError } from '@repo/errors';
-```
-
----
-
-## Next Immediate Actions (Post-Phase 5)
+## Next Immediate Actions (Post-Phase 5.1)
 
 ### High Priority
 
@@ -311,4 +247,4 @@ Arch Systems monorepo is **production-ready** with **above-average tooling** (7.
 
 ## Last Updated
 
-May 27, 2026 — Phase 5 complete: light theme, LangGraph AI, Highlight+OTEL, Inngest, Novu, QR access control, 48 migrations, `pnpm quality` passing
+June 1, 2026 — Phase 5.1 complete: rendering performance optimization, backdrop-filter blur reduced, Lenis scroll halved, rAF pause on tab hide, adaptive FPS threshold tightened, `pnpm quality` passing.

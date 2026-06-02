@@ -68,7 +68,7 @@ test.describe("login page navigation", () => {
   test("login page is publicly accessible", async ({ page }) => {
     await page.goto("/login");
     await expect(page).toHaveURL(/\/login/);
-    await expect(page.locator("form")).toBeVisible();
+    await expect(page.getByTestId("login-form")).toBeVisible();
   });
 
   test("login page does not redirect to itself", async ({ page }) => {
@@ -81,7 +81,7 @@ test.describe("login page navigation", () => {
     page,
   }) => {
     await page.goto("/login?redirect=%2Fdrilling");
-    await expect(page.locator("form")).toBeVisible();
+    await expect(page.getByTestId("login-form")).toBeVisible();
     expect(page.url()).toContain("redirect=%2Fdrilling");
   });
 

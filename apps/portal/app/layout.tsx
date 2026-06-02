@@ -1,14 +1,13 @@
 import "@repo/ui/globals.css";
 import { ArchThemeProvider } from "@repo/theme/react";
 import type { Metadata, Viewport } from "next";
-import { Plus_Jakarta_Sans, Outfit, JetBrains_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import ClientProviders from "./ClientProviders";
 import { OfflineBanner } from "@/components/OfflineBanner";
 import { FocusModeProvider } from "@/components/FocusModeProvider";
+import { PerformanceListener } from "@/components/PerformanceListener";
 import { CommandBar } from "@/components/CommandBar";
 import { AIAssistantSidebarWrapper } from "@/features/shared/components/ai/AIAssistantSidebarWrapper";
-import { BottomWidgetBar } from "@/components/BottomWidgetBar";
-import { RouteBackground } from "@/components/RouteBackground";
 import { WeatherWidget } from "@/components/weather/WeatherWidget";
 import { SystemClock } from "@/components/clock/SystemClock";
 import { ServicesDropdown } from "@/components/nav/ServicesDropdown";
@@ -16,17 +15,13 @@ import { FocusModeToggle } from "@/components/FocusModeToggle";
 import { SystemTrayPill } from "@/components/system/SystemTray";
 import { MacMenuBar } from "@repo/ui/MacMenuBar";
 import { SplitWindowLayout } from "@/components/system/SplitWindowLayout";
+import { RouteBackground } from "@/components/RouteBackground";
+import { ViewportBoundaries } from "@/components/system/ViewportBoundaries";
 
-const plusJakartaSans = Plus_Jakarta_Sans({
+const inter = Inter({
   subsets: ["latin"],
   variable: "--font-sans",
   weight: ["300", "400", "500", "600", "700", "800"],
-  display: "swap",
-});
-
-const outfit = Outfit({
-  subsets: ["latin"],
-  variable: "--font-outfit",
   display: "swap",
 });
 
@@ -70,7 +65,7 @@ export default function RootLayout({
       lang="en"
       data-theme="light"
       suppressHydrationWarning
-      className={`${plusJakartaSans.variable} ${outfit.variable} ${jetbrainsMono.variable}`}
+      className={`${inter.variable} ${jetbrainsMono.variable}`}
     >
       <head>
         <link
@@ -81,27 +76,23 @@ export default function RootLayout({
           rel="dns-prefetch"
           href={process.env.NEXT_PUBLIC_SUPABASE_URL || "https://*.supabase.co"}
         />
-        {/* Preload background video — starts fetch before React hydrates RouteBackground */}
-        <link rel="preload" href="/arch-bg.mp4" as="video" type="video/mp4" />
       </head>
       <body className="text-[var(--text-heading)] min-h-screen font-sans antialiased selection:bg-[var(--accent-blue)]/30 selection:text-[var(--accent-blue)] relative overflow-x-hidden bg-[var(--bg-primary)]">
-        <RouteBackground />
         <ArchThemeProvider>
           <ClientProviders>
             <FocusModeProvider>
+              <RouteBackground />
+              <PerformanceListener />
               <OfflineBanner />
               <AIAssistantSidebarWrapper />
-              <BottomWidgetBar dockPosition="left-center" />
 
               {/* Global Navigation Header */}
               <MacMenuBar
                 rightSlot={
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-3">
                     <FocusModeToggle variant="icon" />
                     <SystemTrayPill />
-                    <div className="bg-black/[0.03] hover:bg-black/[0.06] border border-black/[0.05] rounded-full w-8 h-8 flex items-center justify-center transition-colors">
-                      <WeatherWidget variant="header" />
-                    </div>
+                    <WeatherWidget variant="header" />
                     <SystemClock />
                     <ServicesDropdown />
                   </div>
@@ -109,10 +100,11 @@ export default function RootLayout({
               />
 
               {/* Content wrapper */}
-              <div className="relative z-10 pt-16">
+              <div className="relative z-primary-card pt-16">
                 <SplitWindowLayout>{children}</SplitWindowLayout>
               </div>
               <CommandBar />
+              <ViewportBoundaries />
             </FocusModeProvider>
           </ClientProviders>
         </ArchThemeProvider>

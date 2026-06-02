@@ -1,15 +1,12 @@
-"use client";
-
-import React, { useState } from "react";
 import { GlassCard } from "@repo/ui/GlassCard";
 import {
   FileText,
-  Download,
   TrendingUp,
   ShieldAlert,
   CheckCircle,
   BarChart3,
 } from "lucide-react";
+import { ExportButton } from "../components/ExportButton";
 
 interface Report {
   id: string;
@@ -55,41 +52,30 @@ const initialReports: Report[] = [
   },
 ];
 
+const complianceRates = [
+  { name: "Drilling Department", rate: 98, trainees: 24, status: "Optimal" },
+  { name: "Production Department", rate: 91, trainees: 64, status: "Good" },
+  {
+    name: "Engineering Department",
+    rate: 94,
+    trainees: 38,
+    status: "Optimal",
+  },
+  {
+    name: "Access Control / Security",
+    rate: 100,
+    trainees: 12,
+    status: "Optimal",
+  },
+  {
+    name: "Administration & Safety Staff",
+    rate: 88,
+    trainees: 15,
+    status: "Caution",
+  },
+];
+
 export default function ReportsPage() {
-  const [reports] = useState<Report[]>(initialReports);
-  const [exporting, setExporting] = useState<string | null>(null);
-
-  const handleExport = (id: string) => {
-    setExporting(id);
-    setTimeout(() => {
-      setExporting(null);
-      alert("Report downloaded successfully!");
-    }, 1200);
-  };
-
-  const complianceRates = [
-    { name: "Drilling Department", rate: 98, trainees: 24, status: "Optimal" },
-    { name: "Production Department", rate: 91, trainees: 64, status: "Good" },
-    {
-      name: "Engineering Department",
-      rate: 94,
-      trainees: 38,
-      status: "Optimal",
-    },
-    {
-      name: "Access Control / Security",
-      rate: 100,
-      trainees: 12,
-      status: "Optimal",
-    },
-    {
-      name: "Administration & Safety Staff",
-      rate: 88,
-      trainees: 15,
-      status: "Caution",
-    },
-  ];
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -240,7 +226,7 @@ export default function ReportsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-black/[0.02]">
-              {reports.map((report) => (
+              {initialReports.map((report) => (
                 <tr key={report.id} className="hover:bg-black/[0.01]">
                   <td className="py-3 font-semibold text-[var(--text-muted)]">
                     {report.id}
@@ -261,16 +247,7 @@ export default function ReportsPage() {
                     {report.author}
                   </td>
                   <td className="py-3 text-right">
-                    <button
-                      onClick={() => handleExport(report.id)}
-                      disabled={exporting !== null}
-                      className="inline-flex items-center gap-1.5 text-xs text-[var(--accent-blue)] hover:underline font-semibold disabled:opacity-50"
-                    >
-                      <Download className="w-3 h-3" />
-                      <span>
-                        {exporting === report.id ? "Downloading..." : "Export"}
-                      </span>
-                    </button>
+                    <ExportButton />
                   </td>
                 </tr>
               ))}

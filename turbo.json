@@ -9,16 +9,15 @@
     "OTEL_EXPORTER_OTLP_ENDPOINT",
     "INNGEST_EVENT_KEY",
     "NOVU_API_KEY",
-    "OTEL_SERVICE_NAME"
+    "OTEL_SERVICE_NAME",
+    "PORTAL_VERSION",
+    "RATE_LIMIT_IP_WHITELIST",
+    "ENABLE_LOAD_ADAPTIVE_TEST"
   ],
   "globalPassThroughEnv": [
-    "Path",
     "HOME",
     "TMPDIR",
     "TMP",
-    "USERPROFILE",
-    "APPDATA",
-    "LOCALAPPDATA",
     "SHELL",
     "PWD",
     "GITHUB_TOKEN",
@@ -138,7 +137,7 @@
       ]
     },
     "test": {
-      "dependsOn": ["^build"],
+      "dependsOn": [],
       "env": ["NEXT_PUBLIC_*", "SUPABASE_*", "NEXT_RUNTIME", "SENTRY_DSN"],
       "passThroughEnv": ["TEST_DB_URL", "MOCK_SERVER_PORT"],
       "inputs": [

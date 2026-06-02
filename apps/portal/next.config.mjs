@@ -1,6 +1,10 @@
+import { createRequire } from "module";
 import { withSentryConfig } from "@sentry/nextjs";
 import withPWA from "@ducanh2912/next-pwa";
 import withBundleAnalyzer from "@next/bundle-analyzer";
+
+const require = createRequire(import.meta.url);
+const { version: PORTAL_VERSION } = require("./package.json");
 
 const isProduction = process.env.NODE_ENV === "production";
 const isCI = process.env.CI === "true";
@@ -10,6 +14,9 @@ const enableHeavyPlugins = isCI || process.env.ENABLE_HEAVY_PLUGINS === "true";
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: enableHeavyPlugins ? "standalone" : undefined,
+  env: {
+    PORTAL_VERSION,
+  },
   typescript: {
     ignoreBuildErrors: process.env.SKIP_TYPE_CHECK === "true",
   },
@@ -22,25 +29,20 @@ const nextConfig = {
   ],
   images: {
     formats: ["image/avif", "image/webp"],
-    minimumCacheTTL: 60,
+    minimumCacheTTL: 86400,
     remotePatterns: [
       { protocol: "https", hostname: "*.supabase.co" },
       { protocol: "https", hostname: "*.supabase.in" },
     ],
   },
   compiler: {
-    removeConsole: isProduction,
+    removeConsole: isProduction && {
+      exclude: ["error", "warn", "info"],
+    },
   },
   reactStrictMode: true,
   experimental: {
-    optimizePackageImports: [
-      "lucide-react",
-      "@phosphor-icons/react",
-      "framer-motion",
-      "@tremor/react",
-      "@tabler/icons-react",
-      "recharts",
-    ],
+    optimizePackageImports: ["lucide-react", "framer-motion", "@tremor/react"],
   },
   turbopack: {
     resolveAlias: {

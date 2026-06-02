@@ -18,7 +18,7 @@ export interface DataGridProps {
   filter?: boolean | ColumnFilterConfig;
   sorting?: boolean | SortingConfig;
   canFocus?: boolean;
-  onAfterEdit?: (event: any) => void;
+  onAfterEdit?: (_event: any) => void;
   stretch?: boolean | string;
 }
 

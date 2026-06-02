@@ -1,5 +1,4 @@
 import { Suspense } from "react";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
   createServerSupabaseClient,
@@ -11,13 +10,14 @@ import type { AlertEvent } from "@/features/hub/components/AlertTicker";
 import { ProductionTrend } from "@/features/hub/components/ProductionTrendWrapper";
 import type { TrendDataPoint } from "@/features/hub/components/ProductionTrend";
 import { HeroBackground } from "@/features/hub/components/HeroBackground";
+import { HeroRotator } from "@/features/hub/components/HeroRotator";
+import { TrustLogos } from "@/features/hub/components/TrustLogos";
 import { ToolBanner } from "@/features/hub/components/ToolBanner";
 import { getTools } from "@/lib/tools";
 import { DEPARTMENTS } from "~/lib/departments";
 import { DepartmentCard } from "@/features/hub/components/DepartmentCard";
+import { GlassCard } from "@repo/ui/GlassCard";
 import {
-  Play,
-  Info,
   Shield,
   Activity,
   Boxes,
@@ -30,7 +30,7 @@ import { FocusModeToggle } from "@/components/FocusModeToggle";
 import { withCache } from "@/lib/cache-utils";
 import { CacheCategory } from "@repo/redis";
 
-const PORTAL_VERSION = "2.4.1";
+const PORTAL_VERSION = process.env.PORTAL_VERSION ?? "2.4.1";
 
 export const dynamic = "force-dynamic";
 
@@ -307,22 +307,37 @@ export default async function HubPage() {
 
   return (
     <div className="space-y-6 sm:space-y-12">
-      {/* macOS Hero Card — frosted glass window style */}
-      <div
-        className="relative rounded-2xl overflow-hidden border border-arch-border-subtle bg-arch-surface-secondary/85 backdrop-blur-3xl shadow-window aurora-shadow glass-shimmer animate-fade-up"
+      {/* Light-theme glass hero section */}
+      {/* Light-theme glass hero section */}
+      <section
+        className="relative overflow-hidden rounded-3xl pt-1 pb-0 sm:pt-2 sm:pb-0 md:pt-3 md:pb-0 lg:pt-4 lg:pb-0 px-4 sm:px-6 md:px-10 motion-reduce:animate-none animate-fade-up"
         style={{
-          borderTop: "1px solid rgba(255,255,255,0.9)",
           animationDelay: "0s",
           animationFillMode: "both",
         }}
       >
-        <HeroBackground src="/arch_logo_background.png" alt="" />
+        <HeroBackground />
 
-        <div className="relative z-10 p-8 sm:p-12">
-          <div className="max-w-2xl space-y-5">
-            <div className="flex items-center gap-3 flex-wrap">
-              <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-accent-green/10 border border-accent-green/20 text-accent-green text-xs font-semibold tracking-wide shadow-[inset_0_0_6px_rgba(52,199,89,0.25)]">
-                <span className="w-1.5 h-1.5 rounded-full bg-accent-green animate-pulse shadow-[0_0_8px_rgba(52,199,89,0.8)]" />
+        <GlassCard
+          variant="liquid"
+          hover={false}
+          padding={false}
+          className="relative z-10 rounded-3xl shadow-card overflow-hidden"
+        >
+          {/* Inner glass highlight ring */}
+          <div
+            className="absolute inset-0 rounded-3xl ring-1 ring-inset ring-arch-border-emphasis/40 pointer-events-none"
+            aria-hidden="true"
+          />
+
+          <div className="px-6 py-6 sm:px-10 sm:py-8 md:px-14 md:py-10 max-w-xl space-y-5 relative">
+            {/* Eyebrow badge row */}
+            <div className="flex items-center gap-3 flex-wrap liquid-shift-y">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-arch-border-subtle bg-arch-surface-secondary/80 backdrop-blur-sm text-xs font-semibold tracking-wide text-arch-text-secondary">
+                <span
+                  className="w-1.5 h-1.5 rounded-full bg-emerald-500"
+                  aria-hidden="true"
+                />
                 Sector-01 Active
               </span>
               <span className="text-xs font-mono text-arch-text-tertiary tracking-wider">
@@ -330,69 +345,66 @@ export default async function HubPage() {
               </span>
               <FocusModeToggle />
               {incidentCount > 0 && (
-                <span className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-accent-red/10 text-accent-red text-[10px] font-semibold tracking-wide">
-                  <AlertTriangle className="w-3 h-3" />
+                <span
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-red-50 text-red-700 text-[10px] font-semibold tracking-wide"
+                  title={`${incidentCount} open safety incidents`}
+                >
+                  <AlertTriangle className="w-3 h-3" aria-hidden="true" />
                   {incidentCount} Open
                 </span>
               )}
               {breakdownCount > 0 && (
-                <span className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-mac-yellow/10 text-mac-yellow text-[10px] font-semibold tracking-wide">
-                  <Wrench className="w-3 h-3" />
+                <span
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 text-[10px] font-semibold tracking-wide"
+                  title={`${breakdownCount} active breakdowns`}
+                >
+                  <Wrench className="w-3 h-3" aria-hidden="true" />
                   {breakdownCount} Breakdown
                 </span>
               )}
               {offlineMachineCount > 0 && (
-                <span className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-arch-text-tertiary/10 text-arch-text-tertiary text-[10px] font-semibold tracking-wide">
-                  <Power className="w-3 h-3" />
+                <span
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[10px] font-semibold tracking-wide"
+                  title={`${offlineMachineCount} machines offline`}
+                >
+                  <Power className="w-3 h-3" aria-hidden="true" />
                   {offlineMachineCount} Offline
                 </span>
               )}
             </div>
 
-            <div className="space-y-2">
-              <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-arch-text-primary">
-                Arch Operations
-              </h1>
-              <p className="text-arch-text-secondary text-sm sm:text-base leading-relaxed max-w-lg">
-                Centralized monitoring and control system for Arch Systems
-                industrial complexes. Access Modbus diagnostics, machine
-                breakdowns, shifts, and live telemetry.
-              </p>
-            </div>
-
-            <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 pt-1">
-              <Link
-                href={
-                  accessibleDeptIds.includes("control-room")
-                    ? "/control-room"
-                    : accessibleDeptIds.length > 0
-                      ? `/${accessibleDeptIds[0]}`
-                      : "/"
-                }
-                className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-gradient-to-r from-[var(--accent-blue)] to-[var(--accent-electric-blue)] hover:from-[var(--accent-electric-blue)] hover:to-[var(--accent-blue)] text-white font-semibold text-sm transition-all hover:scale-[1.04] active:scale-[0.98] drop-shadow-[0_0_8px_rgba(0,102,255,0.5)] hover:drop-shadow-[0_0_12px_rgba(0,102,255,0.75)] min-h-[44px]"
-              >
-                <Play className="w-4 h-4 fill-current" />
-                {accessibleDeptIds.includes("control-room")
+            {/* Heading, body and CTAs */}
+            <HeroRotator
+              defaultTitle="Central Operations Portal"
+              defaultDescription="Centralized monitoring and control system for Arch Systems industrial complexes. Access Modbus diagnostics, machine breakdowns, shifts, and live telemetry."
+              primaryHref={
+                accessibleDeptIds.includes("control-room")
+                  ? "/control-room"
+                  : accessibleDeptIds.length > 0
+                    ? `/${accessibleDeptIds[0]}`
+                    : "/"
+              }
+              primaryLabel={
+                accessibleDeptIds.includes("control-room")
                   ? "Launch Monitor"
-                  : "Go to Department"}
-              </Link>
-              <Link
-                href={
-                  accessibleDeptIds.includes("training")
-                    ? "/training"
-                    : accessibleDeptIds.length > 0
-                      ? `/${accessibleDeptIds[0]}`
-                      : "/"
-                }
-                className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-arch-surface-secondary/85 hover:bg-arch-surface-secondary border border-arch-border-primary/50 text-arch-text-secondary font-semibold text-sm transition-all hover:scale-[1.02] active:scale-[0.98] backdrop-blur-xl min-h-[44px]"
-              >
-                <Info className="w-4 h-4" />
-                System Guidelines
-              </Link>
-            </div>
+                  : "Go to Department"
+              }
+              secondaryHref={
+                accessibleDeptIds.includes("training")
+                  ? "/training"
+                  : accessibleDeptIds.length > 0
+                    ? `/${accessibleDeptIds[0]}`
+                    : "/"
+              }
+              secondaryLabel="System Guidelines"
+              departments={departments}
+            />
+
+            {/* Trust section */}
+            <TrustLogos />
           </div>
-        </div>
-      </div>
+        </GlassCard>
+      </section>
 
       {/* Operational Urgencies & Alerts */}
       <div
@@ -400,7 +412,7 @@ export default async function HubPage() {
         style={{ animationDelay: "0.1s", animationFillMode: "both" }}
       >
         <div className="flex items-center justify-between pb-2 border-b border-arch-border-subtle">
-          <h2 className="text-[17px] font-semibold text-arch-text-primary flex items-center gap-2">
+          <h2 className="text-[17px] font-bold text-arch-text-primary flex items-center gap-2">
             <Shield className="w-4 h-4 text-arch-accent-red" />
             Live System Urgency & Incident Controls
           </h2>
@@ -414,7 +426,7 @@ export default async function HubPage() {
         style={{ animationDelay: "0.2s", animationFillMode: "both" }}
       >
         <div className="flex items-center justify-between pb-2 border-b border-arch-border-subtle">
-          <h2 className="text-[17px] font-semibold text-arch-text-primary group-hover/row:text-arch-accent-blue transition-colors duration-300 flex items-center gap-2">
+          <h2 className="text-[17px] font-bold text-arch-text-primary group-hover/row:text-arch-accent-blue transition-colors duration-300 flex items-center gap-2">
             <Boxes className="w-4 h-4 text-arch-accent-blue opacity-70" />
             Core Operational Modules
             <span className="ml-1 px-1.5 py-0.5 rounded-md bg-arch-surface-tertiary text-arch-text-tertiary text-[11px] font-mono">
@@ -451,7 +463,7 @@ export default async function HubPage() {
           style={{ animationDelay: "0.3s", animationFillMode: "both" }}
         >
           <div className="flex items-center justify-between pb-2 border-b border-arch-border-subtle">
-            <h2 className="text-[17px] font-semibold text-arch-text-primary group-hover/row:text-arch-accent-blue transition-colors duration-300 flex items-center gap-2">
+            <h2 className="text-[17px] font-bold text-arch-text-primary group-hover/row:text-arch-accent-blue transition-colors duration-300 flex items-center gap-2">
               <WrenchIcon className="w-4 h-4 text-arch-accent-blue opacity-70" />
               Daily Workflow & Efficiency Tools
             </h2>
@@ -473,17 +485,18 @@ export default async function HubPage() {
         style={{ animationDelay: "0.4s", animationFillMode: "both" }}
       >
         <div className="flex items-center justify-between pb-2 border-b border-arch-border-subtle">
-          <h2 className="text-[17px] font-semibold text-arch-text-primary flex items-center gap-2">
+          <h2 className="text-[17px] font-bold text-arch-text-primary flex items-center gap-2">
             <Activity className="w-4 h-4 text-arch-accent-green" />
             Operational Ingestion Telemetry
           </h2>
         </div>
-        <div
-          className="bg-arch-surface-secondary/70 border border-arch-border-subtle rounded-2xl p-6 backdrop-blur-xl shadow-card"
-          style={{ borderTop: "1px solid rgba(255,255,255,0.9)" }}
+        <GlassCard
+          variant="default"
+          padding
+          className="bg-arch-surface-secondary/70 border-arch-border-subtle"
         >
           <ProductionTrend data={productionTrendData} />
-        </div>
+        </GlassCard>
       </section>
     </div>
   );

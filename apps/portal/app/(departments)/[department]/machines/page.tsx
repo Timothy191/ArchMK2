@@ -24,7 +24,7 @@ export default async function MachinesPage({
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-medium text-[var(--text-heading)]">
+        <h2 className="text-2xl font-bold text-[var(--text-heading)]">
           Machine Database
         </h2>
         <Link
@@ -153,12 +153,15 @@ export default async function MachinesPage({
                             </div>
                           </div>
                           <span
-                            className={`px-2.5 py-1 rounded-full text-xs font-medium ${
+                            className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2 py-0.5 rounded-full border ${
                               machine.active
-                                ? "bg-accent-green/10 text-accent-green border border-accent-green/20"
-                                : "bg-[var(--bg-secondary)] text-[var(--text-muted)] border border-[var(--border-default)]"
+                                ? "bg-emerald-50/70 border-emerald-200/50 text-emerald-700"
+                                : "bg-[var(--bg-secondary)] text-[var(--text-muted)] border-[var(--border-default)]"
                             }`}
                           >
+                            {machine.active && (
+                              <span className="badge-pulse-dot bg-emerald-500" />
+                            )}
                             {machine.active ? "Active" : "Inactive"}
                           </span>
                         </div>

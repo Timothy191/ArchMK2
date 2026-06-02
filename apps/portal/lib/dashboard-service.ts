@@ -2,7 +2,7 @@
 
 import { createServerSupabaseClient } from "@repo/supabase/server";
 import { cacheWrap } from "@repo/redis";
-import { DatabaseError } from "@repo/errors";
+import { AuthError, DatabaseError } from "@repo/errors";
 import { logError } from "@/lib/errors/error-logger";
 
 interface MonolithizedDashboardPayload {
@@ -56,6 +56,19 @@ export async function getMonolithizedDashboard(
     cacheKey,
     async () => {
       const supabase = await createServerSupabaseClient();
+
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser();
+      if (authError || !user) {
+        logError(new Error("Unauthorized: valid session required"), {
+          context: "dashboard_rpc",
+        });
+        throw new AuthError("Unauthorized: valid session required", {
+          context: { operation: "getMonolithizedDashboard" },
+        });
+      }
 
       const { data, error } = await supabase.rpc(
         "get_monolithized_department_dashboard_payload",

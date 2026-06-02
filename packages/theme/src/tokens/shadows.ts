@@ -13,24 +13,24 @@
 export const shadows = {
   // ── Diffusion shadows — soft, layered depth (light mode) ──────────────────
   "diffusion-sm":
-    "0 2px 8px -2px rgba(0, 0, 0, 0.08), 0 1px 2px -1px rgba(0, 0, 0, 0.04)",
+    "0 2px 4px -1px rgba(0, 0, 0, 0.04), 0 8px 12px -4px rgba(0, 0, 0, 0.03)",
   "diffusion-md":
-    "0 4px 16px -4px rgba(0, 0, 0, 0.10), 0 2px 4px -2px rgba(0, 0, 0, 0.06)",
+    "0 3px 5px -1px rgba(0, 0, 0, 0.04), 0 14px 18px -5px rgba(0, 0, 0, 0.03)",
   "diffusion-lg":
-    "0 8px 32px -8px rgba(0, 0, 0, 0.14), 0 4px 8px -4px rgba(0, 0, 0, 0.08)",
+    "0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 20px 25px -5px rgba(0, 0, 0, 0.03)",
   "diffusion-xl":
-    "0 16px 48px -12px rgba(0, 0, 0, 0.18), 0 8px 16px -8px rgba(0, 0, 0, 0.10)",
+    "0 4px 8px -2px rgba(0, 0, 0, 0.05), 0 28px 40px -8px rgba(0, 0, 0, 0.04)",
 
-  // ── Card shadows — with inner top-highlight ──────────────────────────────
-  card: "0 2px 12px -2px rgba(0, 0, 0, 0.10), 0 1px 0 0 rgba(255, 255, 255, 0.95), inset 0 1px 0 0 rgba(255, 255, 255, 0.9)",
+  // ── Card shadows — dual-shadow ultra-diffused with inner top-highlight ──────
+  card: "0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 20px 25px -5px rgba(0, 0, 0, 0.03), 0 1px 0 0 rgba(255, 255, 255, 0.95), inset 0 1px 0 0 rgba(255, 255, 255, 0.9)",
   "card-hover":
-    "0 6px 24px -4px rgba(0, 0, 0, 0.14), 0 1px 0 0 rgba(255, 255, 255, 0.95)",
+    "0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 24px 30px -5px rgba(0, 0, 0, 0.04), 0 1px 0 0 rgba(255, 255, 255, 0.95), inset 0 1px 0 0 rgba(255, 255, 255, 0.9)",
 
   // ── Elevated & window ─────────────────────────────────────────────────────
   elevated:
-    "0 12px 40px -8px rgba(0, 0, 0, 0.18), 0 2px 8px -4px rgba(0, 0, 0, 0.10)",
+    "0 4px 8px -2px rgba(0, 0, 0, 0.05), 0 28px 45px -8px rgba(0, 0, 0, 0.04), 0 1px 0 0 rgba(255, 255, 255, 0.95), inset 0 1px 0 0 rgba(255, 255, 255, 0.9)",
   window:
-    "0 20px 60px -10px rgba(0, 0, 0, 0.20), 0 8px 24px -8px rgba(0, 0, 0, 0.12), inset 0 1px 0 0 rgba(255, 255, 255, 0.9)",
+    "0 4px 8px -2px rgba(0, 0, 0, 0.05), 0 32px 60px -10px rgba(0, 0, 0, 0.04), 0 1px 0 0 rgba(255, 255, 255, 0.95), inset 0 1px 0 0 rgba(255, 255, 255, 0.9)",
 
   // ── Glow shadows — macOS blue accent ────────────────────────────────────
   "glow-blue":

@@ -156,14 +156,13 @@ export function ServicesDropdown() {
             aria-expanded={open}
             title="System Tray (Alt+S)"
             className={cn(
-              "relative flex items-center justify-center w-[26px] h-[26px] rounded-full",
+              "relative flex items-center justify-center w-7 h-7 rounded-full",
               "bg-black/[0.03] hover:bg-black/[0.06] border border-black/[0.05]",
               "text-[var(--text-secondary)]",
-              "active:scale-95",
+              "active:scale-[0.97]",
               "transition-all duration-150 ease-in-out",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)] focus-visible:ring-offset-1",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)]/50",
               "cursor-default select-none",
-              "after:absolute after:inset-[-9px] after:content-['']",
               open && "bg-black/[0.06]",
             )}
           >

@@ -887,18 +887,29 @@ phase_testing() {
     success "Health checks skipped (dry-run)"
     return 0
   fi
+
+  # Structured health endpoint — validate JSON status field
+  local health_url="http://localhost:$PORT/api/health"
+  local health_status
+  health_status=$(curl -fs "$health_url" 2>/dev/null | jq -r '.status // "unknown"')
+  if [ "$health_status" = "healthy" ] || [ "$health_status" = "degraded" ]; then
+    success "Health API OK (status: $health_status)"
+  else
+    collect_error "Health API check failed: status='$health_status' at $health_url"
+  fi
+
+  # Raw reachability checks
   local endpoints=(
     "http://localhost:$PORT|Portal Root"
     "http://localhost:$PORT/login|Login Page"
-    "http://localhost:$PORT/api/health|Health API"
     "http://localhost:$PORT/api/health/live|Live Probe"
   )
-  
+
   for endpoint in "${endpoints[@]}"; do
     local url name
     url=$(echo "$endpoint" | cut -d'|' -f1)
     name=$(echo "$endpoint" | cut -d'|' -f2)
-    
+
     if curl -fs "$url" > /dev/null 2>&1; then
       success "$name OK"
     else

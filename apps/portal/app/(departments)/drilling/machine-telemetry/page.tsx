@@ -22,6 +22,8 @@ import {
   ArrowDown,
   Layers,
   Database,
+  Clock,
+  BarChart3,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -49,11 +51,22 @@ interface ArchivedMonth {
   record_count: number;
 }
 
+interface DrillMonthlySummary {
+  machine_id: string;
+  machine_name: string;
+  scheduled_hours: number | null;
+  downtime_hours: number | null;
+  productive_hours: number | null;
+  availability_pct: number | null;
+  utilization_pct: number | null;
+}
+
 async function getTelemetryData(selectedMachineId?: string): Promise<{
   currentMonth: string;
   telemetry: TelemetryRecord[];
   archives: ArchivedMonth[];
   drills: { id: string; name: string }[];
+  monthlySummary: DrillMonthlySummary[];
 }> {
   const supabase = await createServerSupabaseClient();
 
@@ -72,17 +85,24 @@ async function getTelemetryData(selectedMachineId?: string): Promise<{
     .single();
 
   if (!dept) {
-    return { currentMonth: "", telemetry: [], archives: [], drills: [] };
+    return {
+      currentMonth: "",
+      telemetry: [],
+      archives: [],
+      drills: [],
+      monthlySummary: [],
+    };
   }
 
   const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
 
-  // Parallel fetch: drill rigs, telemetry, archives, and machine name map
+  // Parallel fetch: drill rigs, telemetry, archives, machine name map, monthly summary
   const [
     { data: drills },
     { data: telemetry },
     { data: archives },
     { data: allMachines },
+    { data: monthlySummary },
   ] = await Promise.all([
     supabase
       .from("machines")
@@ -105,27 +125,30 @@ async function getTelemetryData(selectedMachineId?: string): Promise<{
       .from("machines")
       .select("id, name")
       .eq("machine_type", "Drill Rig"),
+    supabase.rpc("get_drill_monthly_summary", {
+      p_department_id: dept.id,
+      p_year_month: currentMonth,
+    }),
   ]);
 
   const machineNameMap = new Map(
-    (allMachines || []).map((m: any) => [m.id, m.name]),
+    (allMachines || []).map((m) => [m.id, m.name]),
   );
 
-  const transformedArchives: ArchivedMonth[] = (archives || []).map(
-    (a: any) => ({
-      id: a.id,
-      year_month: a.year_month,
-      machine_name: machineNameMap.get(a.machine_id) || "Unknown",
-      archived_at: a.archived_at,
-      record_count: a.record_count,
-    }),
-  );
+  const transformedArchives: ArchivedMonth[] = (archives || []).map((a) => ({
+    id: a.id,
+    year_month: a.year_month,
+    machine_name: machineNameMap.get(a.machine_id) || "Unknown",
+    archived_at: a.archived_at,
+    record_count: a.record_count,
+  }));
 
   return {
     currentMonth,
     telemetry: (telemetry || []) as TelemetryRecord[],
     archives: transformedArchives,
     drills: drills || [],
+    monthlySummary: (monthlySummary || []) as DrillMonthlySummary[],
   };
 }
 
@@ -162,7 +185,7 @@ export default async function MachineTelemetryPage({
 }: MachineTelemetryPageProps) {
   const { machineId } = await searchParams;
   const selectedMachineId = machineId === "all" ? undefined : machineId;
-  const { currentMonth, telemetry, archives, drills } =
+  const { currentMonth, telemetry, archives, drills, monthlySummary } =
     await getTelemetryData(selectedMachineId);
 
   // Calculate monthly totals
@@ -251,6 +274,134 @@ export default async function MachineTelemetryPage({
           </p>
         </GlassCard>
       </div>
+
+      {/* Monthly Availability & Utilization Summary (auto-built from drill_operations) */}
+      <GlassCard className="overflow-hidden p-0">
+        <div className="p-4 border-b border-[var(--border-subtle)] flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-2">
+              <BarChart3 className="w-5 h-5 text-[var(--accent-blue)]" />
+              <h3 className="text-lg font-semibold text-[var(--text-heading)]">
+                Monthly Availability & Utilization
+              </h3>
+            </div>
+            <p className="text-sm text-[var(--text-muted)] mt-1">
+              Auto-built from {formatMonth(currentMonth)} drill operations.
+              Downtime = Standard + External + Production + Engineering delays.
+            </p>
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow className="border-b border-[var(--border-subtle)] hover:bg-transparent">
+                <TableHead className="text-[var(--text-muted)] font-semibold text-xs uppercase tracking-wider">
+                  <Activity className="w-3 h-3 inline mr-1" />
+                  Drill Rig
+                </TableHead>
+                <TableHead className="text-[var(--text-muted)] font-semibold text-xs uppercase tracking-wider text-right">
+                  <Clock className="w-3 h-3 inline mr-1" />
+                  Scheduled (h)
+                </TableHead>
+                <TableHead className="text-[var(--text-muted)] font-semibold text-xs uppercase tracking-wider text-right">
+                  <TrendingUp className="w-3 h-3 inline mr-1" />
+                  Productive (h)
+                </TableHead>
+                <TableHead className="text-[var(--text-muted)] font-semibold text-xs uppercase tracking-wider text-right">
+                  <AlertTriangle className="w-3 h-3 inline mr-1" />
+                  Downtime (h)
+                </TableHead>
+                <TableHead className="text-[var(--text-muted)] font-semibold text-xs uppercase tracking-wider text-right">
+                  Availability %
+                </TableHead>
+                <TableHead className="text-[var(--text-muted)] font-semibold text-xs uppercase tracking-wider text-right">
+                  Utilization %
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {monthlySummary.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={6}
+                    className="text-center py-10 text-[var(--text-muted)]"
+                  >
+                    <BarChart3 className="w-10 h-10 mx-auto mb-2 opacity-30" />
+                    <p>
+                      No drill operations logged for {formatMonth(currentMonth)}{" "}
+                      yet.
+                    </p>
+                    <p className="text-sm mt-1">
+                      Log shifts in Drilling Operations to populate the summary.
+                    </p>
+                  </TableCell>
+                </TableRow>
+              ) : (
+                monthlySummary.map((s) => {
+                  const scheduled = Number(s.scheduled_hours ?? 0);
+                  const productive = Number(s.productive_hours ?? 0);
+                  const downtime = Number(s.downtime_hours ?? 0);
+                  const availabilityPct = s.availability_pct;
+                  const utilizationPct = s.utilization_pct;
+
+                  const availabilityClass =
+                    availabilityPct === null
+                      ? "text-[var(--text-muted)]"
+                      : availabilityPct >= 85
+                        ? "text-accent-green"
+                        : availabilityPct >= 70
+                          ? "text-accent-blue"
+                          : "text-accent-red";
+
+                  const utilizationClass =
+                    utilizationPct === null
+                      ? "text-[var(--text-muted)]"
+                      : utilizationPct >= 85
+                        ? "text-accent-green"
+                        : utilizationPct >= 70
+                          ? "text-accent-blue"
+                          : "text-accent-red";
+
+                  return (
+                    <TableRow
+                      key={s.machine_id}
+                      className="border-b border-[var(--border-subtle)] hover:bg-[var(--bg-tertiary)]/30"
+                    >
+                      <TableCell className="font-medium text-[var(--text-heading)]">
+                        {s.machine_name}
+                      </TableCell>
+                      <TableCell className="text-right tabular-nums text-[var(--text-body)]">
+                        {scheduled > 0 ? scheduled.toFixed(2) : "—"}
+                      </TableCell>
+                      <TableCell className="text-right tabular-nums text-[var(--text-body)]">
+                        {productive > 0 ? productive.toFixed(2) : "—"}
+                      </TableCell>
+                      <TableCell className="text-right tabular-nums text-[var(--text-body)]">
+                        {downtime > 0 ? downtime.toFixed(2) : "—"}
+                      </TableCell>
+                      <TableCell
+                        className={`text-right tabular-nums font-semibold ${availabilityClass}`}
+                      >
+                        {availabilityPct === null
+                          ? "—"
+                          : `${availabilityPct.toFixed(1)}%`}
+                      </TableCell>
+                      <TableCell
+                        className={`text-right tabular-nums font-semibold ${utilizationClass}`}
+                      >
+                        {utilizationPct === null
+                          ? "—"
+                          : `${utilizationPct.toFixed(1)}%`}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </GlassCard>
 
       {/* Current Month Telemetry Table */}
       <GlassCard className="overflow-hidden p-0">

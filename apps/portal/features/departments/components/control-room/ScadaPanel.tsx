@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { createBrowserSupabaseClient } from "@repo/supabase/client";
 import { GlassCard } from "@repo/ui/GlassCard";
 import { MachineControl } from "./MachineControl";
-import { FuxaFrame } from "@/components/control-room/FuxaFrame";
+import { FuxaFrame } from "./FuxaFrame";
 
 interface Machine {
   id: string;

@@ -7,31 +7,54 @@
 
 import { timingSafeEqual } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
-import { cacheGet, cacheSet } from "@repo/redis/cache";
+import { getRedisClient } from "@repo/redis";
+import {
+  RedisStore,
+  MemoryStore,
+  FixedWindowStrategy,
+  TokenBucketStrategy,
+  RateLimitResult,
+} from "@repo/rate-limiter";
+import os from "os";
 import { getRateLimitConfig } from "./rate-limit-config";
 
-interface RateLimitEntry {
-  count: number;
-  windowStart: number;
+const WHITELISTED_IPS = new Set(
+  (process.env.RATE_LIMIT_IP_WHITELIST || "127.0.0.1,::1,::ffff:127.0.0.1")
+    .split(",")
+    .map((ip) => ip.trim()),
+);
+
+function isIpWhitelisted(ip: string): boolean {
+  return WHITELISTED_IPS.has(ip);
 }
 
-interface RateLimitResult {
-  allowed: boolean;
-  limit: number;
-  remaining: number;
-  resetTime: number;
-  retryAfter?: number;
+function getClientIp(request: Request | NextRequest): string {
+  const forwarded = request.headers.get("x-forwarded-for");
+  const realIp =
+    forwarded?.split(",")[0]?.trim() ||
+    ("ip" in request ? (request as any).ip : undefined);
+  return realIp || "unknown";
 }
 
-// In-memory fallback for edge/middleware scenarios
-const memoryLimits = new Map<string, RateLimitEntry>();
-
-function pruneMemoryLimits(windowMs: number): void {
-  const cutoff = Date.now() - windowMs;
-  for (const [key, entry] of memoryLimits) {
-    if (entry.windowStart < cutoff) memoryLimits.delete(key);
+function isSystemUnderHighLoad(): boolean {
+  if (process.env.NODE_ENV === "test" && !process.env.ENABLE_LOAD_ADAPTIVE_TEST)
+    return false;
+  try {
+    const load = os.loadavg()[0]; // 1-minute load average
+    if (load === undefined) return false;
+    const cpus = os.cpus().length;
+    return load / cpus > 0.85; // System load is high if >85% CPU capacity
+  } catch {
+    return false;
   }
 }
+
+// Singleton stores and strategies for performance and connection pooling
+const globalMemoryStore = new MemoryStore();
+let globalRedisStore: RedisStore | null = null;
+
+const fixedWindowStrategy = new FixedWindowStrategy();
+const tokenBucketStrategy = new TokenBucketStrategy();
 
 /**
  * Check rate limit for a given identifier and configuration
@@ -39,99 +62,26 @@ function pruneMemoryLimits(windowMs: number): void {
 async function checkRateLimit(
   identifier: string,
   config: { windowMs: number; maxRequests: number },
+  path: string,
 ): Promise<RateLimitResult> {
-  const key = `ratelimit:${identifier}`;
-  const now = Date.now();
-  const windowStart = Math.floor(now / config.windowMs) * config.windowMs;
-
+  let store;
   try {
-    // Try Redis-backed rate limiting first
-    const cached = await cacheGet<RateLimitEntry>(key);
-
-    if (!cached || cached.windowStart !== windowStart) {
-      // First request in window or new window
-      const entry: RateLimitEntry = { count: 1, windowStart };
-      await cacheSet(key, entry, Math.ceil(config.windowMs / 1000));
-
-      return {
-        allowed: true,
-        limit: config.maxRequests,
-        remaining: config.maxRequests - 1,
-        resetTime: windowStart + config.windowMs,
-      };
+    const redisClient = await getRedisClient();
+    if (!globalRedisStore && redisClient) {
+      globalRedisStore = new RedisStore(redisClient);
     }
-
-    // Within current window
-    if (cached.count >= config.maxRequests) {
-      return {
-        allowed: false,
-        limit: config.maxRequests,
-        remaining: 0,
-        resetTime: windowStart + config.windowMs,
-        retryAfter: Math.ceil((windowStart + config.windowMs - now) / 1000),
-      };
-    }
-
-    // Increment count
-    cached.count++;
-    await cacheSet(
-      key,
-      cached,
-      Math.ceil((windowStart + config.windowMs - now) / 1000),
-    );
-
-    return {
-      allowed: true,
-      limit: config.maxRequests,
-      remaining: config.maxRequests - cached.count,
-      resetTime: windowStart + config.windowMs,
-    };
+    store = globalRedisStore || globalMemoryStore;
   } catch {
-    // Fallback to in-memory on Redis error
-    return checkRateLimitMemory(identifier, config, now);
-  }
-}
-
-/**
- * In-memory rate limiting fallback
- */
-function checkRateLimitMemory(
-  identifier: string,
-  config: { windowMs: number; maxRequests: number },
-  now: number,
-): RateLimitResult {
-  const key = `memory:${identifier}`;
-  const windowStart = Math.floor(now / config.windowMs) * config.windowMs;
-  const entry = memoryLimits.get(key);
-
-  if (!entry || entry.windowStart !== windowStart) {
-    pruneMemoryLimits(config.windowMs);
-    memoryLimits.set(key, { count: 1, windowStart });
-    return {
-      allowed: true,
-      limit: config.maxRequests,
-      remaining: config.maxRequests - 1,
-      resetTime: windowStart + config.windowMs,
-    };
+    store = globalMemoryStore;
   }
 
-  if (entry.count >= config.maxRequests) {
-    return {
-      allowed: false,
-      limit: config.maxRequests,
-      remaining: 0,
-      resetTime: windowStart + config.windowMs,
-      retryAfter: Math.ceil((windowStart + config.windowMs - now) / 1000),
-    };
-  }
+  // Token Bucket Strategy for bursty AI calls, Fixed Window for all others
+  const strategy = path.startsWith("/api/ai/")
+    ? tokenBucketStrategy
+    : fixedWindowStrategy;
 
-  entry.count++;
-  return {
-    allowed: true,
-    limit: config.maxRequests,
-    remaining: config.maxRequests - entry.count,
-    resetTime: windowStart + config.windowMs,
-  };
+  const key = `ratelimit:${identifier}`;
+  return strategy.check(key, config.maxRequests, config.windowMs, store);
 }
 
 /**
@@ -169,11 +119,25 @@ export async function withRateLimit(
     return handler();
   }
 
-  const path = new URL(request.url).pathname;
-  const config = options?.customLimit || getRateLimitConfig(path);
-  const identifier = getClientIdentifier(request);
+  // 1. IP Whitelist Bypass check
+  const clientIp = getClientIp(request);
+  if (isIpWhitelisted(clientIp)) {
+    return handler();
+  }
 
-  const result = await checkRateLimit(identifier, config);
+  const path = new URL(request.url).pathname;
+  let config = options?.customLimit || getRateLimitConfig(path);
+
+  // 2. Load-Adaptive Throttling: Scale down the rate limit if system CPU load is high
+  if (isSystemUnderHighLoad()) {
+    config = {
+      windowMs: config.windowMs,
+      maxRequests: Math.max(1, Math.floor(config.maxRequests * 0.5)),
+    };
+  }
+
+  const identifier = getClientIdentifier(request);
+  const result = await checkRateLimit(identifier, config, path);
 
   if (!result.allowed) {
     return new NextResponse(
@@ -219,4 +183,11 @@ export function skipForInternal(request: Request | NextRequest): boolean {
   } catch {
     return false;
   }
+}
+
+/**
+ * Reset middleware rate limits (for testing).
+ */
+export function resetMiddlewareRateLimits(): void {
+  globalMemoryStore.clear();
 }

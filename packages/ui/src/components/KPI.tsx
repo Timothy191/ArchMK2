@@ -41,9 +41,7 @@ export function KPICard({
 }: KPICardProps) {
   return (
     <GlassCard>
-      <p className="text-[var(--text-muted)] text-xs uppercase tracking-wide">
-        {label}
-      </p>
+      <p className="system-label">{label}</p>
       <p className={cn("text-2xl font-medium mt-1", colorMap[color])}>
         {value}
       </p>

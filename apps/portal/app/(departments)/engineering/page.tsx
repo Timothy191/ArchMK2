@@ -128,7 +128,7 @@ export default async function EngineeringDashboardPage() {
                 <p className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
                   Recent Active
                 </p>
-                {recentBreakdowns.slice(0, 3).map((b: any) => (
+                {recentBreakdowns.slice(0, 3).map((b) => (
                   <div
                     key={b.id}
                     className="flex items-center justify-between py-2 border-b border-[var(--border-subtle)] last:border-0"

@@ -13,6 +13,19 @@ import {
 import { QrCode, Plus, UserCheck, ShieldOff } from "lucide-react";
 import { getBadgesForDepartment } from "../actions";
 
+interface BadgeWithRelations {
+  id: string;
+  qr_code: string;
+  entity_type: string;
+  is_active: boolean | null;
+  issued_at: string | null;
+  expires_at: string | null;
+  personnel: { first_name: string; surname: string } | null;
+  visitor: { first_name: string; surname: string } | null;
+  fleet: { fleet_code: string; vehicle_type: string } | null;
+  equipment: { equip_code: string; equipment_type: string } | null;
+}
+
 export const dynamic = "force-dynamic";
 
 export default async function BadgesPage() {
@@ -34,10 +47,12 @@ export default async function BadgesPage() {
     );
   }
 
-  const badges = await getBadgesForDepartment(deptId);
+  const badges = (await getBadgesForDepartment(
+    deptId,
+  )) as unknown as BadgeWithRelations[];
 
   // Resolve entity names from nested relation data
-  const resolvedBadges = badges.map((b: any) => {
+  const resolvedBadges = badges.map((b) => {
     let entityName = "Unknown";
     if (b.personnel) {
       entityName = `${b.personnel.first_name} ${b.personnel.surname}`;
@@ -56,14 +71,14 @@ export default async function BadgesPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-semibold text-[var(--text-heading)]">
+          <h2 className="text-2xl font-bold text-[var(--text-heading)]">
             Credential Management
           </h2>
           <p className="text-sm text-[var(--text-muted)] mt-1">
             Issue, print, and revoke physical QR access credentials.
           </p>
         </div>
-        <Button className="bg-[var(--accent-cyan)] text-[var(--bg-secondary)] hover:bg-[var(--accent-cyan)]/90 shadow-diffusion-cyan">
+        <Button className="bg-accent-cyan text-bg-secondary hover:bg-accent-cyan/90 shadow-diffusion-cyan">
           <Plus className="w-4 h-4 mr-2" />
           Issue New Badge
         </Button>
@@ -74,7 +89,7 @@ export default async function BadgesPage() {
         <div className="lg:col-span-2 space-y-4">
           <GlassCard className="p-0 overflow-hidden">
             <div className="p-4 border-b border-[var(--border-default)] bg-[var(--bg-secondary)]/50">
-              <h3 className="font-medium text-[var(--text-heading)] flex items-center">
+              <h3 className="font-semibold text-[var(--text-heading)] flex items-center">
                 <UserCheck className="w-4 h-4 mr-2 text-accent-green" />
                 Active Provisioned Badges
               </h3>
@@ -107,7 +122,7 @@ export default async function BadgesPage() {
                     </TableCell>
                   </TableRow>
                 )}
-                {resolvedBadges.map((badge: any) => (
+                {resolvedBadges.map((badge) => (
                   <TableRow
                     key={badge.id}
                     className="border-b border-[var(--border-default)]/50 hover:bg-[var(--bg-tertiary)] transition-colors cursor-pointer group"
@@ -123,11 +138,12 @@ export default async function BadgesPage() {
                     </TableCell>
                     <TableCell className="text-right">
                       {badge.is_active ? (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-accent-green/10 text-accent-green border border-accent-green/20">
+                        <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2 py-0.5 rounded-full border bg-emerald-50/70 border-emerald-200/50 text-emerald-700">
+                          <span className="badge-pulse-dot bg-emerald-500" />
                           Active
                         </span>
                       ) : (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-accent-red/10 text-accent-red border border-accent-red/20">
+                        <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2 py-0.5 rounded-full border bg-red-50/70 border-red-200/50 text-red-700">
                           Revoked
                         </span>
                       )}
@@ -150,7 +166,7 @@ export default async function BadgesPage() {
                 <QrCode className="w-6 h-6 text-[var(--accent-cyan)]" />
               </div>
 
-              <h3 className="text-lg font-medium text-[var(--text-heading)]">
+              <h3 className="text-lg font-semibold text-[var(--text-heading)]">
                 QR Preview Engine
               </h3>
 

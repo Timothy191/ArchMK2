@@ -4,13 +4,7 @@ import { useState } from "react";
 import { GlassCard } from "@repo/ui/GlassCard";
 import { createBrowserSupabaseClient } from "@repo/supabase/client";
 import { useRouter } from "next/navigation";
-import {
-  Wrench,
-  AlertTriangle,
-  CheckCircle2,
-  ChevronDown,
-  ChevronUp,
-} from "lucide-react";
+import { Wrench, AlertTriangle, ChevronDown, ChevronUp } from "lucide-react";
 
 interface Machine {
   id: string;
@@ -233,8 +227,8 @@ export function EngineeringNotesForm({
                           Active
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-accent-green/10 text-accent-green border border-accent-green/20">
-                          <CheckCircle2 className="w-3 h-3" />
+                        <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2 py-0.5 rounded-full border bg-emerald-50/70 border-emerald-200/50 text-emerald-700">
+                          <span className="badge-pulse-dot bg-emerald-500" />
                           Completed today
                         </span>
                       )}

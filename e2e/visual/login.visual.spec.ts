@@ -11,10 +11,11 @@ import { test, expect } from "@playwright/test";
 test.describe("login page visual regression", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/login");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("load");
     await page.addStyleTag({
       content: `
         canvas { display: none !important; }
+        video { display: none !important; }
         .animate-pulse { animation: none !important; }
       `,
     });
@@ -35,7 +36,7 @@ test.describe("login page visual regression", () => {
   });
 
   test("login form card matches snapshot", async ({ page }) => {
-    const form = page.locator("form");
+    const form = page.getByTestId("login-form");
     await expect(form).toHaveScreenshot("login-form-card.png", {
       threshold: 0.02,
     });
@@ -47,7 +48,7 @@ test.describe("login page visual regression", () => {
       .first()
       .fill("operator@arch.os");
 
-    await expect(page.locator("form")).toHaveScreenshot(
+    await expect(page.getByTestId("login-form")).toHaveScreenshot(
       "login-form-filled.png",
       {
         threshold: 0.02,

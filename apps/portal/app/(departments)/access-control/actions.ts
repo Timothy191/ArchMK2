@@ -3,7 +3,7 @@
 import { cacheInvalidateTags, CacheCategory } from "@repo/redis";
 import { createServerSupabaseClient } from "@repo/supabase/server";
 import { revalidatePath } from "next/cache";
-import { AuthError, ForbiddenError } from "@repo/errors";
+import { AuthError, DatabaseError, ForbiddenError } from "@repo/errors";
 import { withCache } from "@/lib/cache-utils";
 
 /* ------------------------------------------------------------------ */
@@ -90,65 +90,35 @@ export async function getAccessControlMetrics(
     async () => {
       const { supabase } = await assertAccessControlRole();
 
-      const today = new Date().toISOString().split("T")[0];
-      const in7Days = new Date(
-        Date.now() + 7 * 24 * 60 * 60 * 1000,
-      ).toISOString();
+      const { data, error } = await supabase.rpc(
+        "get_access_control_metrics_jsonb",
+        { p_department_id: deptId },
+      );
 
-      const [
-        { count: activeQrCodes },
-        { count: expiringSoon },
-        { count: deniedToday },
-        { count: accessEventsToday },
-        { count: expiredAssigned },
-        { count: totalEntities },
-      ] = await Promise.all([
-        supabase
-          .from("badges")
-          .select("*", { count: "exact", head: true })
-          .eq("department_id", deptId)
-          .eq("is_active", true),
-        supabase
-          .from("badges")
-          .select("*", { count: "exact", head: true })
-          .eq("department_id", deptId)
-          .eq("is_active", true)
-          .lte("expires_at", in7Days)
-          .gt("expires_at", new Date().toISOString()),
-        supabase
-          .from("access_logs")
-          .select("*", { count: "exact", head: true })
-          .eq("department_id", deptId)
-          .eq("access_granted", false)
-          .gte("scanned_at", `${today}T00:00:00Z`),
-        supabase
-          .from("access_logs")
-          .select("*", { count: "exact", head: true })
-          .eq("department_id", deptId)
-          .gte("scanned_at", `${today}T00:00:00Z`),
-        supabase
-          .from("badges")
-          .select("*", { count: "exact", head: true })
-          .eq("department_id", deptId)
-          .eq("is_active", true)
-          .lt("expires_at", new Date().toISOString()),
-        supabase
-          .from("personnel")
-          .select("*", { count: "exact", head: true })
-          .eq("department_id", deptId),
-      ]);
+      if (error) {
+        throw new DatabaseError("Failed to load access control metrics", {
+          operation: "rpc",
+          context: { error: error.message },
+        });
+      }
 
+      const metrics = (data as Record<string, unknown>)?.metrics as
+        | Record<string, number>
+        | undefined;
+
+      const activeQrCodes = metrics?.active_qr_codes ?? 0;
+      const totalEntities = metrics?.total_entities ?? 0;
       const entityCoverage =
         totalEntities && activeQrCodes
           ? Math.round((activeQrCodes / totalEntities) * 100)
           : 0;
 
       return {
-        activeQrCodes: activeQrCodes ?? 0,
-        expiringSoon: expiringSoon ?? 0,
-        deniedToday: deniedToday ?? 0,
-        accessEventsToday: accessEventsToday ?? 0,
-        expiredAssigned: expiredAssigned ?? 0,
+        activeQrCodes,
+        expiringSoon: metrics?.expiring_soon ?? 0,
+        deniedToday: metrics?.denied_today ?? 0,
+        accessEventsToday: metrics?.access_events_today ?? 0,
+        expiredAssigned: metrics?.expired_assigned ?? 0,
         entityCoverage,
       };
     },
@@ -244,122 +214,51 @@ export async function getEntityBadgeStatus(
     async () => {
       const { supabase } = await assertAccessControlRole();
 
-      const in7Days = new Date(
-        Date.now() + 7 * 24 * 60 * 60 * 1000,
-      ).toISOString();
-      const now = new Date().toISOString();
+      const { data, error } = await supabase.rpc(
+        "get_access_control_metrics_jsonb",
+        { p_department_id: deptId },
+      );
 
-      // Personnel counts
-      const { count: totalPersonnel } = await supabase
-        .from("personnel")
-        .select("*", { count: "exact", head: true })
-        .eq("department_id", deptId);
+      if (error) {
+        throw new DatabaseError("Failed to load entity badge status", {
+          operation: "rpc",
+          context: { error: error.message },
+        });
+      }
 
-      const { count: activePersonnelBadges } = await supabase
-        .from("badges")
-        .select("*", { count: "exact", head: true })
-        .eq("department_id", deptId)
-        .eq("entity_type", "personnel")
-        .eq("is_active", true);
-
-      const { count: expiringPersonnel } = await supabase
-        .from("badges")
-        .select("*", { count: "exact", head: true })
-        .eq("department_id", deptId)
-        .eq("entity_type", "personnel")
-        .eq("is_active", true)
-        .lte("expires_at", in7Days)
-        .gt("expires_at", now);
-
-      const { count: expiredPersonnel } = await supabase
-        .from("badges")
-        .select("*", { count: "exact", head: true })
-        .eq("department_id", deptId)
-        .eq("entity_type", "personnel")
-        .eq("is_active", true)
-        .lt("expires_at", now);
-
-      // Fleet counts
-      const { count: totalFleet } = await supabase
-        .from("fleet")
-        .select("*", { count: "exact", head: true })
-        .eq("department_id", deptId);
-
-      const { count: activeFleetBadges } = await supabase
-        .from("badges")
-        .select("*", { count: "exact", head: true })
-        .eq("department_id", deptId)
-        .eq("entity_type", "vehicle")
-        .eq("is_active", true);
-
-      const { count: expiringFleet } = await supabase
-        .from("badges")
-        .select("*", { count: "exact", head: true })
-        .eq("department_id", deptId)
-        .eq("entity_type", "vehicle")
-        .eq("is_active", true)
-        .lte("expires_at", in7Days)
-        .gt("expires_at", now);
-
-      const { count: expiredFleet } = await supabase
-        .from("badges")
-        .select("*", { count: "exact", head: true })
-        .eq("department_id", deptId)
-        .eq("entity_type", "vehicle")
-        .eq("is_active", true)
-        .lt("expires_at", now);
-
-      // Equipment counts
-      const { count: totalEquipment } = await supabase
-        .from("equipment")
-        .select("*", { count: "exact", head: true })
-        .eq("department_id", deptId);
-
-      const { count: activeEquipmentBadges } = await supabase
-        .from("badges")
-        .select("*", { count: "exact", head: true })
-        .eq("department_id", deptId)
-        .eq("entity_type", "equipment")
-        .eq("is_active", true);
-
-      const { count: expiringEquipment } = await supabase
-        .from("badges")
-        .select("*", { count: "exact", head: true })
-        .eq("department_id", deptId)
-        .eq("entity_type", "equipment")
-        .eq("is_active", true)
-        .lte("expires_at", in7Days)
-        .gt("expires_at", now);
-
-      const { count: expiredEquipment } = await supabase
-        .from("badges")
-        .select("*", { count: "exact", head: true })
-        .eq("department_id", deptId)
-        .eq("entity_type", "equipment")
-        .eq("is_active", true)
-        .lt("expires_at", now);
+      const status = (data as Record<string, unknown>)?.entity_badge_status as
+        | Record<
+            string,
+            {
+              total?: number;
+              active?: number;
+              expiring?: number;
+              expired?: number;
+            }
+          >
+        | undefined;
 
       return [
         {
           type: "Employees",
-          total: totalPersonnel ?? 0,
-          active: activePersonnelBadges ?? 0,
-          expiring: expiringPersonnel ?? 0,
-          expired: expiredPersonnel ?? 0,
+          total: status?.employees?.total ?? 0,
+          active: status?.employees?.active ?? 0,
+          expiring: status?.employees?.expiring ?? 0,
+          expired: status?.employees?.expired ?? 0,
         },
         {
           type: "Vehicles",
-          total: totalFleet ?? 0,
-          active: activeFleetBadges ?? 0,
-          expiring: expiringFleet ?? 0,
-          expired: expiredFleet ?? 0,
+          total: status?.vehicles?.total ?? 0,
+          active: status?.vehicles?.active ?? 0,
+          expiring: status?.vehicles?.expiring ?? 0,
+          expired: status?.vehicles?.expired ?? 0,
         },
         {
           type: "Equipment",
-          total: totalEquipment ?? 0,
-          active: activeEquipmentBadges ?? 0,
-          expiring: expiringEquipment ?? 0,
-          expired: expiredEquipment ?? 0,
+          total: status?.equipment?.total ?? 0,
+          active: status?.equipment?.active ?? 0,
+          expiring: status?.equipment?.expiring ?? 0,
+          expired: status?.equipment?.expired ?? 0,
         },
       ];
     },
@@ -430,54 +329,32 @@ export async function getBadgeStatusDistribution(
     async () => {
       const { supabase } = await assertAccessControlRole();
 
-      const now = new Date().toISOString();
-      const in7Days = new Date(
-        Date.now() + 7 * 24 * 60 * 60 * 1000,
-      ).toISOString();
+      const { data, error } = await supabase.rpc(
+        "get_access_control_metrics_jsonb",
+        { p_department_id: deptId },
+      );
 
-      const [
-        { count: active },
-        { count: expiringSoon },
-        { count: expired },
-        { count: revoked },
-      ] = await Promise.all([
-        supabase
-          .from("badges")
-          .select("*", { count: "exact", head: true })
-          .eq("department_id", deptId)
-          .eq("is_active", true)
-          .gt("expires_at", in7Days),
-        supabase
-          .from("badges")
-          .select("*", { count: "exact", head: true })
-          .eq("department_id", deptId)
-          .eq("is_active", true)
-          .lte("expires_at", in7Days)
-          .gt("expires_at", now),
-        supabase
-          .from("badges")
-          .select("*", { count: "exact", head: true })
-          .eq("department_id", deptId)
-          .eq("is_active", true)
-          .lt("expires_at", now),
-        supabase
-          .from("badges")
-          .select("*", { count: "exact", head: true })
-          .eq("department_id", deptId)
-          .eq("is_active", false),
-      ]);
+      if (error) {
+        throw new DatabaseError("Failed to load badge status distribution", {
+          operation: "rpc",
+          context: { error: error.message },
+        });
+      }
+
+      const dist = (data as Record<string, unknown>)
+        ?.badge_status_distribution as Record<string, number> | undefined;
 
       return [
-        { name: "Active", value: active ?? 0, fill: "var(--success)" },
+        { name: "Active", value: dist?.active ?? 0, fill: "var(--success)" },
         {
           name: "Expiring Soon",
-          value: expiringSoon ?? 0,
+          value: dist?.expiring_soon ?? 0,
           fill: "var(--warning)",
         },
-        { name: "Expired", value: expired ?? 0, fill: "var(--danger)" },
+        { name: "Expired", value: dist?.expired ?? 0, fill: "var(--danger)" },
         {
           name: "Revoked",
-          value: revoked ?? 0,
+          value: dist?.revoked ?? 0,
           fill: "var(--muted-foreground)",
         },
       ];

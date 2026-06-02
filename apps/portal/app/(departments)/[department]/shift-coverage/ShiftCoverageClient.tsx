@@ -160,7 +160,7 @@ export function ShiftCoverageClient({
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-medium text-[var(--text-heading)]">
+        <h2 className="text-2xl font-bold text-[var(--text-heading)]">
           Shift Coverage
         </h2>
       </div>
@@ -208,11 +208,12 @@ export function ShiftCoverageClient({
       <GlassCard>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <h3 className="text-lg font-medium text-[var(--text-heading)]">
+            <h3 className="text-lg font-bold text-[var(--text-heading)]">
               Machine Coverage
             </h3>
             {isClosed && (
-              <span className="text-[10px] uppercase tracking-wider text-accent-green bg-accent-green/10 border border-accent-green/20 px-2 py-0.5 rounded-full font-medium">
+              <span className="inline-flex items-center gap-1.5 text-[9px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full border bg-emerald-50/70 border-emerald-200/50 text-emerald-700">
+                <span className="badge-pulse-dot bg-emerald-500" />
                 Closed
               </span>
             )}
@@ -325,7 +326,7 @@ export function ShiftCoverageClient({
       </GlassCard>
 
       <GlassCard>
-        <h3 className="text-lg font-medium text-[var(--text-heading)] mb-4">
+        <h3 className="text-lg font-bold text-[var(--text-heading)] mb-4">
           Close-out History
         </h3>
 

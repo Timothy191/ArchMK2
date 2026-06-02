@@ -43,7 +43,7 @@ export const AnimeTimeline = forwardRef<
       const targets = root.current.querySelectorAll("[data-anime-step]");
       if (!targets.length) return;
 
-      let cancelled = false;
+      let _cancelled = false;
 
       import("animejs").then(({ createScope, createTimeline }) => {
         scope.current = createScope({ root }).add(() => {
@@ -120,7 +120,7 @@ export const AnimeTimeline = forwardRef<
       });
 
       return () => {
-        cancelled = true;
+        _cancelled = true;
         scope.current?.revert();
       };
     }, [autoPlay, onComplete]);

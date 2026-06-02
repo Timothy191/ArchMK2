@@ -2,8 +2,8 @@
 
 > Content catalog for the Arch-Systems (Plantcor) company knowledge base.
 > Read this first to find relevant pages for any query.
-> Last updated: 2026-05-27 | Total pages: 59 (17 concepts + 9 entities + 10 comparisons + 7 ADRs + 6 queries + 4 operational + 3 gittree + 2 reports + 1 schema)
-> Current project version: Phase 5 (Latest) | Next.js 15 | React 19.2.6 | Supabase | LangGraph AI Orchestrator | Light Theme | 48 Migrations
+> Last updated: 2026-06-01 | Total pages: 59 (17 concepts + 9 entities + 10 comparisons + 7 ADRs + 6 queries + 4 operational + 3 gittree + 2 reports + 1 schema)
+> Current project version: Phase 5.1 (Performance) | Next.js 15 | React 19.2.6 | Supabase | LangGraph AI Orchestrator | Light Theme | 48 Migrations
 
 ## Quick Reference
 

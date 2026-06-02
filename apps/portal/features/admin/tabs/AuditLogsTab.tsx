@@ -13,8 +13,8 @@ interface AuditLog {
   table_name: string;
   action: string;
   user_id: string | null;
-  old_values: any;
-  new_values: any;
+  old_values: Record<string, unknown>;
+  new_values: Record<string, unknown>;
   created_at: string;
   employees?: {
     full_name: string;

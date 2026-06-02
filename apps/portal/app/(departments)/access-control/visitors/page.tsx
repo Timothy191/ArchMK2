@@ -11,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@repo/ui/components/ui/table";
-import { Users, Plus, Clock, ShieldCheck } from "lucide-react";
+import { Users, Plus, Clock } from "lucide-react";
 import { getVisitorsForDepartment } from "../actions";
 
 export const dynamic = "force-dynamic";
@@ -42,7 +42,7 @@ export default async function VisitorsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-semibold text-[var(--text-heading)]">
+          <h2 className="text-2xl font-bold text-[var(--text-heading)]">
             Visitor Management
           </h2>
           <p className="text-sm text-[var(--text-muted)] mt-1">
@@ -59,7 +59,7 @@ export default async function VisitorsPage() {
               <div className="p-2 bg-[var(--accent-cyan)]/10 rounded-lg">
                 <Users className="w-5 h-5 text-[var(--accent-cyan)]" />
               </div>
-              <h3 className="font-medium text-[var(--text-heading)]">
+              <h3 className="font-semibold text-[var(--text-heading)]">
                 New Registration
               </h3>
             </div>
@@ -122,7 +122,7 @@ export default async function VisitorsPage() {
               </div>
 
               <div className="pt-4">
-                <Button className="w-full bg-[var(--accent-cyan)] text-[var(--bg-secondary)] hover:bg-[var(--accent-cyan)]/90 shadow-diffusion-cyan">
+                <Button className="w-full bg-accent-cyan text-bg-secondary hover:bg-accent-cyan/90 shadow-diffusion-cyan">
                   <Plus className="w-4 h-4 mr-2" />
                   Register & Issue Badge
                 </Button>
@@ -135,7 +135,7 @@ export default async function VisitorsPage() {
         <div className="lg:col-span-2">
           <GlassCard className="p-0 overflow-hidden h-full">
             <div className="p-4 border-b border-[var(--border-default)] bg-[var(--bg-secondary)]/50 flex justify-between items-center">
-              <h3 className="font-medium text-[var(--text-heading)] flex items-center">
+              <h3 className="font-semibold text-[var(--text-heading)] flex items-center">
                 <Clock className="w-4 h-4 mr-2 text-[var(--text-muted)]" />
                 Today&apos;s Visitors
               </h3>
@@ -171,7 +171,7 @@ export default async function VisitorsPage() {
                     </TableCell>
                   </TableRow>
                 )}
-                {visitors.map((visitor: any) => (
+                {visitors.map((visitor) => (
                   <TableRow
                     key={visitor.id}
                     className="border-b border-[var(--border-default)]/50 hover:bg-[var(--bg-tertiary)] transition-colors"
@@ -199,12 +199,12 @@ export default async function VisitorsPage() {
                     </TableCell>
                     <TableCell className="text-right">
                       {visitor.status === "Checked In" ? (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-accent-green/10 text-accent-green border border-accent-green/20">
-                          <ShieldCheck className="w-3 h-3 mr-1" />
+                        <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2 py-0.5 rounded-full border bg-emerald-50/70 border-emerald-200/50 text-emerald-700">
+                          <span className="badge-pulse-dot bg-emerald-500" />
                           Checked In
                         </span>
                       ) : (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-[var(--bg-tertiary)] text-[var(--text-muted)] border border-[var(--border-default)]">
+                        <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2 py-0.5 rounded-full border bg-[var(--bg-secondary)] text-[var(--text-muted)] border-[var(--border-default)]">
                           {visitor.status || "—"}
                         </span>
                       )}

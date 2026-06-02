@@ -3,18 +3,18 @@
 
 # ── Stage 1: pruner ──────────────────────────────────────
 # Generates a filtered workspace with only the packages portal depends on
-FROM node:20-alpine AS pruner
+FROM node:22-alpine AS pruner
 RUN apk add --no-cache libc6-compat python3 make g++ && \
-    npm install -g pnpm@9.12.0 turbo
+    npm install -g pnpm@9.15.9 turbo
 WORKDIR /app
 COPY . .
 RUN turbo prune --scope=portal --docker
 
 # ── Stage 2: deps ──────────────────────────────────────
 # Installs dependencies from the pruned lockfile with pnpm store cache mount
-FROM node:20-alpine AS deps
+FROM node:22-alpine AS deps
 RUN apk add --no-cache libc6-compat && \
-    npm install -g pnpm@9.12.0
+    npm install -g pnpm@9.15.9
 WORKDIR /app
 COPY --from=pruner /app/out/json/ .
 COPY --from=pruner /app/out/pnpm-lock.yaml .
@@ -52,7 +52,7 @@ RUN --mount=type=cache,target=/app/apps/portal/.next/cache \
 
 # ── Stage 4: production ──────────────────────────────────
 # Distroless image with only the standalone output and static assets
-FROM gcr.io/distroless/nodejs20-debian12 AS production
+FROM gcr.io/distroless/nodejs22-debian12 AS production
 WORKDIR /app
 COPY --from=builder /app/apps/portal/public ./public
 COPY --from=builder /app/apps/portal/.next/standalone ./

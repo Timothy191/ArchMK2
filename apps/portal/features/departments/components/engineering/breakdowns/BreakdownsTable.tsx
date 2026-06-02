@@ -172,11 +172,12 @@ export function BreakdownsTable({
                     {showStatus && (
                       <td className="px-4 py-3">
                         {b.status === "completed" ? (
-                          <span className="px-2 py-0.5 rounded-full text-xs bg-accent-green/10 border border-accent-green/20 text-accent-green">
+                          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-accent-green bg-transparent border-transparent">
+                            <span className="badge-pulse-dot" />
                             Completed
                           </span>
                         ) : (
-                          <span className="px-2 py-0.5 rounded-full text-xs bg-accent-blue/10 border border-accent-blue/20 text-accent-blue">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-accent-blue/10 border border-accent-blue/20 text-accent-blue font-medium">
                             Pending
                           </span>
                         )}

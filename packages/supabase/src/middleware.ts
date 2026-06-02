@@ -29,5 +29,10 @@ export async function createMiddlewareClient(request: NextRequest) {
     },
   );
 
-  return { supabase, response: supabaseResponse };
+  return {
+    supabase,
+    get response() {
+      return supabaseResponse;
+    },
+  };
 }

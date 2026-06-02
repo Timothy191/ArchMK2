@@ -6,6 +6,24 @@ import { ShiftToggle, getCurrentShift } from "@repo/ui/ShiftToggle";
 import { createBrowserSupabaseClient } from "@repo/supabase/client";
 import { useRouter } from "next/navigation";
 import { Plus, X, Equal, Calculator } from "lucide-react";
+import { z } from "zod";
+
+const dozerRollSchema = z.object({
+  departmentId: z.string().uuid("Invalid department ID"),
+  machineId: z.string().uuid("Please select a dozer"),
+  today: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format"),
+  shiftType: z.enum(["day", "night"]),
+  bladePasses: z
+    .number()
+    .int()
+    .min(0, "Blade passes must be a positive integer"),
+  pushCount: z.number().int().min(0, "Push count must be a positive integer"),
+  hoursOperated: z
+    .number()
+    .min(0, "Hours operated must be positive")
+    .max(24, "Hours operated cannot exceed 24"),
+  area: z.number().min(0, "Area must be positive"),
+});
 
 interface DozerWithSite {
   id: string;
@@ -18,9 +36,14 @@ interface DozerWithSite {
 interface DozerRollFormProps {
   departmentId: string;
   dozers: DozerWithSite[];
+  today: string;
 }
 
-export function DozerRollForm({ departmentId, dozers }: DozerRollFormProps) {
+export function DozerRollForm({
+  departmentId,
+  dozers,
+  today,
+}: DozerRollFormProps) {
   const router = useRouter();
   const supabase = createBrowserSupabaseClient();
 
@@ -36,6 +59,16 @@ export function DozerRollForm({ departmentId, dozers }: DozerRollFormProps) {
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  if (!today || !/^\d{4}-\d{2}-\d{2}$/.test(today)) {
+    return (
+      <GlassCard className="border-accent-red/30 bg-accent-red/5 text-accent-red p-6">
+        <p className="text-sm font-medium">
+          Operational date is missing or invalid. Please reload the page.
+        </p>
+      </GlassCard>
+    );
+  }
 
   const selectedDozer = useMemo(
     () => dozers.find((d) => d.id === machineId),
@@ -78,9 +111,24 @@ export function DozerRollForm({ departmentId, dozers }: DozerRollFormProps) {
 
     setIsSubmitting(true);
 
-    try {
-      const today = new Date().toISOString().split("T")[0];
+    const validation = dozerRollSchema.safeParse({
+      departmentId,
+      machineId,
+      today,
+      shiftType,
+      bladePasses: parseInt(bladePasses || "0", 10),
+      pushCount: parseInt(pushCount || "0", 10),
+      hoursOperated: parseFloat(hoursOperated || "0"),
+      area,
+    });
 
+    if (!validation.success) {
+      setError(validation.error.issues[0]?.message || "Validation failed");
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
       const { error: insertError } = await supabase.from("dozer_rolls").insert({
         department_id: departmentId,
         machine_id: machineId,
@@ -138,6 +186,16 @@ export function DozerRollForm({ departmentId, dozers }: DozerRollFormProps) {
               >
                 Cancel
               </button>
+            </div>
+
+            {/* Display operational date (read‑only) */}
+            <div className="bg-[var(--bg-tertiary)] border border-[var(--border-default)] rounded-lg px-3 py-2 flex items-center justify-between text-sm">
+              <span className="text-[var(--text-secondary)] font-medium">
+                Operational Date:
+              </span>
+              <span className="font-mono font-semibold text-[var(--accent-cyan)]">
+                {today} (Africa/Johannesburg)
+              </span>
             </div>
 
             {/* Dozer & Site */}

@@ -82,7 +82,11 @@ export default async function RollOverPage({
       </div>
 
       {/* Add Roll Form */}
-      <DozerRollForm departmentId={deptId} dozers={dozers || []} />
+      <DozerRollForm
+        departmentId={deptId}
+        dozers={dozers || []}
+        today={today}
+      />
 
       {/* Roll List — grouped by site → shift */}
       {todayRolls &&

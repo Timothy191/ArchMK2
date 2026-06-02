@@ -5,6 +5,7 @@ import {
   BatteryStatusRow,
   VolumeControlRow,
   NotificationRow,
+  ServerHealthRow,
 } from "./SystemTray";
 
 describe("formatTimeSeconds", () => {
@@ -166,5 +167,55 @@ describe("NotificationRow", () => {
   it("renders empty state", () => {
     render(<NotificationRow count={0} clear={jest.fn()} />);
     expect(screen.getByText("No notifications")).toBeInTheDocument();
+  });
+});
+
+describe("ServerHealthRow", () => {
+  it("renders healthy state with all subsystems OK", () => {
+    render(
+      <ServerHealthRow
+        status="healthy"
+        db="ok"
+        redis="ok"
+        aiRouter="ok"
+        responseTime={42}
+        loading={false}
+      />,
+    );
+    expect(screen.getByText("Server Health")).toBeInTheDocument();
+    expect(screen.getByText("Healthy")).toBeInTheDocument();
+    expect(screen.getByText("42ms")).toBeInTheDocument();
+  });
+
+  it("renders degraded state and highlights unavailable subsystem", () => {
+    render(
+      <ServerHealthRow
+        status="degraded"
+        db="ok"
+        redis="unavailable"
+        aiRouter="disabled"
+        responseTime={120}
+        loading={false}
+      />,
+    );
+    expect(screen.getByText("Degraded")).toBeInTheDocument();
+    expect(screen.getByText("Redis")).toBeInTheDocument();
+    expect(screen.getAllByText("Unavailable").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("Disabled").length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("renders error state and shows checking when loading", () => {
+    render(
+      <ServerHealthRow
+        status="error"
+        db="unavailable"
+        redis="unavailable"
+        aiRouter="unavailable"
+        responseTime={0}
+        loading={true}
+      />,
+    );
+    expect(screen.getByText("Error")).toBeInTheDocument();
+    expect(screen.getByText("Checking…")).toBeInTheDocument();
   });
 });

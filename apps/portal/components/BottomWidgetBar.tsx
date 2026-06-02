@@ -303,7 +303,7 @@ function WheelItem({
               onClick={onNavigate}
               className={cn(
                 "relative flex items-center justify-center w-11 h-11 rounded-full",
-                "bg-white/70 backdrop-blur-xl border border-black/[0.08]",
+                "glass",
                 "shadow-diffusion-md hover:bg-white/90 active:scale-95",
                 "transition-colors",
               )}
@@ -324,7 +324,7 @@ function WheelItem({
               onClick={onNavigate}
               className={cn(
                 "relative flex items-center justify-center w-11 h-11 rounded-full",
-                "bg-white/70 backdrop-blur-xl border border-black/[0.08]",
+                "glass",
                 "shadow-diffusion-md hover:bg-white/90 active:scale-95",
                 "transition-colors",
                 isActive && "ring-1 ring-black/[0.08] bg-white/90",
@@ -381,7 +381,7 @@ function OperationsWheelItem({
         <button
           className={cn(
             "relative flex items-center justify-center w-11 h-11 rounded-full",
-            "bg-white/70 backdrop-blur-xl border border-black/[0.08]",
+            "glass",
             "shadow-diffusion-md hover:bg-white/90 active:scale-95",
             "transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)]",
           )}
@@ -440,7 +440,7 @@ function ToolsWheelItem({
         <button
           className={cn(
             "relative flex items-center justify-center w-11 h-11 rounded-full",
-            "bg-white/70 backdrop-blur-xl border border-black/[0.08]",
+            "glass",
             "shadow-diffusion-md hover:bg-white/90 active:scale-95",
             "transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)]",
           )}
@@ -729,8 +729,8 @@ export function BottomWidgetBar({
             isTopMerged
               ? "relative flex items-center justify-center w-8 h-8 rounded-full bg-black/[0.03] hover:bg-black/[0.06] border border-black/[0.05] transition-all duration-200"
               : isLeftDocked
-                ? "relative flex items-center justify-center w-12 h-12 rounded-full bg-white/70 backdrop-blur-xl border border-black/[0.08] shadow-diffusion-lg hover:bg-white/90 active:scale-95 transition-all duration-200"
-                : "relative flex items-center justify-center w-14 h-14 rounded-full bg-white/70 backdrop-blur-xl border border-black/[0.08] shadow-diffusion-lg hover:bg-white/90 active:scale-95 transition-all duration-200 translate-y-7",
+                ? "relative flex items-center justify-center w-12 h-12 rounded-full glass shadow-diffusion-lg hover:bg-white/90 active:scale-95 transition-all duration-200"
+                : "relative flex items-center justify-center w-14 h-14 rounded-full glass shadow-diffusion-lg hover:bg-white/90 active:scale-95 transition-all duration-200 translate-y-7",
             isOpen &&
               (isTopMerged
                 ? "ring-2 ring-[var(--accent-blue)]/30 bg-black/[0.06]"

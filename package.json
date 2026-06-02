@@ -12,16 +12,16 @@
     "lint:root": "eslint . --max-warnings 0 --ignore-pattern apps --ignore-pattern packages --no-error-on-unmatched-pattern",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,md}\"",
-    "quality": "turbo run lint type-check test lint:tokens lint:css //#lint-root //#format-check && pnpm deps:lint && (pnpm knip || true)",
+    "quality": "turbo run lint type-check test lint:tokens lint:css //#lint-root //#format-check && pnpm deps:lint && pnpm knip",
     "ui": "pnpm --filter @repo/ui ui",
     "test": "turbo run test",
     "test:e2e": "playwright test",
     "deps:check": "syncpack list-mismatches",
     "deps:fix": "syncpack fix-mismatches",
     "deps:lint": "syncpack lint",
-    "knip": "knip",
-    "knip:fix": "knip --fix",
-    "bundlesize": "echo 'No bundlesize check configured'",
+    "knip": "knip --no-config-hints",
+    "knip:fix": "knip --fix --no-config-hints",
+    "analyze": "ANALYZE=true pnpm --filter portal build",
     "md:lint": "markdownlint \"**/*.md\" --ignore node_modules --ignore .turbo --ignore '**/node_modules' --ignore '**/.next' --ignore '**/dist'",
     "md:fix": "markdownlint \"**/*.md\" --fix --ignore node_modules --ignore .turbo --ignore '**/node_modules' --ignore '**/.next' --ignore '**/dist'",
     "commitlint": "commitlint --edit",
@@ -31,6 +31,8 @@
     "deploy:production": "bash scripts/deploy.sh production",
     "deploy:rollback": "bash scripts/deploy.sh production --rollback",
     "fresh-start": "bash scripts/deploy.sh local --clean",
+    "dev:up": "bash scripts/dev.sh",
+    "deploy:dev": "bash scripts/deploy-dev.sh",
     "monitor": "bash scripts/monitor-hud.sh",
     "monitor:grafana": "docker compose -f docker-compose.monitoring.yml up -d",
     "monitor:grafana-stop": "docker compose -f docker-compose.monitoring.yml down",
@@ -49,26 +51,27 @@
   "devDependencies": {
     "@commitlint/cli": "^21.0.1",
     "@commitlint/config-conventional": "^21.0.1",
+    "@next/bundle-analyzer": "^16.2.6",
     "@playwright/test": "^1.60.0",
     "@repo/typescript-config": "workspace:*",
     "@secretlint/secretlint-rule-preset-recommend": "^13.0.2",
+    "eslint": "catalog:",
     "husky": "^9.1.7",
     "knip": "^5.45.0",
-    "lint-staged": "^17.0.5",
+    "lint-staged": "^17.0.7",
     "markdownlint-cli": "^0.41.0",
     "prettier": "catalog:",
     "secretlint": "^13.0.2",
     "supabase": "catalog:",
     "syncpack": "^13.0.4",
-    "turbo": "^2.9.15",
-    "eslint": "catalog:"
+    "turbo": "^2.9.15"
   },
   "packageManager": "pnpm@9.15.9",
   "engines": {
-    "node": ">=20.17.0"
+    "node": ">=22"
   },
   "volta": {
-    "node": "20.17.0",
+    "node": "22",
     "pnpm": "9.15.9"
   }
 }

@@ -5,13 +5,20 @@
 import { withRateLimit, skipForInternal } from "./rate-limit-middleware";
 import { NextRequest, NextResponse } from "next/server";
 
-const mockCache = new Map<string, unknown>();
+const mockCache = new Map<string, string>();
 
-jest.mock("@repo/redis/cache", () => ({
-  cacheGet: jest.fn(async (key: string) => mockCache.get(key) ?? null),
-  cacheSet: jest.fn(async (key: string, value: unknown) => {
+const mockRedisClient = {
+  get: jest.fn(async (key: string) => mockCache.get(key) ?? null),
+  set: jest.fn(async (key: string, value: string) => {
     mockCache.set(key, value);
   }),
+  del: jest.fn(async (key: string) => {
+    mockCache.delete(key);
+  }),
+};
+
+jest.mock("@repo/redis", () => ({
+  getRedisClient: jest.fn(async () => mockRedisClient),
 }));
 
 function makeRequest(
@@ -117,6 +124,43 @@ describe("withRateLimit", () => {
     const res = await withRateLimit(req2, handler, { customLimit });
     expect(res.status).toBe(200);
     expect(handler).toHaveBeenCalledTimes(1);
+  });
+
+  it("bypasses rate limiting for whitelisted IPs", async () => {
+    const req = makeRequest("http://localhost/api/export/machines", {
+      "x-forwarded-for": "127.0.0.1",
+    });
+    const res = await withRateLimit(req, handler);
+
+    expect(res.status).toBe(200);
+    expect(res.headers.get("X-RateLimit-Limit")).toBeNull();
+    expect(handler).toHaveBeenCalledTimes(1);
+  });
+
+  it("halves request limits when system is under high load", async () => {
+    process.env.ENABLE_LOAD_ADAPTIVE_TEST = "true";
+    const os = require("os");
+    const originalLoadavg = os.loadavg;
+    const originalCpus = os.cpus;
+
+    // Mock high CPU load: 4 CPUs, load average of 8.0 (200% utilization)
+    os.loadavg = () => [8.0, 8.0, 8.0];
+    os.cpus = () => Array(4).fill({});
+
+    const req = makeRequest("http://localhost/api/export/machines", {
+      "x-forwarded-for": "10.0.0.99",
+    });
+    const customLimit = { windowMs: 60_000, maxRequests: 10 };
+    const res = await withRateLimit(req, handler, { customLimit });
+
+    expect(res.status).toBe(200);
+    // Limit of 10 should be halved to 5
+    expect(res.headers.get("X-RateLimit-Limit")).toBe("5");
+
+    // Restore original functions
+    os.loadavg = originalLoadavg;
+    os.cpus = originalCpus;
+    delete process.env.ENABLE_LOAD_ADAPTIVE_TEST;
   });
 });
 

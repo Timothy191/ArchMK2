@@ -53,7 +53,7 @@ interface MacMenuBarProps {
   className?: string;
 }
 
-const NAVIGATION_ITEMS = [] as const;
+const NAVIGATION_ITEMS: readonly string[] = [];
 
 const DEPARTMENTS_LIST = [
   {
@@ -184,6 +184,7 @@ export function MacMenuBar({
   rightSlot,
   className,
 }: MacMenuBarProps) {
+  // Navigation text labels intentionally removed; only logo + search + tray remain
   const [searchQuery, setSearchQuery] = React.useState("");
 
   function handleSearch(e: React.FormEvent) {
@@ -201,8 +202,8 @@ export function MacMenuBar({
   return (
     <div
       className={cn(
-        "fixed top-2 left-3 right-3 z-[100] h-9 flex items-center justify-between px-4",
-        "bg-white/45 backdrop-blur-2xl border border-black/[0.08] rounded-full shadow-window",
+        "fixed top-2 left-3 right-3 z-navigation h-9 flex items-center justify-between px-4",
+        "liquid-glass-light rounded-full shadow-window",
         className,
       )}
     >
@@ -217,7 +218,7 @@ export function MacMenuBar({
             <button
               aria-label="System Menu"
               aria-haspopup="true"
-              className="relative w-11 h-11 -ml-1 rounded-full bg-white border border-black/10 shadow-md flex items-center justify-center hover:bg-gray-50 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)] transition-all duration-150 ease-in-out cursor-default"
+              className="relative w-11 h-11 -ml-1 rounded-full bg-white border border-black/10 shadow-window flex items-center justify-center hover:bg-gray-50 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)] transition-all duration-150 ease-in-out cursor-default"
             >
               <img
                 src="/logo.png"
@@ -275,7 +276,7 @@ export function MacMenuBar({
             <div className="w-[195px] bg-black/[0.015] border-l border-black/[0.05] flex flex-col shrink-0">
               {/* User Identity */}
               <div className="px-3.5 py-3 flex items-center gap-2.5 border-b border-black/[0.06]">
-                <div className="w-8 h-8 rounded-full bg-white border border-black/10 shadow-sm flex items-center justify-center shrink-0">
+                <div className="w-8 h-8 rounded-full bg-white border border-black/10 shadow-card flex items-center justify-center shrink-0">
                   <User className="w-4 h-4 text-[var(--text-secondary)]" />
                 </div>
                 <div className="flex flex-col min-w-0">
@@ -375,7 +376,7 @@ export function MacMenuBar({
               }),
             );
           }}
-          className="w-8 h-8 rounded-full bg-white/80 hover:bg-white border border-black/[0.08] shadow-sm flex items-center justify-center hover:scale-105 active:scale-95 transition-all duration-150 cursor-pointer ml-2.5 shrink-0"
+          className="w-8 h-8 rounded-full bg-white/80 hover:bg-white border border-black/[0.08] shadow-card flex items-center justify-center hover:scale-105 active:scale-95 transition-all duration-150 cursor-pointer ml-2.5 shrink-0"
           title="WhatsApp Operations Split"
         >
           <img
@@ -651,14 +652,14 @@ export function MacMenuBar({
           centerSlot
         ) : (
           <form onSubmit={handleSearch} className="w-full flex justify-center">
-            <div className="relative w-full max-w-xs">
+            <div className="relative w-full max-w-2xl">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-[var(--text-muted)] pointer-events-none" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search..."
-                className="w-full h-6 pl-7 pr-3 rounded-full bg-black/[0.04] hover:bg-black/[0.07] border border-black/[0.06] focus:border-[var(--accent-blue)]/30 focus:bg-black/[0.05] focus:outline-none text-[12px] text-[var(--text-heading)] placeholder:text-[var(--text-muted)] transition-colors"
+                className="w-full h-6 pl-7 pr-3 rounded-full bg-black/[0.04] hover:bg-black/[0.07] border border-arch-border-emphasis/75 focus:border-[var(--accent-blue)]/50 focus:bg-black/[0.05] focus:outline-none text-[12px] text-[var(--text-heading)] placeholder:text-[var(--text-muted)] transition-colors"
               />
             </div>
           </form>

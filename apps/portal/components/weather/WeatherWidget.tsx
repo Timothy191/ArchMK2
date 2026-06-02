@@ -74,7 +74,7 @@ export function WeatherWidget({
           <button
             aria-label="Weather details"
             title="Weather details"
-            className="relative flex items-center justify-center w-[26px] h-[26px] rounded-full hover:bg-black/10 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--accent-blue)] cursor-default outline-none after:absolute after:inset-[-9px] after:content-['']"
+            className="relative flex items-center justify-center w-7 h-7 bg-black/[0.03] hover:bg-black/[0.06] border border-black/[0.05] rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)]/50 cursor-default outline-none active:scale-[0.97]"
           >
             <span className="text-lg leading-none">{weather.icon}</span>
             {alert.level !== "none" && (

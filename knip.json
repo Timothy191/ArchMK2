@@ -1,5 +1,6 @@
 {
   "$schema": "https://unpkg.com/knip@5/schema.json",
+  "ignoreDependencies": ["secretlint"],
   "workspaces": {
     ".": {
       "entry": ["scripts/**/*.{ts,js}"],
@@ -7,6 +8,10 @@
     },
     "apps/portal": {
       "entry": [
+        "app/**/layout.tsx",
+        "app/**/page.tsx",
+        "app/**/route.ts",
+        "middleware.ts",
         "plugins/rust-telemetry-engine/index.tsx"
       ],
       "project": [
@@ -16,7 +21,8 @@
         "hooks/**/*.{ts,tsx}",
         "lib/**/*.{ts,tsx}",
         "plugins/**/*.{ts,tsx}"
-      ]
+      ],
+      "ignoreDependencies": ["autoprefixer", "postcss", "tailwindcss"]
     },
     "apps/cms": {
       "project": ["app/**/*.{ts,tsx}"]
@@ -33,21 +39,23 @@
       "project": ["src/**/*.{ts,tsx,css}"]
     },
     "packages/database": {
-      "project": ["migrations/**/*.sql", "rls/**/*.ts"]
+      "project": ["migrations/**/*.sql"]
     },
     "packages/eslint-config": {
       "entry": ["*.js"],
       "project": ["*.js"]
     },
     "packages/supabase": {
-      "entry": ["config.toml"],
+      "entry": [
+        "src/index.ts",
+        "src/server.ts",
+        "src/client.ts",
+        "src/middleware.ts",
+        "src/service-role.ts"
+      ],
       "project": ["src/**/*.ts"]
     },
     "packages/errors": {
-      "entry": ["src/index.ts"],
-      "project": ["src/**/*.ts"]
-    },
-    "packages/hooks": {
       "entry": ["src/index.ts"],
       "project": ["src/**/*.ts"]
     },
@@ -85,6 +93,8 @@
     "exports": "warn",
     "nsExports": "warn",
     "types": "warn",
-    "nsTypes": "warn"
+    "nsTypes": "warn",
+    "duplicates": "warn",
+    "unresolved": "warn"
   }
 }

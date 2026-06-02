@@ -41,4 +41,39 @@ describe("GlassCard", () => {
     expect(screen.getByText("GlowBorder Content")).toBeInTheDocument();
     expect(container.firstChild).toBeInTheDocument();
   });
+
+  it("renders liquid variant with background layer and sheen sweep layer", () => {
+    const { container } = render(
+      <GlassCard variant="liquid">Liquid Content</GlassCard>,
+    );
+    expect(screen.getByText("Liquid Content")).toBeInTheDocument();
+
+    const pane = container.querySelector(".liquid-glass-pane-rounded");
+    expect(pane).toBeInTheDocument();
+
+    const sheen = container.querySelector(".liquid-sheen-sweep");
+    expect(sheen).toBeInTheDocument();
+  });
+
+  it("increments hoverCount and remounts the sheen element on hover", () => {
+    const { container } = render(
+      <GlassCard variant="liquid" hover>
+        Liquid Content
+      </GlassCard>,
+    );
+
+    const card = container.firstChild;
+    expect(card).toBeInTheDocument();
+
+    const initialSheen = container.querySelector(".liquid-sheen-sweep");
+    expect(initialSheen).toBeInTheDocument();
+
+    if (card) {
+      fireEvent.mouseEnter(card);
+    }
+
+    const nextSheen = container.querySelector(".liquid-sheen-sweep");
+    expect(nextSheen).toBeInTheDocument();
+    expect(nextSheen).not.toBe(initialSheen);
+  });
 });

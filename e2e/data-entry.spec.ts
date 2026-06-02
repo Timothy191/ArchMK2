@@ -71,7 +71,7 @@ test.describe("login form data entry", () => {
     await page.goto("/login");
     await page.locator("button[type='submit']").click();
     await expect(page).toHaveURL(/\/login/);
-    await expect(page.locator("form")).toBeVisible();
+    await expect(page.getByTestId("login-form")).toBeVisible();
   });
 
   test("typing in email field updates its value", async ({ page }) => {

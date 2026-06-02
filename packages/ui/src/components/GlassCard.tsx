@@ -24,7 +24,7 @@ export interface GlassCardProps extends HTMLMotionProps<"div"> {
     | "violet"
     | "alert"
     | "none";
-  variant?: "default" | "window" | "spotlight" | "glowborder";
+  variant?: "default" | "window" | "spotlight" | "glowborder" | "liquid";
   title?: string;
   padding?: boolean;
 
@@ -146,9 +146,11 @@ export function GlassCard({
   const isWindow = variant === "window";
   const isSpotlight = variant === "spotlight";
   const isGlowBorder = variant === "glowborder";
+  const isLiquid = variant === "liquid";
 
   const prefersReduced = useReducedMotion();
   const [isTouch, setIsTouch] = useState(false);
+  const [hoverCount, setHoverCount] = useState(0);
 
   useEffect(() => {
     setIsTouch(
@@ -190,36 +192,61 @@ export function GlassCard({
 
   return (
     <motion.div
-      whileHover={hover ? { y: -2, scale: 1.004 } : undefined}
-      transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+      whileHover={
+        hover && !prefersReduced && !isLiquid ? { scale: 1.01 } : undefined
+      }
+      whileTap={
+        hover && !prefersReduced && !isLiquid ? { scale: 0.995 } : undefined
+      }
+      transition={
+        prefersReduced
+          ? { duration: 0 }
+          : { duration: 0.3, ease: [0.2, 0, 0, 1] }
+      }
       onClick={onClick}
       onMouseMove={isSpotlight ? handleMouseMove : undefined}
+      onMouseEnter={(e) => {
+        if (hover && isLiquid && !prefersReduced) {
+          setHoverCount((prev) => prev + 1);
+        }
+        if (props.onMouseEnter) {
+          props.onMouseEnter(e);
+        }
+      }}
       className={cn(
         // Base classes
-        "relative overflow-hidden transition-all duration-300 ease-out",
+        "isolate relative overflow-hidden",
+        variant !== "liquid"
+          ? "transition-all duration-300 ease-glass shadow-glass-depth hover:shadow-glass-depth-hover active:shadow-glass-depth-active"
+          : "shadow-glass-depth",
+
+        variant !== "liquid" &&
+          "glass-card glass-depth-card border border-black/[0.08]",
 
         // Window & Default share standard glass style
         (variant === "default" || variant === "window") && [
-          "group/window rounded-xl border border-black/[0.08] bg-white/85 backdrop-blur-3xl saturate-[180%]",
-          "shadow-card animate-window-open glass-top-border",
-          "shadow-[inset_0_0_0_1px_rgba(255,255,255,0.6)]",
+          "group/window rounded-card backdrop-blur-xl backdrop-saturate-[1.3] bg-white/70 animate-window-open",
           hover && ACCENT_COLORS[accent],
         ],
 
         // Spotlight custom layout style
         variant === "spotlight" && [
-          "group rounded-2xl border border-[var(--glass-border)] border-t-white/95 bg-[var(--bg-tertiary)]/55 backdrop-blur-xl saturate-[160%]",
-          "shadow-[inset_0_0_0_1px_rgba(255,255,255,0.6)]",
+          "group rounded-card backdrop-blur-xl backdrop-saturate-[1.3] bg-white/70",
         ],
 
         // GlowBorder custom layout style
         variant === "glowborder" && [
-          "isolate",
-          "bg-[var(--bg-secondary)]/80 backdrop-blur-2xl saturate-[180%] border border-[var(--glass-border)] border-t-white/95",
+          "backdrop-blur-xl backdrop-saturate-[1.3]",
+        ],
+
+        // Liquid custom layout style
+        variant === "liquid" && [
+          "group rounded-card animate-window-open",
+          hover && "liquid-glass-interactive",
         ],
 
         hover && "cursor-pointer",
-        variant === "default" && padding && "p-6",
+        (variant === "default" || variant === "liquid") && padding && "p-6",
         className,
       )}
       style={
@@ -250,7 +277,7 @@ export function GlassCard({
 
       {/* GlowBorder inner mask to simulate border */}
       {isGlowBorder && (
-        <div className="absolute inset-[1px] -z-[5] rounded-[inherit] bg-[var(--bg-secondary)]" />
+        <div className="absolute inset-[1px] -z-[5] rounded-[inherit] bg-white/75 backdrop-blur-2xl" />
       )}
 
       {/* macOS window title bar */}
@@ -314,11 +341,40 @@ export function GlassCard({
         </div>
       )}
 
+      {/* Liquid Glass Background Layer (separate from content wrapper to prevent font blurring issues) */}
+      {isLiquid && (
+        <div className="absolute inset-0 -z-10 rounded-[inherit] liquid-glass-pane-rounded pointer-events-none" />
+      )}
+
+      {/* Liquid Glass Specular Sheen Sweep Layer */}
+      {isLiquid && (
+        <div
+          className="absolute inset-0 overflow-hidden pointer-events-none rounded-[inherit] z-[5]"
+          aria-hidden="true"
+        >
+          <div
+            key={hoverCount}
+            className="absolute inset-0 will-change-transform liquid-sheen-sweep"
+            style={{
+              background:
+                "linear-gradient(110deg, transparent 35%, rgba(255,255,255,0.4) 45%, rgba(255,255,255,0.7) 50%, rgba(255,255,255,0.4) 55%, transparent 65%)",
+              mixBlendMode: "screen",
+              pointerEvents: "none",
+              animationName: "liquid-sheen-sweep-mount",
+              animationDuration: hoverCount > 0 ? "1.4s" : "1.6s",
+              animationDelay: hoverCount > 0 ? "0s" : "0.2s",
+              animationTimingFunction: "cubic-bezier(0.25, 1, 0.5, 1)",
+              animationFillMode: "forwards",
+            }}
+          />
+        </div>
+      )}
+
       {/* Content wrapper */}
       <div
         className={cn(
           "relative z-10 w-full h-full",
-          isWindow && padding && "p-6",
+          (isWindow || isLiquid) && padding && "p-6",
         )}
       >
         {children}

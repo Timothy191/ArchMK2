@@ -3,31 +3,32 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  Shovel,
+  ArrowUpRight,
   Factory,
-  ShieldCheck,
-  Wrench,
-  Monitor,
+  FileText,
   HardHat,
   GraduationCap,
-  Radio as Broadcast,
+  Monitor,
+  Pickaxe,
+  Satellite,
+  ShieldCheck,
+  Wrench,
 } from "lucide-react";
 import { GlassCard } from "@repo/ui/GlassCard";
 import { Badge } from "@repo/ui/components/ui/badge";
 import { cn } from "@repo/ui/lib/utils";
 import type { Department } from "~/lib/departments";
 import { Sparkline } from "./Sparkline";
-import { ArrowUpRight, FileText } from "lucide-react";
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
-  Drill: Shovel,
+  Drill: Pickaxe,
   Factory,
   ShieldCheck,
   Wrench,
   Monitor,
   HardHat,
   GraduationCap,
-  Satellite: Broadcast,
+  Satellite,
 };
 
 const COLOR_MAP: Record<string, { bg: string; glow: string; text: string }> = {
@@ -86,12 +87,9 @@ export function DepartmentCard({ department, index }: DepartmentCardProps) {
     glow: "rgba(0,0,0,0.04)",
     text: "text-[var(--text-heading)]",
   };
-  const hasGlow =
-    department.status === "alert" || department.status === "maintenance";
-
   const cardContent = (
     <>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-6 liquid-shift-y">
         <div
           className={cn(
             "p-2.5 rounded-xl border backdrop-blur-md transition-[opacity,transform] duration-300 group-hover:scale-110 group-hover:shadow-glow-blue",
@@ -105,24 +103,23 @@ export function DepartmentCard({ department, index }: DepartmentCardProps) {
             <Badge
               variant="outline"
               className={cn(
-                "text-[10px] font-bold uppercase tracking-[0.1em] px-2.5 py-0.5 rounded-full border border-transparent backdrop-blur-md",
-                department.status === "active" &&
-                  "text-accent-green bg-accent-green/10 border-accent-green/20 shadow-[inset_0_0_6px_rgba(52,199,89,0.25)]",
+                "text-[9px] font-bold uppercase tracking-[0.05em] px-2 py-0.5 rounded-full border",
+                department.status === "active" && "active-badge-liquid",
                 department.status === "maintenance" &&
-                  "text-[var(--mac-yellow)] bg-[var(--mac-yellow)]/10 border-[var(--mac-yellow)]/20",
+                  "bg-amber-50/70 border-amber-200/50 text-amber-700",
                 department.status === "alert" &&
-                  "text-[var(--accent-red)] bg-[var(--accent-red)]/10 border-[var(--accent-red)]/20",
+                  "bg-red-50/70 border-red-200/50 text-red-700",
               )}
             >
               <span className="flex items-center gap-1.5">
                 <span
                   className={cn(
-                    "w-1.5 h-1.5 rounded-full animate-pulse",
                     department.status === "active" &&
-                      "bg-accent-green shadow-[0_0_8px_rgba(52,199,89,0.8)]",
+                      "badge-pulse-dot bg-emerald-500",
                     department.status === "maintenance" &&
-                      "bg-[var(--mac-yellow)]",
-                    department.status === "alert" && "bg-[var(--accent-red)]",
+                      "w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse",
+                    department.status === "alert" &&
+                      "w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse",
                   )}
                 />
                 {department.status}
@@ -132,7 +129,7 @@ export function DepartmentCard({ department, index }: DepartmentCardProps) {
         </div>
       </div>
 
-      <div className="flex-1">
+      <div className="flex-1 liquid-shift-y">
         <h3 className="text-arch-text-primary font-bold text-xl tracking-tighter group-hover:text-arch-accent-blue transition-colors duration-300">
           {department.displayName}
         </h3>
@@ -142,18 +139,20 @@ export function DepartmentCard({ department, index }: DepartmentCardProps) {
       </div>
 
       {department.stats && (
-        <div className="mt-6 pt-4 border-t border-arch-border-primary flex items-center justify-between group/stat">
-          <div className="flex flex-col gap-1">
-            <span className="text-[10px] font-mono font-bold text-arch-text-tertiary uppercase tracking-widest transition-colors group-hover:text-arch-text-secondary">
+        <div className="mt-6 pt-4 border-t border-black/[0.06] flex items-center justify-between group/stat">
+          <div className="flex flex-col gap-1 liquid-shift-y">
+            <span className="text-[10px] font-mono font-medium text-arch-text-tertiary uppercase tracking-widest transition-colors group-hover:text-arch-text-secondary">
               {department.stats.label}
             </span>
             {department.trend && (
-              <Sparkline data={department.trend} width={72} height={20} />
+              <div className="liquid-shift-y-delay">
+                <Sparkline data={department.trend} width={72} height={20} />
+              </div>
             )}
           </div>
           <span
             className={cn(
-              "text-lg font-mono tabular-nums font-bold transition-all duration-300 group-hover:scale-110",
+              "text-lg font-mono tabular-nums font-bold transition-all duration-300 group-hover:scale-110 liquid-shift-y",
               config.text,
             )}
           >
@@ -163,17 +162,17 @@ export function DepartmentCard({ department, index }: DepartmentCardProps) {
       )}
 
       {department.actions && department.actions.length > 0 && (
-        <div className="mt-4 flex flex-wrap items-center gap-2">
+        <div className="mt-4 flex flex-wrap items-center gap-2 liquid-shift-y-delay">
           {department.actions.map((action) => (
             <Link
               key={action.label}
               href={action.href}
               onClick={(e) => e.stopPropagation()}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-arch-surface-tertiary/60 hover:bg-arch-surface-tertiary border border-arch-border-subtle hover:border-white/40 text-[11px] font-medium text-arch-text-secondary hover:text-arch-accent-blue transition-colors"
+              className="inline-flex items-center justify-center gap-1.5 px-3 py-1 h-6 rounded-full glass-action-button text-[11px] font-semibold transition-all interactive-element"
             >
-              <FileText className="w-3 h-3" />
-              {action.label}
-              <ArrowUpRight className="w-3 h-3 opacity-50" />
+              <FileText className="w-3 h-3 shrink-0" />
+              <span>{action.label}</span>
+              <ArrowUpRight className="w-3 h-3 opacity-50 shrink-0" />
             </Link>
           ))}
         </div>
@@ -193,28 +192,23 @@ export function DepartmentCard({ department, index }: DepartmentCardProps) {
     >
       <div
         onClick={() => router.push(`/${department.name}`)}
-        className="block h-full outline-none group cursor-pointer active:scale-[0.99] transition-transform duration-200 will-change-backdrop-filter"
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            router.push(`/${department.name}`);
+          }
+        }}
+        tabIndex={0}
+        className="block h-full outline-none group cursor-pointer active:scale-[0.99] transition-transform duration-200 will-change-backdrop-filter interactive-element"
       >
-        {hasGlow ? (
-          <GlassCard
-            variant="glowborder"
-            colorPreset={department.status === "alert" ? "sunset" : "aurora"}
-            animationDuration={5}
-            className="h-full aurora-shadow transition duration-500 ease-out hover:-translate-y-1 hover:shadow-card-hover"
-          >
-            <div className="p-5 flex flex-col h-full">{cardContent}</div>
-          </GlassCard>
-        ) : (
-          <GlassCard
-            variant="spotlight"
-            spotlightColor={config.glow}
-            className={cn(
-              "h-full bg-arch-surface-tertiary/40 border border-arch-border-primary hover:border-white/40 transition duration-500 ease-out hover:-translate-y-1 hover:shadow-card-hover aurora-shadow",
-            )}
-          >
-            <div className="p-5 flex flex-col h-full">{cardContent}</div>
-          </GlassCard>
-        )}
+        <GlassCard
+          variant="liquid"
+          hover
+          padding={false}
+          className="h-full aurora-shadow"
+        >
+          <div className="p-5 flex flex-col h-full">{cardContent}</div>
+        </GlassCard>
       </div>
     </div>
   );

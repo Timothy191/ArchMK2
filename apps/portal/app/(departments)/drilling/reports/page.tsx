@@ -120,7 +120,7 @@ export default async function DrillingReportsPage({
       "Eng Delays (min)",
       "Status",
     ],
-    ...(operations || []).map((op: any) => {
+    ...(operations || []).map((op) => {
       const production_delays =
         (Number(op.delay_blasting) || 0) +
         (Number(op.delay_no_operator) || 0) +
@@ -139,7 +139,8 @@ export default async function DrillingReportsPage({
         (Number(op.delay_unscheduled_maintenance) || 0);
       return [
         op.operation_date,
-        op.machines?.name || "Unknown",
+        (op.machines as unknown as { name: string } | undefined)?.name ||
+          "Unknown",
         op.operator_name || "",
         op.block_drilled || "",
         op.total_hours ? op.total_hours.toFixed(2) : "",
@@ -163,7 +164,7 @@ export default async function DrillingReportsPage({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-semibold text-[var(--text-heading)]">
+          <h2 className="text-2xl font-bold text-[var(--text-heading)]">
             Drilling Production Report
           </h2>
           <p className="text-sm text-[var(--text-muted)] mt-1">
@@ -325,7 +326,7 @@ export default async function DrillingReportsPage({
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--border-default)]">
-              {operations?.map((op: any) => {
+              {operations?.map((op) => {
                 const production_delays =
                   (Number(op.delay_blasting) || 0) +
                   (Number(op.delay_no_operator) || 0) +
@@ -355,7 +356,8 @@ export default async function DrillingReportsPage({
                       {op.operation_date}
                     </td>
                     <td className="px-6 py-4 text-[var(--text-body)] text-sm">
-                      {op.machines?.name || "Unknown"}
+                      {(op.machines as unknown as { name: string } | undefined)
+                        ?.name || "Unknown"}
                     </td>
                     <td className="px-6 py-4 text-[var(--text-body)] text-sm">
                       {op.operator_name || "—"}
@@ -379,16 +381,17 @@ export default async function DrillingReportsPage({
                     </td>
                     <td className="px-6 py-4 text-center">
                       <span
-                        className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${
-                          op.status === "active"
-                            ? "bg-accent-green/10 text-accent-green"
-                            : op.status === "completed"
-                              ? "bg-[var(--accent-blue)]/10 text-[var(--accent-blue)]"
-                              : op.status === "maintenance"
-                                ? "bg-arch-accent-blue/10 text-arch-accent-blue"
-                                : "bg-accent-red/10 text-accent-red"
+                        className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2 py-0.5 rounded-full border ${
+                          op.status === "active" || op.status === "completed"
+                            ? "bg-emerald-50/70 border-emerald-200/50 text-emerald-700"
+                            : op.status === "maintenance"
+                              ? "bg-amber-50/70 border-amber-200/50 text-amber-700"
+                              : "bg-red-50/70 border-red-200/50 text-red-700"
                         }`}
                       >
+                        {op.status === "active" && (
+                          <span className="badge-pulse-dot bg-emerald-500" />
+                        )}
                         {op.status}
                       </span>
                     </td>

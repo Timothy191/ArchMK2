@@ -47,7 +47,7 @@ The Training department in Arch-Systems handles the Learning Management System (
 
 Certification expiry queries use `expires_at < NOW() + INTERVAL '30 days'` to surface upcoming renewals.
 
-## Completeness Status (Phase 3)
+## Current Completeness Status
 
 | Feature                    | Status  |
 | -------------------------- | ------- |

@@ -1,6 +1,7 @@
 import dynamic from "next/dynamic";
 import { GlassCard } from "@repo/ui/GlassCard";
 import { getDepartmentContext } from "~/lib/dept-context";
+import { getCurrentShift } from "@repo/utils";
 
 const ScadaPanel = dynamic(
   () =>
@@ -121,6 +122,7 @@ export default async function DepartmentDashboard({
 
   const shiftCount = todayLogs?.length ?? 0;
   const latestShift = todayLogs?.[shiftCount - 1]?.shift;
+  const currentShift = (latestShift as "day" | "night") || getCurrentShift();
 
   const { count: machineCount } = await supabase
     .from("machines")
@@ -175,7 +177,7 @@ export default async function DepartmentDashboard({
       {isControlRoom ? (
         <>
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-medium text-[var(--text-heading)]">
+            <h2 className="text-2xl font-bold text-[var(--text-heading)]">
               Control Room Dashboard
             </h2>
             <p className="text-[var(--text-muted)] text-sm">
@@ -190,10 +192,8 @@ export default async function DepartmentDashboard({
 
           {/* Control Room Summary Grid */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <GlassCard>
-              <p className="text-[var(--text-muted)] text-xs uppercase tracking-wide">
-                Hours Today
-              </p>
+            <GlassCard hover accent="blue">
+              <p className="system-label">Hours Today</p>
               <p className="text-2xl font-bold text-[var(--accent-blue)] mt-1">
                 {totalHours.toFixed(1)}h
               </p>
@@ -203,19 +203,15 @@ export default async function DepartmentDashboard({
                 </p>
               )}
             </GlassCard>
-            <GlassCard>
-              <p className="text-[var(--text-muted)] text-xs uppercase tracking-wide">
-                Total Loads
-              </p>
+            <GlassCard hover accent="none">
+              <p className="system-label">Total Loads</p>
               <p className="text-2xl font-bold text-[var(--text-heading)] mt-1">
                 {totalLoads.toLocaleString()}
               </p>
             </GlassCard>
-            <GlassCard>
-              <p className="text-[var(--text-muted)] text-xs uppercase tracking-wide">
-                Delays
-              </p>
-              <p className="text-2xl font-bold text-[var(--accent-blue)] mt-1">
+            <GlassCard hover accent="red">
+              <p className="system-label">Delays</p>
+              <p className="text-2xl font-bold text-accent-red mt-1">
                 {delayCount}
               </p>
               {delayMinutes > 0 && (
@@ -224,14 +220,12 @@ export default async function DepartmentDashboard({
                 </p>
               )}
             </GlassCard>
-            <GlassCard>
-              <p className="text-[var(--text-muted)] text-xs uppercase tracking-wide">
-                Machines
-              </p>
-              <p className="text-2xl font-bold text-[var(--accent-green)] mt-1">
+            <GlassCard hover accent="green">
+              <p className="system-label">Machines</p>
+              <p className="text-2xl font-bold text-accent-green mt-1">
                 {machineCount ?? 0}
               </p>
-              <p className="text-[var(--text-muted)] text-xs mt-1">Active</p>
+              <p className="system-label mt-1">Active</p>
             </GlassCard>
           </div>
 
@@ -242,19 +236,19 @@ export default async function DepartmentDashboard({
           <div className="flex flex-wrap gap-3">
             <a
               href={`/${deptSlug}/machine-operations`}
-              className="px-4 py-2 bg-[var(--accent-blue)] text-[var(--bg-secondary)] font-medium rounded-lg hover:bg-[var(--accent-blue)] transition-colors text-sm"
+              className="px-4 py-2 bg-[var(--accent-blue)] hover:bg-[var(--accent-blue)]/90 text-white font-medium rounded-lg transition-all duration-200 text-sm hover:scale-[1.02] active:scale-[0.98]"
             >
               + Log Operation
             </a>
             <a
               href={`/${deptSlug}/operational-delays`}
-              className="px-4 py-2 bg-[var(--bg-secondary)] border border-[var(--border-default)] text-[var(--text-heading)] font-medium rounded-lg hover:bg-[var(--bg-tertiary)] transition-colors text-sm"
+              className="px-4 py-2 bg-white/70 backdrop-blur-md border border-black/[0.08] hover:bg-white/90 text-[var(--text-secondary)] hover:text-[var(--text-heading)] font-medium rounded-lg transition-all duration-200 text-sm hover:scale-[1.02] active:scale-[0.98]"
             >
               + Log Delay
             </a>
             <a
               href={`/${deptSlug}/hourly-loads`}
-              className="px-4 py-2 bg-[var(--bg-secondary)] border border-[var(--border-default)] text-[var(--text-heading)] font-medium rounded-lg hover:bg-[var(--bg-tertiary)] transition-colors text-sm"
+              className="px-4 py-2 bg-white/70 backdrop-blur-md border border-black/[0.08] hover:bg-white/90 text-[var(--text-secondary)] hover:text-[var(--text-heading)] font-medium rounded-lg transition-all duration-200 text-sm hover:scale-[1.02] active:scale-[0.98]"
             >
               Update Loads
             </a>
@@ -263,6 +257,8 @@ export default async function DepartmentDashboard({
           <ShiftCoverageWidget
             departmentId={deptId}
             departmentSlug={deptSlug}
+            today={today}
+            currentShift={currentShift}
           />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -273,7 +269,7 @@ export default async function DepartmentDashboard({
         </>
       ) : (
         <>
-          <h2 className="text-2xl font-medium text-[var(--text-heading)]">
+          <h2 className="text-2xl font-bold text-[var(--text-heading)]">
             Dashboard
           </h2>
 

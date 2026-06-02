@@ -505,3 +505,23 @@ New infrastructure committed prior to wiki catch-up:
 - Updated `turbo` 2.9.14 → 2.9.15, `lint-staged` 17.0.4 → 17.0.5
 - Ran `pnpm format` across 43 files
 - `pnpm quality` gate passes (lint → type-check → test → lint:tokens → lint:css → format-check)
+
+## [2026-06-01] update | Performance optimization — blurriness fix (commit `011a577`)
+
+Root-caused and fixed blurry rendering across the entire portal. Three categories of fix: scroll smoothness, backdrop-filter GPU cost, and adaptive performance responsiveness.
+
+**Lenis smooth scroll:**
+
+- `apps/portal/components/SmoothScrollProvider.tsx` — Reduced `duration` from 1.2s to 0.6s, halving scroll animation lag
+- Added `visibilitychange` listener to pause `requestAnimationFrame` loop when tab is hidden (saves GPU cycles)
+
+**backdrop-filter blur reduction:**
+
+- `packages/theme/src/css/glass.css` — `.glass` base class: 16px→10px blur, saturate 160%→130%; `.glass-card`: 12px→10px blur, 120% saturate
+- `packages/theme/src/css/variables.css` — `--glass-video-backdrop`: 24px→16px; `--glass-premium-backdrop`: 24px→16px
+
+**Adaptive performance fallback:**
+
+- `apps/portal/hooks/useAdaptivePerformance.ts` — Threshold tightened from 45→50 FPS, detection window from 3s→1.5s so `.low-perf-fallback` disables animations sooner
+
+**Verification:** 51 test suites / 480 tests pass, lint 0 errors, TypeScript 0 errors.

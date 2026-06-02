@@ -1,9 +1,9 @@
-"use client";
-
-import { useState } from "react";
 import { redirect } from "next/navigation";
-import { createBrowserSupabaseClient } from "@repo/supabase/client";
-import { AdminTabs } from "~/features/admin/components/AdminTabs";
+import {
+  createServerSupabaseClient,
+  getUserSafely,
+} from "@repo/supabase/server";
+import { AdminTabsClient } from "~/features/admin/components/AdminTabsClient";
 import { UsersTab } from "~/features/admin/tabs/UsersTab";
 import { DepartmentsTab } from "~/features/admin/tabs/DepartmentsTab";
 import { FleetTab } from "~/features/admin/tabs/FleetTab";
@@ -12,29 +12,41 @@ import { WebhooksTab } from "~/features/admin/tabs/WebhooksTab";
 import { AuditLogsTab } from "~/features/admin/tabs/AuditLogsTab";
 import { SettingsTab } from "~/features/admin/tabs/SettingsTab";
 
-export default function AdminPage() {
-  const [activeTab, setActiveTab] = useState("users");
-  const supabase = createBrowserSupabaseClient();
+const TABS = [
+  "users",
+  "departments",
+  "fleet",
+  "sites",
+  "webhooks",
+  "audit-logs",
+  "settings",
+];
 
-  // Check auth and role
-  supabase.auth
-    .getUser()
-    .then(({ data: { user } }: { data: { user: any } }) => {
-      if (!user) {
-        redirect("/login");
-      }
+export default async function AdminPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ tab?: string }>;
+}) {
+  const supabase = await createServerSupabaseClient();
+  const user = await getUserSafely(supabase);
 
-      supabase
-        .from("employees")
-        .select("role")
-        .eq("auth_id", user.id)
-        .single()
-        .then(({ data: employee }: { data: any }) => {
-          if (employee?.role !== "admin") {
-            redirect("/");
-          }
-        });
-    });
+  if (!user) {
+    redirect("/login");
+  }
+
+  const { data: employee } = await supabase
+    .from("employees")
+    .select("role")
+    .eq("auth_id", user.id)
+    .single();
+
+  if (employee?.role !== "admin") {
+    redirect("/");
+  }
+
+  const { tab: rawTab } = await searchParams;
+  const activeTab =
+    typeof rawTab === "string" && TABS.includes(rawTab) ? rawTab : "users";
 
   return (
     <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-heading)]">
@@ -47,7 +59,7 @@ export default function AdminPage() {
       </header>
 
       <main className="p-6 max-w-7xl mx-auto">
-        <AdminTabs defaultValue="users" onValueChange={setActiveTab}>
+        <AdminTabsClient activeTab={activeTab}>
           {activeTab === "users" && <UsersTab />}
           {activeTab === "departments" && <DepartmentsTab />}
           {activeTab === "fleet" && <FleetTab />}
@@ -55,7 +67,7 @@ export default function AdminPage() {
           {activeTab === "webhooks" && <WebhooksTab />}
           {activeTab === "audit-logs" && <AuditLogsTab />}
           {activeTab === "settings" && <SettingsTab />}
-        </AdminTabs>
+        </AdminTabsClient>
       </main>
     </div>
   );

@@ -10,7 +10,7 @@ import {
   ForbiddenError,
   DatabaseError,
 } from "@repo/errors";
-
+import { logError } from "@/lib/errors/error-logger";
 import { getShiftCompleteness } from "./shift-completeness";
 
 type SupabaseClient = Awaited<ReturnType<typeof createServerSupabaseClient>>;
@@ -75,6 +75,7 @@ export async function setPin(employeeCode: string, pin: string) {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
+    logError(new Error("Not authenticated"), { context: "setPin" });
     throw new AuthError("Not authenticated", { context: { action: "setPin" } });
   }
 
@@ -85,10 +86,14 @@ export async function setPin(employeeCode: string, pin: string) {
     .single();
 
   if (error || !employee) {
+    logError(new Error("Employee not found"), { context: "setPin" });
     throw new NotFoundError("Employee not found", { resource: "employee" });
   }
 
   if (employee.role !== "supervisor" && employee.role !== "admin") {
+    logError(new Error("Only supervisors and admins can set PINs"), {
+      context: "setPin",
+    });
     throw new ForbiddenError("Only supervisors and admins can set PINs", {
       context: {
         requiredRoles: ["supervisor", "admin"],
@@ -166,6 +171,7 @@ export async function closeShift(
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
+    logError(new Error("Not authenticated"), { context: "closeShift" });
     throw new AuthError("Not authenticated", {
       context: { action: "closeShift" },
     });
@@ -178,6 +184,7 @@ export async function closeShift(
     .single();
 
   if (!closedBy) {
+    logError(new Error("Operator not found"), { context: "closeShift" });
     throw new NotFoundError("Operator not found", { resource: "employee" });
   }
 

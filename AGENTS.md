@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-- Node.js `>=20.17.0` (via Volta), pnpm `9.12.0`, Docker (for local Supabase)
+- Node.js `>=22` (via Volta), pnpm `9.15.9`, Docker (for local Supabase)
 
 ## Quick Start
 
@@ -112,6 +112,7 @@ Root layout: `apps/portal/app/layout.tsx` — mounts `ArchThemeProvider`, `Offli
 - **Class merging**: always use `cn()` from `@repo/ui/lib/utils`
 - **Icon imports**: always named (`import { Drill } from "lucide-react"`), never `* as Icons`. Unscoped imports produced a 1.3 MB chunk in the past.
 - **Animation**: only `opacity`, `transform`, `background-color`, `border-color`, `color`; never layout props. Easing: `cubic-bezier(0.16, 1, 0.3, 1)`.
+- **Liquid Glass Motion**: Division of labor between CSS and Framer Motion: CSS transitions handle hover shapes (`border-radius`) and hover scale/squish transforms; Framer Motion handles the active press/tap scaling (using `tapScale` / `whileTap` while setting `hoverScale={1}` to avoid conflicts).
 
 ---
 

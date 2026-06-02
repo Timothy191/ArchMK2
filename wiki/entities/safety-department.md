@@ -50,7 +50,7 @@ Incidents are recorded via the `safety_incidents` table with the following field
 - Near Miss
 - Other
 
-## Completeness Status (Phase 3)
+## Current Completeness Status
 
 | Feature               | Status  |
 | --------------------- | ------- |

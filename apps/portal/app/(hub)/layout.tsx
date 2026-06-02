@@ -44,7 +44,7 @@ export default async function HubLayout({
       <div className="relative z-10">
         {/* Content */}
         <div>
-          <main className="w-full px-4 py-6 sm:px-8 sm:py-8 pb-20 md:pb-8">
+          <main className="w-full px-4 pt-0 pb-6 sm:px-8 sm:pt-0 sm:pb-8 pb-20 md:pb-8 -mt-4">
             {children}
           </main>
         </div>

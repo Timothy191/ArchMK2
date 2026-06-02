@@ -33,8 +33,8 @@
   /* Text range — macOS type hierarchy */
   --arch8: #a1a1a6; /* muted / placeholder */
   --arch9: #6e6e73; /* secondary / caption */
-  --arch10: #1c1c1e; /* body — darkened for legibility */
-  --arch11: #0a0a0c; /* heading / primary — maximum contrast */
+  --arch10: #3a3a3c; /* body */
+  --arch11: #1d1d1f; /* heading / primary */
 
   /* Aurora Accents — status colors (unchanged) */
   --arch12: #ff3b30; /* red — error / danger */
@@ -135,7 +135,7 @@
        SHADCN/UI HSL VARIABLES — macOS Light
        ═══════════════════════════════════════════════════════════════ */
   --background: 240 5% 96%; /* #f5f5f7 */
-  --foreground: 240 5% 4%; /* #0a0a0c — darkened heading */
+  --foreground: 240 6% 10%; /* #1d1d1f */
   --card: 0 0% 100%; /* white */
   --card-foreground: 240 6% 10%;
   --popover: 0 0% 100%;
@@ -158,7 +158,7 @@
   /* Charts — macOS system colors */
   --chart-1: 211 100% 50%; /* blue */
   --chart-2: 142 71% 45%; /* green */
-  --chart-3: 37 100% 50%; /* blue */
+  --chart-3: 199 89% 48%; /* cyan */
   --chart-4: 4 86% 58%; /* red */
   --chart-5: 270 60% 55%; /* purple */
 
@@ -186,14 +186,16 @@
   /* ═══════════════════════════════════════════════════════════════
        GLASS TOKENS — macOS Frosted Glass (always active)
        ═══════════════════════════════════════════════════════════════ */
-  --glass-surface: rgba(255, 255, 255, 0.72);
-  --glass-surface-hover: rgba(255, 255, 255, 0.88);
+  --glass-surface: rgba(255, 255, 255, 0.7);
+  --glass-surface-hover: rgba(255, 255, 255, 0.85);
   --glass-surface-strong: rgba(255, 255, 255, 0.92);
-  --glass-border: rgba(0, 0, 0, 0.08);
-  --glass-border-top: rgba(255, 255, 255, 0.95);
-  --glass-shadow:
-    0 8px 32px -8px rgba(0, 0, 0, 0.12),
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.15);
+  --glass-border-top: rgba(255, 255, 255, 0.25);
+  --glass-border-gradient: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.25),
+    rgba(255, 255, 255, 0.05)
+  );
   --text-on-glass: rgba(10, 10, 20, 0.92);
   --text-on-glass-muted: rgba(10, 10, 20, 0.55);
 
@@ -206,15 +208,15 @@
   --glass-video-surface: rgba(255, 255, 255, 0.7);
   --glass-video-surface-hover: rgba(255, 255, 255, 0.82);
   --glass-video-surface-strong: rgba(255, 255, 255, 0.9);
-  --glass-video-backdrop: blur(24px) saturate(180%);
+  --glass-video-backdrop: blur(16px) saturate(160%);
   --glass-video-border: rgba(255, 255, 255, 0.15);
   --glass-video-border-bottom: rgba(0, 0, 0, 0.06);
   --glass-video-sheen: inset 0 1px 0 0 rgba(255, 255, 255, 0.8);
   --glass-video-shadow:
-    0 8px 32px -8px rgba(0, 0, 0, 0.15), 0 2px 8px -4px rgba(0, 0, 0, 0.06);
+    0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 20px 25px -5px rgba(0, 0, 0, 0.03);
   --text-on-glass-video: rgba(10, 10, 20, 0.92);
   --text-on-glass-video-muted: rgba(10, 10, 20, 0.55);
-  --glass-video-radius: 16px;
+  --glass-video-radius: 20px;
 
   /* Dark glass surface — opaque dark card for high-contrast sections
      like data-heavy dashboards, chart containers, or alert panels. */
@@ -234,15 +236,15 @@
     rgba(255, 255, 255, 0.45) 0%,
     rgba(255, 255, 255, 0.15) 100%
   );
-  --glass-premium-backdrop: blur(24px) saturate(180%);
+  --glass-premium-backdrop: blur(16px) saturate(160%);
   --glass-premium-border: rgba(255, 255, 255, 0.6);
-  --glass-premium-radius: 16px;
+  --glass-premium-radius: 20px;
   --glass-premium-shadow:
-    0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 20px 40px -4px rgba(15, 23, 42, 0.08);
+    0 4px 6px -1px rgba(0, 0, 0, 0.03), 0 24px 35px -5px rgba(15, 23, 42, 0.06);
 
   /* Vibrancy — macOS sidebar/toolbar tint */
   --vibrancy-surface: rgba(246, 246, 250, 0.82);
-  --vibrancy-border: rgba(0, 0, 0, 0.07);
+  --vibrancy-border: rgba(0, 0, 0, 0.06);
 
   /* ═══════════════════════════════════════════════════════════════
        Z-INDEX MATRIX — Single Source of Truth
@@ -274,21 +276,25 @@
        DIFFUSION SHADOW SYSTEM — Light mode (softer)
        ═══════════════════════════════════════════════════════════════ */
   --shadow-diffusion-sm:
-    0 2px 8px -2px rgba(0, 0, 0, 0.08), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+    0 2px 4px -1px rgba(0, 0, 0, 0.04), 0 8px 12px -4px rgba(0, 0, 0, 0.03);
   --shadow-diffusion-md:
-    0 4px 16px -4px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+    0 3px 5px -1px rgba(0, 0, 0, 0.04), 0 14px 18px -5px rgba(0, 0, 0, 0.03);
   --shadow-diffusion-lg:
-    0 8px 32px -8px rgba(0, 0, 0, 0.14), 0 4px 8px -4px rgba(0, 0, 0, 0.08);
+    0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 20px 25px -5px rgba(0, 0, 0, 0.03);
   --shadow-diffusion-xl:
-    0 16px 48px -12px rgba(0, 0, 0, 0.18), 0 8px 16px -8px rgba(0, 0, 0, 0.1);
+    0 4px 8px -2px rgba(0, 0, 0, 0.05), 0 28px 40px -8px rgba(0, 0, 0, 0.04);
   --shadow-card:
-    0 2px 12px -2px rgba(0, 0, 0, 0.1), 0 1px 0 0 rgba(255, 255, 255, 0.95),
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
+    0 1px 2px rgba(0, 0, 0, 0.02), 0 4px 12px rgba(0, 0, 0, 0.03),
+    0 12px 32px rgba(0, 0, 0, 0.03), 0 20px 48px rgba(0, 0, 0, 0.04),
+    inset 0 0 0 0.5px rgba(255, 255, 255, 0.7);
   --shadow-card-hover:
-    0 6px 24px -4px rgba(0, 0, 0, 0.14), 0 1px 0 0 rgba(255, 255, 255, 0.95),
-    0 0 20px -4px rgba(210, 210, 215, 0.3);
+    0 2px 4px rgba(0, 0, 0, 0.02), 0 6px 16px rgba(0, 0, 0, 0.04),
+    0 16px 40px rgba(0, 0, 0, 0.04), 0 28px 64px rgba(0, 0, 0, 0.05),
+    inset 0 0 0 0.5px rgba(255, 255, 255, 0.8);
   --shadow-elevated:
-    0 12px 40px -8px rgba(0, 0, 0, 0.18), 0 2px 8px -4px rgba(0, 0, 0, 0.1);
+    0 2px 4px rgba(0, 0, 0, 0.02), 0 8px 20px rgba(0, 0, 0, 0.03),
+    0 20px 48px rgba(0, 0, 0, 0.03), 0 32px 72px rgba(0, 0, 0, 0.04),
+    inset 0 0 0 0.5px rgba(255, 255, 255, 0.7);
   --shadow-glow-blue:
     0 0 20px rgba(0, 122, 255, 0.18), 0 0 60px rgba(0, 122, 255, 0.06);
   --shadow-glow-primary:
@@ -296,8 +302,9 @@
   --shadow-glow-electric:
     0 0 24px rgba(0, 122, 255, 0.28), 0 0 80px rgba(0, 122, 255, 0.1);
   --shadow-window:
-    0 20px 60px -10px rgba(0, 0, 0, 0.2), 0 8px 24px -8px rgba(0, 0, 0, 0.12),
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
+    0 2px 4px rgba(0, 0, 0, 0.02), 0 8px 24px rgba(0, 0, 0, 0.03),
+    0 24px 56px rgba(0, 0, 0, 0.04), 0 40px 96px rgba(0, 0, 0, 0.05),
+    inset 0 0 0 0.5px rgba(255, 255, 255, 0.8);
 
   /* ═══════════════════════════════════════════════════════════════
        REFRACTION SYSTEM
@@ -317,13 +324,16 @@
   /* ═══════════════════════════════════════════════════════════════
        RADIUS SCALE
        ═══════════════════════════════════════════════════════════════ */
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 8px;
-  --radius-xl: 12px;
-  --radius-card: 16px;
-  --radius-button: 8px;
-  --radius-full: 9999px;
+  /* radius-sm/md/lg/xl/card/button/full are generated from tokens.json */
+  /* and imported via variables-generated.css. Do not define duplicates here. */
+
+  /* Liquid Glass Radius Refinements */
+  --liquid-glass-radius-card: 16px;
+  --liquid-glass-radius-card-hover: 16px;
+  --liquid-glass-radius-input: 8px;
+  --liquid-glass-radius-input-focus: 8px;
+  --liquid-glass-radius-button: 8px;
+  --liquid-glass-radius-button-hover: 8px;
 
   /* ===== Design System Tokens ===== */
   /* ---- Colors (HUD & Overlays) ---- */
@@ -356,11 +366,16 @@
   --theme-transition-duration: 0ms;
 
   /* Font variables used in Tailwind config preset */
-  --font-sans: "Plus Jakarta Sans", sans-serif;
+  --font-sans:
+    "SF Pro", -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto,
+    sans-serif;
   --font-inter:
-    "Plus Jakarta Sans", sans-serif; /* alias kept for backward compat */
-  --font-outfit: "Outfit", sans-serif;
-  --font-mono: ui-monospace, monospace;
+    "SF Pro", -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto,
+    sans-serif;
+  --font-outfit:
+    "SF Pro", -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto,
+    sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
   color-scheme: light;
 }

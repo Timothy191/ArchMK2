@@ -5,13 +5,15 @@ import { useRouter } from "next/navigation";
 import { createBrowserSupabaseClient } from "@repo/supabase/client";
 import { Input } from "@repo/ui/Input";
 import { AnimatedButton } from "@repo/ui/AnimatedButton";
-import {
-  Lock as IconLock,
-  Check as IconCheck,
-  AlertOctagon as IconAlertHexagon,
-  Loader2 as IconLoader2,
-} from "lucide-react";
+import { Lock, Check, AlertTriangle, Loader2 } from "lucide-react";
 
+/**
+ * Maps raw Supabase user profile update errors to precise, readable user instructions.
+ * Resolves password validation issues such as weak password complexity or using the current password.
+ *
+ * @param raw - The raw error message string from the user update process.
+ * @returns A safe, human-readable error description.
+ */
 function mapUpdateError(raw: string): string {
   const lower = raw.toLowerCase();
   if (lower.includes("weak")) {
@@ -79,7 +81,7 @@ export default function UpdatePasswordPage() {
     return (
       <div className="w-full max-w-md space-y-3">
         <div className="rounded-xl overflow-hidden border border-[var(--border-default)] bg-white/70 backdrop-blur-2xl shadow-window p-6 text-center space-y-4">
-          <IconLoader2 className="w-8 h-8 text-[var(--accent-blue)] animate-spin mx-auto" />
+          <Loader2 className="w-8 h-8 text-[var(--accent-blue)] animate-spin mx-auto" />
           <p className="text-sm text-[var(--text-muted)]">
             Verifying session...
           </p>
@@ -92,9 +94,9 @@ export default function UpdatePasswordPage() {
     return (
       <div className="w-full max-w-md space-y-3">
         <div className="rounded-xl overflow-hidden border border-[var(--border-default)] bg-white/70 backdrop-blur-2xl shadow-window p-6 text-center space-y-4">
-          <IconAlertHexagon
+          <AlertTriangle
             className="w-8 h-8 text-[var(--accent-red)] mx-auto"
-            stroke="1.5"
+            strokeWidth={1.5}
           />
           <h1 className="text-lg font-semibold text-[var(--text-heading)]">
             Link Expired
@@ -135,9 +137,9 @@ export default function UpdatePasswordPage() {
           {updated ? (
             <div className="space-y-4 text-center">
               <div className="flex items-center justify-center w-12 h-12 rounded-full bg-[var(--accent-green)]/10 mx-auto">
-                <IconCheck
+                <Check
                   className="w-6 h-6 text-[var(--accent-green)]"
-                  stroke="1.5"
+                  strokeWidth={1.5}
                 />
               </div>
               <div className="space-y-1">
@@ -152,9 +154,9 @@ export default function UpdatePasswordPage() {
           ) : (
             <>
               <div className="flex items-center justify-center w-12 h-12 rounded-full bg-[var(--accent-blue)]/10 mx-auto">
-                <IconLock
+                <Lock
                   className="w-6 h-6 text-[var(--accent-blue)]"
-                  stroke="1.5"
+                  strokeWidth={1.5}
                 />
               </div>
 
@@ -185,6 +187,7 @@ export default function UpdatePasswordPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     variant="login"
+                    className="liquid-glass-input focus:ring-0"
                     placeholder="Enter new password"
                     autoComplete="new-password"
                     aria-describedby={error ? "update-error" : undefined}
@@ -208,6 +211,7 @@ export default function UpdatePasswordPage() {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     variant="login"
+                    className="liquid-glass-input focus:ring-0"
                     placeholder="Re-enter new password"
                     autoComplete="new-password"
                     aria-describedby={error ? "update-error" : undefined}
@@ -220,9 +224,9 @@ export default function UpdatePasswordPage() {
                     className="text-sm text-accent-red flex items-center gap-2"
                     role="alert"
                   >
-                    <IconAlertHexagon
+                    <AlertTriangle
                       className="w-4 h-4 shrink-0"
-                      stroke="1.5"
+                      strokeWidth={1.5}
                     />
                     {error}
                   </p>
@@ -231,8 +235,8 @@ export default function UpdatePasswordPage() {
                 <AnimatedButton
                   type="submit"
                   disabled={loading}
-                  className="w-full"
-                  hoverScale={1.02}
+                  className="w-full liquid-glass-button"
+                  hoverScale={1}
                   tapScale={0.97}
                 >
                   {loading ? "Updating..." : "Update Password"}

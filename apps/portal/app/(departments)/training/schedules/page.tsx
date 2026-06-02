@@ -1,16 +1,7 @@
-"use client";
-
-import React, { useState } from "react";
 import { GlassCard } from "@repo/ui/GlassCard";
-import {
-  Calendar,
-  Clock,
-  MapPin,
-  User,
-  Plus,
-  Search,
-  Filter,
-} from "lucide-react";
+import { Calendar, Clock, MapPin, User, Plus } from "lucide-react";
+import { SearchForm } from "../components/SearchForm";
+import { FilterTabs } from "../components/FilterTabs";
 
 interface Schedule {
   id: number;
@@ -100,17 +91,20 @@ const initialSchedules: Schedule[] = [
   },
 ];
 
-export default function SchedulesPage() {
-  const [schedules] = useState<Schedule[]>(initialSchedules);
-  const [search, setSearch] = useState("");
-  const [typeFilter, setTypeFilter] = useState<string>("All");
+export default async function SchedulesPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ q?: string; type?: string }>;
+}) {
+  const { q, type } = (await searchParams) ?? {};
 
-  const filteredSchedules = schedules.filter((s) => {
+  const filteredSchedules = initialSchedules.filter((s) => {
     const matchesSearch =
-      s.course.toLowerCase().includes(search.toLowerCase()) ||
-      s.instructor.toLowerCase().includes(search.toLowerCase()) ||
-      s.location.toLowerCase().includes(search.toLowerCase());
-    const matchesType = typeFilter === "All" || s.type === typeFilter;
+      !q ||
+      s.course.toLowerCase().includes(q.toLowerCase()) ||
+      s.instructor.toLowerCase().includes(q.toLowerCase()) ||
+      s.location.toLowerCase().includes(q.toLowerCase());
+    const matchesType = !type || type === "All" || s.type === type;
     return matchesSearch && matchesType;
   });
 
@@ -134,32 +128,17 @@ export default function SchedulesPage() {
 
       {/* Filters and search panel */}
       <GlassCard className="flex flex-col md:flex-row gap-3 items-center justify-between">
-        <div className="relative w-full md:w-80">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-[var(--text-muted)]" />
-          <input
-            type="text"
-            placeholder="Search sessions..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-9 w-full h-9 bg-black/[0.02] border border-black/[0.08] rounded-lg text-sm text-[var(--text-heading)] focus:outline-none focus:border-[var(--accent-blue)]"
-          />
-        </div>
-        <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto">
-          <Filter className="w-4 h-4 text-[var(--text-muted)] shrink-0" />
-          {["All", "Mandatory", "Refresher", "Voluntary"].map((t) => (
-            <button
-              key={t}
-              onClick={() => setTypeFilter(t)}
-              className={`text-xs px-3 py-1.5 rounded-lg border font-medium transition-all shrink-0 ${
-                typeFilter === t
-                  ? "bg-black text-white dark:bg-white dark:text-black border-transparent"
-                  : "bg-black/[0.01] hover:bg-black/[0.04] text-[var(--text-secondary)] border-black/[0.08]"
-              }`}
-            >
-              {t}
-            </button>
-          ))}
-        </div>
+        <SearchForm
+          value={q}
+          placeholder="Search sessions..."
+          hiddenParams={type && type !== "All" ? { type } : {}}
+        />
+        <FilterTabs
+          paramName="type"
+          options={["All", "Mandatory", "Refresher", "Voluntary"]}
+          currentValue={type || "All"}
+          hiddenParams={q ? { q } : {}}
+        />
       </GlassCard>
 
       {/* Schedules List */}

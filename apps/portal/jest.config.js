@@ -30,6 +30,9 @@ module.exports = {
     "^@repo/supabase$": "<rootDir>/../../packages/supabase/src/index.ts",
     "^@repo/redis$": "<rootDir>/../../packages/redis/src/index.ts",
     "^@repo/redis/(.*)$": "<rootDir>/../../packages/redis/src/$1",
+    "^@repo/rate-limiter$":
+      "<rootDir>/../../packages/rate-limiter/src/index.ts",
+    "^@repo/rate-limiter/(.*)$": "<rootDir>/../../packages/rate-limiter/src/$1",
     "^@repo/theme$": "<rootDir>/../../packages/theme/src/index.ts",
     "^@repo/theme/(.*)$": "<rootDir>/../../packages/theme/src/$1",
     "^@repo/ui/lib/(.*)$": "<rootDir>/../../packages/ui/src/lib/$1",
@@ -54,11 +57,12 @@ module.exports = {
     "^@repo/utils$": "<rootDir>/../../packages/utils/src/index.ts",
     "^@repo/utils/(.*)$": "<rootDir>/../../packages/utils/src/$1",
     "^@repo/types$": "<rootDir>/../../packages/types/src/index.ts",
-    "^@repo/hooks$": "<rootDir>/../../packages/hooks/src/index.ts",
     "^@repo/ui/DataGrid$":
       "<rootDir>/../../packages/ui/src/components/ui/data-grid.tsx",
     "^@repo/ui/AnimatedList$":
       "<rootDir>/../../packages/ui/src/components/ui/animated-list.tsx",
+    "^@repo/ui/Marquee$":
+      "<rootDir>/../../packages/ui/src/components/ui/marquee.tsx",
 
     "^@repo/ui/AnimatedButton$":
       "<rootDir>/../../packages/ui/src/components/ui/animated-button.tsx",
@@ -68,7 +72,9 @@ module.exports = {
     "lib/**/*.{ts,tsx}",
     "features/**/*.{ts,tsx}",
     "app/**/*.{ts,tsx}",
-    "proxy.ts",
+    "components/**/*.{ts,tsx}",
+    "hooks/**/*.{ts,tsx}",
+    "middleware.ts",
     "!**/*.test.{ts,tsx}",
     "!**/*.d.ts",
     "!**/node_modules/**",
@@ -76,10 +82,10 @@ module.exports = {
   coverageReporters: ["text", "lcov", "html"],
   coverageThreshold: {
     global: {
-      lines: 25,
-      branches: 20,
-      functions: 20,
-      statements: 25,
+      lines: 40,
+      branches: 30,
+      functions: 35,
+      statements: 40,
     },
   },
 };

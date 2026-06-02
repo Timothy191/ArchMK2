@@ -29,7 +29,9 @@ interface Employee {
 
 export function UsersTab() {
   const [employees, setEmployees] = useState<Employee[]>([]);
-  const [departments, setDepartments] = useState<any[]>([]);
+  const [departments, setDepartments] = useState<
+    { id: string; display_name: string }[]
+  >([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
@@ -59,7 +61,11 @@ export function UsersTab() {
     setShowEditDialog(true);
   };
 
-  const handleUpdate = async (formData: any) => {
+  const handleUpdate = async (formData: {
+    role: string;
+    department_id: string | null;
+    accessible_departments: string[];
+  }) => {
     if (!editingEmployee) return;
 
     const { error } = await supabase
@@ -256,8 +262,12 @@ function EditEmployeeForm({
   onCancel,
 }: {
   employee: Employee | null;
-  departments: any[];
-  onSubmit: (_data: any) => void;
+  departments: { id: string; display_name: string }[];
+  onSubmit: (_data: {
+    role: string;
+    department_id: string | null;
+    accessible_departments: string[];
+  }) => void;
   onCancel: () => void;
 }) {
   const [role, setRole] = useState(employee?.role || "operator");
