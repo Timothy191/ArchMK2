@@ -25,7 +25,7 @@
     "@opentelemetry/sdk-node": "^0.218.0",
     "@opentelemetry/semantic-conventions": "^1.41.1",
     "@radix-ui/react-popover": "^1.1.15",
-    "@repo/errors": "workspace:*",
+    "zustand": "catalog:",
     "@repo/redis": "workspace:*",
     "@repo/rate-limiter": "workspace:*",
     "@repo/supabase": "workspace:*",
@@ -43,7 +43,6 @@
     "lucide-react": "catalog:",
     "maplibre-gl": "^5.24.0",
     "next": "^16.2.6",
-    "openai": "catalog:",
     "react": "catalog:react19",
     "react-dom": "catalog:react19",
     "react-hook-form": "catalog:",
@@ -51,12 +50,11 @@
     "recharts": "catalog:",
     "sonner": "catalog:",
     "xstate": "catalog:",
-    "zod": "catalog:",
-    "zustand": "catalog:"
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@next/bundle-analyzer": "^16.2.6",
-    "@repo/eslint-config": "workspace:*",
+    "typescript": "catalog:",
     "@repo/typescript-config": "workspace:*",
     "@swc/core": "^1.15.40",
     "@swc/jest": "^0.2.39",
@@ -73,7 +71,6 @@
     "jest": "^30.0.0",
     "jest-environment-jsdom": "^30.2.0",
     "postcss": "^8.4.47",
-    "tailwindcss": "catalog:",
-    "typescript": "catalog:"
+    "tailwindcss": "catalog:"
   }
 }

@@ -22,7 +22,7 @@
     "tailwind-merge": "^2.5.4"
   },
   "devDependencies": {
-    "@repo/eslint-config": "workspace:*",
+    "typescript": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:react19",
     "@types/react-dom": "catalog:react19",
@@ -30,7 +30,6 @@
     "postcss": "^8.4.47",
     "tailwindcss": "catalog:",
     "@typescript-eslint/parser": "^8.59.4",
-    "eslint": "catalog:",
-    "typescript": "catalog:"
+    "eslint": "catalog:"
   }
 }

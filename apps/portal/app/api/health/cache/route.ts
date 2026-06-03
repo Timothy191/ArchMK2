@@ -4,7 +4,7 @@ import { getCacheStats, getRedisClient } from "@repo/redis";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const stats = getCacheStats();
+  const stats = await getCacheStats();
   let redisConnected = false;
   try {
     const redis = await getRedisClient();

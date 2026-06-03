@@ -30,7 +30,7 @@ Three Supabase client contexts — always import from `@repo/supabase`, never di
 | Server     | `@repo/supabase/server`     | React Server Components, Server Actions           |
 | Middleware | `@repo/supabase/middleware` | Next.js middleware only                           |
 
-## Middleware (`middleware.ts`)
+## Proxy (`proxy.ts`)
 
 Enforces two layers of protection:
 

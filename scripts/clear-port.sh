@@ -10,5 +10,5 @@ else
   echo "Port 3000 is free."
 fi
 
-# After clearing, start the dev server
-pnpm dev
+# After clearing, start the portal dev server
+pnpm --filter portal dev

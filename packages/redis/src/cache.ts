@@ -192,6 +192,9 @@ export async function cacheSetWithTags<T>(
  * Wrap a function with Redis caching.
  * If the key exists in cache, returns it; otherwise calls fn, stores result, and returns it.
  */
+// Request Coalescing (Single-Flight) map for active computations
+const activeFetches = new Map<string, Promise<any>>();
+
 export async function cacheWrap<T>(
   key: string,
   fn: () => Promise<T>,
@@ -200,9 +203,20 @@ export async function cacheWrap<T>(
   const cached = await cacheGet<T>(key);
   if (cached !== null) return cached;
 
-  const result = await fn();
-  await cacheSet(key, result, ttlSeconds);
-  return result;
+  let activeFetch = activeFetches.get(key);
+  if (!activeFetch) {
+    activeFetch = fn()
+      .then(async (result) => {
+        await cacheSet(key, result, ttlSeconds);
+        return result;
+      })
+      .finally(() => {
+        activeFetches.delete(key);
+      });
+    activeFetches.set(key, activeFetch);
+  }
+
+  return activeFetch as Promise<T>;
 }
 
 /**

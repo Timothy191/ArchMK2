@@ -269,12 +269,10 @@ export function LoginForm() {
         <AnimatedButton
           type="submit"
           disabled={loading || failedAttempts >= 5}
-          className="w-full h-12 liquid-glass-button bg-gradient-to-b from-blue-400 to-blue-600 hover:from-blue-500 hover:to-blue-700 text-white font-medium shadow-md relative overflow-hidden flex items-center justify-center border-t border-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 focus-visible:ring-offset-1"
+          className="w-full h-12 rounded-lg liquid-glass-button bg-[var(--color-action-primary)] hover:bg-[var(--color-action-primary-hover)] text-white font-medium relative overflow-hidden flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-action-primary)]/50 focus-visible:ring-offset-1 transition-colors"
           hoverScale={1}
           tapScale={0.97}
         >
-          {/* Top edge hardware sheen */}
-          <div className="absolute top-0 left-0 right-0 h-px bg-white/25 pointer-events-none" />
           {loading ? "Signing in..." : "Sign In"}
         </AnimatedButton>
 

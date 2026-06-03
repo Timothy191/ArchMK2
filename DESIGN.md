@@ -11,24 +11,23 @@ This document serves as the single source of truth for the visual style, design 
 
 ### Base Palette (OKLCH)
 
-| Token Naming (`namespace--category--variant`) | OKLCH                  | Hex Reference      | Dark Mode Equivalent (Future-Proof) | Usage                                               |
-| :-------------------------------------------- | :--------------------- | :----------------- | :---------------------------------- | :-------------------------------------------------- |
-| `color-bg-base`                               | `oklch(97% 0.001 250)` | `#f5f5f7`          | `oklch(15% 0.01 250)`               | Main application background. macOS base background. |
-| `color-bg-elevated`                           | `oklch(100% 0 0)`      | `#ffffff`          | `oklch(22% 0.015 250)`              | Cards, panels, sidebar, elevated surfaces.          |
-| `color-bg-sunken`                             | `oklch(93% 0.002 250)` | `#e8e8ed`          | `oklch(10% 0.005 250)`              | Input backgrounds, nested containers, code blocks.  |
-| `color-border-subtle`                         | `oklch(90% 0.003 250)` | `rgba(0,0,0,0.06)` | `oklch(30% 0.01 250)`               | Dividers, table borders, inactive tab borders.      |
-| `color-border-focus`                          | `oklch(60% 0.15 250)`  | `#007aff`          | `oklch(55% 0.15 250)`               | Focus rings, active tab borders. macOS Blue.        |
-| `color-text-primary`                          | `oklch(25% 0.005 250)` | `#1d1d1f`          | `oklch(95% 0.005 250)`              | Headings, primary labels. macOS Heading.            |
-| `color-text-secondary`                        | `oklch(45% 0.005 250)` | `#3a3a3c`          | `oklch(80% 0.005 250)`              | Body text, primary labels. macOS Body.              |
-| `color-text-tertiary`                         | `oklch(60% 0.005 250)` | `#6e6e73`          | `oklch(65% 0.005 250)`              | Captions, timestamps, placeholders.                 |
-| `color-accent`                                | `oklch(60% 0.15 250)`  | `#007aff`          | `oklch(55% 0.15 250)`               | Functional accent — macOS Blue.                     |
-| `color-accent-hover`                          | `oklch(55% 0.16 250)`  | `#0063cc`          | `oklch(50% 0.16 250)`               | Accent hover state.                                 |
-| `color-accent-subtle`                         | `oklch(95% 0.01 250)`  | `#e5f2ff`          | `oklch(25% 0.04 250)`               | Accent backgrounds, tags, subtle highlights.        |
-| `color-success`                               | `oklch(65% 0.12 145)`  | `#34c759`          | `oklch(60% 0.12 145)`               | Green — operational, online, success states.        |
-| `color-danger`                                | `oklch(55% 0.16 25)`   | `#ff3b30`          | `oklch(50% 0.16 25)`                | Red — critical alerts, errors, offline.             |
-| `color-warning`                               | `oklch(65% 0.15 85)`   | `#f5a623`          | `oklch(60% 0.15 85)`                | Orange/Amber — caution, warnings, attention.        |
-| `color-info`                                  | `oklch(65% 0.1 230)`   | `#00c7be`          | `oklch(60% 0.1 230)`                | Teal/Blue-Green — informational highlights.         |
-| `color-bg-hud`                                | `oklch(0% 0 0 / 60%)`  | `rgba(0,0,0,0.6)`  | `oklch(0% 0 0 / 70%)`               | Dark glassmorphic background for HUD overlays.      |
+| Token Naming (`namespace--category--variant`) | OKLCH                  | Hex Reference        | Dark Mode Equivalent (Future-Proof) | Usage                                               |
+| :-------------------------------------------- | :--------------------- | :------------------- | :---------------------------------- | :-------------------------------------------------- |
+| `color-bg-base`                               | `oklch(97% 0.001 250)` | `#f5f5f7`            | `oklch(15% 0.01 250)`               | Main application background. macOS base background. |
+| `color-bg-elevated`                           | `oklch(100% 0 0)`      | `#ffffff`            | `oklch(22% 0.015 250)`              | Cards, panels, sidebar, elevated surfaces.          |
+| `color-bg-sunken`                             | `oklch(93% 0.002 250)` | `#e8e8ed`            | `oklch(10% 0.005 250)`              | Input backgrounds, nested containers, code blocks.  |
+| `color-border-subtle`                         | `oklch(90% 0.003 250)` | `rgba(0,0,0,0.06)`   | `oklch(30% 0.01 250)`               | Dividers, table borders, inactive tab borders.      |
+| `color-border-focus`                          | `oklch(60% 0.15 250)`  | `#007aff`            | `oklch(55% 0.15 250)`               | Focus rings, active tab borders. macOS Blue.        |
+| `color-text-primary`                          | `oklch(25% 0.005 250)` | `#1d1d1f`            | `oklch(95% 0.005 250)`              | Headings, primary labels. macOS Heading.            |
+| `color-text-secondary`                        | `oklch(45% 0.005 250)` | `#3a3a3c`            | `oklch(80% 0.005 250)`              | Body text, primary labels. macOS Body.              |
+| `color-text-tertiary`                         | `oklch(60% 0.005 250)` | `#6e6e73`            | `oklch(65% 0.005 250)`              | Captions, timestamps, placeholders.                 |
+| `color-action-primary`                        | `oklch(45% 0.22 260)`  | `#0066ff`            | `oklch(45% 0.22 260)`               | Primary CTA, electric blue interactive highlights.  |
+| `color-action-primary-hover`                  | `oklch(40% 0.2 260)`   | `#0052d6`            | `oklch(40% 0.2 260)`                | Primary CTA hover state.                            |
+| `color-status-positive`                       | `oklch(70% 0.15 160)`  | `#10b981`            | `oklch(70% 0.15 160)`               | Mint Green — optimal / active / healthy.            |
+| `color-status-warning`                        | `oklch(75% 0.15 65)`   | `#f59e0b`            | `oklch(75% 0.15 65)`                | Amber — caution, warnings, pending.                 |
+| `color-status-danger`                         | `oklch(55% 0.2 25)`    | `#ff3b30`            | `oklch(55% 0.2 25)`                 | Red — critical alerts, errors, offline.             |
+| `color-accent-subtle`                         | `oklch(95% 0.02 260)`  | `rgba(0,102,255,.1)` | `oklch(25% 0.04 250)`               | Accent backgrounds, tags, subtle highlights.        |
+| `color-bg-hud`                                | `oklch(0% 0 0 / 60%)`  | `rgba(0,0,0,0.6)`    | `oklch(0% 0 0 / 70%)`               | Dark glassmorphic background for HUD overlays.      |
 
 ### State Opacity & Overlay Tokens
 

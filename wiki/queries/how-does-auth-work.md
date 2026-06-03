@@ -78,7 +78,7 @@ Always import from `@repo/supabase`, never directly:
 | -------------- | --------------------------- | -------------------------------- | ----------------------------------- |
 | **Browser**    | `@repo/supabase/client`     | `'use client'` components, hooks | Real-time subscriptions, auth state |
 | **Server**     | `@repo/supabase/server`     | `page.tsx`, Server Actions       | Data fetching, mutations            |
-| **Middleware** | `@repo/supabase/middleware` | `middleware.ts` only             | Route protection, JWT refresh       |
+| **Middleware** | `@repo/supabase/middleware` | `proxy.ts` only                  | Route protection, JWT refresh       |
 
 ### Browser Client Example
 
@@ -124,10 +124,10 @@ export default async function Page() {
 ### Middleware Example
 
 ```typescript
-// middleware.ts
+// proxy.ts
 import { createMiddlewareClient } from "@repo/supabase/middleware";
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const supabase = createMiddlewareClient({ req, res });
   const {
     data: { user },
@@ -195,7 +195,7 @@ auth.has_department_access(target_dept UUID) → BOOLEAN
 ### Restricted Routes
 
 ```typescript
-// middleware.ts
+// proxy.ts
 const RESTRICTED_ROUTES = {
   "control-room": ["control_room_operator", "admin"],
   tools: ["admin", "supervisor"],

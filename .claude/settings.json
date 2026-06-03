@@ -10,6 +10,10 @@
           {
             "type": "command",
             "command": "node \"/home/timothy/Project/Arch-Mk2/.claude/hooks/scripts/secret-scan.js\""
+          },
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path // .tool_input.TargetFile // .tool_input.target_file' | { read -r f; [ -n \"$f\" ] && [ \"$f\" != \"null\" ] && [[ \"$f\" == */packages/supabase/supabase/migrations/* ]] && { echo \"BLOCKED: Edit packages/supabase/supabase/migrations/* directly. Edit packages/database/migrations/* instead — supabase/migrations is a deploy-time copy (see CLAUDE.md 'Database' section).\" >&2; exit 2; }; }"
           }
         ]
       }
@@ -27,6 +31,12 @@
             "type": "command",
             "command": "jq -r '.tool_response.filePath // .tool_input.file_path // .tool_input.TargetFile' | { read -r f; [ -n \"$f\" ] && [ \"$f\" != \"null\" ] && [ -f \"$f\" ] && [[ \"$f\" == */apps/portal/* ]] && [[ \"$f\" =~ \\.(ts|tsx|js|jsx)$ ]] && pnpm --filter portal exec eslint \"$f\" --max-warnings 0; }",
             "statusMessage": "Linting...",
+            "async": true
+          },
+          {
+            "type": "command",
+            "command": "jq -r '.tool_response.filePath // .tool_input.file_path // .tool_input.TargetFile' | { read -r f; [ -n \"$f\" ] && [ \"$f\" != \"null\" ] && [ -f \"$f\" ] && [[ \"$f\" == */apps/portal/* ]] && [[ \"$f\" =~ \\.(ts|tsx)$ ]] && pnpm --filter portal exec tsc --noEmit -p apps/portal/tsconfig.json --pretty false 2>&1 | tail -40; }",
+            "statusMessage": "Type-checking...",
             "async": true
           }
         ]

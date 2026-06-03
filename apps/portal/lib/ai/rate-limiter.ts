@@ -1,7 +1,12 @@
 /**
- * Redis-backed rate limiter for AI chat endpoints.
+ * Redis-backed rate limiter for AI endpoints.
  * Uses Token Bucket strategy for distributed rate limiting.
  * Falls back to in-memory if Redis is unavailable.
+ *
+ * Per-tool buckets (GAP-1): each tool category gets its own key prefix so a
+ * heavy tool call cannot starve other endpoints on the same IP. The default
+ * `checkRateLimit(ip)` keeps the original chat-only behaviour for backward
+ * compatibility.
  */
 
 import { getRedisClient } from "@repo/redis";
@@ -19,28 +24,103 @@ let globalRedisStore: RedisStore | null = null;
 const tokenBucketStrategy = new TokenBucketStrategy();
 
 /**
- * Check if a request from the given IP is within rate limits.
- * Uses Redis-backed token bucket with in-memory fallback.
+ * Tool category. Each category gets an independent token bucket.
+ *
+ * - `chat`      — default LLM completions (current behaviour, kept for compat)
+ * - `embedding` — vector generation, cheaper but DB-bound
+ * - `tool`      — agent tools, override per-tool via `RATE_LIMIT_REGISTRY`
  */
-export async function checkRateLimit(ip: string): Promise<boolean> {
-  let store;
+type RateLimitCategory = "chat" | "embedding" | "tool";
+
+interface RateLimitConfig {
+  limit: number;
+  windowMs: number;
+}
+
+const DEFAULT_TOOL_CONFIG: RateLimitConfig = { limit: 60, windowMs: WINDOW_MS };
+const DEFAULT_EMBEDDING_CONFIG: RateLimitConfig = {
+  limit: 60,
+  windowMs: WINDOW_MS,
+};
+
+/**
+ * Per-tool overrides. Tools not listed here fall back to DEFAULT_TOOL_CONFIG.
+ * Internal registry — add entries as needed.
+ */
+const RATE_LIMIT_REGISTRY: Record<string, RateLimitConfig> = {
+  // Expensive or high-volume tools can be tuned here.
+  // Example: machineStatusTool: { limit: 120, windowMs: 60_000 },
+};
+
+function getRateLimitConfig(
+  category: RateLimitCategory,
+  toolName?: string,
+): RateLimitConfig {
+  if (category === "embedding") return DEFAULT_EMBEDDING_CONFIG;
+  if (category === "tool" && toolName && RATE_LIMIT_REGISTRY[toolName]) {
+    return RATE_LIMIT_REGISTRY[toolName]!;
+  }
+  if (category === "tool") return DEFAULT_TOOL_CONFIG;
+  return { limit: MAX_REQUESTS, windowMs: WINDOW_MS };
+}
+
+async function getStore() {
   try {
     const redis = await getRedisClient();
     if (!globalRedisStore && redis) {
       globalRedisStore = new RedisStore(redis);
     }
-    store = globalRedisStore || globalMemoryStore;
+    return globalRedisStore || globalMemoryStore;
   } catch {
-    store = globalMemoryStore;
+    return globalMemoryStore;
   }
+}
 
+function buildKey(
+  category: RateLimitCategory,
+  identifier: string,
+  toolName?: string,
+): string {
+  if (category === "tool" && toolName) {
+    return `ratelimit:${category}:${toolName}:${identifier}`;
+  }
+  return `ratelimit:${category}:${identifier}`;
+} /**
+ * Check whether a request from `ip` is within the chat rate limit.
+ * Backward-compatible: same bucket as before (single `ratelimit:${ip}` key).
+ */
+export async function checkRateLimit(ip: string): Promise<boolean> {
+  const store = await getStore();
   const result = await tokenBucketStrategy.check(
     `ratelimit:${ip}`,
     MAX_REQUESTS,
     WINDOW_MS,
     store,
   );
+  return result.allowed;
+}
 
+/**
+ * Check the per-category (and optional per-tool) rate limit.
+ *
+ * - `category = "chat"` → same as `checkRateLimit(ip)` but with explicit category key.
+ * - `category = "embedding"` → independent bucket from chat.
+ * - `category = "tool"` with `toolName` → independent bucket per (ip, tool).
+ */
+export async function checkRateLimitForCategory(
+  category: RateLimitCategory,
+  ip: string,
+  toolName?: string,
+): Promise<boolean> {
+  const cfg = getRateLimitConfig(category, toolName);
+  const store = await getStore();
+  const key = buildKey(category, ip, toolName);
+  const result = await tokenBucketStrategy.check(
+    key,
+    cfg.limit,
+    cfg.windowMs,
+    store,
+  );
   return result.allowed;
 }
 

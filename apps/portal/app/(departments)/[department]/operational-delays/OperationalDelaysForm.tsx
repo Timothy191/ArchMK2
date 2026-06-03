@@ -4,6 +4,7 @@ import { useState } from "react";
 import { GlassCard } from "@repo/ui/GlassCard";
 import { createBrowserSupabaseClient } from "@repo/supabase/client";
 import { useRouter } from "next/navigation";
+import { speculativeEmbedShiftLog } from "@/app/actions";
 
 interface Machine {
   id: string;
@@ -138,6 +139,17 @@ export function OperationalDelaysForm({
       });
 
       if (error) throw error;
+
+      // Speculatively generate embeddings in background
+      if (formData.description && formData.description.trim() !== "") {
+        speculativeEmbedShiftLog(formData.description).catch(() => {});
+      }
+      if (formData.impactDescription && formData.impactDescription.trim() !== "") {
+        speculativeEmbedShiftLog(formData.impactDescription).catch(() => {});
+      }
+      if (formData.recoveryAction && formData.recoveryAction.trim() !== "") {
+        speculativeEmbedShiftLog(formData.recoveryAction).catch(() => {});
+      }
 
       // Clear form
       setFormData({

@@ -5,9 +5,8 @@ import {
 } from "@repo/supabase/server";
 import { LoginForm } from "./LoginForm";
 import { AlertTriangle, Lock } from "lucide-react";
-import { GlassCard } from "@repo/ui/GlassCard";
 
-const PORTAL_VERSION = process.env.PORTAL_VERSION ?? "2.4.1";
+const PORTAL_VERSION = process.env.PORTAL_VERSION ?? "2.0.0.1";
 
 export const dynamic = "force-dynamic";
 
@@ -77,13 +76,7 @@ export default async function LoginPage() {
             </div>
           </div>
         ) : (
-          <GlassCard
-            variant="liquid"
-            blur={false}
-            backgroundOpacity={0.15}
-            padding={false}
-            className="w-full flex flex-col min-h-[660px] overflow-hidden login-card-container shadow-window"
-          >
+          <div className="w-full flex flex-col min-h-[660px] overflow-hidden login-card-container liquid-glass-light border border-white/40 shadow-window rounded-xl">
             {/* Title bar */}
             <div className="flex items-center gap-3 px-4 py-2.5 border-b border-arch-border-subtle bg-white/5">
               <div className="flex items-center gap-1.5 shrink-0">
@@ -180,7 +173,7 @@ export default async function LoginPage() {
                 </span>
               </div>
             </div>
-          </GlassCard>
+          </div>
         )}
       </div>
     </main>

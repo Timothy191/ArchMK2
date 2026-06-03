@@ -2,6 +2,7 @@ import { inngest } from "@repo/utils/inngest";
 import { createServerSupabaseClient } from "@repo/supabase/server";
 import { revalidatePath } from "next/cache";
 import { logError } from "@/lib/errors/error-logger";
+import { recordJobExecution } from "@/lib/observability/metrics";
 import type { InngestFunction } from "inngest";
 
 export const syncPlaybackFn: InngestFunction.Any = inngest.createFunction(
@@ -9,6 +10,8 @@ export const syncPlaybackFn: InngestFunction.Any = inngest.createFunction(
   async ({ event }) => {
     const { idempotencyKey, actionType, payload, departmentId } = event.data;
     const supabase = await createServerSupabaseClient();
+    const start = performance.now();
+    let success = true;
 
     try {
       if (actionType === "ADD_BREAKDOWN") {
@@ -104,12 +107,15 @@ export const syncPlaybackFn: InngestFunction.Any = inngest.createFunction(
 
       return { error: `Unknown action type: ${actionType}` };
     } catch (err) {
+      success = false;
       logError(err instanceof Error ? err : new Error(String(err)), {
         context: "sync_playback_job",
         actionType,
         idempotencyKey,
       });
       throw err;
+    } finally {
+      recordJobExecution("sync-playback", performance.now() - start, success);
     }
   },
 );

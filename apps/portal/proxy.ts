@@ -27,6 +27,17 @@ export function normalizeRole(role: unknown): string {
   return typeof role === "string" && role.length > 0 ? role : "operator";
 }
 
+export function isTokenExpiredError(error: unknown): boolean {
+  if (!error || typeof error !== "object" || !("message" in error)) {
+    return false;
+  }
+  const msg = String(error.message);
+  return (
+    msg.includes("Invalid Refresh Token") ||
+    msg.includes("Refresh Token Not Found")
+  );
+}
+
 function redirectWithError(
   request: NextRequest,
   error: string,
@@ -70,11 +81,15 @@ async function resolveDeptUuid(
   return data?.id || null;
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
-  // Exempt health and hardware API endpoints from authentication entirely
-  if (pathname.startsWith("/api/c66") || pathname.startsWith("/api/health")) {
+  // Exempt health, hardware API, and Prometheus metrics endpoints from authentication entirely
+  if (
+    pathname.startsWith("/api/c66") ||
+    pathname.startsWith("/api/health") ||
+    pathname.startsWith("/api/metrics")
+  ) {
     return NextResponse.next();
   }
 
@@ -135,24 +150,12 @@ export async function middleware(request: NextRequest) {
     try {
       const result = await client.supabase.auth.getUser();
       sessionUser = result.data.user;
-      if (result.error) {
-        const msg = result.error.message;
-        if (
-          msg.includes("Invalid Refresh Token") ||
-          msg.includes("Refresh Token Not Found")
-        ) {
-          shouldSignOut = true;
-        }
+      if (result.error && isTokenExpiredError(result.error)) {
+        shouldSignOut = true;
       }
     } catch (error) {
-      if (error && typeof error === "object" && "message" in error) {
-        const msg = String(error.message);
-        if (
-          msg.includes("Invalid Refresh Token") ||
-          msg.includes("Refresh Token Not Found")
-        ) {
-          shouldSignOut = true;
-        }
+      if (isTokenExpiredError(error)) {
+        shouldSignOut = true;
       }
     }
 
@@ -173,24 +176,12 @@ export async function middleware(request: NextRequest) {
   try {
     const result = await client.supabase.auth.getUser();
     user = result.data.user;
-    if (result.error) {
-      const errorMessage = result.error.message;
-      if (
-        errorMessage.includes("Invalid Refresh Token") ||
-        errorMessage.includes("Refresh Token Not Found")
-      ) {
-        shouldSignOut = true;
-      }
+    if (result.error && isTokenExpiredError(result.error)) {
+      shouldSignOut = true;
     }
   } catch (error) {
-    if (error && typeof error === "object" && "message" in error) {
-      const errorMessage = String(error.message);
-      if (
-        errorMessage.includes("Invalid Refresh Token") ||
-        errorMessage.includes("Refresh Token Not Found")
-      ) {
-        shouldSignOut = true;
-      }
+    if (isTokenExpiredError(error)) {
+      shouldSignOut = true;
     }
   }
 

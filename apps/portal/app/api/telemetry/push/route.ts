@@ -1,5 +1,32 @@
 /* eslint-disable turbo/no-undeclared-env-vars */
 import { NextResponse } from "next/server";
+import { getRedisClient } from "@repo/redis";
+
+// L1 cache (in-memory)
+let localLastValues = new Map<string, number>();
+
+export function clearTelemetryCache() {
+  localLastValues.clear();
+}
+
+async function getRedisLastValue(key: string): Promise<number | null> {
+  try {
+    const client = await getRedisClient();
+    const val = await client.get(`telemetry:last:${key}`);
+    return val !== null ? parseFloat(val) : null;
+  } catch {
+    return null;
+  }
+}
+
+async function setRedisLastValue(key: string, value: number): Promise<void> {
+  try {
+    const client = await getRedisClient();
+    await client.set(`telemetry:last:${key}`, String(value), { EX: 86400 }); // 24 hours TTL
+  } catch {
+    // ignore
+  }
+}
 
 export async function POST(req: Request) {
   try {
@@ -33,7 +60,23 @@ export async function POST(req: Request) {
       for (const [key, value] of Object.entries(metrics)) {
         if (value !== null && value !== undefined) {
           const tagName = `machine_${machine_id}_${key}`;
+          const numValue = Number(value);
 
+          // L1 Check
+          if (localLastValues.has(tagName) && localLastValues.get(tagName) === numValue) {
+            results.push({ tag: tagName, success: true, cached: true });
+            continue;
+          }
+
+          // L2 Check (Redis)
+          const lastVal = await getRedisLastValue(tagName);
+          if (lastVal !== null && lastVal === numValue) {
+            localLastValues.set(tagName, numValue);
+            results.push({ tag: tagName, success: true, cached: true });
+            continue;
+          }
+
+          // Change detected or cache miss -> send update
           try {
             const fuxaRes = await fetch(endpoint, {
               method: "POST",
@@ -43,9 +86,15 @@ export async function POST(req: Request) {
                   ? { Authorization: `Bearer ${process.env.FUXA_API_KEY}` }
                   : {}),
               },
-              body: JSON.stringify({ name: tagName, value }),
+              body: JSON.stringify({ name: tagName, value: numValue }),
             });
-            results.push({ tag: tagName, success: fuxaRes.ok });
+            
+            const ok = fuxaRes.ok;
+            results.push({ tag: tagName, success: ok });
+            if (ok) {
+              localLastValues.set(tagName, numValue);
+              await setRedisLastValue(tagName, numValue);
+            }
           } catch {
             results.push({
               tag: tagName,
@@ -73,6 +122,20 @@ export async function POST(req: Request) {
       );
     }
 
+    const numValue = Number(value);
+
+    // L1 Check
+    if (localLastValues.has(name) && localLastValues.get(name) === numValue) {
+      return NextResponse.json({ success: true, synced: true, cached: true });
+    }
+
+    // L2 Check (Redis)
+    const lastVal = await getRedisLastValue(name);
+    if (lastVal !== null && lastVal === numValue) {
+      localLastValues.set(name, numValue);
+      return NextResponse.json({ success: true, synced: true, cached: true });
+    }
+
     try {
       const fuxaRes = await fetch(endpoint, {
         method: "POST",
@@ -82,7 +145,7 @@ export async function POST(req: Request) {
             ? { Authorization: `Bearer ${process.env.FUXA_API_KEY}` }
             : {}),
         },
-        body: JSON.stringify({ name, value }),
+        body: JSON.stringify({ name, value: numValue }),
       });
 
       if (!fuxaRes.ok) {
@@ -94,6 +157,9 @@ export async function POST(req: Request) {
           { status: 200 },
         );
       }
+
+      localLastValues.set(name, numValue);
+      await setRedisLastValue(name, numValue);
 
       return NextResponse.json({ success: true, synced: true });
     } catch {

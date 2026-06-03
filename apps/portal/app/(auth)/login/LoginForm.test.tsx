@@ -85,10 +85,9 @@ describe("LoginForm", () => {
 
     const signInBtn = screen.getByRole("button", { name: /^Sign In$/i });
     expect(signInBtn).toBeInTheDocument();
-    expect(signInBtn.className).toContain("bg-gradient-to-b");
-    expect(signInBtn.className).toContain("from-blue-400");
-    expect(signInBtn.className).toContain("to-blue-600");
-    expect(signInBtn.className).toContain("border-t");
+    expect(signInBtn.className).toContain("liquid-glass-button");
+    expect(signInBtn.className).toContain("bg-[var(--color-action-primary)]");
+    expect(signInBtn.className).toContain("text-white");
   });
 
   it("submits form and redirects on success", async () => {

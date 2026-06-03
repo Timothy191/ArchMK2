@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { createBrowserSupabaseClient } from "@repo/supabase/client";
 import { GlassCard } from "@repo/ui/GlassCard";
 import { AnimatedFeed } from "@repo/ui/AnimatedList";
+import { useThrottledState } from "@/hooks/useThrottledState";
 
 type ActivityType = "insert" | "update" | "delete";
 
@@ -21,7 +22,7 @@ interface ControlRoomActivityFeedProps {
 export function ControlRoomActivityFeed({
   departmentId,
 }: ControlRoomActivityFeedProps) {
-  const [activities, setActivities] = useState<ActivityItem[]>([]);
+  const [activities, setActivities] = useThrottledState<ActivityItem[]>([]);
   const [filter, setFilter] = useState<ActivityType | "all">("all");
 
   useEffect(() => {

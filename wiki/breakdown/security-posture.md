@@ -37,11 +37,11 @@
 | JWT tokens         | Supabase Auth with PKCE flow                                | ✅ Active        |
 | Session management | Supabase server-side sessions via `@repo/supabase`          | ✅ Active        |
 | Session refresh    | Automatic token refresh with `createServerSupabaseClient()` | ✅ Active        |
-| Auth middleware    | `apps/portal/middleware.ts` — protects all routes           | ✅ Active        |
+| Auth proxy         | `apps/portal/proxy.ts` — protects all routes                | ✅ Active        |
 | Login page         | Video background, secure form, no credential logging        | ✅ Active        |
 | MFA (TOTP)         | Supabase supports it — not yet enabled in UI                | ⚠️ Partial (50%) |
 
-**Middleware protection**: Every request to `/(hub)/*` and `/(departments)/*` passes through `middleware.ts` which calls `createServerSupabaseClient()` and validates the session. Unauthenticated requests are redirected to `/login`.
+**Proxy protection**: Every request to `/(hub)/*` and `/(departments)/*` passes through `proxy.ts` which calls `createServerSupabaseClient()` and validates the session. Unauthenticated requests are redirected to `/login`.
 
 ### Layer 2 — Authorization (RLS)
 

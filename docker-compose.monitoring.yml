@@ -12,6 +12,8 @@ services:
       - prometheus_data:/prometheus
     networks:
       - plantcor-monitoring
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   grafana:
     image: grafana/grafana:11.0.0

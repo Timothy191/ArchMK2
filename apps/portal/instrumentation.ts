@@ -35,6 +35,10 @@ export async function register() {
 
   // Sentry (existing)
   if (process.env.NEXT_RUNTIME === "nodejs") {
+    const { recordDbQuery } = await import("@/lib/observability/metrics");
+    // eslint-disable-next-line no-undef
+    (globalThis as any).__recordDbQuery = recordDbQuery;
+
     Sentry.init({
       dsn: process.env.SENTRY_DSN,
       environment:

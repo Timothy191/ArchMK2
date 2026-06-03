@@ -2,7 +2,7 @@
 
 import { cacheInvalidateTags } from "@repo/redis";
 import { createServerSupabaseClient } from "@repo/supabase/server";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 async function assertAdmin() {
   const supabase = await createServerSupabaseClient();
@@ -57,6 +57,11 @@ export async function adminAddMachine(data: {
   if (error) return { error: "Failed to add machine" };
 
   await cacheInvalidateTags(["table:fleet", "table:equipment"]);
+  try {
+    revalidateTag("table:machines", "max");
+  } catch {
+    // Ignore if not in request context (e.g., during tests)
+  }
   revalidatePath("/admin");
   return { success: true };
 }
@@ -99,6 +104,11 @@ export async function adminUpdateMachine(
   if (error) return { error: "Failed to update machine" };
 
   await cacheInvalidateTags(["table:fleet", "table:equipment"]);
+  try {
+    revalidateTag("table:machines", "max");
+  } catch {
+    // Ignore if not in request context (e.g., during tests)
+  }
   revalidatePath("/admin");
   return { success: true };
 }

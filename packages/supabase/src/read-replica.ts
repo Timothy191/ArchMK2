@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { instrumentedFetch } from "./server";
 
 /**
  * Creates a Supabase client pointed at the read replica (if configured).
@@ -18,6 +19,9 @@ export async function createReadReplicaClient() {
     replicaUrl,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
+      global: {
+        fetch: instrumentedFetch,
+      },
       cookies: {
         getAll() {
           return cookieStore.getAll();

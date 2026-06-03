@@ -126,7 +126,7 @@ The remaining **157 source files** have zero JSDoc. For a project this size, inl
 - All `lib/` utility functions (dashboard-service, shift-closeout, weather-api, audit)
 - Server actions (`app/**/actions.ts`)
 - AI service public interface (`lib/ai/ai-service.ts`)
-- `middleware.ts` auth logic
+- `proxy.ts` auth logic
 
 ### 🟡 Medium — No API documentation surface
 

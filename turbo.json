@@ -67,7 +67,8 @@
         "SKIP_TYPE_CHECK",
         "ENABLE_HEAVY_PLUGINS",
         "OLLAMA_URL",
-        "OLLAMA_TIMEOUT_MS"
+        "OLLAMA_TIMEOUT_MS",
+        "DISABLE_RATE_LIMIT"
       ],
       "passThroughEnv": ["ANALYZE"],
       "inputs": [
@@ -114,7 +115,8 @@
         "DATABASE_POOLER_URL",
         "INTERNAL_API_SECRET",
         "OLLAMA_URL",
-        "OLLAMA_TIMEOUT_MS"
+        "OLLAMA_TIMEOUT_MS",
+        "DISABLE_RATE_LIMIT"
       ],
       "inputs": [
         "$TURBO_DEFAULT$",
@@ -150,7 +152,8 @@
         "SENTRY_DSN",
         "SCANNER_API_KEY",
         "OLLAMA_URL",
-        "OLLAMA_TIMEOUT_MS"
+        "OLLAMA_TIMEOUT_MS",
+        "DISABLE_RATE_LIMIT"
       ],
       "passThroughEnv": ["TEST_DB_URL", "MOCK_SERVER_PORT"],
       "inputs": [
@@ -181,10 +184,11 @@
       "outputLogs": "new-only"
     },
     "//#syncpack": {
-      "inputs": [".syncpackrc.js", "**/package.json"]
+      "inputs": [".syncpackrc.js", "**/package.json"],
+      "cache": true
     },
     "//#knip": {
-      "inputs": ["knip.json", "**/package.json", "**/tsconfig.json"],
+      "inputs": ["$TURBO_DEFAULT$", "knip.json"],
       "cache": true
     }
   }

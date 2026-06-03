@@ -30,7 +30,7 @@ _Primary goal: Establish the frosty glass look with standard CSS._
 - [x] Apply `backdrop-filter: blur(20px) saturate(140%);` to the card
 - [x] Set background to `rgba(255, 255, 255, 0.15)` (or dark variant)
 - [x] Add a subtle gradient border:  
-      `border: 1px solid rgba(255,255,255,0.3);`
+       `border: 1px solid rgba(255,255,255,0.3);`
 
 ### Secondary Polish (Phase 1)
 
@@ -52,7 +52,7 @@ _Primary goal: Break rigid box shapes and add liquid-like micro-interactions._
 ### 2.1 Organic Shapes
 
 - [x] Replace uniform border-radius with irregular, “blobby” values  
-      Example: `border-radius: 40% 60% 60% 40% / 50% 30% 70% 50%;`
+       Example: `border-radius: 40% 60% 60% 40% / 50% 30% 70% 50%;`
 - [x] Apply similar organic shapes to input fields and button
 
 ### 2.2 Hover & Focus Micro-Interactions

@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { createBrowserSupabaseClient } from "@repo/supabase/client";
 import { GlassCard } from "@repo/ui/GlassCard";
+import { useThrottledState } from "@/hooks/useThrottledState";
 
 interface Machine {
   id: string;
@@ -24,7 +25,7 @@ interface AlertPanelProps {
 }
 
 export function AlertPanel({ departmentId }: AlertPanelProps) {
-  const [alerts, setAlerts] = useState<Alert[]>([]);
+  const [alerts, setAlerts] = useThrottledState<Alert[]>([]);
 
   useEffect(() => {
     const supabase = createBrowserSupabaseClient();

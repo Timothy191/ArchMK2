@@ -11,7 +11,7 @@ import { getRedisClient } from "@repo/redis";
 import {
   RedisStore,
   MemoryStore,
-  FixedWindowStrategy,
+  SlidingWindowStrategy,
   TokenBucketStrategy,
   RateLimitResult,
 } from "@repo/rate-limiter";
@@ -53,7 +53,7 @@ function isSystemUnderHighLoad(): boolean {
 const globalMemoryStore = new MemoryStore();
 let globalRedisStore: RedisStore | null = null;
 
-const fixedWindowStrategy = new FixedWindowStrategy();
+const slidingWindowStrategy = new SlidingWindowStrategy();
 const tokenBucketStrategy = new TokenBucketStrategy();
 
 /**
@@ -75,10 +75,10 @@ async function checkRateLimit(
     store = globalMemoryStore;
   }
 
-  // Token Bucket Strategy for bursty AI calls, Fixed Window for all others
+  // Token Bucket Strategy for bursty AI calls, Sliding Window for all others
   const strategy = path.startsWith("/api/ai/")
     ? tokenBucketStrategy
-    : fixedWindowStrategy;
+    : slidingWindowStrategy;
 
   const key = `ratelimit:${identifier}`;
   return strategy.check(key, config.maxRequests, config.windowMs, store);
@@ -114,6 +114,11 @@ export async function withRateLimit(
     skipIf?: (_request: Request | NextRequest) => boolean;
   },
 ): Promise<NextResponse> {
+  // Allow disabling rate limit for load testing and development
+  if (process.env.DISABLE_RATE_LIMIT === "true") {
+    return handler();
+  }
+
   // Skip rate limiting if condition is met
   if (options?.skipIf?.(request)) {
     return handler();

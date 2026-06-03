@@ -77,7 +77,7 @@ apps/portal/
     ├── shift-closeout.test.ts
     ├── sync/sync-queue.test.ts
     ├── weather-api.test.ts
-    └── middleware.test.ts
+    └── proxy.test.ts
 ```
 
 ### Coverage Thresholds (jest.config.js)
@@ -98,7 +98,7 @@ collectCoverageFrom: [
   "lib/**/*.{ts,tsx}",
   "features/**/*.{ts,tsx}",
   "app/**/*.{ts,tsx}",
-  "middleware.ts",
+  "proxy.ts",
   "!**/*.test.{ts,tsx}",
   "!**/*.d.ts",
   "!**/node_modules/**",

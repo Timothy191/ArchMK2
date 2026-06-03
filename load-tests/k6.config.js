@@ -6,13 +6,13 @@
  * Target: http://localhost:3000 (or set BASE_URL env var)
  */
 
-export const BASE_URL = __ENV.BASE_URL || "http://localhost:3000";
+const BASE_URL = __ENV.BASE_URL || "http://localhost:3000";
 
 /**
  * Shared thresholds applied to all scenarios.
  * Fail the test if p95 response time > 2s or error rate > 1%.
  */
-export const thresholds = {
+const thresholds = {
   http_req_duration: ["p(95)<2000"],
   http_req_failed: ["rate<0.01"],
 };
@@ -21,7 +21,7 @@ export const thresholds = {
  * Ramp-up → steady → ramp-down profile
  * mimicking a mining site shift changeover surge (~40 concurrent users).
  */
-export const shiftChangeover = {
+const shiftChangeover = {
   executor: "ramping-vus",
   startVUs: 0,
   stages: [
@@ -35,7 +35,7 @@ export const shiftChangeover = {
 /**
  * Constant-load baseline for steady-state throughput measurement.
  */
-export const steadyState = {
+const steadyState = {
   executor: "constant-vus",
   vus: 15,
   duration: "2m",

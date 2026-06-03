@@ -36,7 +36,7 @@ The caching system operates in a **Write-Through** pattern with two specific lay
 
 ### 1. Request Gating and Security Filters
 
-- **Next.js Middleware (`middleware.ts`)**: Every HTTP request is parsed by middleware.
+- **Next.js Proxy (`proxy.ts`)**: Every HTTP request is parsed by the proxy.
   - Auth checks are executed via `@repo/supabase/middleware`. If the token is invalid or expired, the L1 cache is evicted for that user (`arch:auth:employee:${user.id}`), and the user is redirected to `/login`.
   - Auth status and roles are cached under `arch:auth:employee:${user.id}` with a 1-hour TTL.
   - Department-slug resolution (e.g. mapping `/drilling` to UUID) is performed using the `dept:uuid:${slug}` cache key.

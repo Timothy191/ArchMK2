@@ -6,6 +6,7 @@ load-tests/
 scripts/
 tools/
 template/
+scratch/
 
 # Generated artifacts
 apps/portal/public/sw.js

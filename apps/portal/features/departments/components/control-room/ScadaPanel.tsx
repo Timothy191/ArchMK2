@@ -5,6 +5,7 @@ import { createBrowserSupabaseClient } from "@repo/supabase/client";
 import { GlassCard } from "@repo/ui/GlassCard";
 import { MachineControl } from "./MachineControl";
 import { FuxaFrame } from "./FuxaFrame";
+import { useThrottledState } from "@/hooks/useThrottledState";
 
 interface Machine {
   id: string;
@@ -20,7 +21,7 @@ interface ScadaPanelProps {
 }
 
 export function ScadaPanel({ departmentId }: ScadaPanelProps) {
-  const [machines, setMachines] = useState<Machine[]>([]);
+  const [machines, setMachines] = useThrottledState<Machine[]>([]);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<"list" | "scada">("list");
 

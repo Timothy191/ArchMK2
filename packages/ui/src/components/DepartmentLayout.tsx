@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { MacTitleBar } from "./MacTitleBar";
+import { useFocusMode } from "../lib/useFocusMode";
 import {
   BarChart3,
   Clock,
@@ -91,6 +92,7 @@ export function DepartmentLayout({
 }: DepartmentLayoutProps) {
   const pathname = usePathname();
   const basePath = `/${department.name}`;
+  const isFocusMode = useFocusMode();
 
   return (
     <div className="flex h-[calc(100vh-28px)]">
@@ -115,7 +117,7 @@ export function DepartmentLayout({
             <span>Back to Hub</span>
           </Link>
           <img
-            src="/logo.png"
+            src={isFocusMode ? "/logo-focused.jpeg" : "/logo.png"}
             alt="Arch Logo"
             className="w-4 h-4 object-contain opacity-60 mr-2"
           />

@@ -20,13 +20,12 @@
     "react-dom": "catalog:react19"
   },
   "devDependencies": {
-    "@repo/eslint-config": "workspace:*",
+    "typescript": "catalog:",
     "@repo/typescript-config": "workspace:*",
     "@types/node": "catalog:",
     "@types/react": "catalog:react19",
     "@types/react-dom": "catalog:react19",
     "@typescript-eslint/parser": "^8.59.4",
-    "eslint": "catalog:",
-    "typescript": "catalog:"
+    "eslint": "catalog:"
   }
 }

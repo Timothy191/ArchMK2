@@ -11,7 +11,7 @@
         "app/**/layout.tsx",
         "app/**/page.tsx",
         "app/**/route.ts",
-        "middleware.ts",
+        "proxy.ts",
         "plugins/rust-telemetry-engine/index.tsx"
       ],
       "project": [

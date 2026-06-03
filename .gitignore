@@ -133,3 +133,8 @@ dev_run.log
 # Noise / runtime
 .antigravitycli/
 populating-data/
+
+
+
+.nx/cache
+.nx/workspace-data

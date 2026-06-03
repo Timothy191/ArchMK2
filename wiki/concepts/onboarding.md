@@ -181,7 +181,7 @@ Trace through auth:
 
 1. [[auth-middleware]] — How routes are protected
 2. `apps/portal/app/(auth)/login/page.tsx` — Login UI
-3. `apps/portal/middleware.ts` — Route guards
+3. `apps/portal/proxy.ts` — Route guards
 4. Sign up → check `employees` table auto-creation
 
 ### Database Patterns

@@ -1,12 +1,6 @@
-/**
- * @jest-environment node
- */
-/* global globalThis */
-
 import { dispatchTool, formatToolDescriptions } from "./tool-dispatch";
 import { OLLAMA_URL } from "./ollama";
 
-// Mock global fetch for Ollama HTTP calls
 const mockFetch = jest.fn() as jest.MockedFunction<typeof globalThis.fetch>;
 globalThis.fetch = mockFetch;
 

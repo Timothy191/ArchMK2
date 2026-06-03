@@ -4,11 +4,31 @@ import React from "react";
 import { useSystemMetrics } from "@/hooks/useSystemMetrics";
 import { useSplitWindow } from "@/hooks/useSplitWindow";
 import { cn } from "@repo/ui/lib/utils";
-import { Clock, Wifi, WifiOff, Activity } from "lucide-react";
+import {
+  Clock,
+  Wifi,
+  WifiOff,
+  LayoutDashboard,
+  Map as MapIcon,
+  Wrench,
+  Bell,
+  Settings,
+  Command,
+} from "lucide-react";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
 
 interface ViewportBoundariesProps {
   className?: string;
 }
+
+const DOCK_APPS = [
+  { name: "Hub", icon: LayoutDashboard, href: "/hub" },
+  { name: "Drilling", icon: MapIcon, href: "/drilling" },
+  { name: "Engineering", icon: Wrench, href: "/engineering" },
+  { name: "Alerts", icon: Bell, href: "/alerts" },
+  { name: "Settings", icon: Settings, href: "/settings" },
+];
 
 /**
  * ViewportBoundaries
@@ -21,6 +41,7 @@ export function ViewportBoundaries({ className }: ViewportBoundariesProps) {
   const { websocketLatency, serverTimeSAST, currentShift, online } =
     useSystemMetrics();
   const splitWindowOpen = useSplitWindow((s) => s.isOpen);
+  const pathname = usePathname();
 
   return (
     <div
@@ -38,73 +59,113 @@ export function ViewportBoundaries({ className }: ViewportBoundariesProps) {
         <div className="flex flex-col gap-2 items-end pointer-events-auto" />
       </div>
 
-      {/* Bottom boundary container */}
-      <div className="w-full flex flex-col sm:flex-row justify-between items-stretch sm:items-end gap-2 pointer-events-none">
-        {/* Bottom Left Panel: Current Operational Shift & Time */}
+      {/* Bottom boundary container - Unified OS Dock */}
+      <div className="w-full flex justify-center pb-2 pointer-events-none">
         <div
-          data-testid="shift-hud"
+          data-testid="unified-dock"
           className={cn(
             "pointer-events-auto",
-            "liquid-glass-light border border-white/40 shadow-window rounded-xl px-3 py-2",
-            "hidden md:flex items-center gap-3 text-xs transition-all duration-300 ease-glass",
-          )}
-        >
-          <div className="flex items-center gap-1.5 text-[var(--text-heading)] font-semibold">
-            <Clock className="w-3.5 h-3.5 text-[var(--accent-blue)]" />
-            <span className="tabular-nums">{serverTimeSAST}</span>
-            <span className="text-[10px] text-[var(--text-secondary)] opacity-60 font-medium">
-              SAST
-            </span>
-          </div>
-
-          <div className="h-3 w-px bg-black/[0.08] hidden sm:block" />
-
-          <div className="flex items-center gap-1.5">
-            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-[var(--text-secondary)] font-medium">
-              {currentShift.label}
-            </span>
-            <span className="text-[10px] text-[var(--text-secondary)] opacity-60 font-medium">
-              ({currentShift.start}-{currentShift.end})
-            </span>
-          </div>
-        </div>
-
-        {/* Bottom Right Panel: Latency HUD */}
-        {/* Automatically shifts to the left when the Split Window layout is open to avoid overlap */}
-        <div
-          data-testid="latency-hud"
-          className={cn(
-            "pointer-events-auto",
-            "liquid-glass-light border border-white/40 shadow-window rounded-xl px-3 py-2",
-            "hidden md:flex items-center gap-3 text-xs",
+            "liquid-glass-light border border-white/40 shadow-window rounded-2xl px-3 py-2",
+            "hidden md:flex items-center gap-4",
             "transition-all duration-300 ease-glass transform",
             splitWindowOpen
-              ? "translate-y-0 sm:-translate-x-[400px] md:-translate-x-[450px]"
+              ? "translate-y-0 sm:-translate-x-[200px]"
               : "translate-y-0 translate-x-0",
           )}
         >
-          <div className="flex items-center gap-1.5">
-            {online ? (
-              <Wifi className="w-3.5 h-3.5 text-emerald-600" />
-            ) : (
-              <WifiOff className="w-3.5 h-3.5 text-rose-500" />
-            )}
-            <span className="font-semibold text-[var(--text-heading)]">
-              {online ? "Connected" : "Offline"}
-            </span>
+          {/* 1. Anchor / Start Button */}
+          <div className="flex items-center">
+            <button
+              type="button"
+              aria-label="Start Menu"
+              className="group relative p-2 rounded-xl hover:bg-black/5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-arch-accent-blue/50"
+            >
+              <Command className="w-5 h-5 text-[var(--text-heading)] group-hover:scale-110 transition-transform duration-300 ease-glass" />
+              {/* Tooltip */}
+              <div className="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 pointer-events-none transition-all duration-200 px-2.5 py-1 rounded-md bg-black/80 text-white text-[10px] font-medium whitespace-nowrap shadow-xl">
+                Start
+              </div>
+            </button>
           </div>
 
-          <div className="h-3 w-px bg-black/[0.08] hidden sm:block" />
+          <div className="h-6 w-px bg-black/[0.08]" />
 
+          {/* 2. App Dock */}
           <div className="flex items-center gap-1.5">
-            <Activity className="w-3.5 h-3.5 text-[var(--accent-blue)]" />
-            <span className="text-[var(--text-secondary)] font-medium tabular-nums">
-              {websocketLatency} ms
-            </span>
-            <span className="text-[10px] text-[var(--text-secondary)] opacity-60 font-medium">
-              RTT
-            </span>
+            {DOCK_APPS.map((app) => {
+              const isActive = pathname?.startsWith(app.href);
+              const Icon = app.icon;
+              return (
+                <Link
+                  key={app.name}
+                  href={app.href}
+                  className="group relative p-2 rounded-xl hover:bg-black/5 transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-arch-accent-blue/50"
+                >
+                  <Icon
+                    className={cn(
+                      "w-5 h-5 transition-transform duration-300 ease-glass group-hover:scale-110 group-hover:-translate-y-0.5",
+                      isActive
+                        ? "text-[var(--accent-blue)]"
+                        : "text-[var(--text-secondary)] group-hover:text-[var(--text-heading)]",
+                    )}
+                    strokeWidth={isActive ? 2.5 : 2}
+                  />
+
+                  {/* Active Indicator (macOS style dot) */}
+                  {isActive && (
+                    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[var(--accent-blue)] shadow-[0_0_8px_var(--accent-blue)]" />
+                  )}
+
+                  {/* Tooltip */}
+                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 pointer-events-none transition-all duration-200 px-2.5 py-1 rounded-md bg-black/80 text-white text-[10px] font-medium whitespace-nowrap shadow-xl">
+                    {app.name}
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+
+          <div className="h-6 w-px bg-black/[0.08]" />
+
+          {/* 3. System Tray */}
+          <div className="flex items-center gap-3.5 px-2 text-xs">
+            {/* Network Latency */}
+            <div className="group relative flex items-center gap-1.5 cursor-default">
+              {online ? (
+                <Wifi className="w-3.5 h-3.5 text-emerald-600" />
+              ) : (
+                <WifiOff className="w-3.5 h-3.5 text-rose-500" />
+              )}
+              <span className="text-[var(--text-secondary)] font-medium tabular-nums group-hover:text-[var(--text-heading)] transition-colors">
+                {websocketLatency} ms
+              </span>
+
+              <div className="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 pointer-events-none transition-all duration-200 px-2.5 py-1 rounded-md bg-black/80 text-white text-[10px] font-medium whitespace-nowrap shadow-xl">
+                Network RTT
+              </div>
+            </div>
+
+            {/* Current Shift */}
+            <div className="group relative flex items-center gap-1.5 cursor-default">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-[var(--text-secondary)] font-medium group-hover:text-[var(--text-heading)] transition-colors">
+                {currentShift.label}
+              </span>
+
+              <div className="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 pointer-events-none transition-all duration-200 px-2.5 py-1 rounded-md bg-black/80 text-white text-[10px] font-medium whitespace-nowrap shadow-xl">
+                {currentShift.start} - {currentShift.end}
+              </div>
+            </div>
+
+            {/* Time */}
+            <div className="group relative flex items-center gap-1.5 text-[var(--text-heading)] font-semibold cursor-default">
+              <Clock className="w-3.5 h-3.5 text-[var(--accent-blue)]" />
+              <span className="tabular-nums">{serverTimeSAST}</span>
+
+              <div className="absolute -top-10 right-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 pointer-events-none transition-all duration-200 px-2.5 py-1 rounded-md bg-black/80 text-white text-[10px] font-medium whitespace-nowrap shadow-xl origin-bottom-right">
+                South Africa Standard Time
+              </div>
+            </div>
           </div>
         </div>
       </div>

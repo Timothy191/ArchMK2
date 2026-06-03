@@ -1,6 +1,7 @@
 import { inngest } from "@repo/utils/inngest";
 import { createServerSupabaseClient } from "@repo/supabase/server";
 import { logError } from "@/lib/errors/error-logger";
+import { recordJobExecution } from "@/lib/observability/metrics";
 import type { InngestFunction } from "inngest";
 
 export const generateReportFn: InngestFunction.Any = inngest.createFunction(
@@ -8,6 +9,8 @@ export const generateReportFn: InngestFunction.Any = inngest.createFunction(
   async ({ event }) => {
     const { departmentId, dateFrom, dateTo } = event.data;
     const supabase = await createServerSupabaseClient();
+    const start = performance.now();
+    let success = true;
 
     try {
       // Fetch aggregated data for the report
@@ -52,6 +55,7 @@ export const generateReportFn: InngestFunction.Any = inngest.createFunction(
 
       return { success: true, report: reportData };
     } catch (err) {
+      success = false;
       logError(err instanceof Error ? err : new Error(String(err)), {
         context: "generate_report_job",
         departmentId,
@@ -59,6 +63,8 @@ export const generateReportFn: InngestFunction.Any = inngest.createFunction(
         dateTo,
       });
       throw err;
+    } finally {
+      recordJobExecution("generate-shift-report", performance.now() - start, success);
     }
   },
 );

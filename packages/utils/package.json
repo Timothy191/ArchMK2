@@ -9,10 +9,9 @@
   },
   "dependencies": {
     "@novu/node": "^2.6.6",
-    "@repo/errors": "workspace:*",
+    "xlsx": "^0.18.5",
     "exceljs": "^4.4.0",
-    "inngest": "^4.4.0",
-    "xlsx": "^0.18.5"
+    "inngest": "^4.4.0"
   },
   "scripts": {
     "lint": "eslint . --cache --cache-location node_modules/.cache/.eslintcache --max-warnings 0",

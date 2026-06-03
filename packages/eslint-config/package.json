@@ -8,8 +8,6 @@
     "react-internal.js"
   ],
   "devDependencies": {
-    "eslint-config-turbo": "2.1.1",
-    "eslint-plugin-only-warn": "^1.1.0",
     "typescript": "catalog:"
   }
 }

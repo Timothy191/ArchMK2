@@ -194,6 +194,12 @@ show_results() {
   echo
   echo -e "  ${BOLD}Login:${NC}    ${CYAN}http://localhost:$PORT/login${NC}"
   echo -e "  ${BOLD}Portal:${NC}   ${CYAN}http://localhost:$PORT${NC}"
+  if [ "$START_CMS" = "true" ]; then
+    echo -e "  ${BOLD}CMS:${NC}      ${CYAN}http://localhost:3001${NC}"
+  fi
+  if [ "$START_OVERVIEW" = "true" ]; then
+    echo -e "  ${BOLD}Overview:${NC}  ${CYAN}http://localhost:3002${NC}"
+  fi
   echo -e "  ${BOLD}Studio:${NC}   ${CYAN}http://localhost:54323${NC}"
   echo -e "  ${BOLD}API:${NC}      ${CYAN}http://localhost:54321${NC}"
   echo
@@ -204,8 +210,10 @@ show_results() {
 cleanup() {
   echo
   echo -e "  ${YELLOW}Shutting down...${NC}"
-  [ -f "$REPO_ROOT/.portal.pid" ] && kill "$(cat "$REPO_ROOT/.portal.pid")" 2>/dev/null || true
-  rm -f "$REPO_ROOT/.portal.pid"
+  for pidfile in .portal.pid .cms.pid .overview.pid; do
+    [ -f "$REPO_ROOT/$pidfile" ] && kill "$(cat "$REPO_ROOT/$pidfile")" 2>/dev/null || true
+    rm -f "$REPO_ROOT/$pidfile"
+  done
 }
 trap cleanup EXIT INT TERM
 
@@ -229,11 +237,16 @@ clean_dir_cache() {
 FORCE_KILL=false
 START_TOOLS=false
 QUICK_MODE=false
+START_CMS=false
+START_OVERVIEW=false
 while [ $# -gt 0 ]; do
   case "$1" in
     --force|-f) FORCE_KILL=true; shift ;;
     --tools|-t) START_TOOLS=true; shift ;;
     --quick|-q) QUICK_MODE=true; shift ;;
+    --cms)      START_CMS=true; shift ;;
+    --overview) START_OVERVIEW=true; shift ;;
+    --all)      START_CMS=true; START_OVERVIEW=true; shift ;;
     *) shift ;;
   esac
 done
@@ -563,6 +576,50 @@ else
     tail -20 "$REPO_ROOT/portal.log" 2>/dev/null | sed 's/^/  /'
     exit 1
   fi
+fi
+
+# ── Phase 3b: Additional Apps (CMS / Overview) ────────────
+phase "3b" "Additional Apps"
+
+start_extra_app() {
+  local app="$1" dir="$2" port="$3" logfile="$4" pidfile="$5" label="$6"
+  if [ -f "$pidfile" ] && kill -0 "$(cat "$pidfile")" 2>/dev/null; then
+    check "$label" "pass" "http://localhost:$port (already up)"
+    return
+  fi
+  cd "$dir"
+  PORT=$port pnpm dev > "$logfile" 2>&1 &
+  echo $! > "$pidfile"
+  cd "$REPO_ROOT"
+  local ready=false
+  for i in $(seq 1 60); do
+    if curl -fs "http://localhost:$port" -o /dev/null -w "%{http_code}" 2>/dev/null | grep -q 200; then
+      ready=true
+      break
+    fi
+    sleep 2
+  done
+  if [ "$ready" = "true" ]; then
+    check "$label" "pass" "http://localhost:$port (compiled)"
+  else
+    check "$label" "warn" "startup timed out — check logs"
+  fi
+}
+
+if [ "$START_CMS" = "true" ]; then
+  start_extra_app \
+    "cms" "$REPO_ROOT/apps/cms" "3001" \
+    "$REPO_ROOT/cms.log" "$REPO_ROOT/.cms.pid" "CMS"
+fi
+
+if [ "$START_OVERVIEW" = "true" ]; then
+  start_extra_app \
+    "overview" "$REPO_ROOT/apps/overview" "3002" \
+    "$REPO_ROOT/overview.log" "$REPO_ROOT/.overview.pid" "Overview"
+fi
+
+if [ "$START_CMS" != "true" ] && [ "$START_OVERVIEW" != "true" ]; then
+  check "Extra apps" "skip" "use --cms, --overview, or --all"
 fi
 
 # ── Phase 4: Smoke Tests ─────────────────────────────────

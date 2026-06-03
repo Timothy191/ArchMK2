@@ -25,6 +25,8 @@ interface WithCacheOptions {
  * 6. Generic error + fallback === true + stale cache → returns stale value.
  * 7. Redis unreachable → executes fn() directly (graceful degradation).
  */
+const activePortalFetches = new Map<string, Promise<any>>();
+
 export async function withCache<T>(
   fn: () => Promise<T>,
   options: WithCacheOptions,
@@ -40,10 +42,21 @@ export async function withCache<T>(
     return cached.value;
   }
 
+  let activeFetch = activePortalFetches.get(key);
+  if (!activeFetch) {
+    activeFetch = fn()
+      .then(async (result) => {
+        await cacheSetWithTags(key, result, ttlConfig.l2Seconds, tags);
+        return result;
+      })
+      .finally(() => {
+        activePortalFetches.delete(key);
+      });
+    activePortalFetches.set(key, activeFetch);
+  }
+
   try {
-    const result = await fn();
-    await cacheSetWithTags(key, result, ttlConfig.l2Seconds, tags);
-    return result;
+    return await activeFetch;
   } catch (err) {
     // Do not cache DatabaseError — rethrow immediately
     if (err instanceof DatabaseError) {

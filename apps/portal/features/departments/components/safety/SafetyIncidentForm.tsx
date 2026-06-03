@@ -4,6 +4,8 @@ import { useState } from "react";
 import { GlassCard } from "@repo/ui/GlassCard";
 import { createBrowserSupabaseClient } from "@repo/supabase/client";
 import { useRouter } from "next/navigation";
+import { revalidateRSC } from "@/app/actions";
+
 
 interface Category {
   id: string;
@@ -109,6 +111,9 @@ export function SafetyIncidentForm({
       });
 
       if (error) throw error;
+
+      // Revalidate cached RSC data
+      revalidateRSC(["table:safety_incidents"]).catch(() => {});
 
       // Trigger n8n workflow for safety alert
       import("@repo/utils").then(({ triggerWorkflow }) => {

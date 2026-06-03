@@ -77,7 +77,10 @@ export default function RootLayout({
           href={process.env.NEXT_PUBLIC_SUPABASE_URL || "https://*.supabase.co"}
         />
       </head>
-      <body className="text-[var(--text-heading)] min-h-screen font-sans antialiased selection:bg-[var(--accent-blue)]/30 selection:text-[var(--accent-blue)] relative overflow-x-hidden bg-[var(--bg-primary)]">
+      <body
+        suppressHydrationWarning
+        className="text-[var(--text-heading)] min-h-screen font-sans antialiased selection:bg-[var(--accent-blue)]/30 selection:text-[var(--accent-blue)] relative overflow-x-hidden bg-[var(--bg-primary)]"
+      >
         {/* Skip navigation link for keyboard users */}
         <a href="#main-content" className="skip-link">
           Skip to main content

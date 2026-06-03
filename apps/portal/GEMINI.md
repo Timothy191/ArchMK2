@@ -23,7 +23,7 @@ The portal uses route groups to scope layouts:
 ### Auth & Authorization
 
 - **Server Components**: Use `getUserSafely()` from `@repo/supabase/server` to prevent crashes on stale sessions.
-- **Middleware**: `middleware.ts` handles session refresh and role-based route restrictions.
+- **Proxy**: `proxy.ts` (renamed from `middleware.ts` in Next.js 16) handles session refresh and role-based route restrictions.
 - **Authorization**: The `employees` table is the source of truth for roles and department access.
 
 ### AI Orchestration

@@ -1,6 +1,42 @@
+/* global RequestInfo, RequestInit */
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import type { User } from "@supabase/supabase-js";
+
+export async function instrumentedFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+  const start = performance.now();
+  let response: Response | null = null;
+  let success = false;
+  
+  try {
+    response = await fetch(input, init);
+    success = response.ok;
+    return response;
+  } finally {
+    const duration = performance.now() - start;
+    const urlStr = typeof input === "string" ? input : (input instanceof URL ? input.toString() : (input as Request).url);
+    const method = init?.method ?? "GET";
+    
+    let tableName = "unknown";
+    if (urlStr) {
+      try {
+        const url = new URL(urlStr);
+        const segments = url.pathname.split("/");
+        const restIndex = segments.indexOf("v1");
+        if (restIndex !== -1 && segments[restIndex + 1]) {
+          tableName = segments[restIndex + 1]!.split("?")[0] || "unknown";
+        }
+      } catch {
+        // ignore
+      }
+    }
+    
+    const recordDbQuery = (globalThis as any).__recordDbQuery;
+    if (typeof recordDbQuery === "function") {
+      recordDbQuery(tableName, method, duration, success);
+    }
+  }
+}
 
 export async function createServerSupabaseClient() {
   const cookieStore = await cookies();
@@ -8,6 +44,9 @@ export async function createServerSupabaseClient() {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
+      global: {
+        fetch: instrumentedFetch,
+      },
       cookies: {
         getAll() {
           return cookieStore.getAll();

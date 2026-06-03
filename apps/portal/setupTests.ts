@@ -1,6 +1,11 @@
 import "@testing-library/jest-dom";
+import { TextEncoder, TextDecoder } from "util";
+
+global.TextEncoder = global.TextEncoder || TextEncoder;
+global.TextDecoder = global.TextDecoder || (TextDecoder as any);
 
 // Jest setup file — provide Web API globals that Next.js server modules expect
+
 // but jsdom may not define in all versions.
 
 global.Request =

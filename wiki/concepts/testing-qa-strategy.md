@@ -126,7 +126,7 @@ Reports saved to `test-results/pentest/`.
   - No sensitive headers in responses
   - Auth cookies: `Secure` + `HttpOnly` flags
 - [ ] RLS isolation test: Dept A user cannot query Dept B data via Supabase client
-- [ ] Review `middleware.ts` for auth bypass edge cases
+- [ ] Review `proxy.ts` for auth bypass edge cases
 
 ---
 

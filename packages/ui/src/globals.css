@@ -311,7 +311,7 @@
     backdrop-filter: blur(24px) saturate(180%);
   }
 
-  :is(body.focus-mode) .z-navigation button.bg-white {
+  :is(body.focus-mode) .z-navigation button[class*="bg-white"] {
     background-color: rgba(255, 255, 255, 0.1);
     border-color: rgba(255, 255, 255, 0.12);
   }

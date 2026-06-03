@@ -2,7 +2,11 @@
  * @jest-environment node
  */
 
-import { POST } from "./route";
+import { POST, clearTelemetryCache } from "./route";
+
+jest.mock("@repo/redis", () => ({
+  getRedisClient: jest.fn().mockRejectedValue(new Error("Redis disabled in tests")),
+}));
 
 describe("POST /api/telemetry/push", () => {
   let originalFetch: typeof global.fetch;
@@ -17,6 +21,7 @@ describe("POST /api/telemetry/push", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    clearTelemetryCache();
   });
 
   function createRequest(body: unknown) {
@@ -150,5 +155,30 @@ describe("POST /api/telemetry/push", () => {
         }),
       }),
     );
+  });
+
+  it("skips sending duplicate tag values (delta diff caching)", async () => {
+    const mockFetch = jest.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+    });
+    global.fetch = mockFetch;
+
+    // Send first request - should be a cache miss and call fetch
+    const req1 = createRequest({ name: "machine_1_engine_rpm", value: 1200 });
+    const res1 = await POST(req1);
+    expect(res1.status).toBe(200);
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+
+    mockFetch.mockClear();
+
+    // Send duplicate second request - should be a cache hit and bypass fetch
+    const req2 = createRequest({ name: "machine_1_engine_rpm", value: 1200 });
+    const res2 = await POST(req2);
+    expect(res2.status).toBe(200);
+    const json2 = await res2.json();
+    expect(json2.success).toBe(true);
+    expect(json2.synced).toBe(true);
+    expect(mockFetch).not.toHaveBeenCalled(); // fetch skipped!
   });
 });

@@ -1,7 +1,7 @@
 /**
  * @jest-environment node
  */
-import { normalizeRole, middleware } from "./middleware";
+import { normalizeRole, isTokenExpiredError, proxy } from "./proxy";
 import { NextRequest } from "next/server";
 
 jest.mock("@repo/supabase/middleware", () => ({
@@ -115,13 +115,48 @@ describe("normalizeRole", () => {
   });
 });
 
-describe("middleware", () => {
+describe("isTokenExpiredError", () => {
+  it("returns true for 'Invalid Refresh Token' message", () => {
+    expect(isTokenExpiredError({ message: "Invalid Refresh Token" })).toBe(
+      true,
+    );
+  });
+
+  it("returns true for 'Refresh Token Not Found' message", () => {
+    expect(isTokenExpiredError({ message: "Refresh Token Not Found" })).toBe(
+      true,
+    );
+  });
+
+  it("returns false for other error messages", () => {
+    expect(isTokenExpiredError({ message: "Some other error" })).toBe(false);
+  });
+
+  it("returns false for null", () => {
+    expect(isTokenExpiredError(null)).toBe(false);
+  });
+
+  it("returns false for undefined", () => {
+    expect(isTokenExpiredError(undefined)).toBe(false);
+  });
+
+  it("returns false for non-object values", () => {
+    expect(isTokenExpiredError("string")).toBe(false);
+    expect(isTokenExpiredError(42)).toBe(false);
+  });
+
+  it("returns false for objects without message property", () => {
+    expect(isTokenExpiredError({ code: 500 })).toBe(false);
+  });
+});
+
+describe("proxy", () => {
   beforeEach(() => jest.clearAllMocks());
 
   it("passes through static file requests", async () => {
     buildProxyMock();
     const req = makeRequest("/logo.png");
-    const res = await middleware(req);
+    const res = await proxy(req);
     expect(res).toBeDefined();
     // Should return the raw response (not a redirect)
     expect(res.status).not.toBe(307);
@@ -131,7 +166,7 @@ describe("middleware", () => {
     buildProxyMock({ user: { id: "auth-1" } });
     const req = makeRequest("/login");
     req.cookies.set("sb-access-token", "mock-token");
-    const res = await middleware(req);
+    const res = await proxy(req);
     expect(res.status).toBe(307);
     expect(res.headers.get("location")).toContain("/");
   });
@@ -139,7 +174,7 @@ describe("middleware", () => {
   it("passes /login through for unauthenticated users", async () => {
     buildProxyMock({ user: null });
     const req = makeRequest("/login");
-    const res = await middleware(req);
+    const res = await proxy(req);
     // Returns the raw middleware response (not a redirect)
     expect(res.status).not.toBe(307);
   });
@@ -147,7 +182,7 @@ describe("middleware", () => {
   it("redirects unauthenticated users to /login with redirect param", async () => {
     buildProxyMock({ user: null });
     const req = makeRequest("/drilling");
-    const res = await middleware(req);
+    const res = await proxy(req);
     expect(res.status).toBe(307);
     expect(res.headers.get("location")).toContain("/login");
   });
@@ -161,7 +196,7 @@ describe("middleware", () => {
       },
     });
     const req = makeRequest("/admin");
-    const res = await middleware(req);
+    const res = await proxy(req);
     expect(res.status).toBe(307);
     expect(res.headers.get("location")).toContain("unauthorized_department");
   });
@@ -176,7 +211,7 @@ describe("middleware", () => {
     });
     (cacheGet as jest.Mock).mockResolvedValue(null);
     const req = makeRequest("/admin");
-    const res = await middleware(req);
+    const res = await proxy(req);
     expect(res.status).not.toBe(307);
   });
 
@@ -189,7 +224,7 @@ describe("middleware", () => {
       },
     });
     const req = makeRequest("/control-room");
-    const res = await middleware(req);
+    const res = await proxy(req);
     expect(res.status).toBe(307);
     expect(res.headers.get("location")).toContain("unauthorized_department");
   });
@@ -205,7 +240,7 @@ describe("middleware", () => {
     });
     (cacheGet as jest.Mock).mockResolvedValue(null);
     const req = makeRequest("/control-room");
-    const res = await middleware(req);
+    const res = await proxy(req);
     expect(res.status).not.toBe(307);
   });
 
@@ -220,7 +255,7 @@ describe("middleware", () => {
     });
     (cacheGet as jest.Mock).mockResolvedValue(null);
     const req = makeRequest("/drilling");
-    const res = await middleware(req);
+    const res = await proxy(req);
     expect(res.status).toBe(307);
     expect(res.headers.get("location")).toContain("unknown_department");
   });
@@ -236,7 +271,7 @@ describe("middleware", () => {
     });
     (cacheGet as jest.Mock).mockResolvedValue(null);
     const req = makeRequest("/drilling");
-    const res = await middleware(req);
+    const res = await proxy(req);
     expect(res.status).toBe(307);
     expect(res.headers.get("location")).toContain("unauthorized_department");
   });
@@ -260,7 +295,7 @@ describe("middleware", () => {
       return Promise.resolve(null);
     });
     const req = makeRequest("/drilling");
-    const res = await middleware(req);
+    const res = await proxy(req);
     // operator with matching dept should pass through
     expect(res.status).not.toBe(307);
   });
@@ -276,7 +311,7 @@ describe("middleware", () => {
     });
     (cacheGet as jest.Mock).mockResolvedValue(null);
     const req = makeRequest("/drilling");
-    const res = await middleware(req);
+    const res = await proxy(req);
     expect(res.status).not.toBe(307);
   });
 
@@ -291,7 +326,7 @@ describe("middleware", () => {
     });
     (cacheGet as jest.Mock).mockResolvedValue(null);
     const req = makeRequest("/drilling/tools");
-    const res = await middleware(req);
+    const res = await proxy(req);
     expect(res.status).toBe(307);
     expect(res.headers.get("location")).toContain("unauthorized_department");
   });
@@ -306,7 +341,7 @@ describe("middleware", () => {
 
     const req = makeRequest("/drilling");
     req.cookies.set("sb-access-token", "expired-token");
-    const res = await middleware(req);
+    const res = await proxy(req);
 
     expect(supabase.auth.signOut).toHaveBeenCalled();
     expect(res.status).toBe(307);
@@ -323,7 +358,7 @@ describe("middleware", () => {
 
     const req = makeRequest("/login");
     req.cookies.set("sb-access-token", "expired-token");
-    const res = await middleware(req);
+    const res = await proxy(req);
 
     expect(supabase.auth.signOut).toHaveBeenCalled();
     expect(res).toBe(mockResponse);

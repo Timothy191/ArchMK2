@@ -132,13 +132,13 @@ SELECT auth.user_department_id();
 **Diagnostic**:
 
 ```bash
-# Check middleware logs
-cat apps/portal/middleware.ts | grep -A 5 "redirect"
+# Check proxy logs
+cat apps/portal/proxy.ts | grep -A 5 "redirect"
 ```
 
 **Solutions**:
 
-1. Clear middleware cache by restarting dev server
+1. Clear proxy cache by restarting dev server
 2. Verify employee role in Supabase Studio:
 
 ```sql

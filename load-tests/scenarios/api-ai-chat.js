@@ -28,14 +28,29 @@ export const options = {
   },
 };
 
+// Load auth cookies from file or env fallback
+let authCookie = "";
+try {
+  const cookies = JSON.parse(open("../auth_cookies.json"));
+  const targetCookie = cookies.find(c => c.name.startsWith("sb-") && c.name.endsWith("-auth-token"));
+  if (targetCookie) {
+    authCookie = `${targetCookie.name}=${targetCookie.value}`;
+  }
+} catch (e) {
+  if (__ENV.AUTH_COOKIE) {
+    const cookieName = __ENV.AUTH_COOKIE_NAME || "sb-127-auth-token";
+    authCookie = `${cookieName}=${__ENV.AUTH_COOKIE}`;
+  }
+}
+
 const PAYLOAD = JSON.stringify({
-  messages: [{ role: "user", content: "What is the current machine status?" }],
+  messages: [{ id: "msg_1", role: "user", content: "What is the current machine status?" }],
   departmentName: "drilling",
 });
 
 const HEADERS = {
   "Content-Type": "application/json",
-  ...__ENV.AUTH_COOKIE ? { Cookie: `sb-session=${__ENV.AUTH_COOKIE}` } : {},
+  ...(authCookie ? { Cookie: authCookie } : {}),
 };
 
 export default function () {

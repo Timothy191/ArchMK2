@@ -5,6 +5,7 @@ import { GlassCard } from "@repo/ui/GlassCard";
 import { createBrowserSupabaseClient } from "@repo/supabase/client";
 import { useRouter } from "next/navigation";
 import { Wrench, AlertTriangle, ChevronDown, ChevronUp } from "lucide-react";
+import { speculativeEmbedShiftLog } from "@/app/actions";
 
 interface Machine {
   id: string;
@@ -159,6 +160,14 @@ export function EngineeringNotesForm({
       });
 
       if (error) throw error;
+
+      // Speculatively generate embeddings in background
+      if (formData.description && formData.description.trim() !== "") {
+        speculativeEmbedShiftLog(formData.description).catch(() => {});
+      }
+      if (formData.actionTaken && formData.actionTaken.trim() !== "") {
+        speculativeEmbedShiftLog(formData.actionTaken).catch(() => {});
+      }
 
       // Clear form
       setFormData({
