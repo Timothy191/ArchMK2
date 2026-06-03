@@ -31,7 +31,7 @@ Analysis of the Arch-Systems database schema reveals a well-structured foundatio
 - `role_type` enum ('admin', 'supervisor', 'operator')
 - `shift_type` enum ('day', 'night')
 - `incident_type` enum (all incident classifications)
-- `memory_type` enum ('episodic', 'semantic', 'procedural')
+- `memory_type` enum ('episodic', 'semantic') — `procedural` removed in migration 061
 - All relevant columns migrated from CHECK constraints to enum types
 
 ### 4. Composite Indexes ✅
