@@ -6,7 +6,6 @@ import { revalidateTag } from "next/cache";
 import { inngest, aiGenerateEmbeddingEvent } from "@repo/utils/inngest";
 import { logError } from "@/lib/errors/error-logger";
 
-
 export async function logout() {
   const supabase = await createServerSupabaseClient();
   await supabase.auth.signOut();
@@ -58,4 +57,3 @@ export async function revalidateRSC(tags: string[]) {
   }
   return { success: true };
 }
-

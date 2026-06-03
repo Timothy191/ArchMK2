@@ -3,20 +3,28 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import type { User } from "@supabase/supabase-js";
 
-export async function instrumentedFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+export async function instrumentedFetch(
+  input: RequestInfo | URL,
+  init?: RequestInit,
+): Promise<Response> {
   const start = performance.now();
   let response: Response | null = null;
   let success = false;
-  
+
   try {
     response = await fetch(input, init);
     success = response.ok;
     return response;
   } finally {
     const duration = performance.now() - start;
-    const urlStr = typeof input === "string" ? input : (input instanceof URL ? input.toString() : (input as Request).url);
+    const urlStr =
+      typeof input === "string"
+        ? input
+        : input instanceof URL
+          ? input.toString()
+          : (input as Request).url;
     const method = init?.method ?? "GET";
-    
+
     let tableName = "unknown";
     if (urlStr) {
       try {
@@ -30,7 +38,7 @@ export async function instrumentedFetch(input: RequestInfo | URL, init?: Request
         // ignore
       }
     }
-    
+
     const recordDbQuery = (globalThis as any).__recordDbQuery;
     if (typeof recordDbQuery === "function") {
       recordDbQuery(tableName, method, duration, success);

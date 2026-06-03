@@ -144,7 +144,10 @@ export function OperationalDelaysForm({
       if (formData.description && formData.description.trim() !== "") {
         speculativeEmbedShiftLog(formData.description).catch(() => {});
       }
-      if (formData.impactDescription && formData.impactDescription.trim() !== "") {
+      if (
+        formData.impactDescription &&
+        formData.impactDescription.trim() !== ""
+      ) {
         speculativeEmbedShiftLog(formData.impactDescription).catch(() => {});
       }
       if (formData.recoveryAction && formData.recoveryAction.trim() !== "") {

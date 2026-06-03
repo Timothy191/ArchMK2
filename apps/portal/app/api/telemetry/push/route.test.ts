@@ -5,7 +5,9 @@
 import { POST, clearTelemetryCache } from "./route";
 
 jest.mock("@repo/redis", () => ({
-  getRedisClient: jest.fn().mockRejectedValue(new Error("Redis disabled in tests")),
+  getRedisClient: jest
+    .fn()
+    .mockRejectedValue(new Error("Redis disabled in tests")),
 }));
 
 describe("POST /api/telemetry/push", () => {

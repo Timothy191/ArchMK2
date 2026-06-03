@@ -12,7 +12,6 @@ import { toast } from "sonner";
 import { logError } from "@/lib/errors/error-logger";
 import { speculativeEmbedShiftLog, revalidateRSC } from "@/app/actions";
 
-
 const dailyLogSchema = z.object({
   shift: z.enum(["day", "night"]),
   notes: z.string().optional().or(z.literal("")),
@@ -74,11 +73,13 @@ export function DailyLogForm({ departmentId, machines }: DailyLogFormProps) {
       setStatus("error");
     } else {
       toast.success("Daily log saved successfully");
-      
+
       // Revalidate cached RSC data
-      revalidateRSC(["table:daily_logs", "table:production_logs"]).catch((err) => {
-        logError(err instanceof Error ? err : new Error(String(err)));
-      });
+      revalidateRSC(["table:daily_logs", "table:production_logs"]).catch(
+        (err) => {
+          logError(err instanceof Error ? err : new Error(String(err)));
+        },
+      );
 
       // Speculatively generate embedding for the notes in background
       if (data.notes && data.notes.trim() !== "") {
@@ -86,7 +87,6 @@ export function DailyLogForm({ departmentId, machines }: DailyLogFormProps) {
           logError(err instanceof Error ? err : new Error(String(err)));
         });
       }
-
 
       setStatus("success");
       reset({

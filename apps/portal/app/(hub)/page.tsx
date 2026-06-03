@@ -31,7 +31,6 @@ import { withCache } from "@/lib/cache-utils";
 import { cachedRSC } from "@/lib/server-cache";
 import { CacheCategory } from "@repo/redis";
 
-
 const PORTAL_VERSION = process.env.PORTAL_VERSION ?? "2.4.1";
 
 export const dynamic = "force-dynamic";
@@ -68,7 +67,11 @@ async function getDashboardCounts(today: string) {
         {
           category: CacheCategory.METRICS,
           keyParts: ["hub", "counts", today],
-          tags: ["table:safety_incidents", "table:breakdowns", "table:machines"],
+          tags: [
+            "table:safety_incidents",
+            "table:breakdowns",
+            "table:machines",
+          ],
         },
       );
     },
@@ -138,7 +141,8 @@ async function getProductionTrendData(): Promise<TrendDataPoint[]> {
               | null;
             if (logs) {
               const total = logs.reduce(
-                (sum, l) => sum + Number(l.coal_tonnes) + Number(l.waste_tonnes),
+                (sum, l) =>
+                  sum + Number(l.coal_tonnes) + Number(l.waste_tonnes),
                 0,
               );
               hourlyMap.get(hour)![deptName] =
@@ -146,14 +150,14 @@ async function getProductionTrendData(): Promise<TrendDataPoint[]> {
             }
           }
 
-          const formatted: TrendDataPoint[] = Array.from(hourlyMap.entries()).map(
-            ([date, depts]) => ({
-              date,
-              Drilling: depts.Drilling || 0,
-              Production: depts.Production || 0,
-              Engineering: depts.Engineering || 0,
-            }),
-          );
+          const formatted: TrendDataPoint[] = Array.from(
+            hourlyMap.entries(),
+          ).map(([date, depts]) => ({
+            date,
+            Drilling: depts.Drilling || 0,
+            Production: depts.Production || 0,
+            Engineering: depts.Engineering || 0,
+          }));
 
           return formatted.length > 0 ? formatted : FALLBACK_TREND_DATA;
         },
@@ -213,7 +217,9 @@ async function getRecentAlertEvents(today: string): Promise<AlertEvent[]> {
 
           if (incidents) {
             for (const incident of incidents) {
-              const sev = incident.severity as unknown as { level: string } | null;
+              const sev = incident.severity as unknown as {
+                level: string;
+              } | null;
               events.push({
                 id: `incident-${incident.id}`,
                 type: "incident",
@@ -231,7 +237,9 @@ async function getRecentAlertEvents(today: string): Promise<AlertEvent[]> {
           // Fetch recent active breakdowns
           const { data: breakdownsData } = await db
             .from("breakdowns")
-            .select("id, machine_name, machine_type, reason, created_at, date_in")
+            .select(
+              "id, machine_name, machine_type, reason, created_at, date_in",
+            )
             .eq("status", "active")
             .is("deleted_at", null)
             .order("created_at", { ascending: false })
@@ -257,7 +265,8 @@ async function getRecentAlertEvents(today: string): Promise<AlertEvent[]> {
           return events
             .sort(
               (a, b) =>
-                new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+                new Date(b.timestamp).getTime() -
+                new Date(a.timestamp).getTime(),
             )
             .slice(0, 8);
         },

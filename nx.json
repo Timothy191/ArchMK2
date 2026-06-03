@@ -43,10 +43,7 @@
         "env": "DISABLE_RATE_LIMIT"
       }
     ],
-    "default": [
-      "{projectRoot}/**/*",
-      "sharedGlobals"
-    ]
+    "default": ["{projectRoot}/**/*", "sharedGlobals"]
   },
   "targetDefaults": {
     "codegen": {
@@ -54,9 +51,7 @@
         "{projectRoot}/src/css/variables.css",
         "{projectRoot}/scripts/generate-tokens.mjs"
       ],
-      "outputs": [
-        "{projectRoot}/src/tokens/generated.ts"
-      ],
+      "outputs": ["{projectRoot}/src/tokens/generated.ts"],
       "cache": true
     },
     "lint:tokens": {
@@ -68,17 +63,11 @@
       "cache": true
     },
     "lint:css": {
-      "inputs": [
-        "{projectRoot}/src/**/*.css",
-        "{projectRoot}/.stylelintrc.*"
-      ],
+      "inputs": ["{projectRoot}/src/**/*.css", "{projectRoot}/.stylelintrc.*"],
       "cache": true
     },
     "build": {
-      "dependsOn": [
-        "^build",
-        "^codegen"
-      ],
+      "dependsOn": ["^build", "^codegen"],
       "inputs": [
         "{projectRoot}/**/*",
         "{projectRoot}/!**/*.test.ts",
@@ -96,9 +85,7 @@
       "cache": true
     },
     "db:pull": {
-      "outputs": [
-        "{projectRoot}/packages/supabase/migrations/**"
-      ],
+      "outputs": ["{projectRoot}/packages/supabase/migrations/**"],
       "cache": false
     },
     "type-check": {
@@ -110,9 +97,7 @@
         "{projectRoot}/!**/*.md",
         "{projectRoot}/!**/*.stories.*"
       ],
-      "outputs": [
-        "{projectRoot}/**/*.tsbuildinfo"
-      ],
+      "outputs": ["{projectRoot}/**/*.tsbuildinfo"],
       "cache": true
     },
     "lint": {
@@ -127,9 +112,7 @@
         "{projectRoot}/!**/*.stories.*",
         "{projectRoot}/!**/__fixtures__/**"
       ],
-      "outputs": [
-        "{projectRoot}/node_modules/.cache/.eslintcache"
-      ],
+      "outputs": ["{projectRoot}/node_modules/.cache/.eslintcache"],
       "cache": true
     },
     "dev": {
@@ -144,14 +127,13 @@
         "{projectRoot}/!**/*.md",
         "{projectRoot}/!**/*.stories.*"
       ],
-      "outputs": [
-        "{projectRoot}/coverage/**/*"
-      ],
+      "outputs": ["{projectRoot}/coverage/**/*"],
       "cache": true
     },
     "clean": {
       "cache": false
     }
   },
-  "defaultBase": "master"
+  "defaultBase": "master",
+  "analytics": true
 }

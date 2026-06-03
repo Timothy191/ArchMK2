@@ -55,7 +55,9 @@ describe("useThrottledState hook", () => {
   });
 
   it("should merge intermediate state updates correctly", () => {
-    const { result } = renderHook(() => useThrottledState<number[]>(() => [], 500));
+    const { result } = renderHook(() =>
+      useThrottledState<number[]>(() => [], 500),
+    );
 
     // First update immediate
     act(() => {

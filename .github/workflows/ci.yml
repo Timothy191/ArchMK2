@@ -50,16 +50,15 @@ jobs:
           node-version: 22
           cache: pnpm
 
-      - name: Turborepo Cache
+      - name: Next.js Cache
         uses: actions/cache@v4
         with:
           path: |
-            .turbo
             ${{ github.workspace }}/apps/portal/.next/cache
             ${{ github.workspace }}/apps/overview/.next/cache
-          key: ${{ runner.os }}-turbo-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ github.sha }}
+          key: ${{ runner.os }}-next-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-turbo-${{ hashFiles('**/pnpm-lock.yaml') }}-
+            ${{ runner.os }}-next-${{ hashFiles('**/pnpm-lock.yaml') }}-
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -74,13 +73,13 @@ jobs:
         run: pnpm md:lint
 
       - name: Lint & Type Check
-        run: pnpm turbo run lint type-check
+        run: pnpm nx run-many -t lint type-check
 
       - name: Token & CSS Lint
-        run: pnpm turbo run lint:tokens lint:css
+        run: pnpm nx run-many -t lint:tokens lint:css
 
       - name: Test with Coverage
-        run: pnpm test -- --coverage --passWithNoTests
+        run: pnpm nx run-many -t test -- --coverage --passWithNoTests
         env:
           CI: true
 
@@ -93,7 +92,7 @@ jobs:
           retention-days: 14
 
       - name: Build
-        run: pnpm turbo run build --summarize
+        run: pnpm nx run-many -t build
 
       - name: Bundle Size Check
         run: pnpm bundlesize
@@ -117,10 +116,6 @@ jobs:
           path: .lighthouseci/
           retention-days: 14
 
-      - name: Upload Turborepo Summary
+      - name: Run Self-Healing CI
+        run: pnpm exec nx fix-ci
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: turbo-summary
-          path: .turbo/runs/*.json
-          retention-days: 30

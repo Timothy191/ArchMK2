@@ -6,7 +6,6 @@ import { createBrowserSupabaseClient } from "@repo/supabase/client";
 import { useRouter } from "next/navigation";
 import { revalidateRSC } from "@/app/actions";
 
-
 interface Category {
   id: string;
   name: string;

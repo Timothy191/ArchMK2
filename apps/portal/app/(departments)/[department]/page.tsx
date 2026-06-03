@@ -146,7 +146,11 @@ export default async function DepartmentDashboard({
           </Suspense>
 
           {/* Weather Conditions */}
-          <Suspense fallback={<div className="h-32 animate-pulse bg-[var(--bg-tertiary)] rounded-2xl" />}>
+          <Suspense
+            fallback={
+              <div className="h-32 animate-pulse bg-[var(--bg-tertiary)] rounded-2xl" />
+            }
+          >
             <WeatherWidget variant="compact" />
           </Suspense>
 
@@ -172,7 +176,11 @@ export default async function DepartmentDashboard({
             </a>
           </div>
 
-          <Suspense fallback={<div className="h-64 animate-pulse bg-[var(--bg-tertiary)] rounded-2xl" />}>
+          <Suspense
+            fallback={
+              <div className="h-64 animate-pulse bg-[var(--bg-tertiary)] rounded-2xl" />
+            }
+          >
             <ShiftCoverageSection
               deptId={deptId}
               deptSlug={deptSlug}
@@ -181,14 +189,26 @@ export default async function DepartmentDashboard({
           </Suspense>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Suspense fallback={<div className="h-[400px] animate-pulse bg-[var(--bg-tertiary)] rounded-2xl" />}>
+            <Suspense
+              fallback={
+                <div className="h-[400px] animate-pulse bg-[var(--bg-tertiary)] rounded-2xl" />
+              }
+            >
               <ScadaPanel departmentId={deptId} />
             </Suspense>
-            <Suspense fallback={<div className="h-[400px] animate-pulse bg-[var(--bg-tertiary)] rounded-2xl" />}>
+            <Suspense
+              fallback={
+                <div className="h-[400px] animate-pulse bg-[var(--bg-tertiary)] rounded-2xl" />
+              }
+            >
               <AlertPanel departmentId={deptId} />
             </Suspense>
           </div>
-          <Suspense fallback={<div className="h-[400px] animate-pulse bg-[var(--bg-tertiary)] rounded-2xl" />}>
+          <Suspense
+            fallback={
+              <div className="h-[400px] animate-pulse bg-[var(--bg-tertiary)] rounded-2xl" />
+            }
+          >
             <ControlRoomActivityFeed departmentId={deptId} />
           </Suspense>
         </>
@@ -200,7 +220,11 @@ export default async function DepartmentDashboard({
 
           {/* Weather for drilling department - critical for outdoor operations */}
           {deptSlug === "drilling" && (
-            <Suspense fallback={<div className="h-32 animate-pulse bg-[var(--bg-tertiary)] rounded-2xl" />}>
+            <Suspense
+              fallback={
+                <div className="h-32 animate-pulse bg-[var(--bg-tertiary)] rounded-2xl" />
+              }
+            >
               <WeatherWidget variant="full" />
             </Suspense>
           )}
@@ -232,27 +256,28 @@ async function ControlRoomSummaryGrid({
   today: string;
 }) {
   const supabase = await createServerSupabaseClient();
-  const [todayOperations, todayDelays, todayLoads, machines] = await Promise.all([
-    supabase
-      .from("machine_operations")
-      .select("hours_worked, end_time")
-      .eq("department_id", deptId)
-      .eq("shift_date", today),
-    supabase
-      .from("operational_delays")
-      .select("delay_minutes, status")
-      .eq("department_id", deptId)
-      .eq("delay_date", today),
-    supabase
-      .from("hourly_loads")
-      .select("total_loads")
-      .eq("department_id", deptId)
-      .eq("load_date", today),
-    supabase
-      .from("machines")
-      .select("*", { count: "exact", head: true })
-      .eq("active", true),
-  ]);
+  const [todayOperations, todayDelays, todayLoads, machines] =
+    await Promise.all([
+      supabase
+        .from("machine_operations")
+        .select("hours_worked, end_time")
+        .eq("department_id", deptId)
+        .eq("shift_date", today),
+      supabase
+        .from("operational_delays")
+        .select("delay_minutes, status")
+        .eq("department_id", deptId)
+        .eq("delay_date", today),
+      supabase
+        .from("hourly_loads")
+        .select("total_loads")
+        .eq("department_id", deptId)
+        .eq("load_date", today),
+      supabase
+        .from("machines")
+        .select("*", { count: "exact", head: true })
+        .eq("active", true),
+    ]);
 
   const totalHours =
     todayOperations.data?.reduce(
@@ -264,8 +289,7 @@ async function ControlRoomSummaryGrid({
 
   const delayCount = todayDelays.data?.length || 0;
   const delayMinutes =
-    todayDelays.data?.reduce((sum, d) => sum + (d.delay_minutes || 0), 0) ||
-    0;
+    todayDelays.data?.reduce((sum, d) => sum + (d.delay_minutes || 0), 0) || 0;
 
   const totalLoads =
     todayLoads.data?.reduce((sum, l) => sum + (l.total_loads || 0), 0) || 0;
@@ -293,9 +317,7 @@ async function ControlRoomSummaryGrid({
       </GlassCard>
       <GlassCard hover accent="red">
         <p className="system-label">Delays</p>
-        <p className="text-2xl font-bold text-accent-red mt-1">
-          {delayCount}
-        </p>
+        <p className="text-2xl font-bold text-accent-red mt-1">{delayCount}</p>
         {delayMinutes > 0 && (
           <p className="text-[var(--text-muted)] text-xs mt-1">
             {delayMinutes} min lost
@@ -341,9 +363,7 @@ async function NonControlRoomSummaryGrid({
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       <GlassCard>
-        <p className="text-[var(--text-muted)] text-sm">
-          Today&apos;s Log
-        </p>
+        <p className="text-[var(--text-muted)] text-sm">Today&apos;s Log</p>
         <p className="text-2xl font-bold text-[var(--text-heading)] mt-1">
           {shiftCount > 0
             ? `${shiftCount} shift${shiftCount > 1 ? "s" : ""} logged`
@@ -356,9 +376,7 @@ async function NonControlRoomSummaryGrid({
         )}
       </GlassCard>
       <GlassCard>
-        <p className="text-[var(--text-muted)] text-sm">
-          Active Machines
-        </p>
+        <p className="text-[var(--text-muted)] text-sm">Active Machines</p>
         <p className="text-2xl font-bold text-[var(--text-heading)] mt-1">
           {machineCount}
         </p>
@@ -405,4 +423,3 @@ async function ShiftCoverageSection({
     />
   );
 }
-

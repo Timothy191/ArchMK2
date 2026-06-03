@@ -29,7 +29,10 @@ function getL1CacheKey(hash: string, userId: string): string {
   return `${userId}:${hash}`;
 }
 
-function getCachedEmbedding(hash: string, userId: string): number[] | undefined {
+function getCachedEmbedding(
+  hash: string,
+  userId: string,
+): number[] | undefined {
   const key = getL1CacheKey(hash, userId);
   const entry = embeddingCache.get(key);
   if (entry === undefined) return undefined;
@@ -40,7 +43,11 @@ function getCachedEmbedding(hash: string, userId: string): number[] | undefined 
   return entry;
 }
 
-function setCachedEmbedding(hash: string, userId: string, vector: number[]): void {
+function setCachedEmbedding(
+  hash: string,
+  userId: string,
+  vector: number[],
+): void {
   const key = getL1CacheKey(hash, userId);
   if (embeddingCache.has(key)) {
     // Move to end (most recently used) by re-inserting
@@ -66,7 +73,10 @@ function computeHash(text: string): string {
 // L2 Cache (Database)
 // ------------------------------------------------------------------
 
-async function getDbCachedEmbedding(hash: string, userId: string): Promise<number[] | undefined> {
+async function getDbCachedEmbedding(
+  hash: string,
+  userId: string,
+): Promise<number[] | undefined> {
   try {
     const supabase = await createServerSupabaseClient();
     const { data, error } = await supabase
@@ -102,16 +112,18 @@ async function getDbCachedEmbedding(hash: string, userId: string): Promise<numbe
   return undefined;
 }
 
-async function saveDbCachedEmbedding(hash: string, userId: string, vector: number[]): Promise<void> {
+async function saveDbCachedEmbedding(
+  hash: string,
+  userId: string,
+  vector: number[],
+): Promise<void> {
   try {
     const supabase = await createServerSupabaseClient();
-    const { error } = await supabase
-      .from("embedding_cache")
-      .insert({
-        text_hash: hash,
-        user_id: userId,
-        embedding: vector,
-      });
+    const { error } = await supabase.from("embedding_cache").insert({
+      text_hash: hash,
+      user_id: userId,
+      embedding: vector,
+    });
 
     if (error) {
       // Postgres error code 23505 is unique violation (ON CONFLICT DO NOTHING equivalent)
@@ -175,7 +187,10 @@ function getPrimaryProvider(): OllamaEmbeddingProvider {
  * Generate an embedding vector for a single text string.
  * Multi-tier caching: L1 Map -> L2 Database Cache -> Ollama.
  */
-export async function generateEmbedding(text: string, userId: string): Promise<number[]> {
+export async function generateEmbedding(
+  text: string,
+  userId: string,
+): Promise<number[]> {
   const hash = computeHash(text);
   const cached = getCachedEmbedding(hash, userId);
   if (cached !== undefined) return cached;
@@ -279,9 +294,14 @@ export async function batchGenerateEmbeddings(
 
     // Step 3: Local LLM generation for remaining misses
     if (needsGenerationTexts.length > 0) {
-      const fresh = await getPrimaryProvider().batchGenerate(needsGenerationTexts);
-      
-      const dbInsertRows: { text_hash: string; user_id: string; embedding: number[] }[] = [];
+      const fresh =
+        await getPrimaryProvider().batchGenerate(needsGenerationTexts);
+
+      const dbInsertRows: {
+        text_hash: string;
+        user_id: string;
+        embedding: number[];
+      }[] = [];
 
       needsGenerationTexts.forEach((text, i) => {
         const origIdx = needsGenerationIndices[i]!;
@@ -304,10 +324,15 @@ export async function batchGenerateEmbeddings(
           const supabase = await createServerSupabaseClient();
           await supabase.from("embedding_cache").insert(dbInsertRows);
         } catch (dbInsertErr) {
-          logError(dbInsertErr instanceof Error ? dbInsertErr : new Error(String(dbInsertErr)), {
-            context: "embedding_batch_db_insert_failed",
-            userId,
-          });
+          logError(
+            dbInsertErr instanceof Error
+              ? dbInsertErr
+              : new Error(String(dbInsertErr)),
+            {
+              context: "embedding_batch_db_insert_failed",
+              userId,
+            },
+          );
         }
       }
     }

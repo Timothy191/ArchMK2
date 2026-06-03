@@ -5,7 +5,8 @@ interface MetricEntry {
 }
 
 const globalObj = globalThis as any;
-globalObj.__jobMetrics = globalObj.__jobMetrics || new Map<string, MetricEntry>();
+globalObj.__jobMetrics =
+  globalObj.__jobMetrics || new Map<string, MetricEntry>();
 globalObj.__dbMetrics = globalObj.__dbMetrics || new Map<string, MetricEntry>();
 
 export const jobMetrics = globalObj.__jobMetrics;
@@ -20,25 +21,35 @@ export function recordJobExecution(
   success: boolean,
 ): void {
   // 1. Local update
-  const entry = jobMetrics.get(jobId) || { count: 0, errors: 0, totalDurationMs: 0 };
+  const entry = jobMetrics.get(jobId) || {
+    count: 0,
+    errors: 0,
+    totalDurationMs: 0,
+  };
   entry.count++;
   if (!success) entry.errors++;
   entry.totalDurationMs += durationMs;
   jobMetrics.set(jobId, entry);
 
   // 2. Redis sync (fire-and-forget)
-  import("@repo/redis").then(({ getRedisClient }) => {
-    getRedisClient().then(redis => {
-      if (redis?.isOpen) {
-        const key = `metrics:job:${jobId}`;
-        redis.hIncrBy(key, "count", 1).catch(() => {});
-        if (!success) {
-          redis.hIncrBy(key, "errors", 1).catch(() => {});
-        }
-        redis.hIncrByFloat(key, "totalDurationMs", durationMs).catch(() => {});
-      }
-    }).catch(() => {});
-  }).catch(() => {});
+  import("@repo/redis")
+    .then(({ getRedisClient }) => {
+      getRedisClient()
+        .then((redis) => {
+          if (redis?.isOpen) {
+            const key = `metrics:job:${jobId}`;
+            redis.hIncrBy(key, "count", 1).catch(() => {});
+            if (!success) {
+              redis.hIncrBy(key, "errors", 1).catch(() => {});
+            }
+            redis
+              .hIncrByFloat(key, "totalDurationMs", durationMs)
+              .catch(() => {});
+          }
+        })
+        .catch(() => {});
+    })
+    .catch(() => {});
 }
 
 /**
@@ -52,25 +63,35 @@ export function recordDbQuery(
 ): void {
   // 1. Local update
   const key = `${tableName}:${operation}`;
-  const entry = dbMetrics.get(key) || { count: 0, errors: 0, totalDurationMs: 0 };
+  const entry = dbMetrics.get(key) || {
+    count: 0,
+    errors: 0,
+    totalDurationMs: 0,
+  };
   entry.count++;
   if (!success) entry.errors++;
   entry.totalDurationMs += durationMs;
   dbMetrics.set(key, entry);
 
   // 2. Redis sync (fire-and-forget)
-  import("@repo/redis").then(({ getRedisClient }) => {
-    getRedisClient().then(redis => {
-      if (redis?.isOpen) {
-        const redisKey = `metrics:db:${tableName}:${operation}`;
-        redis.hIncrBy(redisKey, "count", 1).catch(() => {});
-        if (!success) {
-          redis.hIncrBy(redisKey, "errors", 1).catch(() => {});
-        }
-        redis.hIncrByFloat(redisKey, "totalDurationMs", durationMs).catch(() => {});
-      }
-    }).catch(() => {});
-  }).catch(() => {});
+  import("@repo/redis")
+    .then(({ getRedisClient }) => {
+      getRedisClient()
+        .then((redis) => {
+          if (redis?.isOpen) {
+            const redisKey = `metrics:db:${tableName}:${operation}`;
+            redis.hIncrBy(redisKey, "count", 1).catch(() => {});
+            if (!success) {
+              redis.hIncrBy(redisKey, "errors", 1).catch(() => {});
+            }
+            redis
+              .hIncrByFloat(redisKey, "totalDurationMs", durationMs)
+              .catch(() => {});
+          }
+        })
+        .catch(() => {});
+    })
+    .catch(() => {});
 }
 
 /**
@@ -129,16 +150,26 @@ export function clearObservabilityMetrics(): void {
   jobMetrics.clear();
   dbMetrics.clear();
 
-  import("@repo/redis").then(({ getRedisClient }) => {
-    getRedisClient().then(redis => {
-      if (redis?.isOpen) {
-        redis.keys("metrics:job:*").then(keys => {
-          if (keys.length > 0) redis.del(keys).catch(() => {});
-        }).catch(() => {});
-        redis.keys("metrics:db:*").then(keys => {
-          if (keys.length > 0) redis.del(keys).catch(() => {});
-        }).catch(() => {});
-      }
-    }).catch(() => {});
-  }).catch(() => {});
+  import("@repo/redis")
+    .then(({ getRedisClient }) => {
+      getRedisClient()
+        .then((redis) => {
+          if (redis?.isOpen) {
+            redis
+              .keys("metrics:job:*")
+              .then((keys) => {
+                if (keys.length > 0) redis.del(keys).catch(() => {});
+              })
+              .catch(() => {});
+            redis
+              .keys("metrics:db:*")
+              .then((keys) => {
+                if (keys.length > 0) redis.del(keys).catch(() => {});
+              })
+              .catch(() => {});
+          }
+        })
+        .catch(() => {});
+    })
+    .catch(() => {});
 }

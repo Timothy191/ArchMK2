@@ -64,7 +64,11 @@ export const generateReportFn: InngestFunction.Any = inngest.createFunction(
       });
       throw err;
     } finally {
-      recordJobExecution("generate-shift-report", performance.now() - start, success);
+      recordJobExecution(
+        "generate-shift-report",
+        performance.now() - start,
+        success,
+      );
     }
   },
 );

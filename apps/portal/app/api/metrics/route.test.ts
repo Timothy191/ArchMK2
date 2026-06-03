@@ -2,7 +2,11 @@
  * @jest-environment node
  */
 import { GET } from "./route";
-import { recordJobExecution, recordDbQuery, clearObservabilityMetrics } from "@/lib/observability/metrics";
+import {
+  recordJobExecution,
+  recordDbQuery,
+  clearObservabilityMetrics,
+} from "@/lib/observability/metrics";
 
 // Mock @repo/redis stats
 jest.mock("@repo/redis", () => ({
@@ -38,20 +42,32 @@ describe("GET /api/metrics", () => {
     const text = await res.text();
 
     // 1. Verify cache metrics
-    expect(text).toContain("portal_cache_hits_total{source=\"l1\"} 25");
-    expect(text).toContain("portal_cache_hits_total{source=\"l2\"} 15");
+    expect(text).toContain('portal_cache_hits_total{source="l1"} 25');
+    expect(text).toContain('portal_cache_hits_total{source="l2"} 15');
     expect(text).toContain("portal_cache_misses_total 10");
-    expect(text).toContain("portal_cache_latency_ms{metric=\"avg\"} 4.5");
-    expect(text).toContain("portal_cache_latency_ms{metric=\"p95\"} 12.2");
+    expect(text).toContain('portal_cache_latency_ms{metric="avg"} 4.5');
+    expect(text).toContain('portal_cache_latency_ms{metric="p95"} 12.2');
 
     // 2. Verify Inngest job metrics
-    expect(text).toContain("portal_inngest_job_executions_total{job_id=\"test-job\"} 2");
-    expect(text).toContain("portal_inngest_job_errors_total{job_id=\"test-job\"} 1");
-    expect(text).toContain("portal_inngest_job_duration_ms_total{job_id=\"test-job\"} 350.5");
+    expect(text).toContain(
+      'portal_inngest_job_executions_total{job_id="test-job"} 2',
+    );
+    expect(text).toContain(
+      'portal_inngest_job_errors_total{job_id="test-job"} 1',
+    );
+    expect(text).toContain(
+      'portal_inngest_job_duration_ms_total{job_id="test-job"} 350.5',
+    );
 
     // 3. Verify DB query metrics
-    expect(text).toContain("portal_db_query_executions_total{table=\"machines\",operation=\"SELECT\"} 2");
-    expect(text).toContain("portal_db_query_errors_total{table=\"machines\",operation=\"SELECT\"} 1");
-    expect(text).toContain("portal_db_query_duration_ms_total{table=\"machines\",operation=\"SELECT\"} 125.2");
+    expect(text).toContain(
+      'portal_db_query_executions_total{table="machines",operation="SELECT"} 2',
+    );
+    expect(text).toContain(
+      'portal_db_query_errors_total{table="machines",operation="SELECT"} 1',
+    );
+    expect(text).toContain(
+      'portal_db_query_duration_ms_total{table="machines",operation="SELECT"} 125.2',
+    );
   });
 });

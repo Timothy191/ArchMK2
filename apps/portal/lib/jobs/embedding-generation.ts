@@ -1,5 +1,8 @@
 import { inngest, aiGenerateEmbeddingEvent } from "@repo/utils/inngest";
-import { generateEmbedding, batchGenerateEmbeddings } from "@/lib/ai/embeddings";
+import {
+  generateEmbedding,
+  batchGenerateEmbeddings,
+} from "@/lib/ai/embeddings";
 import { logError } from "@/lib/errors/error-logger";
 import { recordJobExecution } from "@/lib/observability/metrics";
 import type { InngestFunction } from "inngest";
@@ -28,7 +31,11 @@ export const generateEmbeddingFn: InngestFunction.Any = inngest.createFunction(
       });
       throw err;
     } finally {
-      recordJobExecution("generate-embedding", performance.now() - start, success);
+      recordJobExecution(
+        "generate-embedding",
+        performance.now() - start,
+        success,
+      );
     }
   },
 );

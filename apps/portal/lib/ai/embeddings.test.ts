@@ -205,7 +205,8 @@ describe("batchGenerateEmbeddings", () => {
     mockSupabase.in.mockResolvedValue({
       data: [
         {
-          text_hash: "5e016d1372f6bbf5be0d85d936cc454a8479f83df2e5ec370877aca96972abfe",
+          text_hash:
+            "5e016d1372f6bbf5be0d85d936cc454a8479f83df2e5ec370877aca96972abfe",
           embedding: cachedVector,
         },
       ],

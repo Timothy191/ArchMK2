@@ -63,7 +63,10 @@ export async function POST(req: Request) {
           const numValue = Number(value);
 
           // L1 Check
-          if (localLastValues.has(tagName) && localLastValues.get(tagName) === numValue) {
+          if (
+            localLastValues.has(tagName) &&
+            localLastValues.get(tagName) === numValue
+          ) {
             results.push({ tag: tagName, success: true, cached: true });
             continue;
           }
@@ -88,7 +91,7 @@ export async function POST(req: Request) {
               },
               body: JSON.stringify({ name: tagName, value: numValue }),
             });
-            
+
             const ok = fuxaRes.ok;
             results.push({ tag: tagName, success: ok });
             if (ok) {
