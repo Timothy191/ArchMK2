@@ -373,7 +373,7 @@ export interface AuditLog {
   created_at: string;
 }
 
-export type MemoryType = "episodic" | "semantic" | "procedural";
+export type MemoryType = "episodic" | "semantic";
 
 export interface MemoryEmbedding {
   id: string;

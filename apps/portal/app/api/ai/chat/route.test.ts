@@ -50,6 +50,38 @@ jest.mock("@/lib/ai/memory", () => ({
   formatMemoriesForContext: jest.fn().mockReturnValue(""),
 }));
 
+// Mock tool dispatch — avoids actual fetch() to local Ollama in tests
+jest.mock("@/lib/ai/tool-dispatch", () => ({
+  dispatchTool: jest.fn().mockResolvedValue(null),
+  formatToolDescriptions: jest.fn().mockReturnValue(""),
+}));
+
+// Mock tool cache — uses a fresh in-memory store per test
+jest.mock("@/lib/ai/tool-cache", () => {
+  const store = new Map<string, unknown>();
+  return {
+    getCachedToolResult: jest.fn(
+      (toolName: string, args: Record<string, unknown>) => {
+        const key = `${toolName}:${JSON.stringify(args)}`;
+        return store.get(key);
+      },
+    ),
+    setCachedToolResult: jest.fn(
+      (toolName: string, args: Record<string, unknown>, result: unknown) => {
+        const key = `${toolName}:${JSON.stringify(args)}`;
+        store.set(key, result);
+      },
+    ),
+    invalidateToolCache: jest.fn((toolName: string) => {
+      for (const key of store.keys()) {
+        if (key.startsWith(`${toolName}:`)) store.delete(key);
+      }
+    }),
+    clearToolCache: jest.fn(() => store.clear()),
+    getToolCacheSize: jest.fn(() => store.size),
+  };
+});
+
 // Mock @repo/redis to avoid actual connections in test environment, falling back to MemoryStore
 jest.mock("@repo/redis", () => ({
   getRedisClient: jest.fn(() => {

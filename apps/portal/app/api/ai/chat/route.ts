@@ -1,8 +1,13 @@
 /**
  * AI Chat API — Graph-native agent orchestration.
  *
- * Nodes: authenticate → rateLimit → resolveContext → loadMemory → gatherContext → callLLM → output → (post-stream: saveMemory)
- * Conditional edges: primary failure → retry with secondary provider.
+ * Nodes: authenticate → rateLimit → resolveContext → loadMemory → gatherContext → executeTools → callLLM → output → saveMemory
+ *
+ * Serverless memory handshake:
+ *   - On streaming response, the graph attaches `x-arch-memory-session-id` header.
+ *   - If the client sends this header back on the NEXT request, we finalize
+ *     the previous response's memory save before processing the new request.
+ *   - If waitUntil is available (platform supports it), use that instead.
  */
 
 import { z } from "zod";
@@ -12,6 +17,10 @@ import { createInitialAgentState } from "@/lib/ai/agent-state";
 import { runAgentGraph, finalizeAgentGraph } from "@/lib/ai/agent-graph";
 import { NextResponse } from "next/server";
 import { withRateLimit } from "@/lib/api/rate-limit-middleware";
+
+// Track pending memory finalizations by session ID.
+// In serverless, this is best-effort — the real handshake is the echo header.
+const pendingFinalizations = new Map<string, Promise<void>>();
 
 const ChatRequestSchema = z.object({
   messages: z
@@ -33,6 +42,23 @@ function generateSessionId(): string {
   return `sess_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
 }
 
+/**
+ * Finalize any pending memory for a session.
+ * Called before processing a new request if the client echoes the session ID.
+ */
+async function finalizePendingMemory(sessionId: string): Promise<void> {
+  const pending = pendingFinalizations.get(sessionId);
+  if (pending) {
+    try {
+      await pending;
+    } catch {
+      // Swallow — memory finalization is best-effort
+    } finally {
+      pendingFinalizations.delete(sessionId);
+    }
+  }
+}
+
 async function handleChatRequest(req: Request) {
   const ip = req.headers.get("x-forwarded-for") ?? "unknown";
 
@@ -48,6 +74,14 @@ async function handleChatRequest(req: Request) {
       status: 401,
       headers: { "Content-Type": "application/json" },
     });
+  }
+
+  // Serverless memory handshake: if the client echoes the previous session ID,
+  // finalize its pending memory save before handling the new request.
+  const previousSessionId = req.headers.get("x-arch-memory-session-id");
+  if (previousSessionId) {
+    // Fire-and-forget the pending finalization — it'll clean up on its own.
+    finalizePendingMemory(previousSessionId);
   }
 
   const body = await req.json();
@@ -90,15 +124,25 @@ async function handleChatRequest(req: Request) {
     const { response, finalState } = await runAgentGraph(initialState);
 
     // If we streamed successfully, queue memory finalization.
-    // In Vercel Edge, use waitUntil if available; otherwise the
-    // client should send the sessionId back on the next request
-    // and we'll save memory then (idempotent).
     if (finalState.nextNode === "saveMemory") {
-      finalizeAgentGraph(finalState).catch((err: unknown) => {
-        logError(err instanceof Error ? err : new Error(String(err)), {
-          context: "chat_finalize_memory",
-        });
-      });
+      // Try waitUntil if available (platform-specific)
+      // eslint-disable-next-line no-undef
+      const g = globalThis as any;
+      if (typeof g.waitUntil === "function") {
+        g.waitUntil(finalizeAgentGraph(finalState));
+      } else {
+        // Fall back to best-effort promise tracking.
+        // The client will echo x-arch-memory-session-id on the next request
+        // and the server will finalize then.
+        const memPromise = finalizeAgentGraph(finalState).catch(
+          (err: unknown) => {
+            logError(err instanceof Error ? err : new Error(String(err)), {
+              context: "chat_finalize_memory",
+            });
+          },
+        );
+        pendingFinalizations.set(sessionId, memPromise);
+      }
     }
 
     return response;

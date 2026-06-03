@@ -25,10 +25,10 @@ jest.mock("@repo/supabase/server", () => ({
 }));
 
 jest.mock("./embeddings", () => ({
-  generateEmbedding: jest.fn().mockResolvedValue(Array(1536).fill(0.1)),
+  generateEmbedding: jest.fn().mockResolvedValue(Array(768).fill(0.1)),
   batchGenerateEmbeddings: jest
     .fn()
-    .mockResolvedValue([Array(1536).fill(0.1), Array(1536).fill(0.2)]),
+    .mockResolvedValue([Array(768).fill(0.1), Array(768).fill(0.2)]),
 }));
 
 const { createServerSupabaseClient } = jest.requireMock(
@@ -104,23 +104,6 @@ describe("formatMemoriesForContext", () => {
     const result = formatMemoriesForContext(memories);
     expect(result).toContain("[semantic]");
     expect(result).toContain("preferred_language: English");
-  });
-
-  it("formats procedural memory with [procedural] prefix", () => {
-    const memories: MemoryEntry[] = [
-      {
-        id: "m3",
-        sessionId: "s1",
-        userId: "u1",
-        content: "Always check safety gear first",
-        metadata: {},
-        memoryType: "procedural",
-        createdAt: "2026-05-01T00:00:00Z",
-      },
-    ];
-    const result = formatMemoriesForContext(memories);
-    expect(result).toContain("[procedural]");
-    expect(result).toContain("Always check safety gear first");
   });
 
   it("joins multiple memories with newlines", () => {

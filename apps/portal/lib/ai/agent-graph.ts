@@ -1,8 +1,13 @@
 /**
  * Agent Graph — Explicit state machine for AI chat orchestration.
  *
- * Nodes: authenticate → rateLimit → resolveContext → loadMemory → gatherContext → executeTools → callLLM → saveMemory → output
- * Conditional edges route based on state (tool pending? max iterations? error?)
+ * Nodes: authenticate → rateLimit → resolveContext → loadMemory → gatherContext → executeTools → callLLM → output → saveMemory
+ *
+ * Changes from regex-based dispatch:
+ *   - gatherContextNode now uses LLM-driven tool dispatch with confidence scoring
+ *   - executeToolsNode uses an in-memory LRU cache with 5s TTL
+ *   - callLLMNode retries with jittered backoff on transient errors
+ *   - outputNode attaches session ID header for serverless memory handshake
  *
  * Each node is a pure function: (state) => partialStateUpdate.
  * The router runs nodes sequentially and handles the flow graph.
@@ -17,9 +22,12 @@ import {
 } from "./memory";
 import { withSpan } from "@repo/supabase";
 import { logError } from "@/lib/errors/error-logger";
-import { checkRateLimit } from "./rate-limiter";
+import { checkRateLimit, checkRateLimitForCategory } from "./rate-limiter";
 import { ollamaChatStream, DEFAULT_MODEL, type OllamaMessage } from "./ollama";
 import { aiTools } from "./tools";
+import { dispatchTool } from "./tool-dispatch";
+import { getCachedToolResult, setCachedToolResult } from "./tool-cache";
+import { APIError } from "@repo/errors";
 import type {
   AgentState,
   AgentNodeName,
@@ -27,6 +35,61 @@ import type {
   LLMResponse,
 } from "./agent-state";
 import { reduceState } from "./agent-state";
+
+// ============================================================================
+// Constants
+// ============================================================================
+
+/** Retry a transient Ollama failure at most once with jittered backoff. */
+const MAX_LLM_RETRIES = 1;
+const RETRY_BACKOFF_MIN_MS = 200;
+const RETRY_BACKOFF_MAX_MS = 500;
+
+// ============================================================================
+// Helpers
+// ============================================================================
+
+function getMessageText(msg: AgentState["messages"][number]): string {
+  if ("content" in msg && typeof msg.content === "string") {
+    return msg.content;
+  }
+  const textPart = msg.parts?.find((p: { type: string }) => p.type === "text");
+  return textPart?.text ?? "";
+}
+
+/**
+ * Check whether an error is transient (connection refused, timeout, 5xx)
+ * and worth retrying vs. a permanent error (400, 401, malformed request).
+ */
+function isTransientError(error: unknown): boolean {
+  if (error instanceof APIError) {
+    return (
+      error.statusCode === 502 ||
+      error.statusCode === 504 ||
+      error.statusCode === 503 ||
+      error.statusCode === 429
+    );
+  }
+  if (error instanceof TypeError) {
+    // fetch() throws TypeError on network failures (connection refused, DNS, etc.)
+    return true;
+  }
+  const msg = String(error);
+  return (
+    msg.includes("timed out") ||
+    msg.includes("ECONNREFUSED") ||
+    msg.includes("fetch failed") ||
+    msg.includes("aborted") ||
+    msg.includes("socket hang up")
+  );
+}
+
+function jitteredBackoff(): Promise<void> {
+  const delay =
+    Math.random() * (RETRY_BACKOFF_MAX_MS - RETRY_BACKOFF_MIN_MS) +
+    RETRY_BACKOFF_MIN_MS;
+  return new Promise((resolve) => setTimeout(resolve, delay));
+}
 
 // ============================================================================
 // Node implementations
@@ -99,14 +162,6 @@ async function resolveContextNode(
   }
 }
 
-function getMessageText(msg: AgentState["messages"][number]): string {
-  if ("content" in msg && typeof msg.content === "string") {
-    return msg.content;
-  }
-  const textPart = msg.parts?.find((p: { type: string }) => p.type === "text");
-  return textPart?.text ?? "";
-}
-
 async function loadMemoryNode(state: AgentState): Promise<Partial<AgentState>> {
   const latestUserMessage = [...state.messages]
     .reverse()
@@ -119,7 +174,6 @@ async function loadMemoryNode(state: AgentState): Promise<Partial<AgentState>> {
   const messageText = getMessageText(latestUserMessage);
 
   try {
-    // Store user message as episodic memory (guaranteed, not fire-and-forget)
     await storeMemory({
       sessionId: state.sessionId,
       userId: state.userId,
@@ -170,6 +224,14 @@ async function loadMemoryNode(state: AgentState): Promise<Partial<AgentState>> {
   }
 }
 
+/**
+ * LLM-driven tool dispatch (replaces old regex keyword matching).
+ *
+ * Uses the LLM to decide which tool to call with a confidence score.
+ * High confidence (>= 3) → execute the tool.
+ * Low confidence (1-2) → route to clarifying path.
+ * No tool needed → skip straight to callLLM.
+ */
 async function gatherContextNode(
   state: AgentState,
 ): Promise<Partial<AgentState>> {
@@ -181,40 +243,40 @@ async function gatherContextNode(
     return { nextNode: "callLLM" };
   }
 
-  const text = getMessageText(latestUserMessage).toLowerCase();
+  const text = getMessageText(latestUserMessage);
+  if (!text?.trim()) {
+    return { nextNode: "callLLM" };
+  }
 
-  // Keyword-based intent detection for tools
-  const needsFleet =
-    /\bfleet\b|\btruck\b|\bvehicle\b|\bdown\b|\bbreakdown\b/.test(text);
-  const needsShift = /\bshift\b|\blog\b|\bhandover\b/.test(text);
-  const needsDelays = /\bdelay\b|\bwait\b|\bslow\b/.test(text);
+  // Ask the LLM which tool (if any) to call
+  const dispatch = await dispatchTool(text);
 
-  if (needsFleet || needsShift || needsDelays) {
+  // If the dispatch system itself failed, answer directly
+  if (!dispatch) {
+    return { nextNode: "callLLM" };
+  }
+
+  // Low confidence → route to clarifying path
+  if (dispatch.confidence <= 2) {
+    // Inject a clarification message into context rather than calling a tool.
+    // The LLM will see this and ask the user what they meant.
+    const clarificationMsg = `The user's intent is ambiguous (confidence: ${dispatch.confidence}/5, reason: "${dispatch.reason}"). Respond by asking a clarifying question rather than guessing which tool to use.`;
     return {
-      toolCalls: [
-        ...(needsFleet ? [{ tool: "fleetStatus", args: {} }] : []),
-        ...(needsShift
-          ? [
-              {
-                tool: "shiftLogs",
-                args: { departmentName: state.agentContext.departmentName },
-              },
-            ]
-          : []),
-        ...(needsDelays
-          ? [
-              {
-                tool: "delays",
-                args: { departmentName: state.agentContext.departmentName },
-              },
-            ]
-          : []),
-      ],
-      nextNode: "executeTools",
+      context: (state.context ?? "") + "\n\n" + clarificationMsg,
+      nextNode: "callLLM",
     };
   }
 
-  return { nextNode: "callLLM" };
+  // No tool needed but intent is clear — answer directly
+  if (dispatch.tool === null) {
+    return { nextNode: "callLLM" };
+  }
+
+  // Valid tool with sufficient confidence — execute it
+  return {
+    toolCalls: [{ tool: dispatch.tool, args: dispatch.args }],
+    nextNode: "executeTools",
+  };
 }
 
 async function executeToolsNode(
@@ -228,13 +290,41 @@ async function executeToolsNode(
   let toolContext = "Operational Data Summary:\n";
 
   for (const call of state.toolCalls as any[]) {
+    // Per-tool rate limit
+    if (state.ip) {
+      const allowed = await checkRateLimitForCategory(
+        "tool",
+        state.ip,
+        call.tool,
+      );
+      if (!allowed) {
+        results.push({
+          tool: call.tool,
+          result: { error: `Rate limit exceeded for tool ${call.tool}` },
+        });
+        toolContext += `\n[Tool: ${call.tool}]\n${JSON.stringify({ error: `Rate limit exceeded for tool ${call.tool}` })}\n`;
+        continue;
+      }
+    }
+
     try {
       const tool = aiTools[call.tool as keyof typeof aiTools];
-      if (tool) {
-        const result = await tool.execute(call.args);
-        results.push({ tool: call.tool, result });
-        toolContext += `\n[Tool: ${call.tool}]\n${JSON.stringify(result, null, 2)}\n`;
+      if (!tool) continue;
+
+      // Check cache first (5s TTL)
+      const cached = getCachedToolResult(call.tool, call.args);
+      if (cached !== undefined) {
+        results.push({ tool: call.tool, result: cached });
+        toolContext += `\n[Tool: ${call.tool} (cached)]\n${JSON.stringify(cached, null, 2)}\n`;
+        continue;
       }
+
+      // Execute and cache
+      const result = await tool.execute(call.args);
+      setCachedToolResult(call.tool, call.args, result);
+
+      results.push({ tool: call.tool, result });
+      toolContext += `\n[Tool: ${call.tool}]\n${JSON.stringify(result, null, 2)}\n`;
     } catch (err) {
       logError(err instanceof Error ? err : new Error(String(err)), {
         context: `agent_tool_exec_${call.tool}`,
@@ -249,6 +339,14 @@ async function executeToolsNode(
   };
 }
 
+/**
+ * Calls the LLM with retry logic for transient errors.
+ *
+ * - Produces a streaming Response via SSE (same format as before).
+ * - On transient failure (connection refused, timeout, 5xx):
+ *   retries once with temperature: 0 after jittered backoff.
+ * - On permanent failure: returns error state immediately.
+ */
 async function callLLMNode(state: AgentState): Promise<Partial<AgentState>> {
   const systemPrompt = systemPrompts.chat(
     state.context ?? "",
@@ -265,79 +363,89 @@ async function callLLMNode(state: AgentState): Promise<Partial<AgentState>> {
       })),
   ];
 
-  try {
-    const streamGen = await ollamaChatStream(messages, {
-      model: state.selectedModel ?? DEFAULT_MODEL,
-      temperature: 0.7,
-      maxTokens: 4096,
-    });
+  async function attempt(retryIndex: number): Promise<Partial<AgentState>> {
+    const temperature = retryIndex > 0 ? 0 : 0.7;
 
-    let fullText = "";
-    let resolveText: (_value: string) => void;
-    const textPromise = new Promise<string>((resolve) => {
-      resolveText = resolve;
-    });
+    try {
+      const streamGen = await ollamaChatStream(messages, {
+        model: state.selectedModel ?? DEFAULT_MODEL,
+        temperature,
+        maxTokens: 4096,
+      });
 
-    const iterator = streamGen[Symbol.asyncIterator]();
+      let fullText = "";
+      let resolveText: (_value: string) => void;
+      const textPromise = new Promise<string>((resolve) => {
+        resolveText = resolve;
+      });
 
-    // Pipe Ollama chunks to the client with natural backpressure:
-    // `pull()` is called when the client (browser) is ready for more data,
-    // so we only ask Ollama for the next chunk then. No background loop,
-    // no unbounded queue, and cancellation tears down the iterator.
-    const streamResponse = new Response(
-      new ReadableStream({
-        async pull(controller) {
-          try {
-            const { value, done } = await iterator.next();
-            if (done) {
+      const iterator = streamGen[Symbol.asyncIterator]();
+
+      const streamResponse = new Response(
+        new ReadableStream({
+          async pull(controller) {
+            try {
+              const { value, done } = await iterator.next();
+              if (done) {
+                resolveText(fullText);
+                controller.close();
+                return;
+              }
+              if (value) {
+                fullText += value;
+                controller.enqueue(new TextEncoder().encode(`0: ${value}\n`));
+              }
+            } catch (err) {
               resolveText(fullText);
-              controller.close();
-              return;
+              controller.error(
+                err instanceof Error ? err : new Error(String(err)),
+              );
             }
-            if (value) {
-              fullText += value;
-              controller.enqueue(new TextEncoder().encode(`0: ${value}\n`));
-            }
-          } catch (err) {
+          },
+          cancel() {
             resolveText(fullText);
-            controller.error(
-              err instanceof Error ? err : new Error(String(err)),
-            );
-          }
-        },
-        cancel() {
-          resolveText(fullText);
-          // Tear down the Ollama iterator so generation stops immediately
-          // when the client disconnects (saves GPU / worker time).
-          iterator.return?.();
-        },
-      }),
-      { headers: { "Content-Type": "text/event-stream" } },
-    );
+            iterator.return?.();
+          },
+        }),
+        { headers: { "Content-Type": "text/event-stream" } },
+      );
 
-    const result: LLMResponse = {
-      text: textPromise,
-      usage: Promise.resolve({
-        inputTokens: 0,
-        outputTokens: 0,
-        totalTokens: 0,
-      }),
-      toUIMessageStreamResponse: () => streamResponse,
-    };
+      const result: LLMResponse = {
+        text: textPromise,
+        usage: Promise.resolve({
+          inputTokens: 0,
+          outputTokens: 0,
+          totalTokens: 0,
+        }),
+        toUIMessageStreamResponse: () => streamResponse,
+      };
 
-    return { llmResponse: result, nextNode: "output" };
-  } catch (error) {
-    logError(error instanceof Error ? error : new Error(String(error)), {
-      context: "agent_graph_call_llm",
-    });
+      return { llmResponse: result, nextNode: "output" };
+    } catch (error) {
+      // Retry on transient errors only
+      if (retryIndex < MAX_LLM_RETRIES && isTransientError(error)) {
+        logError(error instanceof Error ? error : new Error(String(error)), {
+          context: `agent_graph_call_llm_retry_${retryIndex + 1}`,
+        });
+        await jitteredBackoff();
+        return attempt(retryIndex + 1);
+      }
 
-    return {
-      error: "Failed to generate response",
-      statusCode: 500,
-      shouldContinue: false,
-      nextNode: "END",
-    };
+      // Permanent or unrecoverable
+      logError(error instanceof Error ? error : new Error(String(error)), {
+        context: "agent_graph_call_llm",
+        retries: retryIndex,
+      });
+      return {
+        error: "Failed to generate response",
+        statusCode: 500,
+        shouldContinue: false,
+        nextNode: "END",
+      };
+    }
   }
+
+  return attempt(0);
 }
 
 async function saveMemoryNode(state: AgentState): Promise<Partial<AgentState>> {
@@ -367,6 +475,11 @@ async function saveMemoryNode(state: AgentState): Promise<Partial<AgentState>> {
   }
 }
 
+/**
+ * Wraps the streaming Response with a session ID header for
+ * serverless-safe memory handshake. The client echoes this header
+ * on the next request so the server can finalize pending memory saves.
+ */
 async function outputNode(state: AgentState): Promise<Partial<AgentState>> {
   if (!state.llmResponse) {
     return {
@@ -378,11 +491,19 @@ async function outputNode(state: AgentState): Promise<Partial<AgentState>> {
   }
 
   try {
-    const response = state.llmResponse.toUIMessageStreamResponse();
+    const streamResponse = state.llmResponse.toUIMessageStreamResponse();
 
-    // Save memory in background after we return the stream
-    // We use a void Promise here because we cannot await after returning Response,
-    // but we store the flag so the caller knows it needs to be done.
+    // Attach session ID header so the client can echo it back.
+    // The server will finalize memory on the next request from this session.
+    const response = new Response(streamResponse.body, {
+      status: 200,
+      headers: {
+        "Content-Type": "text/event-stream",
+        "x-arch-memory-session-id": state.sessionId,
+        "x-arch-session-id": state.sessionId,
+      },
+    });
+
     return {
       streamResponse: response,
       shouldContinue: false,
@@ -432,9 +553,9 @@ const NODE_MAP: Record<
 /**
  * Execute the agent graph.
  *
- * Returns either a streaming Response or an error Response.
- * After returning a stream, the caller should invoke saveMemoryNode
- * to persist the assistant response.
+ * Returns either a streaming Response (with session ID header) or an error Response.
+ * After returning a stream, the caller should invoke finalizeAgentGraph
+ * to persist the assistant response wherever possible (waitUntil vs. header handshake).
  */
 export async function runAgentGraph(
   initialState: AgentState,
@@ -478,12 +599,17 @@ export async function runAgentGraph(
 }
 
 /**
- * Post-stream memory save. Call this after the stream has been consumed
- * by the client. In serverless environments, consider using
- * waitUntil or a background queue for this.
+ * Post-stream memory save.
+ *
+ * In serverless environments:
+ * - If `waitUntil` is available (Cloudflare Workers, some Vercel plans),
+ *   call this from there ASAP.
+ * - Otherwise, the client echoes `x-arch-memory-session-id` on the next
+ *   request and the chat route calls this when it sees a pending session.
+ * - Idempotent: saveMemoryNode checks assistantResponseStored.
  */
 export async function finalizeAgentGraph(state: AgentState): Promise<void> {
-  if (state.nextNode === "saveMemory") {
+  if (state.nextNode === "saveMemory" && !state.assistantResponseStored) {
     const update = await saveMemoryNode(state);
     reduceState(state, update);
   }

@@ -6,14 +6,13 @@ import { withCache } from "@/lib/cache-utils";
 import { CacheCategory } from "@repo/redis";
 
 /**
- * Memory Service - Episodic, Semantic, and Procedural Memory for AI Chat
+ * Memory Service - Episodic and Semantic Memory for AI Chat
  *
  * Episodic: Conversation turns (short-term, session-scoped)
  * Semantic: Facts, preferences, knowledge (long-term, user-scoped)
- * Procedural: Tool usage patterns, system instructions (long-term, global)
  */
 
-export type MemoryType = "episodic" | "semantic" | "procedural";
+export type MemoryType = "episodic" | "semantic";
 
 export interface MemoryEntry {
   id: string;
@@ -57,7 +56,7 @@ export async function storeMemory(
 ): Promise<MemoryEntry> {
   const supabase = await createServerSupabaseClient();
 
-  const embedding = await generateEmbedding(input.content);
+  const embedding = await generateEmbedding(input.content, input.userId);
 
   const { data, error } = await supabase
     .from("memory_embeddings")
@@ -97,9 +96,13 @@ export async function storeMemories(
 
   const supabase = await createServerSupabaseClient();
 
+  const firstInput = inputs[0];
+  if (!firstInput) return [];
+
   // Generate embeddings in parallel
   const embeddings = await batchGenerateEmbeddings(
     inputs.map((i) => i.content),
+    firstInput.userId,
   );
 
   const rows = inputs.map((input, idx) => ({
@@ -143,7 +146,7 @@ export async function retrieveRelevantMemories(
   options: RetrieveOptions,
 ): Promise<MemoryEntry[]> {
   const supabase = await createServerSupabaseClient();
-  const embedding = await generateEmbedding(options.query);
+  const embedding = await generateEmbedding(options.query, options.userId);
 
   const { data, error } = await supabase.rpc("search_memories_hybrid", {
     query_embedding: embedding,
@@ -183,7 +186,7 @@ export async function retrieveSemanticMemories(
   options: RetrieveOptions,
 ): Promise<MemoryEntry[]> {
   const supabase = await createServerSupabaseClient();
-  const embedding = await generateEmbedding(options.query);
+  const embedding = await generateEmbedding(options.query, options.userId);
 
   const { data, error } = await supabase.rpc("search_memories_semantic", {
     query_embedding: embedding,

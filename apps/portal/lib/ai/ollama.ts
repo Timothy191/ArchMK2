@@ -10,8 +10,10 @@
 import { APIError } from "@repo/errors";
 
 // eslint-disable-next-line turbo/no-undeclared-env-vars
-export const OLLAMA_URL = process.env.OLLAMA_URL ?? "http://localhost:5243";
-const OLLAMA_TIMEOUT_MS = Number(process.env.OLLAMA_TIMEOUT_MS ?? 30_000);
+export const OLLAMA_URL = process.env.OLLAMA_URL ?? "http://localhost:11434";
+export const OLLAMA_TIMEOUT_MS = Number(
+  process.env.OLLAMA_TIMEOUT_MS ?? 30_000,
+);
 
 export const DEFAULT_MODEL = "gemma4:latest";
 
@@ -30,31 +32,35 @@ export type OllamaMessage = {
 };
 
 /**
- * Race a promise against a hard timeout so callers never await forever.
+ * Race a fetch operation against a hard timeout and abort the underlying
+ * request on timeout so the HTTP connection is released (not just the await).
+ *
+ * GAP-4: previous `withTimeout(promise, ms)` only abandoned the await — the
+ * actual `fetch()` was left running until the server closed the socket,
+ * leaking connections in serverless.
  */
 async function withTimeout<T>(
-  promise: Promise<T>,
+  factory: (_signal: AbortSignal) => Promise<T>,
   timeoutMs: number,
 ): Promise<T> {
-  const id = setTimeout(() => {}, timeoutMs); // dummy; real abort below
+  const controller = new AbortController();
+  let timedOut = false;
+  const timer = setTimeout(() => {
+    timedOut = true;
+    controller.abort();
+  }, timeoutMs);
   try {
-    return await Promise.race([
-      promise,
-      new Promise<never>((_, reject) =>
-        setTimeout(
-          () =>
-            reject(
-              new APIError(`Ollama request timed out after ${timeoutMs}ms`, {
-                statusCode: 504,
-                endpoint: "ollama",
-              }),
-            ),
-          timeoutMs,
-        ),
-      ),
-    ]);
+    return await factory(controller.signal);
+  } catch (err) {
+    if (timedOut) {
+      throw new APIError(`Ollama request timed out after ${timeoutMs}ms`, {
+        statusCode: 504,
+        endpoint: "ollama",
+      });
+    }
+    throw err;
   } finally {
-    clearTimeout(id);
+    clearTimeout(timer);
   }
 }
 
@@ -86,11 +92,13 @@ export async function ollamaChat(
   }
 
   const res = await withTimeout(
-    fetch(`${OLLAMA_URL}/api/chat`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    }),
+    (signal) =>
+      fetch(`${OLLAMA_URL}/api/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+        signal,
+      }),
     OLLAMA_TIMEOUT_MS,
   );
 
@@ -133,17 +141,18 @@ export async function* ollamaChatStream(
     body.system = system;
   }
 
-  const controller = new AbortController();
-  const fetchPromise = fetch(`${OLLAMA_URL}/api/chat`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-    signal: controller.signal,
-  });
-
   // Race the fetch against the hard timeout so we abort the underlying
   // connection and don't leak a hanging request in serverless.
-  const res = await withTimeout(fetchPromise, OLLAMA_TIMEOUT_MS);
+  const res = await withTimeout(
+    (signal) =>
+      fetch(`${OLLAMA_URL}/api/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+        signal,
+      }),
+    OLLAMA_TIMEOUT_MS,
+  );
 
   if (!res.ok) {
     const errText = await res.text().catch(() => "");
@@ -188,7 +197,6 @@ export async function* ollamaChatStream(
   } finally {
     // Ensure the fetch reader is released when the generator is disposed
     // (e.g. client disconnects and ReadableStream.cancel() calls iterator.return()).
-    controller.abort();
     reader.cancel().catch(() => {
       // ignore cancel errors
     });
@@ -207,11 +215,13 @@ export async function ollamaEmbed(
   const texts = Array.isArray(input) ? input : [input];
 
   const res = await withTimeout(
-    fetch(`${OLLAMA_URL}/api/embed`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ model, input: texts }),
-    }),
+    (signal) =>
+      fetch(`${OLLAMA_URL}/api/embed`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ model, input: texts }),
+        signal,
+      }),
     OLLAMA_TIMEOUT_MS,
   );
 
