@@ -153,5 +153,6 @@
       "cache": false
     }
   },
-  "defaultBase": "master"
+  "defaultBase": "master",
+  "nxCloudId": "6a1fce2df553897cea6fb7e4"
 }
