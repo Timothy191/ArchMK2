@@ -1,199 +1,85 @@
 ---
 title: AI Service
 created: 2026-05-15
-updated: 2026-05-17
+updated: 2026-06-03
 type: concept
 tags: [system, api, integration, concept]
-sources: [raw/codebase/ai-service.md]
+sources: [apps/portal/lib/ai/]
 confidence: high
 ---
 
 # AI Service
 
-The portal includes a multi-provider AI chat endpoint with automatic failover, built-in prompt templates, and tool use for operational data queries.
+The portal features a fully local AI service orchestrated via an explicit state machine (Agent Graph), utilizing a locally running Ollama server for chat completion and embedding generation. This ensures 100% offline capability for remote mining sites.
 
-## Architecture
+## Core Files & Responsibility
 
-The AI layer is split across four files in `apps/portal/lib/ai/`:
+The AI layer is located in [apps/portal/lib/ai/](file:///home/timothy/Project/Arch-Mk2/apps/portal/lib/ai/):
 
-| File           | Responsibility                               |
-| -------------- | -------------------------------------------- |
-| `providers.ts` | Model providers and failover logic           |
-| `prompts.ts`   | System prompt templates                      |
-| `tools.ts`     | Zod-typed tools for operational data         |
-| `schemas.ts`   | JSON response schemas for structured outputs |
+| File               | Responsibility                                                                                                                                                 |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ollama.ts`        | Simple fetch client to local Ollama (`/api/chat`, `/api/embed`) with hard timeouts.                                                                            |
+| `providers.ts`     | Conveniences for chat completion, streaming, and embedding queries.                                                                                            |
+| `agent-graph.ts`   | Explicit state machine nodes routing requests (auth → rateLimit → resolveContext → loadMemory → gatherContext → executeTools → callLLM → output → saveMemory). |
+| `agent-state.ts`   | Workspace state structure and reducers.                                                                                                                        |
+| `tool-dispatch.ts` | LLM-driven tool dispatch with confidence scoring and JSON fallback.                                                                                            |
+| `tool-cache.ts`    | LRU-based tool output cache with 5s TTL to prevent redundant database hits.                                                                                    |
+| `cost-tracker.ts`  | Tracks local token consumption and records stats.                                                                                                              |
+| `rate-limiter.ts`  | IP and category-based rate limiting.                                                                                                                           |
+| `memory.ts`        | Vector memory management (episodic & semantic storage).                                                                                                        |
+| `tools.ts`         | Zod-typed schemas for mining/operational tools.                                                                                                                |
+| `prompts.ts`       | System prompts and templates (including tool dispatch rules).                                                                                                  |
 
-## Providers
+## Local AI Provider
 
-Three-tier cascading failover system:
+All calls route to the local Ollama endpoint (`http://localhost:11434` or as configured by `OLLAMA_URL`):
 
-1. **Primary**: Groq (`llama-3.1-8b-instant`) — fast, low-latency (LPU inference)
-2. **Secondary**: OpenRouter (`google/gemma-2-9b-it:free`) — broad model access, free tier fallback
-3. **Tertiary**: Together AI — cost-efficient open-source models, final fallback
+- **Chat Model**: `gemma4:latest` (or `DEFAULT_MODEL`)
+- **Embedding Model**: `nomic-embed-text` (generates 768-dimension vectors)
+- **Timeouts**: Configurable via `OLLAMA_TIMEOUT_MS` (default `30s`) to prevent hanging in serverless environments.
 
-```typescript
-export const models = {
-  primary: groq("llama-3.1-8b-instant"),
-  secondary: openrouterProvider("google/gemma-2-9b-it:free"),
-};
-```
+## Agent Graph State Machine
 
-The `withFailover()` helper tries primary first, falls back to secondary on error:
-
-```typescript
-export async function withFailover<T>(
-  fn: (model: LanguageModel) => Promise<T>,
-  modelList: LanguageModel[] = [models.primary, models.secondary],
-): Promise<T> {
-  let lastError: Error | undefined;
-  for (const model of modelList) {
-    try {
-      return await fn(model);
-    } catch (error) {
-      lastError = error instanceof Error ? error : new Error(String(error));
-      console.warn(`Provider failed, trying next:`, lastError.message);
-    }
-  }
-  throw lastError ?? new Error("All providers failed");
-}
-```
-
-Environment variables:
-
-- `GROQ_API_KEY` — Primary provider
-- `OPENROUTER_API_KEY` — Secondary provider
-- `TOGETHER_API_KEY` — Tertiary provider (wired in Phase 3)
-
-## Prompt Templates
-
-Built-in system prompts for specific operational contexts:
-
-| Template                | Purpose                                            |
-| ----------------------- | -------------------------------------------------- |
-| `chat`                  | General assistant with optional department context |
-| `predictiveMaintenance` | Machine risk assessment with JSON output           |
-| `safetyCompliance`      | Safety violation review with JSON output           |
-| `shiftHandoff`          | Shift summary for handover                         |
-
-```typescript
-export const systemPrompts = {
-  chat: (context?: string) =>
-    context
-      ? `You are an AI assistant for Arch-Systems... Current context: ${context}.`
-      : "You are an AI assistant for Arch-Systems...",
-  predictiveMaintenance: "You are an industrial maintenance AI...",
-  safetyCompliance: "You are a safety compliance officer AI...",
-  shiftHandoff: "You are a shift supervisor AI...",
-};
-```
-
-## Tools
-
-Three operational tools using the `ai` SDK's `tool()` helper with Zod schemas:
-
-### machineStatus
-
-Queries the `machines` table for a given department name.
-
-Input: `{ departmentName: string }`
-Output: `{ machines: [{ id, name, machine_type, active }] }`
-
-### shiftLogs
-
-Queries `daily_logs` for a department and optional date.
-
-Input: `{ departmentName: string, date?: string }`
-Output: `{ logs: [{ id, log_date, shift }] }`
-
-### delays
-
-Queries `operational_delays` for a department and optional date.
-
-Input: `{ departmentName: string, date?: string }`
-Output: `{ delays: [{ delay_minutes, status, reason }] }`
-
-All tools use `createServerSupabaseClient()` for database access.
-
-## Chat Endpoint
-
-`POST /api/ai/chat` — Accepts messages, streams responses with tool calling support.
-
-Features:
-
-- Multi-provider failover
-- Rate limiting
-- Streaming responses
-- Tool use for real-time operational data
-- Context injection for department-specific queries
-
-## AI Chat UI
-
-The chat interface is embedded in department pages and the hub. It supports:
-
-- Markdown rendering
-- Syntax highlighting via shiki
-- Streaming text display
-- Tool result visualization
-- Department context awareness
-
-## Phase 3 Additions
-
-Phase 3 extended the AI service with memory, orchestration, and tool infrastructure:
-
-### Vector Memory System (pgvector)
-
-Long-term AI memory stored in PostgreSQL using the `pgvector` extension:
-
-| Table            | Purpose                                          |
-| ---------------- | ------------------------------------------------ |
-| `memories`       | Stored facts, context, and conversation history  |
-| `embeddings`     | Vector embeddings (1536-dim) for semantic search |
-| `conversations`  | Chat session records per user/department         |
-| `agent_sessions` | Multi-agent task tracking                        |
-
-Hybrid search: keyword (`tsvector`) + embedding (`HNSW index`) combined via reciprocal rank fusion.
-
-### Redis Cache Layer
-
-AI responses cached in Redis to reduce provider calls and latency:
+The AI request cycle runs through a strict state machine implemented in [agent-graph.ts](file:///home/timothy/Project/Arch-Mk2/apps/portal/lib/ai/agent-graph.ts):
 
 ```
-ai:response:{hash}        → 1h TTL   (identical query deduplication)
-user:context:{user_id}    → 24h TTL  (user conversation context)
-dept:summary:{dept_id}    → 15m TTL  (department data summaries)
+authenticate ➔ rateLimit ➔ resolveContext ➔ loadMemory ➔ gatherContext ➔ executeTools ➔ callLLM ➔ output ➔ saveMemory
 ```
 
-Cache hit rate target: 78%+ (measured in Grafana).
+1. **authenticate**: Verifies the Supabase JWT.
+2. **rateLimit**: Enforces sliding/fixed-window limits.
+3. **resolveContext**: Resolves the target department name and UUID.
+4. **loadMemory**: Retrieves user episodic memory (past chats) and semantic memory (facts).
+5. **gatherContext**: Uses LLM-driven tool dispatch to decide which tool to call with a confidence score.
+6. **executeTools**: Invokes the chosen tool (uses `tool-cache` to check for cached results).
+7. **callLLM**: Generates the streamed response from Ollama (with automatic backoff retry on transient errors).
+8. **output**: Streams chunks back to the client and sets headers for serverless handshakes.
+9. **saveMemory**: Stores the new conversation turn back into episodic memory.
 
-### MCP Registry
+## LLM-Driven Tool Dispatch
 
-10+ Model Context Protocol patterns registered for agent tool use:
+The service replaces old regex keyword matching with an LLM-driven decision process:
 
-- `database_query` — Supabase parameterized queries
-- `document_search` — Full-text search across operational logs
-- `code_execution` — Sandboxed formula evaluation
-- `external_api` — Weather, satellite data fetchers
-- `shift_context` — Current shift state injection
-- `dept_summary` — Materialized department summaries
+- **Two-tier Approach**: Uses Ollama's native tool-calling API first. If unsupported/fails, it queries the model for a JSON block defining `tool`, `args`, `confidence`, and `reason`.
+- **Confidence Scoring**: 1 to 5 scale. If confidence is 1–2, the tool does not fire, and the graph routes to a clarifying flow to ask the user for details. If confidence is 3–5, the tool executes.
+- **Available Tools**:
+  - `machineStatus`: Queries machine inventory and statuses for a department.
+  - `shiftLogs`: Fetch `daily_logs` context.
+  - `delays`: Retrieves `operational_delays`.
 
-### Multi-Agent Orchestrator (Kiro)
+## Memory & Embedding Cache System
 
-Coordinates specialized sub-agents for complex operational queries:
-
-| Component       | Role                                       |
-| --------------- | ------------------------------------------ |
-| Task Router     | Classifies query → routes to best agent    |
-| Memory Manager  | Retrieves relevant context from pgvector   |
-| Context Builder | Assembles prompt with dept data + history  |
-| Tool Selector   | Picks MCP tools for the query type         |
-| Result Merger   | Combines multi-agent outputs into response |
-
-See [[external-tools]] for n8n workflow integration with the orchestrator.
+- **Vector Memory (pgvector)**:
+  - Stored in the `memories` table with a 768-dimension HNSW index.
+  - **Memory Types**: Consolidated into `episodic` (chat session turns) and `semantic` (facts/configurations). The old `procedural` type has been dropped (migration 061) and merged into semantic.
+- **Embedding Cache**:
+  - Located in the `embedding_cache` table.
+  - Caches 768-dimension vector embeddings generated from `nomic-embed-text`, keyed by the SHA-256 hash of the text.
+  - Isolated by `user_id` for data security and privacy.
+  - Significantly reduces local CPU/GPU consumption by bypassing Ollama embeddings for repetitive query phrases.
 
 ## Related
 
-- [[portal-app-architecture]] — where AI service fits in the app
-- [[external-tools]] — n8n workflows, MCP registry
-- [[monitoring-error-tracking]] — Prometheus metrics for AI response times
-- [[analytics-reporting]] — predictive maintenance uses `predictiveMaintenance` prompt template
-- [[database-optimization]] — pgvector HNSW index tuning for memory search
+- [[nx-monorepo]] — How packages like `@repo/rate-limiter` are structured
+- [[database-schema]] — Embeddings, memories, and embedding_cache tables
+- [[adr-009-local-ollama-ai]] — Architecture Decision Record for local Ollama

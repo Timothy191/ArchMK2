@@ -1,24 +1,24 @@
 # Project Status Report - Phase 5.1
 
-**Last Updated:** 2026-06-01 21:30 UTC
-**Current Branch:** master (HEAD: `011a577`)
-**Version:** Phase 5.1 — Performance & Rendering Optimization
+**Last Updated:** 2026-06-03 10:20 UTC
+**Current Branch:** master (HEAD: `f04974e`)
+**Version:** Phase 5.2 — Monorepo & AI Service Localisation
 
 ---
 
 ## 🎯 Project Overview
 
-**Arch-Systems (Plantcor)** — Multi-departmental mining operations portal built as a full-stack Turborepo monorepo with AI-powered agent orchestration, real-time monitoring, and enterprise security.
+**Arch-Systems (Plantcor)** — Multi-departmental mining operations portal built as a full-stack Nx monorepo with local AI-powered agent orchestration, real-time monitoring, and enterprise security.
 
 ### Technology Stack
 
 - **Frontend:** Next.js 15 (App Router) + React 19.2.6 + TypeScript
-- **Backend:** Supabase (PostgreSQL + Auth + RLS)
+- **Backend:** Supabase (PostgreSQL + Auth + RLS + Read Replicas)
 - **State:** Zustand 5
-- **AI:** Multi-provider (Groq, OpenRouter, Together) with MCP integration
+- **AI:** Local Ollama (`gemma4:latest` for chat, `nomic-embed-text` for 768-dim embeddings)
 - **Infrastructure:** N8N workflow engine, Payload CMS v3, Docker
-- **Monitoring:** Sentry, Redis cache, WebSocket subscriptions
-- **Tools:** Turborepo + pnpm workspaces
+- **Monitoring:** Sentry, Redis cache, WebSocket subscriptions, Highlight session replay, OpenTelemetry
+- **Tools:** Nx 22 + pnpm workspaces
 
 ---
 
@@ -151,9 +151,27 @@
   - Detection window: 3s→1.5s (responds faster)
   - All 480 existing tests pass, zero regressions
 
+### Phase 5.2: Monorepo & AI Service Localisation ✅
+
+**Status:** Complete
+**Commits:** 011a577 → HEAD (`f04974e`)
+
+**Deliverables:**
+
+- [x] **Nx Migration**: Replaced Turborepo with Nx 22.7.5 to stabilize Jest unit testing runner and environment
+- [x] **Local AI Execution**: Migrated from cloud APIs (Groq, OpenRouter) to locally running Ollama model (`gemma4:latest`) for 100% offline air-gapped readiness
+- [x] **Vector Dimensions**: Transitioned embeddings in `memories` table from 1536-dim (OpenAI) to 768-dim Nomics vectors (`nomic-embed-text`) via migration 058
+- [x] **Embedding Cache**: Added `embedding_cache` database table (user-isolated, text hash-keyed) to store pre-calculated vector embeddings and save local CPU/GPU cycles
+- [x] **LLM-Driven Tool Dispatch**: Implemented intelligent tool dispatch in `tool-dispatch.ts` replacing regex keyword matching, evaluating intent with confidence scores 1-5
+- [x] **Tool Output Caching**: Added LRU cache in `tool-cache.ts` with 5s TTL to prevent database storming during fast user requests
+- [x] **Procedural Memory Removal**: Cleaned up DB schema and code logic (migration 061) to drop the `procedural` memory type, merging its data into semantic memory
+- [x] **Security Hardening**: Hardened `handle_new_user` triggers (ignoring user-supplied metadata roles), locked down employee update self-elevation rules, and added dozer roll authoritativeness constraints (migration 057)
+- [x] **Performance Optimization**: Created `access_control_metrics_jsonb` RPC (migration 055) replacing 22 separate database queries with a single query, and indexed missing FK columns (migration 060)
+- [x] `pnpm quality` fully passing under Nx orchestration
+
 ## 📊 Database Schema Status
 
-### Completed Migrations (048 total)
+### Completed Migrations (061 total)
 
 | Range   | Focus                                                                                                                                                                                        |
 | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -163,31 +181,34 @@
 | 028–033 | Access control system, breakdowns machine name, vector index optimization, embedding sync watermarks, AI usage logs, access logs weekly archival                                             |
 | 034–040 | Access control schema updates (visitors/badges), fleet & equipment tables, documents, personnel area, department personality, access logs operator device, production fixes                  |
 | 041–048 | RLS performance indexes, machine configurations, admin data lockdown, access control dashboard, add access_control role, control room archiving, machines site_id, machine report exempt     |
+| 049–054 | Control room dumpers (bin_factor), material type, centralized fleet csv seeding, admin user seed, telemetry webhooks, dozer roll date validation                                             |
+| 055–061 | AC metrics count JSONB RPC, drilling v2 (editable site/delays), security P0 fixes, Ollama embeddings (768-dim), embedding cache, index optimization, drop procedural memory type             |
 
 ### Schema Quality Scores
 
-- Security: 10/10 (Excellent RLS coverage + admin lockdown)
-- Normalization: 7/10 (Some denormalization in hourly_loads is intentional)
-- Indexing: 10/10 (RLS performance indexes + composite indexes)
+- Security: 10/10 (Excellent RLS coverage + admin lockdown + trigger hardening)
+- Normalization: 8/10 (Clean entity relationships, intentional partitioning)
+- Indexing: 10/10 (RLS performance indexes + composite indexes + FK indexes)
 - Documentation: 9/10 (Comprehensive table/column comments)
-- Performance: 10/10 (Partitioning, materialized views, pg_cron archival)
-- Maintainability: 9/10 (Consistent patterns)
+- Performance: 10/10 (Partitioning, materialized views, pg_cron archival, local embedding cache)
+- Maintainability: 10/10 (Consistent patterns + type generation)
 
 ### Implemented Patterns
 
-- [x] Foreign key constraints with indexes
+- [x] Foreign key constraints with indexes (all FKs fully indexed)
 - [x] Row Level Security (RLS) policies
 - [x] Soft delete pattern (deleted_at)
 - [x] Updated timestamps (updated_at)
 - [x] Audit trail (created_by)
-- [x] Native PostgreSQL enums (role_type, shift_type, access_control role, etc.)
+- [x] Native PostgreSQL enums (role_type, shift_type, access_control role, memory_type)
 - [x] Generated columns (duration_hours)
 - [x] Composite indexes for dashboard queries
 - [x] Time-series table partitioning (hourly_loads, machine_hours, daily_logs)
 - [x] Materialized views for department aggregations
 - [x] pg_cron scheduled archival jobs
-- [x] Vector search indexes (pgvector)
+- [x] Vector search indexes (pgvector, 768-dimension HNSW)
 - [x] Admin data lockdown via table allowlist
+- [x] Local embedding caching (user-isolated, text hash-keyed)
 
 ---
 
@@ -195,8 +216,8 @@
 
 ### Wiki Structure
 
-- **Total Pages:** 52 (49 wiki + 3 git tree resources)
-- **Last Updated:** 2026-05-27
+- **Total Pages:** 61 (57 wiki + 4 git tree resources)
+- **Last Updated:** 2026-06-03
 
 ### Wiki Sections
 
@@ -207,7 +228,7 @@
 
 **Concepts (12):** ✅
 
-- Turborepo Monorepo Structure
+- Nx Monorepo Structure
 - Supabase Local Development
 - Portal App Architecture
 - Database Schema
@@ -220,15 +241,17 @@
 - Design System
 - DeepEval Integration
 
-**Architecture Decision Records (7):** ✅
+**Architecture Decision Records (9):** ✅
 
 - ADR-001: Next.js App Router
 - ADR-002: Supabase Backend
-- ADR-003: Turborepo Monorepo
+- ADR-003: Turborepo Monorepo (Superseded)
 - ADR-004: Tailwind Design System
 - ADR-005: Zustand State Management
-- ADR-006: Multi-Provider AI (OpenRouter → Groq failover)
+- ADR-006: Multi-Provider AI (Superseded)
 - ADR-007: React 19.2.6 Adoption
+- ADR-008: Nx for Monorepo Management (New)
+- ADR-009: Local Ollama for AI Service (New)
 
 **Operational Guides (4):** ✅
 
@@ -259,7 +282,7 @@
 - How to Deploy to Production
 - How to Debug Issues
 
-**Git Tree Resources (3):** ✅ (NEW)
+**Git Tree Resources (4):** ✅ (NEW)
 
 - Git Tree & Branches History
 - Visual Graphs for Reporting Metrics
@@ -286,16 +309,16 @@
 
 ### Branch Summary
 
-- **master** (HEAD: `011a577`) — Phase 5.1 complete, all checks passing
+- **master** (HEAD: `f04974e`) — Phase 5.2 complete, all checks passing
 - **fix/fix-bug** — Phase 4 complete (`a3d53b2`), merged into master
-- **origin/master** (remote: `c87f5f0`) — Ahead by 2 local commits
-- **origin/feat/qr-access-control** — Feature branch, merged upstream (`74d5ba2`)
+- **origin/master** (remote: `f04974e`) — Up to date
+- **origin/feat/qr-access-control** — Feature branch, merged upstream
 
 ### Commit History
 
-- **Total Commits:** 70+ (main lineage)
-- **Time Range:** 2026-01 → 2026-06-01 (project inception through Phase 5.1)
-- **Active Development:** Daily commits 2026-05-18 → 2026-05-27
+- **Total Commits:** 80+ (main lineage)
+- **Time Range:** 2026-01 → 2026-06-03 (project inception through Phase 5.2)
+- **Active Development:** Daily commits 2026-05-18 → 2026-06-03
 
 ### Git Tree Resources
 
@@ -310,24 +333,24 @@
 ### What's Ready
 
 - ✅ Full portal application (departments: drilling, production, access-control, engineering, control-room, safety, training, satellite-monitoring)
-- ✅ Production authentication & RLS (48 migrations)
+- ✅ Production authentication & RLS (61 migrations)
 - ✅ Real-time dashboards & monitoring
 - ✅ Light-only theme (macOS Sonoma palette, design system compliant)
-- ✅ AI service with LangGraph orchestrator + multi-provider failover
+- ✅ AI service with LangGraph orchestrator + local Ollama chat and embedding execution
 - ✅ Highlight + OTEL observability (session replay, server tracing)
 - ✅ Inngest background jobs + Novu notifications
-- ✅ QR access control with full dashboard
+- ✅ QR access control with full dashboard & metrics RPC
 - ✅ Fleet & equipment tracking (access-control domain)
 - ✅ Documents (word-processing with storage bucket + version history)
 - ✅ Department AI personalities (SOUL.md per department)
 - ✅ Machine configurations (per-department operational setpoints)
 - ✅ N8N workflow automation
 - ✅ Style Dictionary token pipeline
-- ✅ Admin data API with lockdown
+- ✅ Admin data API with lockdown & role elevation security
 - ✅ GitHub Actions production CI/CD pipeline
-- ✅ `pnpm quality` gate passing
+- ✅ `pnpm quality` gate passing under Nx orchestration
 
-### Current Quality Gate (2026-06-01)
+### Current Quality Gate (2026-06-03)
 
 | Check          | Result   |
 | -------------- | -------- |
@@ -341,21 +364,21 @@
 
 ---
 
-### Recommended Next Steps (Post-Phase 3)
+### Recommended Next Steps (Post-Phase 5.2)
 
 From `project-comprehensive-report.md` §9 — 5 priority actions:
 
 ---
 
-#### 1. � On-Premises Server Setup & Cockpit `[HIGH]` — 1–2 days
+#### 1. 🟢 On-Premises Server Setup & Cockpit `[HIGH]` — 1–2 days
 
-Provision the mining site server and deploy the full stack via `./scripts/deploy.sh local`. The local dev environment is already production-identical.
+Provision the mining site server and deploy the full stack via `./scripts/deploy.sh local`. The local dev environment is already production-identical and local Ollama is fully wired for offline execution.
 
 - [ ] Provision Linux server (Ubuntu 22.04 / RHEL 9) at mining site
 - [ ] Install Cockpit (`port 9090`) for web-based server management
 - [ ] Configure Docker Compose with all services
 - [ ] Test offline-capable deployment workflow
-- [ ] Validate all 8 departments, AI chat, n8n, Grafana
+- [ ] Validate all 8 departments, local AI chat, n8n, Grafana
 
 📖 [[on-premises-deployment|Full guide: On-Premises Deployment & Cockpit]]
 
@@ -363,9 +386,9 @@ Provision the mining site server and deploy the full stack via `./scripts/deploy
 
 #### 2. 🟠 Comprehensive Testing & QA `[HIGH]` — 1 week
 
-Raise test coverage from 72% → 90%+. Add E2E flows, visual regression, load testing, and security penetration scan.
+Raise test coverage from 40%+ → 90%+. Add E2E flows, visual regression, load testing, and security penetration scan.
 
-- [ ] `pnpm --filter portal test -- --coverage` → identify gaps
+- [ ] `pnpm test -- --coverage` → identify gaps
 - [ ] Add E2E tests: login, department nav, data entry, AI chat, admin panel
 - [ ] Visual regression with Storybook + Chromatic
 - [ ] Load testing with k6 (50 concurrent users, 5 min)
@@ -377,13 +400,11 @@ Raise test coverage from 72% → 90%+. Add E2E flows, visual regression, load te
 
 #### 3. 🟠 Database Optimization & Scaling `[HIGH]` — 3–4 days
 
-Implement partitioning, read replicas, PgBouncer connection pooling, slow-query optimization, and materialized views.
+Verify PgBouncer and optimize slow queries in production.
 
-- [ ] Migration 017: Partition `hourly_loads` and `daily_logs` by month
-- [ ] Migration 018: Partition `machine_hours` and `fuel_logs`
-- [ ] Migration 019: Materialized views (dept summary, machine utilization)
 - [ ] Add PgBouncer to Docker Compose (transaction mode, 25 pool size)
 - [ ] Enable `pg_stat_statements`, identify top-10 slow queries
+- [ ] Ensure materialized views are refreshing correctly under pg_cron schedules
 
 📖 [[database-optimization|Full guide: Database Optimization & Scaling]]
 
@@ -424,7 +445,7 @@ Executive KPI dashboard, PDF/Excel report generation, trend forecasting, data ex
 | --------- | ----------------------------------------------- |
 | Week 1    | On-premises server provisioning & Cockpit setup |
 | Week 2    | Test coverage expansion + E2E critical paths    |
-| Week 3    | Database partitioning + query optimization      |
+| Week 3    | Database optimization & PgBouncer verification  |
 | Week 4–5  | Mobile responsiveness + PWA                     |
 | Month 2–3 | Executive dashboard + analytics + ML            |
 
@@ -439,13 +460,16 @@ Executive KPI dashboard, PDF/Excel report generation, trend forecasting, data ex
 - **Limited mobile UI:** Focus on desktop control room; responsive for tablets
 - **Light-only theme:** Hardcoded `data-theme="light"` via `<script>` in `<head>`; dark mode does not exist and is not planned
 
-### Resolved Post-Phase 3 Items ✅
+### Resolved Items ✅
 
 - ~~Partitioning for time-series tables~~ → Done (migration 020)
 - ~~Materialized views~~ → Done (migration 022)
 - ~~pg_cron archival~~ → Done (migrations 023, 033, 046)
 - ~~Read replica client~~ → Done (@repo/supabase)
 - ~~Admin data API security~~ → Done (migration 043, superadmin lockdown)
+- ~~Vulnerability cleanup~~ → Done (migration 057, ignore client role metadata)
+- ~~Offline AI execution~~ → Done (local Ollama gemma4 & nomic-embed-text)
+- ~~Test runner stabilization~~ → Done (migrated from Turborepo to Nx)
 
 ### Remaining Future Work
 
@@ -467,7 +491,7 @@ Executive KPI dashboard, PDF/Excel report generation, trend forecasting, data ex
 
 **Project Knowledge:**
 
-- Architecture: See [[portal-app-architecture]]
+- Architecture: See [[nx-monorepo]]
 - Database: See [[database-schema]]
 - Authentication: See [[auth-middleware]]
 - Deployment: See [[how-to-deploy-production]]
@@ -476,6 +500,6 @@ Executive KPI dashboard, PDF/Excel report generation, trend forecasting, data ex
 
 ## Summary
 
-**Arch-Systems (Plantcor)** has completed Phase 5 with a production-ready multi-departmental portal, full light-theme UI, LangGraph AI orchestration, Highlight + OTEL observability, Inngest background jobs, QR access control, 48 database migrations, and a passing `pnpm quality` gate. Phase 5.1 added rendering performance optimizations that eliminate scroll-induced blur and reduce GPU compositor pressure across all glass surfaces. The project is well-documented, secure, and ready for on-premises deployment.
+**Arch-Systems (Plantcor)** has completed Phase 5.2 with a production-ready multi-departmental portal, full light-theme UI, local Ollama AI execution, Highlight + OTEL observability, Inngest background jobs, QR access control, 61 database migrations, and a passing `pnpm quality` gate. Phase 5.2 added the migration to Nx build orchestration and local AI model integration, resolving test-runner instability and enabling 100% offline air-gapped readiness. The project is well-documented, secure, and ready for on-premises deployment.
 
-**Project Health:** 🟢 **Excellent** — Phase 5.1 complete, 48 migrations, full observability stack, access control QR dashboard, AI orchestration, `pnpm quality` passing.
+**Project Health:** 🟢 **Excellent** — Phase 5.2 complete, 61 migrations, full local AI execution, Nx build system, `pnpm quality` passing.

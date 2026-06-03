@@ -525,3 +525,26 @@ Root-caused and fixed blurry rendering across the entire portal. Three categorie
 - `apps/portal/hooks/useAdaptivePerformance.ts` — Threshold tightened from 45→50 FPS, detection window from 3s→1.5s so `.low-perf-fallback` disables animations sooner
 
 **Verification:** 51 test suites / 480 tests pass, lint 0 errors, TypeScript 0 errors.
+
+## [2026-06-03] update | Nx and Local Ollama Migration (commit `f04974e`)
+
+Documented the migration from Turborepo to Nx build orchestration and the AI service transition to local Ollama for air-gapped offline support.
+
+**Nx Migration:**
+
+- Created [[nx-monorepo]] detailing Nx layout, target configuration caches, pnpm workspace catalogs, and commands.
+- Created [[adr-008-nx-monorepo]] to justify Turborepo -> Nx 22 migration.
+- Marked [[adr-003-turborepo-monorepo]] as superseded.
+- Updated [[comparisons/monorepo-tools]] with Nx as primary tool choice.
+
+**AI Localisation:**
+
+- Overwrote [[ai-service]] detailing local Ollama execution (gemma4 chat, nomic 768-dim embeddings), LLM-driven tool dispatch, persistent embedding cache, and tool caching.
+- Created [[adr-009-local-ollama-ai]] to justify local AI execution.
+- Marked [[adr-006-multi-provider-ai]] as superseded.
+- Dropped procedural memory type in schema documentation, updating migrations coverage up to 61.
+
+**Project Status Updates:**
+
+- Updated [[STATUS]] and [[PROJECT_STATUS_SUMMARY]] to Phase 5.2.
+- Updated [[index]] and [[entities/arch-systems]].

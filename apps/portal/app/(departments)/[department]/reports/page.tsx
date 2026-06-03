@@ -1,10 +1,11 @@
 import { getDepartmentContext } from "~/lib/dept-context";
 import { GlassCard } from "@repo/ui/GlassCard";
-import { SecondaryButton } from "@repo/ui/SecondaryButton";
 import { Input } from "@repo/ui/Input";
 import Link from "next/link";
 import { getShiftCompleteness } from "@/lib/shift-completeness";
 import { CopyReportButton } from "./CopyReportButton";
+import { ExportButton } from "@/features/analytics/components/ExportButton";
+import { PDFDownloadButton } from "@/features/analytics/components/PDFDownloadButton";
 
 export default async function ReportsPage({
   params,
@@ -19,8 +20,9 @@ export default async function ReportsPage({
     department: deptSlug,
   });
 
-  const to = toParam || new Date().toISOString().split("T")[0];
-  const from =
+  const todayStr = new Date().toISOString().split("T")[0]!;
+  const toDateStr = toParam || todayStr;
+  const fromDateStr =
     fromParam ||
     new Date(Date.now() - 30 * 86400000).toISOString().split("T")[0];
 
@@ -39,35 +41,35 @@ export default async function ReportsPage({
         .from("machine_operations")
         .select("shift_date, shift_type, hours_worked")
         .eq("department_id", deptId)
-        .gte("shift_date", from)
-        .lte("shift_date", to)
+        .gte("shift_date", fromDateStr)
+        .lte("shift_date", toDateStr)
         .order("shift_date", { ascending: false }),
       supabase
         .from("hourly_loads")
         .select("load_date, shift_type, total_loads")
         .eq("department_id", deptId)
-        .gte("load_date", from)
-        .lte("load_date", to),
+        .gte("load_date", fromDateStr)
+        .lte("load_date", toDateStr),
       supabase
         .from("operational_delays")
         .select("delay_date, shift_type, delay_minutes")
         .eq("department_id", deptId)
-        .gte("delay_date", from)
-        .lte("delay_date", to),
+        .gte("delay_date", fromDateStr)
+        .lte("delay_date", toDateStr),
       supabase
         .from("excavator_dumper_assignments")
         .select(
           "total_bcm, excavator_activity!inner(activity_date, shift_type, department_id, site:sites(name))",
         )
         .eq("excavator_activity.department_id", deptId)
-        .gte("excavator_activity.activity_date", from)
-        .lte("excavator_activity.activity_date", to),
+        .gte("excavator_activity.activity_date", fromDateStr)
+        .lte("excavator_activity.activity_date", toDateStr),
       supabase
         .from("dozer_rolls")
         .select("roll_date, shift_type, blade_passes, hours_operated")
         .eq("department_id", deptId)
-        .gte("roll_date", from)
-        .lte("roll_date", to),
+        .gte("roll_date", fromDateStr)
+        .lte("roll_date", toDateStr),
     ]);
 
     // Aggregate totals for KPIs
@@ -177,8 +179,49 @@ export default async function ReportsPage({
       )
       .join("\n");
 
+    const exportRows = rows.map((r) => ({
+      Site: r.site || "—",
+      Date: r.date,
+      Shift: r.shift,
+      Hours: Number(r.hours.toFixed(2)),
+      "Total Loads": r.loads,
+      BCM: Number(r.bcm.toFixed(2)),
+      "Delay (min)": r.delayMin,
+      "Dozer Passes": r.dozerPasses,
+    }));
+
+    const pdfReportData = {
+      title: `${dept.displayName} Department Report`,
+      subtitle: `Generated on ${todayStr} — Date range: ${fromDateStr} to ${toDateStr}`,
+      kpis: [
+        { label: "Total Hours", value: `${totalHours.toFixed(1)} h` },
+        { label: "Total Loads", value: `${totalLoads.toLocaleString()}` },
+        { label: "Total BCM", value: `${totalBcm.toFixed(1)}` },
+        { label: "Delay Minutes", value: `${totalDelayMin.toLocaleString()}` },
+      ],
+      tableHeaders: [
+        "Site",
+        "Date",
+        "Shift",
+        "Hours",
+        "Loads",
+        "BCM",
+        "Delay (min)",
+        "Dozer Passes",
+      ],
+      tableRows: exportRows.map((r) => [
+        r.Site,
+        r.Date,
+        r.Shift,
+        r.Hours.toString(),
+        r["Total Loads"].toString(),
+        r.BCM.toString(),
+        r["Delay (min)"].toString(),
+        r["Dozer Passes"].toString(),
+      ]),
+    };
+
     // ── Shift completeness gate ──────────────────────────────────────────────
-    const today = new Date().toISOString().split("T")[0]!;
     const currentHour = new Date().getHours();
     const currentShift: "day" | "night" =
       currentHour >= 6 && currentHour < 18 ? "day" : "night";
@@ -187,7 +230,7 @@ export default async function ReportsPage({
       supabase,
       deptId,
       deptSlug,
-      today,
+      todayStr,
       currentShift,
     );
 
@@ -259,14 +302,14 @@ export default async function ReportsPage({
           </h2>
           <div className="flex items-center gap-2">
             <CopyReportButton csvContent={csvContent} />
-            <SecondaryButton variant="rounded-lg" size="sm" asChild>
-              <a
-                href={`data:text/csv;charset=utf-8,${encodeURIComponent(csvContent)}`}
-                download={`control-room-report-${from}-to-${to}.csv`}
-              >
-                Download CSV
-              </a>
-            </SecondaryButton>
+            <PDFDownloadButton
+              reportData={pdfReportData}
+              departmentId={deptId}
+            />
+            <ExportButton
+              filename={`control-room-report-${fromDateStr}-to-${toDateStr}`}
+              rows={exportRows}
+            />
           </div>
         </div>
 
@@ -308,7 +351,7 @@ export default async function ReportsPage({
               <Input
                 type="date"
                 name="from"
-                defaultValue={from}
+                defaultValue={fromDateStr}
                 className="px-4 py-2"
               />
             </div>
@@ -319,7 +362,7 @@ export default async function ReportsPage({
               <Input
                 type="date"
                 name="to"
-                defaultValue={to}
+                defaultValue={toDateStr}
                 className="px-4 py-2"
               />
             </div>
@@ -429,8 +472,8 @@ export default async function ReportsPage({
     .from("daily_logs")
     .select("id, log_date, shift, notes")
     .eq("department_id", deptId)
-    .gte("log_date", from)
-    .lte("log_date", to)
+    .gte("log_date", fromDateStr)
+    .lte("log_date", toDateStr)
     .order("log_date", { ascending: false });
 
   const logIds = logs?.map((l) => l.id) || [];
@@ -522,6 +565,48 @@ export default async function ReportsPage({
     )
     .join("\n");
 
+  const exportRows = (logs || []).map((log) => {
+    const mh = machineHoursByLog.get(log.id) || 0;
+    const fl = fuelLogsByLog.get(log.id) || 0;
+    const pl = productionByLog.get(log.id);
+    return {
+      Date: log.log_date,
+      Shift: log.shift,
+      Notes: log.notes || "",
+      "Total Hours": Number(mh.toFixed(2)),
+      "Total Fuel (L)": Number(fl.toFixed(2)),
+      "Coal (t)": Number((pl?.coal_tonnes || 0).toFixed(2)),
+      "Waste (t)": Number((pl?.waste_tonnes || 0).toFixed(2)),
+    };
+  });
+
+  const pdfReportData = {
+    title: `${dept.displayName} Department Report`,
+    subtitle: `Generated on ${todayStr} — Date range: ${fromDateStr} to ${toDateStr}`,
+    kpis: [
+      { label: "Total Machine Hours", value: `${totalHours.toFixed(1)} h` },
+      { label: "Diesel Consumed (L)", value: `${totalFuel.toFixed(1)} L` },
+      { label: "Coal Removed (t)", value: `${totalCoal.toFixed(1)} t` },
+      { label: "Waste Removed (t)", value: `${totalWaste.toFixed(1)} t` },
+    ],
+    tableHeaders: [
+      "Date",
+      "Shift",
+      "Hours",
+      "Fuel (L)",
+      "Coal (t)",
+      "Waste (t)",
+    ],
+    tableRows: exportRows.map((r) => [
+      r.Date,
+      r.Shift,
+      r["Total Hours"].toString(),
+      r["Total Fuel (L)"].toString(),
+      r["Coal (t)"].toString(),
+      r["Waste (t)"].toString(),
+    ]),
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -530,14 +615,11 @@ export default async function ReportsPage({
         </h2>
         <div className="flex items-center gap-2">
           <CopyReportButton csvContent={csvContent} />
-          <SecondaryButton variant="rounded-lg" size="sm" asChild>
-            <a
-              href={`data:text/csv;charset=utf-8,${encodeURIComponent(csvContent)}`}
-              download={`${deptSlug}-report-${from}-to-${to}.csv`}
-            >
-              Download CSV
-            </a>
-          </SecondaryButton>
+          <PDFDownloadButton reportData={pdfReportData} departmentId={deptId} />
+          <ExportButton
+            filename={`${deptSlug}-report-${fromDateStr}-to-${toDateStr}`}
+            rows={exportRows}
+          />
         </div>
       </div>
 
@@ -583,7 +665,7 @@ export default async function ReportsPage({
             <Input
               type="date"
               name="from"
-              defaultValue={from}
+              defaultValue={fromDateStr}
               className="px-4 py-2"
             />
           </div>
@@ -594,7 +676,7 @@ export default async function ReportsPage({
             <Input
               type="date"
               name="to"
-              defaultValue={to}
+              defaultValue={toDateStr}
               className="px-4 py-2"
             />
           </div>

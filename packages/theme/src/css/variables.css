@@ -334,10 +334,10 @@
   /* Liquid Glass Radius Refinements */
   --liquid-glass-radius-card: 16px;
   --liquid-glass-radius-card-hover: 16px;
-  --liquid-glass-radius-input: 8px;
-  --liquid-glass-radius-input-focus: 8px;
-  --liquid-glass-radius-button: 8px;
-  --liquid-glass-radius-button-hover: 8px;
+  --liquid-glass-radius-input: var(--radius-button);
+  --liquid-glass-radius-input-focus: var(--radius-button);
+  --liquid-glass-radius-button: var(--radius-button);
+  --liquid-glass-radius-button-hover: var(--radius-button);
 
   /* ===== Design System Tokens ===== */
   /* ---- Colors (HUD & Overlays) ---- */

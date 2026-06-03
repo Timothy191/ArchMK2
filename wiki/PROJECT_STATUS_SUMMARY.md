@@ -1,7 +1,7 @@
 # Project Status Summary
 
-**Date**: June 1, 2026  
-**Overall Score**: 8.6/10 (Well Above Industry Average of 6.5/10)
+**Date**: June 3, 2026  
+**Overall Score**: 8.7/10 (Well Above Industry Average of 6.5/10)
 
 ---
 
@@ -9,93 +9,63 @@
 
 | Metric                | Score                  | Status |
 | --------------------- | ---------------------- | ------ |
-| Build System          | 9/10                   | 🟢 A+  |
+| Build System (Nx)     | 9/10                   | 🟢 A+  |
 | CI/CD Pipeline        | 9/10                   | 🟢 A+  |
 | Dependency Management | 10/10                  | 🟢 A+  |
 | Code Quality          | 8/10                   | 🟢 A   |
-| Error Handling        | 7/10                   | � B    |
+| Error Handling        | 7/10                   | 🟡 B   |
 | Documentation         | 8/10                   | 🟢 A   |
 | Test Coverage         | 6/10 (40%+ target met) | 🟡 B   |
 | Observability         | 9/10                   | 🟢 A+  |
 
-**Gap Closed**: Phase 5.1 complete — light theme, LangGraph AI, Highlight+OTEL observability, 48 migrations, rendering performance optimization, all quality gates passing
+**Gap Closed**: Phase 5.2 complete — Nx monorepo orchestration, local Ollama execution (`gemma4` + 768-dim nomic-embed-text), database-backed embedding cache, LLM-driven tool dispatch with confidence scoring, RLS security triggers hardened (P0 resolved), 61 migrations, all quality gates passing.
 
 ---
 
-## Cumulative Accomplishments (Phase 4–5.1, 2026-05-18 → 2026-06-01)
+## Cumulative Accomplishments (Phase 4–5.2, 2026-05-18 → 2026-06-03)
+
+### Build & Monorepo ✅
+
+- **Nx Migration**: Transitioned build orchestration from Turborepo to Nx 22.7.5 to stabilize Jest unit testing and resolve parallel runner environment timeouts.
+- **Dependency Integrity**: pnpm 9.15.9 workspace catalogs avoid version drift, centralizing React 19 and common packages.
+- **Task Pipelines**: Partitioned caches and target defaults defined for builds, type-checking, CSS/token lints, and code generation.
 
 ### Portal & UI ✅
 
-- Light-theme migration: entire portal from dark to macOS Sonoma light palette
-- `AnimatedWavesBackground` replacing all WebGL effects
-- **Rendering performance optimization**: Lenis scroll 1.2s→0.6s, backdrop-filter blur 16px→10px, rAF pause on tab hide, adaptive perf threshold 45→50 FPS
-- `ClientProviders.tsx` wrapping `HighlightInit` + `SmoothScrollProvider` (ssr: false fix)
-- Static department layouts for drilling, access-control, engineering (with `DepartmentLayout` re-export)
-- New sub-routes: tire-management, drilling-operations, machine-telemetry
-- Performance: scoped icon imports, compressed assets (intro.mp4: 1.46 MB → 122 KB)
+- Light-theme migration: entire portal styled with a macOS Sonoma light palette.
+- `AnimatedWavesBackground` replacing old WebGL backgrounds.
+- Lenis scroll duration halved (1.2s → 0.6s) with adaptive performance Fallbacks disabling animations if compositor falls below 50 FPS.
+- Static department layouts implemented for drilling, access-control, and engineering departments.
 
-### AI Orchestration ✅
+### AI Orchestration (Local & Offline Ready) ✅
 
-- LangGraph 8-node agent workflow (`agent-graph.ts`, `agent-state.ts`, `rate-limiter.ts`)
-- OpenRouter → Groq provider failover
-- Department AI personalities stored per-department in DB (migration 038)
-- AI usage logs tracking token consumption (migration 032)
-- `ai-service.ts` full rewrite (711 lines), `ai-service.test.ts` updated (519 lines)
+- **Local Ollama Integration**: Replaced cloud APIs (Groq/OpenRouter) with a local Ollama server running `gemma4:latest` for chat and `nomic-embed-text` for embeddings, enabling 100% offline operation at remote sites.
+- **LLM-Driven Tool Dispatch**: Swapped regex keyword matching for true LLM reasoning in `tool-dispatch.ts` using confidence scores (1-5). Queries with confidence < 3 request user clarification.
+- **Embedding Cache**: Table `embedding_cache` maps SHA-256 text hashes to local 768-dim embeddings, isolated by user_id to eliminate duplicate processing.
+- **Tool Caching**: LRU tool-caching implemented with 5s TTL to throttle database queries.
+- **Schema Cleansing**: Dropped `procedural` memory type, migrating old turn data to `semantic` memory.
+- LangGraph 8-node orchestrator state machine.
 
-### Observability Stack ✅
+### Security & Hardening (P0 Resolved) ✅
 
-- Highlight session replay (`HighlightInit` in root layout, `H.consumeError` in error-logger)
-- OpenTelemetry NodeSDK in `instrumentation.ts` (`withSpan` wrapper)
-- AI agent-graph nodes and provider failover wrapped in OTEL spans
-- Prometheus + Grafana monitoring (pre-existing, now fully instrumented)
-
-### Background Jobs & Notifications ✅
-
-- Inngest client + `sync-playback` and `report-generation` jobs
-- `sync/playback` API refactored to queue via Inngest
-- Novu client singleton + notification workflow triggers
+- Hardened RLS triggers (`handle_new_user()`) to ignore client-supplied metadata roles.
+- Enforced column constraints on `public.employees` preventing self-elevation by non-admins.
+- Hardened update policies with `WITH CHECK` clauses.
+- Added server-authoritative date check constraints on `dozer_rolls` inserts.
 
 ### Access Control Domain ✅
 
-- QR Access Control dashboard: 7 dashboard components + 5 access-logs components
-- Fleet & equipment tables (migration 035)
-- Visitors restructured with first_name/surname/id_number (migration 034)
-- Badge entity expanded for fleet/equipment
-- Access logs weekly archival via pg_cron (migration 033)
-- `access_control` role enum added (migration 045)
+- QR Access Control dashboard: 7 dashboard and 5 access log components.
+- JSONB RPC count query (`get_access_control_metrics_jsonb`) replaces 22 separate database queries with a single query.
+- Fleet & equipment tables with weekly access log archival via pg_cron.
 
-### Database (migrations 017–048) ✅
+### Database (Migrations 017–061) ✅
 
-- Time-series partitioning, materialized views, pg_cron archival (017–023)
-- Drill operations, machine telemetry, shift archiving (024–027)
-- Documents table with storage bucket + version history (036)
-- Machine configurations table — per-department setpoints (042)
-- Admin data lockdown via table allowlist (043)
-- RLS performance indexes (041)
-
-### Tooling & CI ✅
-
-- GitHub Actions production deploy pipeline (225-line workflow)
-- Style Dictionary token pipeline in `packages/theme` (generates CSS + TypeScript)
-- Semantic color tokens: success, warning, danger, info
-- `.claude/rules/` enforcement directory (development-practices, task-workflow, testing, verification)
-- New agents: context-engineer, cost-analyst, digital-twin, team-lead
-- `pnpm quality` gate fully passing
-
-### Previous Achievements (still active) ✅
-
-- **knip** — dead code detection
-- **markdownlint** — markdown linting
-- **reviewdog** — PR-level linting
-- **bundlesize** — bundle size monitoring
-- `@repo/errors` — standardized error handling (9 error classes)
-
-### Coverage (unchanged)
-
-- **Before**: 14% (baseline)
-- **After**: 40% lines, 30% branches, 35% functions, 40% statements
-- Now includes branches, functions, statements metrics
-- **Current**: 40/40 test suites passing, 406 tests green
+- Time-series monthly partitioning (`hourly_loads`, `daily_logs`, `machine_hours`, `fuel_logs`).
+- Materialized views and pg_cron archival schedules.
+- Standardized error handling utilizing `@repo/errors`.
+- Ollama vector embeddings (768-dimension vectors with HNSW indexes).
+- User-isolated embedding caches and missing foreign key index coverage (migration 060).
 
 ---
 
@@ -103,148 +73,86 @@
 
 | Category                          | Arch Systems | Industry | Grade |
 | --------------------------------- | ------------ | -------- | ----- |
-| Build System (Turborepo)          | 9/10         | 7/10     | 🟢 A+ |
-| CI/CD (Reviewdog + quality gates) | 9/10         | 7/10     | 🟢 A+ |
-| Dependencies (pnpm + syncpack)    | 10/10        | 6/10     | 🟢 A+ |
-| Code Quality (multi-linter)       | 8/10         | 7/10     | 🟢 A  |
-| Test Coverage                     | 40%+         | 70%      | � C   |
-| Error Handling                    | 5/10         | 6/10     | 🟡 C  |
-| Documentation                     | 6/10         | 5/10     | 🟢 B  |
+| Build System (Nx Orchestration)   | 9/10         | 7/10     | 🟢 A+ |
+| CI/CD (Quality gates & pipelines) | 9/10         | 7/10     | 🟢 A+ |
+| Dependencies (pnpm catalogs)      | 10/10        | 6/10     | 🟢 A+ |
+| Code Quality (ESLint + Prettier)  | 8/10         | 7/10     | 🟢 A  |
+| Test Coverage                     | 40%+         | 70%      | 🟡 C  |
+| Error Handling                    | 7/10         | 6/10     | 🟢 B  |
+| Documentation                     | 8/10         | 5/10     | 🟢 A  |
 
-**Verdict**: Arch Systems has **best-in-class tooling and observability**, with test coverage as the primary remaining gap
+**Verdict**: Arch Systems has **best-in-class local orchestration and offline capability**, with test coverage as the primary remaining gap.
 
 ---
 
 ## Where We Excel 🏆
 
-### 1. Dependency Management (10/10)
+### 1. Offline AI Execution (10/10)
 
-- pnpm catalogs + syncpack is **best-in-class**
-- Most projects don't enforce single versions
-- Zero version drift across packages
+- The entire portal runs with a localized Ollama service, making it deployable in air-gapped server environments at remote mining sites.
+- Embedding and tool result caching prevent CPU/GPU execution bottlenecks.
 
-### 2. Build System (9/10)
+### 2. Dependency Management & Build Orchestration (9/10)
 
-- 4-tier environment variable system (advanced)
-- Synthetic tasks (topo, transit) for fast CI
-- Many projects still use simple npm scripts
-
-### 3. CI/CD (9/10)
-
-- Reviewdog + knip + syncpack + markdownlint
-- Quality gates exceed typical setups
-- PR-level feedback with inline comments
+- Single source of truth versions via pnpm catalogs.
+- Unified task pipeline caches built and managed under Nx 22.
 
 ---
 
 ## Where We Need Work ⚠️
 
-### 1. Test Coverage (6/10) � IMPROVED
+### 1. Test Coverage (6/10)
 
-- **40%+** threshold met vs industry **60-70%**
-- **All 40 test suites passing, 406 tests green**
-- Pre-existing failures resolved (chat route, cost-tracker, machines actions)
+- **40%+** threshold met vs industry **60-70%**.
+- All unit test suites pass, but E2E coverage is the next logical step.
 
-**Completed:**
+### 2. Error Handling (7/10)
 
-- [x] Add tests for critical paths (lib/ai/, features/)
-- [x] Fix pre-existing test gaps (chat route, cost-tracker, machines actions)
-- [x] Migrate to Next.js 16 + React 19.2.6
-- [x] Add coverage check to CI
-
-**Remaining:**
-
-- [ ] Target 60% by Phase 1, 80% by Phase 4
-
-### 2. Error Handling (5/10)
-
-- @repo/errors package just created
-- 53 generic `throw new Error()` to migrate
-- Need error boundaries and logging
-
-**Top Files to Migrate:**
-
-| File                                                              | Count | Priority |
-| ----------------------------------------------------------------- | ----- | -------- |
-| lib/ai/serpapi.ts                                                 | 12    | Medium   |
-| features/departments/components/engineering/breakdowns/actions.ts | 8     | High     |
-| lib/ai/embeddings.ts                                              | 6     | Medium   |
-| lib/shift-closeout.ts                                             | 6     | High     |
+- `@repo/errors` package created and implemented.
+- Continued consolidation of generic `throw new Error()` calls to custom error classes is recommended.
 
 ---
 
 ## Phase Completion
 
-| Phase     | Status  | Score Achieved | Key Deliverables                                           |
-| --------- | ------- | -------------- | ---------------------------------------------------------- |
-| Phase 1   | ✅ Done | 8.0/10         | Coverage 40%+, @repo/errors, quality gates                 |
-| Phase 2   | ✅ Done | 8.3/10         | Bundle CI, Deployment pipeline, @repo/theme token pipeline |
-| Phase 3   | ✅ Done | 8.5/10         | LangGraph AI, MCP registry, N8N, agent teams               |
-| Phase 4   | ✅ Done | 8.5/10         | Webhooks, partitioning, OTEL, read replica                 |
-| Phase 5   | ✅ Done | 8.5/10         | Light theme, QR access control, Highlight, Inngest, Novu   |
-| Phase 5.1 | ✅ Done | 8.6/10         | Rendering performance: Lenis/blur/rAF/adaptive FPS         |
+| Phase     | Status  | Score Achieved | Key Deliverables                                             |
+| --------- | ------- | -------------- | ------------------------------------------------------------ |
+| Phase 1   | ✅ Done | 8.0/10         | Coverage 40%+, @repo/errors, quality gates                   |
+| Phase 2   | ✅ Done | 8.3/10         | Bundle CI, Deployment pipeline, @repo/theme token pipeline   |
+| Phase 3   | ✅ Done | 8.5/10         | LangGraph AI, MCP registry, N8N, agent teams                 |
+| Phase 4   | ✅ Done | 8.5/10         | Webhooks, partitioning, OTEL, read replica                   |
+| Phase 5   | ✅ Done | 8.5/10         | Light theme, QR access control, Highlight, Inngest, Novu     |
+| Phase 5.1 | ✅ Done | 8.6/10         | Rendering performance: Lenis/blur/rAF/adaptive FPS           |
+| Phase 5.2 | ✅ Done | 8.7/10         | Nx migration, local Ollama AI offline capabilities, P0 fixes |
 
-## Next Immediate Actions (Post-Phase 5.1)
+---
+
+## Next Immediate Actions (Post-Phase 5.2)
 
 ### High Priority
 
-1. **On-premises server provisioning** — Deploy to mining site Linux server via `./scripts/deploy.sh local`
-2. **E2E test coverage** — Add Playwright critical path tests (login, department nav, AI chat, admin)
-3. **Mobile PWA** — Offline queue, service worker, touch-optimized forms (44px tap targets)
+1. **On-premises server provisioning** — Deploy to mining site Linux server via `./scripts/deploy.sh local`.
+2. **E2E test coverage** — Expand Playwright critical path tests (login, department nav, AI chat, admin).
+3. **Mobile PWA** — Offline queue, service worker, touch-optimized forms.
 
 ### Medium Priority
 
-1. Reach 60% unit test coverage
-2. Executive KPI dashboard full buildout (`/hub/executive`)
-3. PDF/Excel export via `@react-pdf/renderer` + `xlsx`
-
-### Low Priority
-
-1. ML predictive maintenance model (XGBoost on breakdown history)
-2. Storybook component library
-
----
-
-## Risk Assessment
-
-### High Risk 🔴
-
-- **Low test coverage may hide bugs**
-  - Mitigation: Prioritize critical path testing (lib/, features/)
-  - Rollback: Can lower threshold temporarily if needed
-
-### Medium Risk 🟡
-
-- **Error migration may break existing error handling**
-  - Mitigation: Migrate incrementally, test each file
-  - Rollback: Keep old patterns alongside new ones during transition
-
-### Low Risk 🟢
-
-- **Tool adoption** — Team already using quality gates
-- **CI changes** — Well-tested workflows
-
----
-
-## Conclusion
-
-Arch Systems monorepo is **production-ready** with **above-average tooling** (7.5/10 vs 6.5/10 industry average). The critical gap is **test coverage at ~40%** vs industry standard of 70%.
-
-**Key Insight**: The infrastructure (build, CI, dependencies, deployment) is excellent. The portal builds and deploys successfully. The work ahead is raising test coverage, completing error migration, and standardizing patterns.
-
-**Confidence Level**: High — Clear path to 9.0/10 within 6 weeks
+1. Reach 60% unit test coverage.
+2. Executive KPI dashboard full buildout (`/hub/executive`).
+3. PDF/Excel export.
 
 ---
 
 ## Resources
 
 - **Stability Analysis**: `wiki/project-stability-analysis.md`
-- **Completion Roadmap**: `.windsurf/plans/project-completion-roadmap.md`
+- **Nx Monorepo Structure**: `wiki/concepts/nx-monorepo.md`
+- **AI Service**: `wiki/concepts/ai-service.md`
 - **Error Package**: `@repo/errors` (ready to use)
-- **Quality Tools**: knip, markdownlint, reviewdog, bundlesize (all configured)
+- **Quality Tools**: knip, markdownlint, reviewdog, syncpack (all configured)
 
 ---
 
 ## Last Updated
 
-June 1, 2026 — Phase 5.1 complete: rendering performance optimization, backdrop-filter blur reduced, Lenis scroll halved, rAF pause on tab hide, adaptive FPS threshold tightened, `pnpm quality` passing.
+June 3, 2026 — Phase 5.2 complete: Nx workspaces adopted, local Ollama integrations established, RLS security P0 vulnerabilities resolved, embedding cache added, 61 migrations completed, and all tests green.

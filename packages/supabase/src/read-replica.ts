@@ -9,8 +9,13 @@ import { instrumentedFetch } from "./server";
  * Use this for read-only Server Component queries (dashboards, reports, hub page).
  * Always use createServerSupabaseClient() for mutations.
  */
-export async function createReadReplicaClient() {
-  const cookieStore = await cookies();
+export async function createReadReplicaClient(
+  cookieList?: Array<{ name: string; value: string }>,
+) {
+  let cookieStore: any = null;
+  if (!cookieList) {
+    cookieStore = await cookies();
+  }
   const replicaUrl =
     process.env.SUPABASE_READ_REPLICA_URL ??
     process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -24,12 +29,14 @@ export async function createReadReplicaClient() {
       },
       cookies: {
         getAll() {
-          return cookieStore.getAll();
+          if (cookieList) return cookieList;
+          return cookieStore ? cookieStore.getAll() : [];
         },
         setAll(cookiesToSet) {
+          if (cookieList) return;
           try {
             cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options),
+              cookieStore?.set(name, value, options),
             );
           } catch {
             // Called from a Server Component — safe to ignore.

@@ -51,7 +51,7 @@ export default async function LoginPage() {
       <div className="relative z-10 w-[380px] max-w-full my-auto animate-fade-up -top-10 flex flex-col justify-center">
         {systemUnavailable ? (
           <div className="bg-white/70 backdrop-blur-lg border border-white/40 rounded-2xl overflow-hidden w-full shadow-window">
-            <div className="flex items-center gap-3 px-4 py-2.5 border-b border-arch-border-subtle bg-white/5">
+            <div className="flex items-center gap-3 px-4 py-2.5 border-b border-arch-border-subtle bg-black/[0.02]">
               <div className="flex items-center gap-1.5 shrink-0">
                 <span className="w-3 h-3 rounded-full bg-mac-red border border-arch-border-subtle" />
                 <span className="w-3 h-3 rounded-full bg-mac-yellow border border-arch-border-subtle" />
@@ -76,9 +76,12 @@ export default async function LoginPage() {
             </div>
           </div>
         ) : (
-          <div className="w-full flex flex-col min-h-[660px] overflow-hidden login-card-container liquid-glass-light border border-white/40 shadow-window rounded-xl">
+          <div
+            data-testid="login-card"
+            className="w-full flex flex-col min-h-[660px] overflow-hidden login-card-container layer-signin-card liquid-glass-light border border-white/40 shadow-window rounded-xl"
+          >
             {/* Title bar */}
-            <div className="flex items-center gap-3 px-4 py-2.5 border-b border-arch-border-subtle bg-white/5">
+            <div className="flex items-center gap-3 px-4 py-2.5 border-b border-arch-border-subtle bg-black/[0.02]">
               <div className="flex items-center gap-1.5 shrink-0">
                 <span className="w-3 h-3 rounded-full bg-mac-red border border-arch-border-subtle" />
                 <span className="w-3 h-3 rounded-full bg-mac-yellow border border-arch-border-subtle" />
@@ -147,7 +150,7 @@ export default async function LoginPage() {
             </div>
 
             {/* Enterprise Footer */}
-            <div className="px-4 py-3 flex items-center justify-between text-[10px] text-[var(--text-muted)] bg-white/5 border-t border-arch-border-subtle select-none">
+            <div className="px-4 py-3 flex items-center justify-between text-[10px] text-[var(--text-muted)] bg-black/[0.02] border-t border-arch-border-subtle select-none">
               <button
                 type="button"
                 className="flex items-center gap-1 cursor-pointer hover:text-[var(--text-secondary)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-arch-accent-blue/50 rounded px-1.5 py-0.5 -mx-1.5"

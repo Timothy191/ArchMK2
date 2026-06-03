@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import {
   createServerSupabaseClient,
   getUserSafely,
@@ -35,13 +36,16 @@ const PORTAL_VERSION = process.env.PORTAL_VERSION ?? "2.4.1";
 
 export const dynamic = "force-dynamic";
 
-async function getDashboardCounts(today: string) {
+async function getDashboardCounts(
+  today: string,
+  cookieList: Array<{ name: string; value: string }>,
+) {
   return cachedRSC(
     ["hub", "counts", today],
     async () => {
       return withCache(
         async () => {
-          const db = await createReadReplicaClient();
+          const db = await createReadReplicaClient(cookieList);
           const [incidents, breakdowns, machines] = await Promise.all([
             db
               .from("safety_incidents")
@@ -91,13 +95,15 @@ const FALLBACK_TREND_DATA: TrendDataPoint[] = [
   { date: "13:00", Drilling: 3129, Production: 1726, Engineering: 1500 },
 ];
 
-async function getProductionTrendData(): Promise<TrendDataPoint[]> {
+async function getProductionTrendData(
+  cookieList: Array<{ name: string; value: string }>,
+): Promise<TrendDataPoint[]> {
   return cachedRSC(
     ["hub", "production-trend"],
     async () => {
       return withCache(
         async () => {
-          const db = await createReadReplicaClient();
+          const db = await createReadReplicaClient(cookieList);
           const { data: rows, error } = await db
             .from("daily_logs")
             .select(
@@ -175,13 +181,16 @@ async function getProductionTrendData(): Promise<TrendDataPoint[]> {
   );
 }
 
-async function getRecentAlertEvents(today: string): Promise<AlertEvent[]> {
+async function getRecentAlertEvents(
+  today: string,
+  cookieList: Array<{ name: string; value: string }>,
+): Promise<AlertEvent[]> {
   return cachedRSC(
     ["hub", "alerts", today],
     async () => {
       return withCache(
         async () => {
-          const db = await createReadReplicaClient();
+          const db = await createReadReplicaClient(cookieList);
           const events: AlertEvent[] = [];
 
           // Fetch recent open safety incidents with actual severity levels
@@ -284,13 +293,16 @@ async function getRecentAlertEvents(today: string): Promise<AlertEvent[]> {
   );
 }
 
-async function getEmployeeDepartments(userId: string) {
+async function getEmployeeDepartments(
+  userId: string,
+  cookieList: Array<{ name: string; value: string }>,
+) {
   return cachedRSC(
     ["user", userId, "accessible-dept-names"],
     async () => {
       return withCache(
         async () => {
-          const db = await createReadReplicaClient();
+          const db = await createReadReplicaClient(cookieList);
           const { data: empData } = await db
             .from("employees")
             .select("accessible_departments")
@@ -333,6 +345,9 @@ export default async function HubPage() {
   const userId = user.id as string;
   const today = new Date().toISOString().split("T")[0] as string;
 
+  const cookieStore = await cookies();
+  const cookieList = cookieStore.getAll();
+
   // GAP-3: only fetch the fast, above-the-fold data in the main page so the
   // shell streams immediately. The slow ProductionTrend fetch is hoisted into
   // a Suspense child (`ProductionTrendSection`) so it streams after the shell
@@ -343,10 +358,10 @@ export default async function HubPage() {
     tools,
     alertEvents,
   ] = await Promise.all([
-    getDashboardCounts(today),
-    getEmployeeDepartments(userId),
+    getDashboardCounts(today, cookieList),
+    getEmployeeDepartments(userId, cookieList),
     getTools(),
-    getRecentAlertEvents(today),
+    getRecentAlertEvents(today, cookieList),
   ]);
 
   const departments =
@@ -562,6 +577,8 @@ export default async function HubPage() {
  * (GAP-3) so the production trend streams after the shell paints.
  */
 async function ProductionTrendSection() {
-  const productionTrendData = await getProductionTrendData();
+  const cookieStore = await cookies();
+  const cookieList = cookieStore.getAll();
+  const productionTrendData = await getProductionTrendData(cookieList);
   return <ProductionTrend data={productionTrendData} />;
 }

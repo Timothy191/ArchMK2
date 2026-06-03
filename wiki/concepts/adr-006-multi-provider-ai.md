@@ -1,9 +1,9 @@
 ---
 title: "ADR-006: Multi-Provider AI with Failover"
 created: 2026-05-15
-updated: 2026-05-15
+updated: 2026-06-03
 type: decision
-status: accepted
+status: superseded
 tags: [adr, ai, architecture, decision]
 sources: [wiki/comparisons/ai-providers.md, wiki/concepts/ai-service.md]
 confidence: high
@@ -11,9 +11,12 @@ confidence: high
 
 # ADR-006: Multi-Provider AI with Failover
 
+> [!WARNING]
+> This decision has been **superseded** by [[adr-009-local-ollama-ai]]. The AI service has transitioned to local Ollama running `gemma4:latest` and `nomic-embed-text` to ensure offline execution capabilities for remote mining locations.
+
 ## Status
 
-**Accepted** — Implemented May 2024
+**Superseded** by [[adr-009-local-ollama-ai]] (June 2026)
 
 ## Context
 

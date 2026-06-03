@@ -25,9 +25,11 @@
     "@opentelemetry/sdk-node": "^0.218.0",
     "@opentelemetry/semantic-conventions": "^1.41.1",
     "@radix-ui/react-popover": "^1.1.15",
+    "@react-pdf/renderer": "^4.5.1",
+    "zod": "catalog:",
     "zustand": "catalog:",
-    "@repo/redis": "workspace:*",
     "@repo/rate-limiter": "workspace:*",
+    "@repo/redis": "workspace:*",
     "@repo/supabase": "workspace:*",
     "@repo/theme": "workspace:*",
     "@repo/ui": "workspace:*",
@@ -49,12 +51,11 @@
     "react-map-gl": "^8.1.1",
     "recharts": "catalog:",
     "sonner": "catalog:",
-    "xstate": "catalog:",
-    "zod": "catalog:"
+    "xlsx": "^0.18.5",
+    "xstate": "catalog:"
   },
   "devDependencies": {
     "@next/bundle-analyzer": "^16.2.6",
-    "typescript": "catalog:",
     "@repo/typescript-config": "workspace:*",
     "@swc/core": "^1.15.40",
     "@swc/jest": "^0.2.39",
@@ -71,6 +72,7 @@
     "jest": "^30.0.0",
     "jest-environment-jsdom": "^30.2.0",
     "postcss": "^8.4.47",
-    "tailwindcss": "catalog:"
+    "tailwindcss": "catalog:",
+    "typescript": "catalog:"
   }
 }

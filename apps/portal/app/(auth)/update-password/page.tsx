@@ -107,7 +107,7 @@ export default function UpdatePasswordPage() {
           </p>
           <a
             href="/reset-password"
-            className="inline-block w-full text-center px-4 py-2.5 rounded-xl bg-[var(--accent-blue)] text-white text-sm font-medium hover:opacity-90 transition-opacity"
+            className="inline-block w-full text-center px-4 py-2.5 rounded-full bg-[var(--accent-blue)] text-white text-sm font-medium hover:opacity-90 transition-opacity"
           >
             Request New Link
           </a>

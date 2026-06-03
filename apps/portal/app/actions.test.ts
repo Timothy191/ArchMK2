@@ -1,11 +1,37 @@
 /**
  * @jest-environment node
  */
-import { logout, speculativeEmbedShiftLog } from "./actions";
+import {
+  logout,
+  speculativeEmbedShiftLog,
+  generateMonthlyReport,
+} from "./actions";
 
 jest.mock("@repo/supabase/server", () => ({
   createServerSupabaseClient: jest.fn(),
 }));
+
+jest.mock("@react-pdf/renderer", () => {
+  const React = require("react");
+  const createMockComponent = (name: string) => {
+    const MockComp = (props: any) =>
+      React.createElement(name, props, props.children);
+    MockComp.displayName = name;
+    return MockComp;
+  };
+  return {
+    pdf: jest.fn().mockImplementation(() => ({
+      toBuffer: jest.fn().mockResolvedValue(Buffer.from("mock-pdf-content")),
+    })),
+    StyleSheet: {
+      create: jest.fn().mockImplementation((styles) => styles),
+    },
+    Document: createMockComponent("Document"),
+    Page: createMockComponent("Page"),
+    Text: createMockComponent("Text"),
+    View: createMockComponent("View"),
+  };
+});
 
 jest.mock("next/navigation", () => ({
   redirect: jest.fn().mockImplementation(() => {
@@ -83,6 +109,80 @@ describe("actions", () => {
           userId: "user-123",
         },
       });
+    });
+  });
+
+  describe("generateMonthlyReport", () => {
+    it("throws error if user is not authenticated", async () => {
+      createServerSupabaseClient.mockResolvedValue({
+        auth: {
+          getUser: jest.fn().mockResolvedValue({ data: { user: null } }),
+        },
+      });
+
+      await expect(generateMonthlyReport({ title: "Test" })).rejects.toThrow(
+        "Unauthorized",
+      );
+    });
+
+    it("throws error if user is not admin or manager", async () => {
+      const mockSingle = jest.fn().mockResolvedValue({
+        data: { role: "operator", department_id: "dept-1" },
+        error: null,
+      });
+      const mockEq = jest.fn().mockReturnValue({ single: mockSingle });
+      const mockSelect = jest.fn().mockReturnValue({ eq: mockEq });
+
+      createServerSupabaseClient.mockResolvedValue({
+        auth: {
+          getUser: jest.fn().mockResolvedValue({
+            data: { user: { id: "user-123" } },
+          }),
+        },
+        from: jest.fn().mockReturnValue({ select: mockSelect }),
+      } as any);
+
+      await expect(generateMonthlyReport({ title: "Test" })).rejects.toThrow(
+        "Unauthorized",
+      );
+    });
+
+    it("generates report and returns signed URL for authorized users", async () => {
+      const mockSingle = jest.fn().mockResolvedValue({
+        data: { role: "admin", department_id: "dept-1" },
+        error: null,
+      });
+      const mockEq = jest.fn().mockReturnValue({ single: mockSingle });
+      const mockSelect = jest.fn().mockReturnValue({ eq: mockEq });
+
+      const mockUpload = jest.fn().mockResolvedValue({ data: {}, error: null });
+      const mockCreateSignedUrl = jest.fn().mockResolvedValue({
+        data: { signedUrl: "http://signed-url" },
+        error: null,
+      });
+
+      const mockStorage = {
+        from: jest.fn().mockReturnValue({
+          upload: mockUpload,
+          createSignedUrl: mockCreateSignedUrl,
+        }),
+      };
+
+      createServerSupabaseClient.mockResolvedValue({
+        auth: {
+          getUser: jest.fn().mockResolvedValue({
+            data: { user: { id: "user-123" } },
+          }),
+        },
+        from: jest.fn().mockReturnValue({ select: mockSelect }),
+        storage: mockStorage,
+      } as any);
+
+      const res = await generateMonthlyReport({ title: "Test" }, "dept-1");
+      expect(res.success).toBe(true);
+      expect(res.url).toBe("http://signed-url");
+      expect(mockUpload).toHaveBeenCalled();
+      expect(mockCreateSignedUrl).toHaveBeenCalled();
     });
   });
 });

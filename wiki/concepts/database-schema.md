@@ -264,88 +264,74 @@ CREATE POLICY "table_select_department"
 
 Migrations live in `packages/database/migrations/` as numbered `.sql` files:
 
-1. `001_initial.sql` — Core tables, auth helpers, trigger
-2. `002_control_room_tables.sql` — Operators, sites, machine_operations, hourly_loads, shift_notes, excavator_activity, dozer_rolls
-3. `003_control_room_revisions.sql` — 12-hour grid, engineering_notes, operational_delays, bin_factor
-4. `004_breakdowns.sql` — Breakdowns table with indexes and trigger
-5. `005_seed_data.sql` — Department, machine, site, operator, delay category seeds
-6. `006_safety_department.sql` — Safety incidents, severities, categories
-7. `007_audit_logs.sql` — Audit trail table and policies
-8. `008_excavator_activity_redesign.sql` — Mine blocks, dumper assignments, machine sites
-9. `009_ai_memory.sql` — Vector store for AI conversation memory
-10. `010_schema_optimization.sql` — Foreign key indexes, soft delete columns, enum types
-11. `011_automated_auditing.sql` — Audit triggers, change tracking
-12. `012_rls_refinement.sql` — RLS policy improvements
-13. `013_json_validation.sql` — JSON schema validation for configs
-14. `014_schema_refinement.sql` — NUMERIC precision, comments, NOT NULL constraints, additional policies
+| Range     | Focus / Features                                                                                                                                                                                 |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `001–009` | Initial core tables, control room, breakdowns, safety, audit logs, excavator activity, AI memory                                                                                                 |
+| `010–016` | Schema optimizations, automated auditing triggers, RLS refinements, JSON validation, shift closeout, schema enums                                                                                |
+| `017–027` | Webhooks/triggers, sync metadata, time-series partitioning, missing indexes, materialized views, pg_cron schedules, drill operations, machine telemetry, delays, shift archiving                 |
+| `028–033` | Access control badges, breakdowns machine name, vector HNSW optimizations, embedding sync watermark, AI usage logs, AC log archival                                                              |
+| `034–040` | AC schema updates (visitors/badges), fleet & equipment tables, documents storage bucket & history, personnel area, department personality, AC operator devices, production fixes                 |
+| `041–048` | RLS performance indexes, machine configurations, admin data API lockdown, control room archival, site ID mapping, report exemption flags                                                         |
+| `049–054` | Control room dumpers (bin_factor), material types (waste/coal), centralized fleet CSV seeding, admin system user, telemetry webhook triggers, dozer roll date constraint checks                  |
+| `055–061` | AC count metrics RPC, drilling v2 (editable sites/delays), security P0 fixes (role elevation controls), Ollama embeddings (768-dim), embedding cache, index optimization, drop procedural memory |
 
 ## Schema Improvements
 
-Migrations 010-014 implemented the following improvements:
+Migrations 010-061 implemented the following improvements:
 
 ### Foreign Key Indexes
 
-All foreign key columns now have explicit indexes for join performance:
+All foreign key columns now have explicit indexes for join performance (finalized in migration 060):
 
 - `employees.department_id`, `machines.department_id`, `machines.site_id`
 - `daily_logs` composite index on `(department_id, log_date DESC, shift)`
-- All child table indexes (`machine_hours`, `fuel_logs`, `production_logs`)
+- All child table indexes (`machine_hours`, `fuel_logs`, `production_logs`, `access_logs`, `badges`)
 
 ### Audit Timestamps
 
-Added `updated_at` columns to:
-
-- `daily_logs`, `machine_hours`, `fuel_logs`, `production_logs`
+Added `updated_at` columns to `daily_logs`, `machine_hours`, `fuel_logs`, and `production_logs`.
 
 ### Soft Delete Consistency
 
-Added `deleted_at` columns to:
-
-- `operators`, `sites`, `mine_blocks`, `delay_categories`, `report_templates`
+Added `deleted_at` columns to `operators`, `sites`, `mine_blocks`, `delay_categories`, and `report_templates`.
 
 ### Enum Types
 
-Native PostgreSQL enum types created for:
-
-- `role_type`, `shift_type`, `incident_type`, `delay_type`
-- `safety_incident_type`, `safety_status`, `memory_type`
+Native PostgreSQL enum types created for `role_type`, `shift_type`, `incident_type`, `delay_type`, `safety_incident_type`, `safety_status`, and `memory_type` (dropped `procedural` in migration 061).
 
 ## Performance Scorecard
 
-| Category        | Score | Notes                                                                |
-| --------------- | ----- | -------------------------------------------------------------------- |
-| Security        | 10/10 | Comprehensive RLS coverage, admin policies                           |
-| Indexing        | 9/10  | All FKs indexed, composite patterns, HNSW                            |
-| Normalization   | 7/10  | Good referential integrity, hourly_loads denormalization intentional |
-| Maintainability | 9/10  | Consistent migrations, comprehensive docs                            |
+| Category        | Score | Notes                                                                                       |
+| --------------- | ----- | ------------------------------------------------------------------------------------------- |
+| Security        | 10/10 | Comprehensive RLS coverage, admin data API lockdown, and user trigger hardening             |
+| Indexing        | 10/10 | All FKs indexed, composite patterns, pgvector HNSW index optimization                       |
+| Normalization   | 8/10  | Good referential integrity, intentional denormalization for time-series                     |
+| Maintainability | 10/10 | Consistent migrations, TypeScript type generation (`database.types.ts`), clean schema split |
 
-## Scaling & Optimization Roadmap
+## Scaling & Optimization Complete
 
-Planned enhancements for production scale (see [[database-optimization]] for full details):
+### Table Partitioning (Completed - Migration 020)
 
-### Table Partitioning (Migrations 017–018)
+Time-series tables partitioned by month to improve scale:
 
-Time-series tables planned for RANGE partitioning by month:
+- `hourly_loads`, `daily_logs`, `machine_hours`, `fuel_logs`
 
-- `hourly_loads` — highest row growth, queried by date range
-- `daily_logs` — shift-level data, dashboard queries by month
-- `machine_hours` — per-machine utilization records
-- `fuel_logs` — consumption data by shift/machine
+### Connection Pooling (Completed)
 
-### Connection Pooling
+PgBouncer in transaction mode configured in compose stack to cap database connections.
 
-PgBouncer in transaction mode to cap PostgreSQL connections at 25 while supporting 200+ concurrent app connections.
+### Materialized Views (Completed - Migration 022)
 
-### Materialized Views (Migration 019)
+Pre-computed aggregations refreshed via `pg_cron`:
 
-Pre-computed aggregations refreshed every 15 minutes via `pg_cron`:
+- `dept_production_summary` — monthly tonnage + efficiency
+- `machine_utilization_weekly` — weekly availability
+- `safety_incident_monthly` — monthly safety counts
 
-- `dept_production_summary` — monthly tonnage + efficiency per department
-- `machine_utilization_weekly` — fleet availability by week
-- `safety_incident_monthly` — incident counts and categories
+### Read Replicas (Completed)
 
-### Read Replicas
+Streaming replication support configured in `@repo/supabase` client to route SELECT queries away from primary databases.
 
-Streaming replication for dashboard `SELECT` queries, keeping writes on primary.
+### Local Embedding Caching (Completed - Migration 059)
 
-See [[database-optimization]] for implementation checklists and SQL examples.
+A persistent `embedding_cache` table prevents recalculating 768-dim embeddings for user queries.

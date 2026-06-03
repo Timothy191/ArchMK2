@@ -591,23 +591,6 @@ module.exports = {
       path: ["text", "heading"],
     },
   },
-  accent: {
-    key: "{accent}",
-    value: "240 5% 91%",
-    type: "color",
-    filePath: "tokens.json",
-    isSource: true,
-    original: {
-      value: "240 5% 91%",
-      type: "color",
-      key: "{accent}",
-    },
-    name: "Accent",
-    attributes: {
-      category: "accent",
-    },
-    path: ["accent"],
-  },
   "accent-red": {
     key: "{accent-red}",
     value: "#ff3b30",
@@ -1341,6 +1324,23 @@ module.exports = {
       category: "muted-foreground",
     },
     path: ["muted-foreground"],
+  },
+  accent: {
+    key: "{accent}",
+    value: "240 5% 91%",
+    type: "color",
+    filePath: "tokens.json",
+    isSource: true,
+    original: {
+      value: "240 5% 91%",
+      type: "color",
+      key: "{accent}",
+    },
+    name: "Accent",
+    attributes: {
+      category: "accent",
+    },
+    path: ["accent"],
   },
   "accent-foreground": {
     key: "{accent-foreground}",
@@ -2287,12 +2287,12 @@ module.exports = {
   },
   "radius-button": {
     key: "{radius-button}",
-    value: "8px",
+    value: "9999px",
     type: "dimension",
     filePath: "tokens.json",
     isSource: true,
     original: {
-      value: "8px",
+      value: "9999px",
       type: "dimension",
       key: "{radius-button}",
     },

@@ -269,7 +269,7 @@ export function LoginForm() {
         <AnimatedButton
           type="submit"
           disabled={loading || failedAttempts >= 5}
-          className="w-full h-12 rounded-lg liquid-glass-button bg-[var(--color-action-primary)] hover:bg-[var(--color-action-primary-hover)] text-white font-medium relative overflow-hidden flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-action-primary)]/50 focus-visible:ring-offset-1 transition-colors"
+          className="w-full h-12 rounded-full liquid-glass-button bg-[var(--color-action-primary)] hover:bg-[var(--color-action-primary-hover)] text-white font-medium relative overflow-hidden flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-action-primary)]/50 focus-visible:ring-offset-1 transition-colors"
           hoverScale={1}
           tapScale={0.97}
         >
@@ -292,9 +292,9 @@ export function LoginForm() {
           onClick={() => {
             alert("Redirecting to corporate Single Sign-On portal...");
           }}
-          className="w-full h-11 border border-black/[0.06] bg-black/[0.02] hover:bg-black/[0.04] text-[var(--text-secondary)] font-medium text-xs rounded-lg flex items-center justify-center gap-2 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-arch-accent-blue/50 focus-visible:ring-offset-1"
+          className="w-full h-12 border border-black/[0.06] bg-black/[0.02] hover:bg-black/[0.04] text-[var(--text-secondary)] font-medium text-xs rounded-full liquid-glass-button flex items-center justify-center gap-2 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-arch-accent-blue/50 focus-visible:ring-offset-1"
           hoverScale={1}
-          tapScale={0.98}
+          tapScale={0.97}
         >
           <svg
             className="w-4 h-4 text-[var(--text-muted)] opacity-80"

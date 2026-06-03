@@ -65,7 +65,8 @@
     },
     "packages/typescript-config": {
       "entry": ["*.json"],
-      "project": ["*.json"]
+      "project": ["*.json"],
+      "ignoreDependencies": ["next"]
     },
     "packages/utils": {
       "entry": ["src/index.ts"],

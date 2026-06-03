@@ -2,8 +2,8 @@
 
 > Content catalog for the Arch-Systems (Plantcor) company knowledge base.
 > Read this first to find relevant pages for any query.
-> Last updated: 2026-06-01 | Total pages: 59 (17 concepts + 9 entities + 10 comparisons + 7 ADRs + 6 queries + 4 operational + 3 gittree + 2 reports + 1 schema)
-> Current project version: Phase 5.1 (Performance) | Next.js 15 | React 19.2.6 | Supabase | LangGraph AI Orchestrator | Light Theme | 48 Migrations
+> Last updated: 2026-06-03 | Total pages: 61 (17 concepts + 9 entities + 10 comparisons + 9 ADRs + 6 queries + 4 operational + 4 gittree + 2 reports + 1 schema)
+> Current project version: Phase 5.2 (Localisation & Nx) | Next.js 15 | React 19.2.6 | Supabase | Local Ollama AI (gemma4) | Light Theme | 61 Migrations
 
 ## Quick Reference
 
@@ -11,7 +11,7 @@
 | ----------------------------- | ----------------------------------------------------- |
 | Understand project history    | [[gittree/README\|Git Tree & Branches]]               |
 | View project structure        | [[arch-systems]]                                      |
-| Start developing              | [[turborepo-monorepo]] → [[supabase-local-dev]]       |
+| Start developing              | [[nx-monorepo]] → [[supabase-local-dev]]              |
 | Build a department feature    | [[department-features]] → [[portal-app-architecture]] |
 | Add UI components             | [[design-system]]                                     |
 | Work with database            | [[database-schema]] → [[rls-policy]]                  |
@@ -37,7 +37,7 @@
 
 ## Entities (9)
 
-- [[arch-systems|Arch-Systems (Plantcor)]] — Multi-departmental mining operations portal built as a Turborepo monorepo
+- [[arch-systems|Arch-Systems (Plantcor)]] — Multi-departmental mining operations portal built as an Nx monorepo
 - [[drilling-department|Drilling Department]] — Drill rig operations & bit depth telemetry
 - [[production-department|Production Department]] — Coal yield, tonnage & extraction tracking
 - [[access-control-department|Access Control Department]] — Site access, badging & security
@@ -47,23 +47,25 @@
 - [[training-department|Training Department]] — LMS, certifications & competency tracking
 - [[satellite-monitoring-department|Satellite Monitoring Department]] — SAR/InSAR, hyperspectral & high-resolution imagery
 
-## Concepts (12 + 7 ADRs + 4 Operational + 3 Git Tree)
+## Concepts (12 + 9 ADRs + 4 Operational + 4 Git Tree)
 
 ### Architecture & Setup
 
-- [[turborepo-monorepo|Turborepo Monorepo Structure]] — Workspace layout, conventions, and build commands
+- [[nx-monorepo|Nx Monorepo Structure]] — Workspace layout, target configuration defaults, and build commands (migrated from Turborepo)
 - [[supabase-local-dev|Supabase Local Development]] — Local DB, auth, and storage setup with remote sync
-- [[portal-app-architecture|Portal App Architecture]] — Next.js 15 App Router, RSC, server actions, LangGraph agent workflow, and feature organization
+- [[portal-app-architecture|Portal App Architecture]] — Next.js 15 App Router, RSC, server actions, local Ollama AI orchestrator state machine, and feature organization
 
 #### Architecture Decision Records (ADRs)
 
 - [[adr-001-nextjs-app-router|ADR-001]] — Next.js 15 App Router adoption
 - [[adr-002-supabase-backend|ADR-002]] — Supabase as backend platform
-- [[adr-003-turborepo-monorepo|ADR-003]] — Turborepo for monorepo management
+- [[adr-003-turborepo-monorepo|ADR-003 (Superseded)]] — Turborepo for monorepo management
 - [[adr-004-tailwind-design-system|ADR-004]] — Tailwind CSS with design tokens
 - [[adr-005-zustand-state-management|ADR-005]] — Zustand for client state
-- [[adr-006-multi-provider-ai|ADR-006]] — Multi-provider AI with failover
+- [[adr-006-multi-provider-ai|ADR-006 (Superseded)]] — Multi-provider AI with failover
 - [[adr-007-react-19-adoption|ADR-007]] — React 19 adoption strategy
+- [[adr-008-nx-monorepo|ADR-008]] — Nx for Monorepo Management (supersedes ADR-003)
+- [[adr-009-local-ollama-ai|ADR-009]] — Local Ollama for AI Service (supersedes ADR-006)
 
 #### Operational Guides
 
@@ -75,7 +77,7 @@
 
 ### Database & Security
 
-- [[database-schema|Database Schema]] — Full PostgreSQL schema with RLS policies and table relationships
+- [[database-schema|Database Schema]] — Full PostgreSQL schema (61 migrations) with RLS policies, tables, and views
 - [[rls-policy|RLS Policy Standards]] — Row Level Security requirements and auth helpers
 - [[auth-middleware|Auth and Middleware]] — Supabase auth flow, middleware, role-based access, cross-department permissions
 - [[database-optimization|Database Optimization & Scaling]] — Partitioning, PgBouncer, read replicas, materialized views
@@ -84,7 +86,7 @@
 
 - [[department-features|Department Features]] — Control room, engineering, safety, satellite monitoring capabilities
 - [[external-tools|External Tools Integration]] — n8n, Flowise, Univer embedding, Inngest background jobs, Novu notifications, health checks
-- [[ai-service|AI Service]] — LangGraph 8-node orchestrator, OpenRouter → Groq failover, pgvector memory, Redis rate limiter, department personalities, AI usage logs
+- [[ai-service|AI Service]] — Local Ollama integration, LLM-driven tool dispatch, persistent embedding cache, tool output cache, pgvector memories, Redis rate limiters
 - [[monitoring-error-tracking|Monitoring and Error Tracking]] — Sentry, Highlight session replay, OpenTelemetry tracing, Prometheus/Grafana, real-time subscriptions, satellite monitoring API
 - [[analytics-reporting|Advanced Analytics & Reporting]] — Executive KPI dashboard, PDF/Excel export, trend analysis, ML predictive maintenance
 
@@ -92,23 +94,23 @@
 
 - [[design-system|Portal Design System]] — Light-only macOS Sonoma Tailwind design tokens, Style Dictionary pipeline, and shared components
 - [[deepeval-integration|DeepEval Integration]] — LLM evaluation framework for AI service quality and code convention compliance
-- [[testing-qa-strategy|Testing & QA Strategy]] — Unit coverage 90%+, E2E critical flows, visual regression, load & security testing
+- [[testing-qa-strategy|Testing & QA Strategy]] — Unit coverage 40%+, E2E critical flows, visual regression, load & security testing
 - [[mobile-pwa|Mobile Responsiveness & PWA]] — Offline support, touch-optimized forms, PWA install
 
 ### Git Tree & Project History
 
-- [[gittree/README|Git Tree History]] — Complete git graph from project start to Phase 5, all branches and milestones
+- [[gittree/README|Git Tree History]] — Complete git graph from project start to Phase 5.2, all branches and milestones
 - [[gittree/visual-graphs-reporting|Visual Graphs for Reporting]] — Data visualization for metrics, dashboards, and analytics
 - [[gittree/conceptual-code-graphs|Conceptual Code Graphs]] — ASTs, CFGs, CPGs for static analysis and security scanning
 - [[gittree/graph-data-structures|Graph Data Structures]] — Algorithms (BFS, DFS, Dijkstra), adjacency representations
 
 ## Comparisons (10)
 
-- [[ai-providers|AI Provider Comparison]] — Groq vs OpenRouter vs Together AI for multi-provider failover
+- [[ai-providers|AI Provider Comparison]] — Ollama vs Groq vs OpenRouter for multi-provider and local execution
 - [[testing-frameworks|Testing Framework Comparison]] — Jest vs Vitest vs Node.js Test Runner for React 19
 - [[state-management|State Management Comparison]] — Zustand vs Redux Toolkit vs React Context for RSC architecture
 - [[rich-text-editors|Rich Text Editor Comparison]] — Novel vs Tiptap vs Slate.js vs Lexical
-- [[monorepo-tools|Monorepo Tool Comparison]] — Turborepo vs Nx vs pnpm workspaces
+- [[monorepo-tools|Monorepo Tool Comparison]] — Nx vs Turborepo vs pnpm workspaces
 - [[database-backend|Database/Backend Comparison]] — Supabase vs Firebase vs self-hosted PostgreSQL
 - [[map-libraries|Map/GIS Library Comparison]] — react-map-gl + MapLibre vs Google Maps vs Leaflet
 - [[styling-approaches|Styling Approach Comparison]] — Tailwind CSS vs CSS-in-JS vs CSS Modules

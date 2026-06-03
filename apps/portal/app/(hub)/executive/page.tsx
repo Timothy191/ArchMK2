@@ -11,6 +11,7 @@ import {
   Activity,
 } from "lucide-react";
 import { ExportButton } from "@/features/analytics/components/ExportButton";
+import { PDFDownloadButton } from "@/features/analytics/components/PDFDownloadButton";
 import { ProductionTrendChart } from "@/features/analytics/components/ProductionTrendChartWrapper";
 
 export const dynamic = "force-dynamic";
@@ -176,6 +177,26 @@ export default async function ExecutiveDashboardPage() {
     "Total (t)": (r.coal + r.waste).toFixed(2),
   }));
 
+  const pdfReportData = {
+    title: "Executive Production & Fleet Report",
+    subtitle: `Generated on ${today} — Month-to-date analysis`,
+    kpis: [
+      { label: "Total Tonnage", value: `${totalTonnageMtd.toFixed(0)} t` },
+      { label: "Coal Removed", value: `${totalCoalMtd.toFixed(0)} t` },
+      { label: "Waste Removed", value: `${totalWasteMtd.toFixed(0)} t` },
+      { label: "Fuel Efficiency", value: `${fuelPerTonne} L/t` },
+      { label: "Fleet Availability", value: `${fleetPct}%` },
+      { label: "Active Breakdowns", value: `${openBreakdowns}` },
+    ],
+    tableHeaders: ["Date", "Coal (t)", "Waste (t)", "Total Tonnage (t)"],
+    tableRows: chartData.map((r) => [
+      r.date,
+      r.coal.toFixed(2),
+      r.waste.toFixed(2),
+      (r.coal + r.waste).toFixed(2),
+    ]),
+  };
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -189,10 +210,13 @@ export default async function ExecutiveDashboardPage() {
             Cross-department KPIs — month-to-date as of {today}
           </p>
         </div>
-        <ExportButton
-          filename={`executive-report-${today}`}
-          rows={exportRows}
-        />
+        <div className="flex items-center gap-2">
+          <PDFDownloadButton reportData={pdfReportData} />
+          <ExportButton
+            filename={`executive-report-${today}`}
+            rows={exportRows}
+          />
+        </div>
       </div>
 
       {/* KPI Row 1 — Production */}

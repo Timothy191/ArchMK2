@@ -64,7 +64,7 @@ textarea,
 .fuxa-input {
   background-color: rgba(0, 0, 0, 0.03) !important;
   border: 1px solid var(--fuxa-border) !important;
-  border-radius: 6px !important;
+  border-radius: var(--radius-button) !important;
   color: var(--fuxa-text-primary) !important;
   padding: 6px 12px !important;
 }
@@ -82,7 +82,7 @@ button,
 .btn-primary {
   background-color: var(--fuxa-accent) !important;
   color: #ffffff !important;
-  border-radius: 6px !important;
+  border-radius: var(--radius-button) !important;
   font-weight: 500 !important;
   border: none !important;
   transition: background-color 0.2s ease-in-out !important;

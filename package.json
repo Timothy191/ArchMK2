@@ -53,17 +53,18 @@
     "@commitlint/config-conventional": "^21.0.1",
     "@playwright/test": "^1.60.0",
     "@repo/typescript-config": "workspace:*",
+    "@secretlint/secretlint-rule-preset-recommend": "13.0.2",
     "eslint": "catalog:",
     "husky": "^9.1.7",
     "knip": "^5.45.0",
     "lint-staged": "^17.0.7",
     "markdownlint-cli": "^0.41.0",
+    "nx": "22.7.5",
     "prettier": "catalog:",
     "secretlint": "^13.0.2",
     "supabase": "catalog:",
     "syncpack": "^13.0.4",
-    "turbo": "^2.9.15",
-    "nx": "22.7.5"
+    "turbo": "^2.9.15"
   },
   "packageManager": "pnpm@9.15.9",
   "engines": {

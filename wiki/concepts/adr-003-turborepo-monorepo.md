@@ -1,9 +1,9 @@
 ---
 title: "ADR-003: Turborepo for Monorepo Management"
 created: 2026-05-15
-updated: 2026-05-15
+updated: 2026-06-03
 type: decision
-status: accepted
+status: superseded
 tags: [adr, monorepo, build, decision]
 sources: [wiki/comparisons/monorepo-tools.md, turbo.json, CLAUDE.md]
 confidence: high
@@ -11,9 +11,12 @@ confidence: high
 
 # ADR-003: Turborepo for Monorepo Management
 
+> [!WARNING]
+> This decision has been **superseded** by [[adr-008-nx-monorepo]]. The project has migrated to Nx for workspace task orchestration and stabilized test runners.
+
 ## Status
 
-**Accepted** — Implemented May 2024
+**Superseded** by [[adr-008-nx-monorepo]] (June 2026)
 
 ## Context
 

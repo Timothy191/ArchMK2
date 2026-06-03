@@ -138,3 +138,7 @@ populating-data/
 
 .nx/cache
 .nx/workspace-data
+
+# Fallow dead-code analyzer output
+fallow_json.txt
+fallow_output.txt

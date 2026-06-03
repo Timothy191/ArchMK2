@@ -82,7 +82,7 @@ export function ViewportBoundaries({ className }: ViewportBoundariesProps) {
             >
               <Command className="w-5 h-5 text-[var(--text-heading)] group-hover:scale-110 transition-transform duration-300 ease-glass" />
               {/* Tooltip */}
-              <div className="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 pointer-events-none transition-all duration-200 px-2.5 py-1 rounded-md bg-black/80 text-white text-[10px] font-medium whitespace-nowrap shadow-xl">
+              <div className="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 pointer-events-none transition-all duration-200 px-2.5 py-1 rounded-md bg-black/80 text-white text-[10px] font-medium whitespace-nowrap shadow-card">
                 Start
               </div>
             </button>
@@ -117,7 +117,7 @@ export function ViewportBoundaries({ className }: ViewportBoundariesProps) {
                   )}
 
                   {/* Tooltip */}
-                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 pointer-events-none transition-all duration-200 px-2.5 py-1 rounded-md bg-black/80 text-white text-[10px] font-medium whitespace-nowrap shadow-xl">
+                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 pointer-events-none transition-all duration-200 px-2.5 py-1 rounded-md bg-black/80 text-white text-[10px] font-medium whitespace-nowrap shadow-card">
                     {app.name}
                   </div>
                 </Link>
@@ -140,7 +140,7 @@ export function ViewportBoundaries({ className }: ViewportBoundariesProps) {
                 {websocketLatency} ms
               </span>
 
-              <div className="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 pointer-events-none transition-all duration-200 px-2.5 py-1 rounded-md bg-black/80 text-white text-[10px] font-medium whitespace-nowrap shadow-xl">
+              <div className="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 pointer-events-none transition-all duration-200 px-2.5 py-1 rounded-md bg-black/80 text-white text-[10px] font-medium whitespace-nowrap shadow-card">
                 Network RTT
               </div>
             </div>
@@ -152,7 +152,7 @@ export function ViewportBoundaries({ className }: ViewportBoundariesProps) {
                 {currentShift.label}
               </span>
 
-              <div className="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 pointer-events-none transition-all duration-200 px-2.5 py-1 rounded-md bg-black/80 text-white text-[10px] font-medium whitespace-nowrap shadow-xl">
+              <div className="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 pointer-events-none transition-all duration-200 px-2.5 py-1 rounded-md bg-black/80 text-white text-[10px] font-medium whitespace-nowrap shadow-card">
                 {currentShift.start} - {currentShift.end}
               </div>
             </div>
@@ -162,7 +162,7 @@ export function ViewportBoundaries({ className }: ViewportBoundariesProps) {
               <Clock className="w-3.5 h-3.5 text-[var(--accent-blue)]" />
               <span className="tabular-nums">{serverTimeSAST}</span>
 
-              <div className="absolute -top-10 right-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 pointer-events-none transition-all duration-200 px-2.5 py-1 rounded-md bg-black/80 text-white text-[10px] font-medium whitespace-nowrap shadow-xl origin-bottom-right">
+              <div className="absolute -top-10 right-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 pointer-events-none transition-all duration-200 px-2.5 py-1 rounded-md bg-black/80 text-white text-[10px] font-medium whitespace-nowrap shadow-card origin-bottom-right">
                 South Africa Standard Time
               </div>
             </div>
