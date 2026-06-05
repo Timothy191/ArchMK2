@@ -1,7 +1,15 @@
 "use client";
 
 import { useReportWebVitals } from "next/web-vitals";
-import type { Metric } from "next/web-vitals";
+
+interface Metric {
+  name: string;
+  value: number;
+  rating: string;
+  delta: number;
+  id?: string;
+  label?: string;
+}
 
 /**
  * WebVitalsReporter
