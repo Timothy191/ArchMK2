@@ -65,6 +65,12 @@
             "command": "jq -r '.tool_response.filePath // .tool_input.file_path // .tool_input.TargetFile' | { read -r f; [ -n \"$f\" ] && [ \"$f\" != \"null\" ] && [ -f \"$f\" ] && [[ \"$f\" == */apps/portal/* ]] && [[ \"$f\" =~ \\.(ts|tsx)$ ]] && pnpm --filter portal exec tsc --noEmit -p apps/portal/tsconfig.json --pretty false 2>&1 | tail -40; }",
             "statusMessage": "Type-checking...",
             "async": true
+          },
+          {
+            "type": "command",
+            "command": "node \"/home/timothy/Project/Arch-Mk2/.claude/hooks/scripts/tracing-check-reminder.cjs\"",
+            "statusMessage": "Tracing reminder...",
+            "async": true
           }
         ]
       },
@@ -101,6 +107,15 @@
       }
     ],
     "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"/home/timothy/Project/Arch-Mk2/.claude/hooks/scripts/tracing-reminder.cjs\""
+          }
+        ]
+      },
       {
         "matcher": "*",
         "hooks": [

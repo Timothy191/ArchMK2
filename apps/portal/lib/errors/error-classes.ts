@@ -1,6 +1,11 @@
 /**
  * Simple error classes to replace @repo/errors package
  */
+/* AGENT-TRACE: File-level eslint-disable for no-unused-vars
+ * These public constructor parameters define the error interface but are flagged as unused by ESLint
+ * This is intentional - they are part of the public API for the error classes
+ * If modifying error handling, maintain this pattern or consider re-integrating @repo/errors
+ */
 /* eslint-disable no-unused-vars */
 
 export class AppError extends Error {

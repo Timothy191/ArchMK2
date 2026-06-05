@@ -1,5 +1,24 @@
 # Workflow Rules
 
+## ⚠️ MANDATORY AGENT TRACING RULE
+
+**ALL AGENTS MUST FOLLOW THIS RULE ON EVERY CODE CHANGE:**
+
+1. **Update AGENT_TRACER.md** in the package/app you're modifying
+   - Log timestamp, purpose, changes made, and what the next agent should know
+   - Location: `packages/<package>/AGENT_TRACER.md` or `apps/<app>/AGENT_TRACER.md`
+
+2. **Leave inline breadcrumbs** for complex architectural logic
+   - Use `// AGENT-TRACE: <explanation>` or `/* AGENT-TRACE: ... */` comments
+   - Explain implicit business rules and domain context
+
+3. **Add runtime telemetry** where applicable
+   - Instrument functions with prom-client or OpenTelemetry spans
+
+**FAILURE TO FOLLOW THIS RULE IS A VIOLATION OF AGENT CONTRACTS**
+
+---
+
 ## Phase Boundaries
 
 | Phase   | When                                                  | Gate                                            |

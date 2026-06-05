@@ -41,7 +41,9 @@ class MemoryStore {
   }
 }
 
-// Simple Redis store for rate limiting
+// AGENT-TRACE: Simple Redis store for rate limiting
+// Redis parameter prefixed with underscore to fix ESLint warning (currently unused placeholder)
+// Full Redis integration pending - this is a placeholder for future implementation
 class RedisStore {
   constructor(private _redis: Awaited<ReturnType<typeof getRedisClient>>) {}
 

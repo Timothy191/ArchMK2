@@ -1,6 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
 
-// Simple APIError class for package-level use
+// AGENT-TRACE: Simple APIError class for package-level use
+// Removed unused options parameter to fix ESLint warnings preventing git push
+// This class is intentionally simple - errors are thrown internally within the package
 class APIError extends Error {
   constructor(message: string) {
     super(message);

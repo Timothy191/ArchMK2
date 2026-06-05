@@ -47,6 +47,8 @@ jest.mock("@repo/redis", () => {
       mockCache.set(key, val.toString());
       return val;
     }),
+    // AGENT-TRACE: Mock expire function - parameters prefixed with underscore to fix ESLint warnings
+    // These are unused in the mock implementation but required for interface compatibility
     expire: jest.fn(async (_key: string, _seconds: number) => {
       return true;
     }),
@@ -74,6 +76,8 @@ jest.mock("../../packages/redis/src/client", () => {
       mockCache.set(key, val.toString());
       return val;
     }),
+    // AGENT-TRACE: Mock expire function - parameters prefixed with underscore to fix ESLint warnings
+    // These are unused in the mock implementation but required for interface compatibility
     expire: jest.fn(async (_key: string, _seconds: number) => {
       return true;
     }),
