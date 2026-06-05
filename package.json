@@ -41,14 +41,6 @@
     "db:docs": "bash scripts/generate-db-docs.sh",
     "prepare": "husky"
   },
-  "lint-staged": {
-    "*.{js,ts,tsx}": [
-      "eslint --fix",
-      "prettier --write"
-    ],
-    "*.{json,md,css,mjs,yaml,yml}": "prettier --write",
-    "*": "secretlint --secretlintrc .secretlintrc.json"
-  },
   "devDependencies": {
     "@commitlint/cli": "^21.0.1",
     "@commitlint/config-conventional": "^21.0.1",
