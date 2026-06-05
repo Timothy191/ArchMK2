@@ -10,7 +10,7 @@ import { Pool } from "pg";
 class APIError extends Error {
   constructor(
     message: string,
-    public statusCode: number = 500,
+    options?: { statusCode?: number },
   ) {
     super(message);
     this.name = "APIError";
