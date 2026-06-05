@@ -2,11 +2,12 @@
 
 interface ShiftToggleProps {
   value: "day" | "night";
+  // eslint-disable-next-line no-unused-vars
   onChange: (value: "day" | "night") => void;
   name?: string;
 }
 
-export function ShiftToggle({ value, onChange, name }: ShiftToggleProps) {
+export function ShiftToggle({ value, onChange }: ShiftToggleProps) {
   return (
     <div className="flex gap-2" role="radiogroup" aria-label="Shift selector">
       {(["day", "night"] as const).map((shift) => (
@@ -15,7 +16,6 @@ export function ShiftToggle({ value, onChange, name }: ShiftToggleProps) {
           type="button"
           role="radio"
           aria-checked={value === shift ? "true" : "false"}
-          name={name}
           onClick={() => onChange(shift)}
           className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
             value === shift

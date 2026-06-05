@@ -28,7 +28,8 @@ export default {
       packages: ["**"],
       specifierTypes: ["unsupported"],
       isIgnored: true,
-      label: "Ignore unsupported specifiers (pnpm catalog versions)",
+      label:
+        "Ignore unsupported specifiers (pnpm catalog versions - these are managed centrally in pnpm-workspace.yaml)",
     },
     {
       packages: ["**"],

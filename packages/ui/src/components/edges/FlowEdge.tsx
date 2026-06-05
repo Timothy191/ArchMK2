@@ -48,7 +48,6 @@ export const FlowEdge = memo(function FlowEdge({
       />
       <EdgeLabelRenderer>
         {/* xyflow requires dynamic pixel positioning for edge labels */}
-        {/* eslint-disable-next-line react/no-inline-styles */}
         <div
           style={{
             position: "absolute",

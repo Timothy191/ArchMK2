@@ -24,8 +24,8 @@
     "knip": "knip --no-config-hints",
     "knip:fix": "knip --fix --no-config-hints",
     "analyze": "ANALYZE=true pnpm --filter portal build",
-    "md:lint": "markdownlint \"**/*.md\" --ignore node_modules --ignore .turbo --ignore '**/node_modules' --ignore '**/.next' --ignore '**/dist'",
-    "md:fix": "markdownlint \"**/*.md\" --fix --ignore node_modules --ignore .turbo --ignore '**/node_modules' --ignore '**/.next' --ignore '**/dist'",
+    "md:lint": "markdownlint \"**/*.md\" --ignore node_modules --ignore '**/node_modules' --ignore '**/.next' --ignore '**/dist'",
+    "md:fix": "markdownlint \"**/*.md\" --fix --ignore node_modules --ignore '**/node_modules' --ignore '**/.next' --ignore '**/dist'",
     "commitlint": "commitlint --edit",
     "deploy": "bash scripts/deploy.sh",
     "deploy:local": "bash scripts/deploy.sh local",
@@ -52,6 +52,7 @@
   "devDependencies": {
     "@commitlint/cli": "^21.0.1",
     "@commitlint/config-conventional": "^21.0.1",
+    "@modelcontextprotocol/sdk": "1.29.0",
     "@playwright/test": "^1.60.0",
     "@repo/typescript-config": "workspace:*",
     "@secretlint/secretlint-rule-preset-recommend": "13.0.2",
@@ -61,11 +62,11 @@
     "lint-staged": "^17.0.7",
     "markdownlint-cli": "^0.41.0",
     "nx": "22.7.5",
+    "preflight": "0.2.0",
     "prettier": "catalog:",
     "secretlint": "^13.0.2",
     "supabase": "catalog:",
-    "syncpack": "^13.0.4",
-    "turbo": "^2.9.15"
+    "syncpack": "^13.0.4"
   },
   "packageManager": "pnpm@9.15.9",
   "engines": {

@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@repo/supabase/server";
 import { withRateLimit } from "@/lib/api/rate-limit-middleware";
+import { validateBody as _validateBody } from "@/lib/api/response";
+import { applyCors } from "@/lib/api/cors";
+import { safetyExportQuerySchema } from "@/lib/api/schemas";
 
 function sanitizeCsvCell(value: string): string {
   const dangerous = /^[=+\-@\t\r]/;
@@ -14,11 +17,26 @@ async function handleExportRequest(req: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return applyCors(
+      req,
+      NextResponse.json({ error: "Unauthorized" }, { status: 401 }),
+    );
   }
 
   const { searchParams } = req.nextUrl;
-  const month = searchParams.get("month"); // YYYY-MM
+  const params = Object.fromEntries(searchParams.entries());
+  const parsed = safetyExportQuerySchema.safeParse(params);
+  if (!parsed.success) {
+    return applyCors(
+      req,
+      NextResponse.json(
+        { error: "Invalid query parameters", details: parsed.error.issues },
+        { status: 400 },
+      ),
+    );
+  }
+  const { month, dept, limit, offset } = parsed.data;
+
   const format = req.headers.get("accept")?.includes("text/csv")
     ? "csv"
     : "json";
@@ -36,19 +54,31 @@ async function handleExportRequest(req: NextRequest) {
         .split("T")[0]!
     : new Date().toISOString().split("T")[0]!;
 
-  const { data, error } = await supabase
+  let query = supabase
     .from("safety_incidents")
     .select(
       "id, incident_date, incident_type, severity, status, department_id, description",
+      { count: "estimated" },
     )
     .gte("incident_date", from)
     .lte("incident_date", to)
-    .order("incident_date", { ascending: false });
+    .order("incident_date", { ascending: false })
+    .range(offset, offset + limit - 1);
 
+  if (dept) {
+    const { data: deptRow } = await supabase
+      .from("departments")
+      .select("id")
+      .eq("name", dept)
+      .single();
+    if (deptRow) query = query.eq("department_id", deptRow.id);
+  }
+
+  const { data, error, count } = await query;
   if (error) {
-    return NextResponse.json(
-      { error: "Database query failed" },
-      { status: 500 },
+    return applyCors(
+      req,
+      NextResponse.json({ error: "Database query failed" }, { status: 500 }),
     );
   }
 
@@ -68,15 +98,24 @@ async function handleExportRequest(req: NextRequest) {
         keys.map((k) => sanitizeCsvCell(String(r[k] ?? ""))).join(","),
       ),
     ].join("\n");
-    return new NextResponse(csv, {
+    const response = new NextResponse(csv, {
       headers: {
         "Content-Type": "text/csv",
         "Content-Disposition": `attachment; filename="safety-incidents-${from}-${to}.csv"`,
       },
     });
+    return applyCors(req, response);
   }
 
-  return NextResponse.json({ data, from, to, count: data?.length ?? 0 });
+  const response = NextResponse.json({
+    data,
+    from,
+    to,
+    count: count ?? data?.length ?? 0,
+    limit,
+    offset,
+  });
+  return applyCors(req, response);
 }
 
 export async function GET(req: NextRequest) {

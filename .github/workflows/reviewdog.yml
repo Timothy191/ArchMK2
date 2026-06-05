@@ -60,4 +60,4 @@ jobs:
           reporter: github-pr-review
           filter_mode: added
           fail_on_error: false
-          markdownlint_flags: '--ignore node_modules --ignore .turbo --ignore "**/node_modules" --ignore "**/.next" --ignore "**/dist"'
+          markdownlint_flags: '--ignore node_modules --ignore "**/node_modules" --ignore "**/.next" --ignore "**/dist"'

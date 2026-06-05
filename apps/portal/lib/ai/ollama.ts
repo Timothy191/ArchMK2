@@ -9,7 +9,6 @@
 
 import { APIError } from "@repo/errors";
 
-// eslint-disable-next-line turbo/no-undeclared-env-vars
 export const OLLAMA_URL = process.env.OLLAMA_URL ?? "http://localhost:11434";
 export const OLLAMA_TIMEOUT_MS = Number(
   process.env.OLLAMA_TIMEOUT_MS ?? 30_000,

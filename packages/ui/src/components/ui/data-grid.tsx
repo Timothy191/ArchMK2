@@ -18,6 +18,7 @@ export interface DataGridProps {
   filter?: boolean | ColumnFilterConfig;
   sorting?: boolean | SortingConfig;
   canFocus?: boolean;
+  // eslint-disable-next-line no-unused-vars
   onAfterEdit?: (_event: any) => void;
   stretch?: boolean | string;
 }

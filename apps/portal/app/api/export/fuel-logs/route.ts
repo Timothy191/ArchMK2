@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@repo/supabase/server";
 import { withRateLimit } from "@/lib/api/rate-limit-middleware";
+import { validateBody as _validateBody } from "@/lib/api/response";
+import { applyCors } from "@/lib/api/cors";
+import { exportQuerySchema } from "@/lib/api/schemas";
 
 function sanitizeCsvCell(value: string): string {
   const dangerous = /^[=+\-@\t\r]/;
@@ -14,15 +17,30 @@ async function handleExportRequest(req: NextRequest): Promise<NextResponse> {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return applyCors(
+      req,
+      NextResponse.json({ error: "Unauthorized" }, { status: 401 }),
+    );
   }
 
   const { searchParams } = req.nextUrl;
-  const from =
-    searchParams.get("from") ??
-    new Date(Date.now() - 30 * 86400000).toISOString().split("T")[0]!;
-  const to = searchParams.get("to") ?? new Date().toISOString().split("T")[0]!;
-  const dept = searchParams.get("dept");
+  const params = Object.fromEntries(searchParams.entries());
+  const parsed = exportQuerySchema.safeParse(params);
+  if (!parsed.success) {
+    return applyCors(
+      req,
+      NextResponse.json(
+        { error: "Invalid query parameters", details: parsed.error.issues },
+        { status: 400 },
+      ),
+    );
+  }
+  const { from, to, dept, limit, offset } = parsed.data;
+
+  const fromDate =
+    from ?? new Date(Date.now() - 30 * 86400000).toISOString().split("T")[0]!;
+  const toDate = to ?? new Date().toISOString().split("T")[0]!;
+
   const format = req.headers.get("accept")?.includes("text/csv")
     ? "csv"
     : "json";
@@ -31,10 +49,12 @@ async function handleExportRequest(req: NextRequest): Promise<NextResponse> {
     .from("daily_logs")
     .select(
       "id, log_date, shift, department_id, fuel_logs(id, diesel_litres, machine_id, machines(name, machine_type))",
+      { count: "estimated" },
     )
-    .gte("log_date", from)
-    .lte("log_date", to)
-    .order("log_date", { ascending: false });
+    .gte("log_date", fromDate)
+    .lte("log_date", toDate)
+    .order("log_date", { ascending: false })
+    .range(offset, offset + limit - 1);
 
   if (dept) {
     const { data: deptRow } = await supabase
@@ -45,11 +65,11 @@ async function handleExportRequest(req: NextRequest): Promise<NextResponse> {
     if (deptRow) query = query.eq("department_id", deptRow.id);
   }
 
-  const { data, error } = await query;
+  const { data, error, count } = await query;
   if (error) {
-    return NextResponse.json(
-      { error: "Database query failed" },
-      { status: 500 },
+    return applyCors(
+      req,
+      NextResponse.json({ error: "Database query failed" }, { status: 500 }),
     );
   }
 
@@ -95,15 +115,24 @@ async function handleExportRequest(req: NextRequest): Promise<NextResponse> {
           .join(","),
       ),
     ].join("\n");
-    return new NextResponse(csv, {
+    const response = new NextResponse(csv, {
       headers: {
         "Content-Type": "text/csv",
-        "Content-Disposition": `attachment; filename="fuel-logs-${from}-${to}.csv"`,
+        "Content-Disposition": `attachment; filename="fuel-logs-${fromDate}-${toDate}.csv"`,
       },
     });
+    return applyCors(req, response);
   }
 
-  return NextResponse.json({ data: rows, from, to, count: rows.length });
+  const response = NextResponse.json({
+    data: rows,
+    from: fromDate,
+    to: toDate,
+    count: count ?? rows.length,
+    limit,
+    offset,
+  });
+  return applyCors(req, response);
 }
 
 export async function GET(req: NextRequest) {

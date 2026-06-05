@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@repo/supabase/server";
 import { revalidatePath } from "next/cache";
 import { withRateLimit } from "@/lib/api/rate-limit-middleware";
+import { validateBody } from "@/lib/api/response";
+import { applyCors } from "@/lib/api/cors";
+import { withBodyLimit } from "@/lib/api/body-limit";
+import { createWebhookSchema } from "@/lib/api/schemas";
 
 type WebhookEventType =
   | "daily_log.created"
@@ -17,7 +21,7 @@ type WebhookEventType =
   | "operational_delay.created"
   | "operational_delay.updated";
 
-interface WebhookEndpoint {
+interface _WebhookEndpoint {
   id: string;
   url: string;
   description: string | null;
@@ -79,7 +83,10 @@ async function handleGetWebhooks(_request: NextRequest): Promise<NextResponse> {
 
 // GET /api/webhooks - List all webhook endpoints
 export async function GET(request: NextRequest) {
-  return withRateLimit(request, () => handleGetWebhooks(request));
+  const response = await withRateLimit(request, () =>
+    handleGetWebhooks(request),
+  );
+  return applyCors(request, response);
 }
 
 async function handleCreateWebhook(
@@ -94,16 +101,9 @@ async function handleCreateWebhook(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const body = await request.json();
-  const { url, description, event_types, department_id } =
-    body as Partial<WebhookEndpoint>;
-
-  if (!url || !event_types || event_types.length === 0) {
-    return NextResponse.json(
-      { error: "URL and event_types are required" },
-      { status: 400 },
-    );
-  }
+  const parsed = await validateBody(request, createWebhookSchema);
+  if (parsed instanceof NextResponse) return parsed;
+  const { url, description, event_types, department_id } = parsed.data;
 
   // Get user's department and role
   const { data: employee } = await supabase
@@ -154,5 +154,10 @@ async function handleCreateWebhook(
 
 // POST /api/webhooks - Create a new webhook endpoint
 export async function POST(request: NextRequest) {
-  return withRateLimit(request, () => handleCreateWebhook(request));
+  const response = await withRateLimit(request, () =>
+    withBodyLimit(request, () => handleCreateWebhook(request), {
+      maxSize: 524288,
+    }),
+  );
+  return applyCors(request, response);
 }

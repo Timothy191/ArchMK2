@@ -56,17 +56,17 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Lint
-        run: pnpm turbo run lint
+        run: pnpm nx run-many -t lint
 
       - name: Type Check
-        run: pnpm turbo run type-check
+        run: pnpm nx run-many -t type-check
 
       - name: Test
         if: ${{ !inputs.skip_tests }}
         run: pnpm test -- --passWithNoTests
 
       - name: Build
-        run: pnpm turbo run build --filter=portal...
+        run: pnpm nx run-many -t build --filter=portal
 
   # ── Deploy to Staging ───────────────────────────────────
   deploy-staging:
@@ -153,7 +153,7 @@ jobs:
 
       # Build for production
       - name: Build
-        run: pnpm turbo run build --filter=portal...
+        run: pnpm nx run-many -t build --filter=portal
 
       # Option 1: Vercel Production
       - name: Deploy to Vercel (Production)

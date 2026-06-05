@@ -1,6 +1,9 @@
-/* eslint-disable turbo/no-undeclared-env-vars */
 import { NextResponse } from "next/server";
 import { getRedisClient } from "@repo/redis";
+import { validateBody } from "@/lib/api/response";
+import { applyCors } from "@/lib/api/cors";
+import { withBodyLimit } from "@/lib/api/body-limit";
+import { telemetryPushSchema } from "@/lib/api/schemas";
 
 // L1 cache (in-memory)
 let localLastValues = new Map<string, number>();
@@ -29,8 +32,20 @@ async function setRedisLastValue(key: string, value: number): Promise<void> {
 }
 
 export async function POST(req: Request) {
+  return withBodyLimit(
+    req,
+    async () => {
+      const response = await handlePost(req);
+      return applyCors(req, response);
+    },
+    { maxSize: 10485760 },
+  );
+}
+
+async function handlePost(req: Request) {
   try {
-    const body = await req.json();
+    const webhookCheck = req.clone();
+    const body = await webhookCheck.json();
     const fuxaUrl = process.env.NEXT_PUBLIC_FUXA_URL || "http://localhost:1881";
     const endpoint = `${fuxaUrl}/api/tag`;
 
@@ -116,15 +131,10 @@ export async function POST(req: Request) {
     }
 
     // 2. Otherwise, treat as a direct single tag value update
-    const { name, value } = body;
+    const parsed = await validateBody(req, telemetryPushSchema);
+    if (parsed instanceof NextResponse) return parsed;
 
-    if (!name || value === undefined) {
-      return NextResponse.json(
-        { error: "Missing required fields: name, value" },
-        { status: 400 },
-      );
-    }
-
+    const { name, value } = parsed.data;
     const numValue = Number(value);
 
     // L1 Check

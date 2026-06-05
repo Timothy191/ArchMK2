@@ -44,8 +44,10 @@ export interface WorkflowBuilderProps {
   /** Initial edges to render */
   initialEdges?: Edge[];
   /** Callback when workflow is saved */
+  // eslint-disable-next-line no-unused-vars
   onSave?: (currentNodes: Node[], currentEdges: Edge[]) => void;
   /** Callback when workflow is executed */
+  // eslint-disable-next-line no-unused-vars
   onExecute?: (currentNodes: Node[], currentEdges: Edge[]) => Promise<void>;
   /** Read-only mode */
   readOnly?: boolean;

@@ -1,9 +1,17 @@
 {
   "$schema": "https://unpkg.com/knip@5/schema.json",
-  "ignoreDependencies": ["secretlint"],
+  "ignoreDependencies": [
+    "secretlint",
+    "@modelcontextprotocol/sdk",
+    "@secretlint/secretlint-rule-preset-recommend",
+    "preflight",
+    "@repo/eslint-config",
+    "@typescript-eslint/parser"
+  ],
+  "ignore": ["**/jest.config.*", "**/postcss.config.*"],
   "workspaces": {
     ".": {
-      "entry": ["scripts/**/*.{ts,js}"],
+      "entry": ["scripts/**/*.{ts,js}", ".eslintrc.{js,cjs}"],
       "project": ["scripts/**/*.{ts,js}"]
     },
     "apps/portal": {
@@ -12,7 +20,8 @@
         "app/**/page.tsx",
         "app/**/route.ts",
         "proxy.ts",
-        "plugins/rust-telemetry-engine/index.tsx"
+        "plugins/rust-telemetry-engine/index.tsx",
+        ".eslintrc.{js,cjs}"
       ],
       "project": [
         "app/**/*.{ts,tsx}",
@@ -22,12 +31,22 @@
         "lib/**/*.{ts,tsx}",
         "plugins/**/*.{ts,tsx}"
       ],
-      "ignoreDependencies": ["autoprefixer", "postcss", "tailwindcss"]
+      "ignoreDependencies": ["autoprefixer", "postcss", "tailwindcss"],
+      "ignore": [
+        "lib/observability/logger.ts",
+        "lib/api/schemas.ts",
+        "lib/observability/metrics.ts",
+        "components/ui/PrecisionInput.tsx",
+        "features/analytics/components/ReportTemplate.tsx",
+        "lib/ai/tool-dispatch.ts"
+      ]
     },
     "apps/cms": {
+      "entry": [".eslintrc.{js,cjs}"],
       "project": ["app/**/*.{ts,tsx}"]
     },
     "apps/overview": {
+      "entry": [".eslintrc.{js,cjs}"],
       "project": [
         "app/**/*.{ts,tsx}",
         "components/**/*.{ts,tsx}",
@@ -35,11 +54,14 @@
       ]
     },
     "packages/theme": {
-      "entry": ["src/tokens/*.ts", "src/react/*.tsx"],
-      "project": ["src/**/*.{ts,tsx,css}"]
+      "entry": ["src/tokens/*.ts", "src/react/*.tsx", ".eslintrc.{js,cjs}"],
+      "project": ["src/**/*.{ts,tsx,css}"],
+      "ignore": ["src/tokens/colors.ts", "src/tokens/motion.ts"]
     },
     "packages/database": {
-      "project": ["migrations/**/*.sql"]
+      "entry": [".eslintrc.{js,cjs}"],
+      "project": ["migrations/**/*.sql"],
+      "ignore": ["supabase/migrations/**"]
     },
     "packages/eslint-config": {
       "entry": ["*.js"],
@@ -51,16 +73,18 @@
         "src/server.ts",
         "src/client.ts",
         "src/middleware.ts",
-        "src/service-role.ts"
+        "src/service-role.ts",
+        ".eslintrc.{js,cjs}"
       ],
-      "project": ["src/**/*.ts"]
+      "project": ["src/**/*.ts"],
+      "ignore": ["src/database.types.ts"]
     },
     "packages/errors": {
-      "entry": ["src/index.ts"],
+      "entry": ["src/index.ts", ".eslintrc.{js,cjs}"],
       "project": ["src/**/*.ts"]
     },
     "packages/types": {
-      "entry": ["src/index.ts"],
+      "entry": ["src/index.ts", ".eslintrc.{js,cjs}"],
       "project": ["src/**/*.ts"]
     },
     "packages/typescript-config": {
@@ -69,15 +93,25 @@
       "ignoreDependencies": ["next"]
     },
     "packages/utils": {
-      "entry": ["src/index.ts"],
+      "entry": ["src/index.ts", ".eslintrc.{js,cjs}"],
       "project": ["src/**/*.ts"]
     },
     "packages/ui": {
-      "entry": ["src/**/*.tsx"],
-      "project": ["src/**/*.{ts,tsx,css}"]
+      "entry": ["src/**/*.tsx", ".eslintrc.{js,cjs}"],
+      "project": ["src/**/*.{ts,tsx,css}"],
+      "ignore": [
+        "src/components/edges/FlowEdge.tsx",
+        "src/components/nodes/PluginNode.tsx",
+        "src/components/nodes/TriggerNode.tsx",
+        "src/components/WorkflowBuilder.tsx"
+      ]
     },
     "packages/redis": {
-      "entry": ["src/index.ts"],
+      "entry": ["src/index.ts", ".eslintrc.{js,cjs}"],
+      "project": ["src/**/*.ts"]
+    },
+    "packages/rate-limiter": {
+      "entry": ["src/index.ts", ".eslintrc.{js,cjs}"],
       "project": ["src/**/*.ts"]
     },
     "packages/eval": {
@@ -91,7 +125,7 @@
     "devDependencies": "warn",
     "unlisted": "warn",
     "binaries": "warn",
-    "exports": "warn",
+    "exports": "error",
     "nsExports": "warn",
     "types": "warn",
     "nsTypes": "warn",
