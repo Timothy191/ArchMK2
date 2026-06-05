@@ -391,12 +391,28 @@ fi
 # 1b. Check & Fix Port Conflicts
 check_and_fix_port() {
   local port="$1" name="$2" service="$3"
-  if lsof -i :"$port" -t >/dev/null 2>&1; then
+  if ss -tlnH | grep -q -E ":$port "; then
+    # If the port is mapped by a running Docker container, it's fine
+    if docker ps --format '{{.Ports}}' 2>/dev/null | grep -q -E "(0\.0\.0\.0|\[::\]|localhost):$port->"; then
+      return 0
+    fi
+
     local pid
-    pid=$(lsof -i :"$port" -t | head -n1)
-    local proc
-    proc=$(ps -p "$pid" -o comm= 2>/dev/null || echo "unknown")
-    if [[ "$proc" == *"docker"* ]]; then
+    pid=$(lsof -i :"$port" -sTCP:LISTEN -t | head -n1 2>/dev/null || true)
+    if [ -z "$pid" ]; then
+      pid=$(lsof -i :"$port" -t | head -n1 2>/dev/null || true)
+    fi
+
+    local proc="unknown"
+    if [ -n "$pid" ]; then
+      proc=$(ps -p "$pid" -o comm= 2>/dev/null || echo "unknown")
+      if [[ "$proc" == *"docker"* ]]; then
+        return 0
+      fi
+    else
+      # If we can't find the PID, it's likely a system daemon we don't have access to
+      check "Port $port ($name)" "fail" "occupied by a system/native service (PID inaccessible)"
+      env_pass=false
       return 0
     fi
     
@@ -420,14 +436,14 @@ check_and_fix_port() {
 
     if [ -n "$service" ] && command -v systemctl >/dev/null 2>&1 && sudo systemctl stop "$service" >/dev/null 2>&1; then
       sleep 1
-      if ! lsof -i :"$port" -t >/dev/null 2>&1; then
+      if ! ss -tlnH | grep -q -E ":$port "; then
         check "Port $port ($name)" "pass" "freed native service"
         return 0
       fi
     fi
     if sudo kill -9 "$pid" 2>/dev/null || kill -9 "$pid" 2>/dev/null; then
       sleep 1
-      if ! lsof -i :"$port" -t >/dev/null 2>&1; then
+      if ! ss -tlnH | grep -q -E ":$port "; then
         check "Port $port ($name)" "pass" "killed conflicting process"
         return 0
       fi
@@ -439,10 +455,11 @@ check_and_fix_port() {
   fi
 }
 
+
 if [ "$QUICK_MODE" = "true" ]; then
   check_and_fix_port "$PORT" "Next.js portal" ""
 else
-  check_and_fix_port 5432 "PostgreSQL" "postgresql"
+  check_and_fix_port 54322 "Supabase DB" ""
   check_and_fix_port 6379 "Redis" "redis-server"
   check_and_fix_port 54321 "Supabase API" ""
   check_and_fix_port 8000 "Kong Gateway" ""

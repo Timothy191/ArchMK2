@@ -38,7 +38,7 @@ export const PluginNode = memo(function PluginNode({
         <div className="flex items-center justify-center w-6 h-6 rounded-md bg-[#34c759]/10">
           <Puzzle className="w-3.5 h-3.5 text-[#34c759]" />
         </div>
-        <span className="text-xs font-semibold text-[#1d1d1f] truncate">
+        <span className="text-xs font-medium text-[#1d1d1f] truncate">
           {data.label || "Plugin Step"}
         </span>
         <button

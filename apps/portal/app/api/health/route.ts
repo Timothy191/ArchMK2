@@ -43,7 +43,13 @@ export async function GET() {
 
     // ── AI Router (Ollama) ──
     try {
-      const res = await fetch(`${OLLAMA_URL}/api/tags`, { method: "GET" });
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 2000);
+      const res = await fetch(`${OLLAMA_URL}/api/tags`, {
+        method: "GET",
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
       if (!res.ok) {
         throw new Error(`Ollama returned ${res.status}`);
       }

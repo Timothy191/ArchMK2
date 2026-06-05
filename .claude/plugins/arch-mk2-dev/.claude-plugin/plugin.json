@@ -1,0 +1,12 @@
+{
+  "name": "arch-mk2-dev",
+  "version": "0.1.0",
+  "description": "Arch-Mk2 project-specific skills: migration scaffolding and portal Jest setup.",
+  "author": {
+    "name": "Arch Systems",
+    "url": "https://github.com/Plantcor"
+  },
+  "homepage": ".claude/plugins/arch-mk2-dev/README.md",
+  "keywords": ["arch-mk2", "migrations", "jest", "portal"],
+  "license": "MIT"
+}

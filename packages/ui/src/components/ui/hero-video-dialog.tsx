@@ -127,7 +127,7 @@ export function HeroVideoDialog({
               transition={{ type: "spring", damping: 30, stiffness: 300 }}
               className="relative mx-4 aspect-video w-full max-w-4xl md:mx-0"
             >
-              <motion.button className="absolute -top-16 right-0 rounded-full bg-[#171717]/80 p-2 text-xl text-[#fafafa] ring-1 ring-[var(--border-default)] backdrop-blur-md">
+              <motion.button className="absolute -top-16 right-0 rounded-full bg-black/60 p-2 text-xl text-white ring-1 ring-[var(--border-default)] backdrop-blur-md">
                 <X className="size-5" />
               </motion.button>
               <div className="relative isolate z-[1] size-full overflow-hidden rounded-2xl border-2 border-[var(--border-default)]">

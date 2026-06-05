@@ -44,6 +44,8 @@ const nextConfig = {
   reactStrictMode: true,
   experimental: {
     optimizePackageImports: ["lucide-react", "framer-motion", "@tremor/react"],
+    inlineCss: true,
+    webVitalsAttribution: ["CLS", "LCP", "FCP", "TTFB", "INP"],
   },
   async headers() {
     return [

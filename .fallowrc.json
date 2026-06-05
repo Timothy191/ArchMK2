@@ -3,7 +3,6 @@
   "ignorePatterns": [
     "packages/eval/**",
     "packages/typescript-config/**",
-    "packages/hooks/**",
     "packages/eslint-config/**",
     "docs/wiki/**",
     "apps/portal/public/css/fuxa-light-theme.css",

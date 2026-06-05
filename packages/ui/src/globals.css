@@ -448,3 +448,14 @@
     box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.2) !important;
   }
 }
+
+/* RevoGrid visible table grid lines overrides */
+revo-grid .rgCell {
+  border-right: 1px solid rgba(0, 0, 0, 0.08) !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+revo-grid .rgHeaderCell {
+  border-right: 1px solid rgba(0, 0, 0, 0.08) !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+}

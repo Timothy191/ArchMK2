@@ -9,6 +9,7 @@ import { exportToExcel, parseExcel } from "@repo/utils";
 import { SecondaryButton } from "@repo/ui/SecondaryButton";
 import { Download, Upload } from "lucide-react";
 import { logError } from "@/lib/errors/error-logger";
+import { updateMachineSite } from "./actions";
 
 const DataGrid = dynamic(
   () => import("@repo/ui/DataGrid").then((m) => m.DataGrid),
@@ -20,6 +21,8 @@ interface Machine {
   name: string;
   machine_type: string;
   bin_factor?: number | null;
+  site_id?: string | null;
+  sites?: { name: string }[] | { name: string } | null;
 }
 
 interface HourlyLoad {
@@ -46,6 +49,7 @@ interface HourlyLoadsGridProps {
   departmentId: string;
   machines: Machine[];
   hourlyLoads: HourlyLoad[];
+  sites: { id: string; name: string; site_code: string }[];
 }
 
 const HOURS_12 = Array.from({ length: 12 }, (_, i) => i + 1);
@@ -83,6 +87,7 @@ export function HourlyLoadsGrid({
   departmentId,
   machines,
   hourlyLoads,
+  sites,
 }: HourlyLoadsGridProps) {
   const router = useRouter();
   const supabase = createBrowserSupabaseClient();
@@ -155,8 +160,14 @@ export function HourlyLoadsGrid({
     return machines.map((machine) => {
       const totalLoads = getMachineTotal(machine.id);
       const binFactor = machine.bin_factor ?? 0;
+      const sites = machine.sites;
+      const siteName =
+        (Array.isArray(sites)
+          ? sites[0]?.name
+          : (sites as { name?: string } | null)?.name) ?? "No Site";
       const row: Record<string, string | number> = {
         machineName: machine.name,
+        siteName,
         machineType: machine.machine_type,
         materialType: getMaterialType(machine.id),
       };
@@ -323,12 +334,41 @@ export function HourlyLoadsGrid({
     [handleCellChange, handleMaterialToggle],
   );
 
+  // Handle site selection dropdown change
+  const handleGridChange = useCallback(
+    async (e: React.FormEvent) => {
+      const target = e.target as HTMLSelectElement;
+      if (target.dataset.action !== "select-site") return;
+
+      const rowIndex = parseInt(target.dataset.row || "0", 10);
+      const newSiteId = target.value || null;
+
+      const machine = machines[rowIndex];
+      if (!machine) return;
+
+      setSaving(true);
+      try {
+        await updateMachineSite(machine.id, newSiteId);
+        router.refresh();
+      } catch (err) {
+        logError(err instanceof Error ? err : new Error(String(err)), {
+          context: "hourly_loads_site_change",
+        });
+        alert("Failed to update site. Please try again.");
+      } finally {
+        setSaving(false);
+      }
+    },
+    [machines, router],
+  );
+
   // Build RevoGrid columns (stable reference)
   const columns = useMemo(() => {
     const width = containerWidth || 1150;
 
     // Proportional widths that sum to 100%
     let machineColSize = 140;
+    let siteColSize = 100;
     let materialColSize = 100;
     let hourColSize = 56;
     let totalColSize = 70;
@@ -336,21 +376,23 @@ export function HourlyLoadsGrid({
     let totalMaterialColSize = 100;
 
     if (hasBinFactors) {
-      // 17 columns total:
-      // Machine (10%), Material (8%), 12 Hours (12 * 5% = 60%), Total (6%), Bin Factor (7%), Total Material (9%)
-      machineColSize = Math.max(150, Math.floor(width * 0.1));
+      // 18 columns total:
+      // Machine (10%), Site (8%), Material (8%), 12 Hours (12 * 4.5% = 54%), Total (6%), Bin Factor (6%), Total Material (8%)
+      machineColSize = Math.max(140, Math.floor(width * 0.1));
+      siteColSize = Math.max(100, Math.floor(width * 0.08));
       materialColSize = Math.max(100, Math.floor(width * 0.08));
-      hourColSize = Math.max(85, Math.floor(width * 0.05));
-      totalColSize = Math.max(90, Math.floor(width * 0.06));
-      binFactorColSize = Math.max(100, Math.floor(width * 0.07));
-      totalMaterialColSize = Math.max(120, Math.floor(width * 0.09));
+      hourColSize = Math.max(80, Math.floor(width * 0.045));
+      totalColSize = Math.max(80, Math.floor(width * 0.06));
+      binFactorColSize = Math.max(80, Math.floor(width * 0.06));
+      totalMaterialColSize = Math.max(100, Math.floor(width * 0.08));
     } else {
-      // 15 columns total:
-      // Machine (12%), Material (8%), 12 Hours (12 * 6% = 72%), Total (8%)
-      machineColSize = Math.max(150, Math.floor(width * 0.12));
+      // 16 columns total:
+      // Machine (12%), Site (10%), Material (8%), 12 Hours (12 * 5.5% = 66%), Total (4%)
+      machineColSize = Math.max(140, Math.floor(width * 0.12));
+      siteColSize = Math.max(100, Math.floor(width * 0.1));
       materialColSize = Math.max(100, Math.floor(width * 0.08));
-      hourColSize = Math.max(85, Math.floor(width * 0.06));
-      totalColSize = Math.max(100, Math.floor(width * 0.08));
+      hourColSize = Math.max(80, Math.floor(width * 0.055));
+      totalColSize = Math.max(80, Math.floor(width * 0.04));
     }
 
     const cols = [
@@ -359,6 +401,54 @@ export function HourlyLoadsGrid({
         name: "Machine",
         size: machineColSize,
         pin: "colPinStart" as const,
+      },
+      {
+        prop: "siteName",
+        name: "Site",
+        size: siteColSize,
+        pin: "colPinStart" as const,
+        sortable: false,
+        readonly: true,
+        cellTemplate: (h: any, { rowIndex }: { rowIndex: number }) => {
+          const currentMachine = machines[rowIndex];
+          const currentSiteId = currentMachine?.site_id ?? "";
+          return h(
+            "div",
+            { class: "flex items-center justify-center h-full w-full px-1" },
+            [
+              h(
+                "select",
+                {
+                  class:
+                    "w-full bg-transparent border-0 text-xs font-semibold text-[var(--text-body)] focus:ring-0 focus:outline-none cursor-pointer py-1 px-1 rounded hover:bg-black/[0.04] transition-all",
+                  "data-row": String(rowIndex),
+                  "data-action": "select-site",
+                },
+                [
+                  h(
+                    "option",
+                    {
+                      value: "",
+                      selected: !currentSiteId ? "selected" : undefined,
+                    },
+                    "No Site",
+                  ),
+                  ...sites.map((s) =>
+                    h(
+                      "option",
+                      {
+                        value: s.id,
+                        selected:
+                          s.id === currentSiteId ? "selected" : undefined,
+                      },
+                      s.name,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          );
+        },
       },
       {
         prop: "materialType",
@@ -575,8 +665,14 @@ export function HourlyLoadsGrid({
 
   const handleExport = () => {
     const exportData = machines.map((machine) => {
+      const sites = machine.sites;
+      const siteName =
+        (Array.isArray(sites)
+          ? sites[0]?.name
+          : (sites as { name?: string } | null)?.name) ?? "No Site";
       const data: any = {
         Machine: machine.name,
+        Site: siteName,
         Type: machine.machine_type,
         Material: getMaterialType(machine.id),
       };
@@ -738,6 +834,7 @@ export function HourlyLoadsGrid({
       <div
         ref={containerRef}
         onClick={handleGridClick}
+        onChange={handleGridChange}
         className="revo-grid-visible"
       >
         <DataGrid

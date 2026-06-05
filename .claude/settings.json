@@ -13,7 +13,34 @@
           },
           {
             "type": "command",
-            "command": "jq -r '.tool_input.file_path // .tool_input.TargetFile // .tool_input.target_file' | { read -r f; [ -n \"$f\" ] && [ \"$f\" != \"null\" ] && [[ \"$f\" == */packages/supabase/supabase/migrations/* ]] && { echo \"BLOCKED: Edit packages/supabase/supabase/migrations/* directly. Edit packages/database/migrations/* instead — supabase/migrations is a deploy-time copy (see CLAUDE.md 'Database' section).\" >&2; exit 2; }; }"
+            "command": "jq -r '.tool_input.file_path // .tool_input.TargetFile // .tool_input.target_file' | { read -r f; [ -n \"$f\" ] && [ \"$f\" != \"null\" ] && [[ \"$f\" == */packages/supabase/supabase/migrations/* ]] && { echo \"BLOCKED: Edit packages/supabase/supabase/migrations/* directly. Edit packages/database/migrations/* instead \u2014 supabase/migrations is a deploy-time copy (see CLAUDE.md 'Database' section).\" >&2; exit 2; }; }"
+          }
+        ]
+      },
+      {
+        "matcher": "tool == \"Edit\" || tool == \"Write\"",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"/home/timothy/Project/Arch-Mk2/.claude/hooks/scripts/catalog-guard.cjs\""
+          }
+        ]
+      },
+      {
+        "matcher": "tool == \"Edit\" || tool == \"Write\"",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path // .tool_input.TargetFile // .tool_input.target_file' | { read -r f; [ -n \"$f\" ] && [ \"$f\" != \"null\" ] && case \"$f\" in */apps/portal/.env*) case \"$f\" in *.example) ;; *) echo \"BLOCKED: direct edits to apps/portal/.env* are not allowed. Update apps/portal/.env.example instead and document in CLAUDE.md if new vars are required.\" >&2; exit 2; ;; esac ;; esac; }"
+          }
+        ]
+      },
+      {
+        "matcher": "tool == \"Write\" || tool == \"Edit\"",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"/home/timothy/Project/Arch-Mk2/.claude/hooks/scripts/rls-prompt.cjs\""
           }
         ]
       }
@@ -40,6 +67,17 @@
             "async": true
           }
         ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"/home/timothy/Project/Arch-Mk2/.claude/hooks/scripts/portal-test-on-edit.cjs\"",
+            "statusMessage": "Running portal test...",
+            "async": true
+          }
+        ]
       }
     ],
     "Stop": [
@@ -51,6 +89,15 @@
             "command": "node \"/home/timothy/Project/Arch-Mk2/.claude/hooks/scripts/learn-capture.cjs\""
           }
         ]
+      },
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "DRIFT=$(diff -rq packages/database/migrations/ packages/supabase/supabase/migrations/ 2>/dev/null | wc -l); [ \"$DRIFT\" -gt 0 ] && echo \"[migration-drift] $DRIFT divergence(s) between packages/database/migrations/ and packages/supabase/supabase/migrations/. Sync with cp or run the deploy step.\" >&2; true"
+          }
+        ]
       }
     ],
     "SessionStart": [
@@ -60,6 +107,14 @@
           {
             "type": "command",
             "command": "node \"/home/timothy/Project/Arch-Mk2/.claude/hooks/scripts/session-start.cjs\""
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "PROJECT_DIR=\"${CLAUDE_PROJECT_DIR:-$PWD}\"; TOKEN=$(cat \"$PROJECT_DIR/.memory/daemon.token\" 2>/dev/null || echo \"\"); curl -s -X POST   -H \"Authorization: Bearer $TOKEN\"   -H \"Content-Type: application/json\"   --data-binary @-   \"http://127.0.0.1:37222/hooks/session-start\"   2>/dev/null || true"
           }
         ]
       }
@@ -93,6 +148,16 @@
           {
             "type": "command",
             "command": "node \"/home/timothy/Project/Arch-Mk2/.claude/hooks/scripts/file-changed.cjs\""
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "PROJECT_DIR=\"${CLAUDE_PROJECT_DIR:-$PWD}\"; TOKEN=$(cat \"$PROJECT_DIR/.memory/daemon.token\" 2>/dev/null || echo \"\"); curl -s -X POST   -H \"Authorization: Bearer $TOKEN\"   -H \"Content-Type: application/json\"   --data-binary @-   \"http://127.0.0.1:37222/hooks/prompt-context\"   2>/dev/null || true"
           }
         ]
       }
@@ -164,5 +229,11 @@
       "Bash(git checkout .)",
       "Bash(rm -rf *)"
     ]
+  },
+  "mcpServers": {
+    "reporecall": {
+      "command": "npx",
+      "args": ["-y", "@proofofwork-agency/reporecall", "mcp"]
+    }
   }
 }

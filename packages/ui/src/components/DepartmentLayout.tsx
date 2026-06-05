@@ -143,7 +143,7 @@ export function DepartmentLayout({
           >
             <BarChart3 className="w-3.5 h-3.5" />
           </div>
-          <span className="text-[12px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider">
+          <span className="text-[12px] font-medium text-[var(--text-secondary)] uppercase tracking-wider">
             {department.displayName}
           </span>
         </div>

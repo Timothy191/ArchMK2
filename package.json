@@ -16,6 +16,7 @@
     "syncpack": "syncpack lint",
     "ui": "pnpm --filter @repo/ui ui",
     "test": "nx run-many -t test",
+    "type-check": "nx run-many -t type-check",
     "test:e2e": "playwright test",
     "deps:check": "syncpack list-mismatches",
     "deps:fix": "syncpack fix-mismatches",

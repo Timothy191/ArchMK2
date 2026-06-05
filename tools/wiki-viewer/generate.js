@@ -981,7 +981,6 @@ const sysNodes = [
   { id: "db", label: "@repo/database", sub: "Migrations", group: "pkg", x: 460, y: 130, w: 94, h: 30 },
   { id: "types", label: "@repo/types", sub: "Interfaces", group: "pkg", x: 460, y: 170, w: 78, h: 30 },
   { id: "utils", label: "@repo/utils", sub: "Helpers", group: "pkg", x: 460, y: 210, w: 76, h: 30 },
-  { id: "hooks", label: "@repo/hooks", sub: "React Hooks", group: "pkg", x: 460, y: 250, w: 82, h: 30 },
   { id: "backend", label: "Supabase", sub: "Auth + Postgres + RLS", group: "backend", x: 260, y: 160, w: 86, h: 36 },
   { id: "edge", label: "Edge Functions", sub: "Deno Deploy", group: "backend", x: 80, y: 170, w: 92, h: 30 },
   { id: "ai", label: "AI Service", sub: "Groq / OpenRouter / Together", group: "ext", x: 100, y: 230, w: 86, h: 36 },

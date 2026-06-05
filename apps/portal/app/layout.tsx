@@ -8,12 +8,28 @@ import { FocusModeProvider } from "@/components/FocusModeProvider";
 import { PerformanceListener } from "@/components/PerformanceListener";
 import { CommandBar } from "@/components/CommandBar";
 import { AIAssistantSidebarWrapper } from "@/features/shared/components/ai/AIAssistantSidebarWrapper";
-import { WeatherWidget } from "@/components/weather/WeatherWidget";
-import { SystemClock } from "@/components/clock/SystemClock";
-import { ServicesDropdown } from "@/components/nav/ServicesDropdown";
+import dynamic from "next/dynamic";
 import { FocusModeToggle } from "@/components/FocusModeToggle";
 import { SystemTrayPill } from "@/components/system/SystemTray";
+import { WebVitalsReporter } from "@/components/WebVitalsReporter";
 import { MacMenuBar } from "@repo/ui/MacMenuBar";
+
+const HeaderWidgets = dynamic(
+  () =>
+    import("@/components/HeaderWidgets").then((m) => ({
+      default: m.HeaderWidgets,
+    })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex items-center gap-3" aria-hidden="true">
+        <div className="w-7 h-7 rounded-full bg-black/[0.03] border border-black/[0.05] animate-pulse" />
+        <div className="w-20 h-7 rounded-full bg-black/[0.03] border border-black/[0.05] animate-pulse" />
+        <div className="w-7 h-7 rounded-full bg-black/[0.03] border border-black/[0.05] animate-pulse" />
+      </div>
+    ),
+  },
+);
 import { SplitWindowLayout } from "@/components/system/SplitWindowLayout";
 import { RouteBackground } from "@/components/RouteBackground";
 import { ViewportBoundaries } from "@/components/system/ViewportBoundaries";
@@ -76,6 +92,39 @@ export default function RootLayout({
           rel="dns-prefetch"
           href={process.env.NEXT_PUBLIC_SUPABASE_URL || "https://*.supabase.co"}
         />
+        <script
+          type="speculationrules"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              prerender: [
+                {
+                  source: "document",
+                  where: {
+                    and: [
+                      {
+                        href_matches: [
+                          "/",
+                          "/drilling/*",
+                          "/production/*",
+                          "/access-control/*",
+                          "/engineering/*",
+                          "/control-room/*",
+                          "/safety/*",
+                          "/training/*",
+                          "/satellite-monitoring/*",
+                          "/admin/*",
+                        ],
+                      },
+                      { not: { href_matches: "/api/*" } },
+                      { not: { href_matches: "/_next/*" } },
+                    ],
+                  },
+                  eagerness: "moderate",
+                },
+              ],
+            }),
+          }}
+        />
       </head>
       <body
         suppressHydrationWarning
@@ -91,6 +140,7 @@ export default function RootLayout({
             <FocusModeProvider>
               <RouteBackground />
               <PerformanceListener />
+              <WebVitalsReporter />
               <OfflineBanner />
               <AIAssistantSidebarWrapper />
 
@@ -102,9 +152,7 @@ export default function RootLayout({
                       <div className="flex items-center gap-3">
                         <FocusModeToggle variant="icon" />
                         <SystemTrayPill />
-                        <WeatherWidget variant="header" />
-                        <SystemClock />
-                        <ServicesDropdown />
+                        <HeaderWidgets />
                       </div>
                     </nav>
                   }

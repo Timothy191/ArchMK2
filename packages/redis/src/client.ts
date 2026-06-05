@@ -25,6 +25,12 @@ export async function getRedisClient(): Promise<RedisClientType> {
       url: REDIS_URL,
       socket: {
         keepAlive: true,
+        reconnectStrategy(retries: number) {
+          if (retries > 3) {
+            return new Error("Redis connection failed");
+          }
+          return Math.min(retries * 50, 500);
+        },
       },
     } as any);
 

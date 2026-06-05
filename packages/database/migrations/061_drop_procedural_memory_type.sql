@@ -13,7 +13,7 @@
 -- Step 1: Migrate any existing 'procedural' rows to 'semantic'
 UPDATE memory_embeddings
 SET memory_type = 'semantic'
-WHERE memory_type = 'procedural';
+WHERE memory_type::text = 'procedural';
 
 -- Step 2: Drop column default BEFORE renaming the type
 -- (avoids type-mismatch errors when the default expression references

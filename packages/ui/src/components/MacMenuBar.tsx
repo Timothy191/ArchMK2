@@ -239,7 +239,7 @@ export function MacMenuBar({
           >
             {/* ── Left Column: Departments ── */}
             <div className="flex-1 p-3.5 space-y-2.5">
-              <p className="px-2 text-[10.5px] font-bold text-[var(--text-muted)] uppercase tracking-widest">
+              <p className="px-2 text-[10.5px] font-medium text-[var(--text-muted)] uppercase tracking-widest">
                 System Departments
               </p>
               <div className="grid grid-cols-1 gap-0.5">
@@ -260,7 +260,7 @@ export function MacMenuBar({
                         <Icon className={cn("w-3.5 h-3.5", dept.iconColor)} />
                       </div>
                       <div className="flex flex-col min-w-0">
-                        <span className="text-[13px] font-semibold text-[var(--text-body)] group-hover:text-[var(--text-heading)] truncate leading-tight">
+                        <span className="text-[13px] font-medium text-[var(--text-body)] group-hover:text-[var(--text-heading)] truncate leading-tight">
                           {dept.displayName}
                         </span>
                         <span className="text-[10.5px] text-[var(--text-muted)] truncate leading-tight">
@@ -282,7 +282,7 @@ export function MacMenuBar({
                   <User className="w-4 h-4 text-[var(--text-secondary)]" />
                 </div>
                 <div className="flex flex-col min-w-0">
-                  <span className="text-[12.5px] font-semibold text-[var(--text-heading)] truncate leading-tight">
+                  <span className="text-[12.5px] font-medium text-[var(--text-heading)] truncate leading-tight">
                     Arch Operator
                   </span>
                   <span className="text-[10px] text-[var(--text-muted)] truncate leading-tight">
@@ -293,7 +293,7 @@ export function MacMenuBar({
 
               {/* Tools */}
               <div className="px-2.5 pt-2.5 pb-1 space-y-0.5">
-                <p className="px-2 text-[10.5px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-1">
+                <p className="px-2 text-[10.5px] font-medium text-[var(--text-muted)] uppercase tracking-widest mb-1">
                   Tools
                 </p>
                 {PRODUCTIVITY_LIST.map((tool) => {
@@ -322,7 +322,7 @@ export function MacMenuBar({
 
               {/* Automation */}
               <div className="px-2.5 pb-1 space-y-0.5">
-                <p className="px-2 text-[10.5px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-1 pt-1">
+                <p className="px-2 text-[10.5px] font-medium text-[var(--text-muted)] uppercase tracking-widest mb-1 pt-1">
                   Automation
                 </p>
                 {EXTERNAL_LIST.map((tool) => {

@@ -1,6 +1,8 @@
 # Claude Rules
 
-Modular workflow rules loaded every session. Each file covers a specific domain.
+Modular rules loaded every session. Each file covers a specific domain.
+
+## Workflow & Process
 
 | Rule                       | Scope                                                                                              |
 | -------------------------- | -------------------------------------------------------------------------------------------------- |
@@ -11,4 +13,13 @@ Modular workflow rules loaded every session. Each file covers a specific domain.
 | `task-workflow.md`         | `/spec` `/fix` `/prd` commands, task-first discipline, tool parameter exactness, complexity triage |
 | `thought-process.md`       | Deliberation limits, pre-declaration, brief progress updates, boundary-only validation             |
 
-Project-specific overrides can be added here. These rules complement `.claude/SOUL.md` (style + phase discipline) and `.claude/AGENTS.md` (agent contracts + quality gates).
+## Project Architecture
+
+| Rule               | Scope                                                                                           |
+| ------------------ | ----------------------------------------------------------------------------------------------- |
+| `architecture.md`  | Monorepo structure, apps, packages, dependency versioning, database, AI orchestration           |
+| `portal.md`        | Portal config, path aliases, route groups, global shell, data fetching, testing, CI order       |
+| `auth.md`          | Proxy/middleware, auth resolution flow, RLS, restricted routes, Server Action auth patterns     |
+| `design-system.md` | Light-only theme, OKLCH colors, glass pattern, shadow tokens, typography, animation constraints |
+
+These rules complement `.claude/SOUL.md` (style + phase discipline) and `.claude/AGENTS.md` (agent contracts + quality gates).

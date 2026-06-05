@@ -19,7 +19,6 @@ This project is organized as a **Turborepo** monorepo using **pnpm** for workspa
 - **`supabase`**: Shared Supabase clients (browser, server, middleware) and auth utilities.
 - **`database`**: SQL migrations and schema definitions.
 - **`utils`**: Common utility functions (formatting, dates, shift helpers).
-- **`hooks`**: Shared React hooks.
 - **`types`**: Common TypeScript interfaces and types.
 
 ## 🚀 Quick Start
