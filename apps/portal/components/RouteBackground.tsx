@@ -134,7 +134,7 @@ export function RouteBackground() {
             className="route-bg-video"
             aria-hidden="true"
           >
-            <source src="/background/light-mode.mp4" type="video/mp4" />
+            <source src="/background/light_mode.mp4" type="video/mp4" />
             Your browser does not support the video tag.
           </video>
 
@@ -151,7 +151,7 @@ export function RouteBackground() {
             className="route-bg-focus-video"
             aria-hidden="true"
           >
-            <source src="/background/focused-mode.mp4" type="video/mp4" />
+            <source src="/assets/large/focused-mode.mp4" type="video/mp4" />
             Your browser does not support the video tag.
           </video>
 

@@ -90,7 +90,7 @@ export default async function LoginPage() {
                   </div>
                   {/* Company Branding (do not remove) */}
                   <img
-                    src="/company-branding.jpeg"
+                    src="/assets/large/company-branding.jpeg"
                     alt="Company Logo"
                     className="h-8 w-auto object-contain opacity-95"
                   />
