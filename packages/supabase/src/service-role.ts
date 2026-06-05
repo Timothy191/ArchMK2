@@ -2,10 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 
 // Simple APIError class for package-level use
 class APIError extends Error {
-  constructor(
-    message: string,
-    options?: { statusCode?: number },
-  ) {
+  constructor(message: string) {
     super(message);
     this.name = "APIError";
   }
@@ -17,7 +14,6 @@ export function createServiceRoleClient() {
   if (!url || !key) {
     throw new APIError(
       "Missing SUPABASE_URL or SUPABASE_SERVICE_KEY environment variables",
-      { statusCode: 500 },
     );
   }
   return createClient(url, key, {

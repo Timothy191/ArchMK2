@@ -8,10 +8,7 @@ import { Pool } from "pg";
 
 // Simple APIError class for package-level use
 class APIError extends Error {
-  constructor(
-    message: string,
-    options?: { statusCode?: number },
-  ) {
+  constructor(message: string) {
     super(message);
     this.name = "APIError";
   }
@@ -91,7 +88,6 @@ export function createKyselyClient() {
   if (!url) {
     throw new APIError(
       "Missing DATABASE_URL. Set it in your env (Supabase connection pool string).",
-      { statusCode: 500 },
     );
   }
 
