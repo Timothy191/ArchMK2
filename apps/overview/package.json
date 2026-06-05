@@ -19,7 +19,7 @@
     "next": "^16.2.6",
     "react": "catalog:react19",
     "react-dom": "catalog:react19",
-    "tailwind-merge": "^2.5.4"
+    "tailwind-merge": "^3.6.0"
   },
   "devDependencies": {
     "typescript": "catalog:",
