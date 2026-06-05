@@ -2,12 +2,25 @@
   "name": "@repo/eslint-config",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
+  "exports": {
+    "./library.js": "./library.js",
+    "./next.js": "./next.js",
+    "./react-internal.js": "./react-internal.js",
+    "./flat-library.js": "./flat-library.js"
+  },
   "files": [
     "library.js",
     "next.js",
-    "react-internal.js"
+    "react-internal.js",
+    "flat-library.js"
   ],
   "devDependencies": {
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "@eslint/js": "^9.20.0",
+    "eslint-plugin-only-warn": "^1.1.0",
+    "globals": "^15.15.0",
+    "typescript-eslint": "^8.24.0",
+    "eslint": "catalog:"
   }
 }
