@@ -153,3 +153,6 @@ fallow_output.txt
 audit_report.md
 cleanup-backup/
 metadata.json
+
+# Submodules (tools/devdocs not properly configured)
+tools/devdocs
