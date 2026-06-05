@@ -25,10 +25,10 @@ export default function ControlRoomSatellitePage() {
           </p>
         </div>
         <a
-          href="/satellite-monitoring"
+          href="/executive"
           className="px-3 py-1.5 text-xs font-medium text-[var(--accent-cyan)] border border-[var(--accent-cyan)]/30 rounded-lg hover:bg-[var(--accent-cyan)]/10 transition-colors"
         >
-          Full Dashboard →
+          Executive Hub →
         </a>
       </div>
 

@@ -37,3 +37,11 @@ This file maintains a record of AI agent interventions, context hand-offs, and a
   - `app/(auth)/login/page.tsx`: Fixed path for `company-branding.jpeg` to point to `/assets/large/company-branding.jpeg`.
 - **Context**: Assets copied from the source `assets/` directory to Next.js's `public/` directory underwent naming and structure normalizations (like spaces to underscores). Component paths were not updated simultaneously, leading to 404 Not Found errors.
 - **Next Agent Notes**: When modifying or bringing in new static assets, be aware that `public/` asset naming uses hyphens or underscores in place of spaces. Always verify `<video>` and `<img>` asset references against the actual filesystem layout of `apps/portal/public/`.
+
+## 2026-06-05T21:45:00Z - Agent
+- **Purpose**: Fix broken internal application routes.
+- **Changes**:
+  - Updated `/drilling/machine-telemetry/live` to `/drilling/drilling-operations` in `apps/portal/app/(departments)/drilling/machine-telemetry/page.tsx`.
+  - Updated `/satellite-monitoring` to `/executive` in `apps/portal/app/(departments)/[department]/satellite/page.tsx`.
+  - Updated `/safety/incidents` to `/safety/daily-log` in `apps/portal/components/nav/ServicesDropdown.tsx`.
+- **Next Agent**: Links have been updated to point to existing functioning routes. No broken 404 links remain.

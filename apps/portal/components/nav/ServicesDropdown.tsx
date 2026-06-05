@@ -339,12 +339,12 @@ export function ServicesDropdown() {
                 <DropdownMenuItem
                   className="cursor-default hover:bg-black/[0.04] focus:bg-black/[0.04] rounded-md mx-1 my-0.5 flex items-center gap-2.5 px-2 py-1.5"
                   onSelect={() => {
-                    window.location.href = "/safety/incidents";
+                    window.location.href = "/safety/daily-log";
                   }}
                 >
                   <ClipboardList className="h-3.5 w-3.5 text-[var(--text-secondary)]" />
                   <span className="text-[13px] font-medium text-[var(--text-heading)]">
-                    Report Incident
+                    Daily Safety Log
                   </span>
                 </DropdownMenuItem>
                 <DropdownMenuItem

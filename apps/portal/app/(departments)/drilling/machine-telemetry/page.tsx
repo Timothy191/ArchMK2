@@ -226,10 +226,10 @@ export default async function MachineTelemetryPage({
           </div>
         </div>
         <div className="flex gap-2">
-          <Link href="/drilling/machine-telemetry/live">
+          <Link href="/drilling/drilling-operations">
             <Button variant="outline" className="border-[var(--border-subtle)]">
               <Activity className="w-4 h-4 mr-2" />
-              Live View
+              Live Operations
             </Button>
           </Link>
           <Button className="bg-[var(--accent-blue)] hover:bg-[var(--accent-blue)]/90">
