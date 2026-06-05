@@ -23,14 +23,26 @@ const path = require('node:path');
 const POLICY_VERSION = '1.0.0';
 
 const DEPENDENCY_RULES = [
+  // Forbidden: apps must not reach into the database internals
   { sourceTag: 'scope:app', targetTag: 'scope:package:db-internal', allowed: false, reason: 'apps/* must not import packages/database directly; use packages/supabase client' },
+
+  // Forbidden: UI components must remain pure (no data layer)
   { sourceTag: 'scope:package:ui', targetTag: 'scope:package:db', allowed: false, reason: 'UI components must be pure; no data layer access' },
-  { sourceTag: 'scope:package:ui', targetTag: 'scope:package:utils', allowed: true, reason: 'UI may use pure utility helpers' },
+  { sourceTag: 'scope:package:ui', targetTag: 'scope:package:db-internal', allowed: false, reason: 'UI must not reach database internals' },
+  { sourceTag: 'scope:package:ui', targetTag: 'scope:package:supabase', allowed: false, reason: 'UI is presentational; data fetching belongs in features/' },
+
+  // Forbidden: theme is consumed by UI, not the other way around
   { sourceTag: 'scope:package:theme', targetTag: 'scope:package:ui', allowed: false, reason: 'Theme must not depend on UI; theme is consumed by UI' },
+
+  // Forbidden: tools/* are build-time scripts; cannot import apps/* at runtime
   { sourceTag: 'scope:tool', targetTag: 'scope:app', allowed: false, reason: 'tools/* are build-time scripts; cannot import apps/* at runtime' },
-  { sourceTag: 'scope:app:portal', targetTag: 'scope:package:supabase', allowed: true, reason: 'Portal is the consumer; allowed to use Supabase clients' },
-  { sourceTag: 'scope:app:cms', targetTag: 'scope:package:supabase', allowed: true, reason: 'CMS uses Supabase for auth and content storage' },
-  { sourceTag: 'scope:app:portal', targetTag: 'scope:package:ai-orchestration', allowed: true, onlyForProjects: ['apps/portal'], reason: 'Portal uses AI agent; no other app should import AI internals' },
+  { sourceTag: 'scope:tool', targetTag: 'scope:package:supabase', allowed: false, reason: 'tools/* must not import runtime server/client code' },
+
+  // Allow: apps may import any other package except those forbidden above
+  // (apps are not restricted to a single package — they compose many)
+
+  // Allow: packages may import other packages except forbidden combinations
+  { sourceTag: 'scope:package', targetTag: 'scope:app', allowed: false, reason: 'packages/* must not depend on apps/* (inversion of dependency)' },
 ];
 
 const REQUIRED_CHECKS = [
@@ -127,26 +139,33 @@ allOk &= writeOrCheck(
   generateJson({ capabilities: intentMap })
 );
 
-const depConstraints = DEPENDENCY_RULES.map((r) => ({
-  sourceTag: r.sourceTag,
-  onlyDependentsOf: r.onlyForProjects,
-  bannedImport: !r.allowed,
-  allowedTransitive: r.allowed,
-  message: r.reason,
-}));
+const depConstraints = DEPENDENCY_RULES.map((r) => {
+  const targetTag = r.targetTag;
+  if (r.allowed) {
+    return {
+      sourceTag: r.sourceTag,
+      onlyDependOnLibsWithTags: [targetTag],
+    };
+  }
+  return {
+    sourceTag: r.sourceTag,
+    notDependOnLibsWithTags: [targetTag],
+  };
+});
 
 const eslintContent = `// GENERATED FROM tools/policy-definitions.ts — DO NOT EDIT
 // Run 'pnpm policy:gen' to regenerate.
 
 module.exports = {
-  extends: ['@nx/enforce-module-boundaries'],
+  plugins: ['@nx'],
   rules: {
     '@nx/enforce-module-boundaries': [
       'error',
       {
         enforceBuildableLibDependency: true,
         allowCircularSelfDependency: false,
-        allow: [],
+        banTransitiveDependencies: true,
+        checkDynamicDependenciesExceptions: ['^@repo/.*$'],
         depConstraints: ${JSON.stringify(depConstraints, null, 2)},
       },
     ],

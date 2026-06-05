@@ -66,11 +66,24 @@ jobs:
       - name: Check dependency versions
         run: pnpm deps:lint
 
+      - name: Audit dependencies (high/critical vulnerabilities)
+        run: pnpm audit --audit-level=high --prod
+        continue-on-error: false
+
       - name: Check for dead code
         run: pnpm knip
 
+      - name: Verify policy SSoT (drift detection)
+        run: pnpm policy:check
+
       - name: Markdown Lint
         run: pnpm md:lint
+
+      - name: Secret scan (gitleaks)
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_CONFIG: .gitleaks.toml
 
       - name: Lint & Type Check
         run: pnpm nx run-many -t lint type-check
