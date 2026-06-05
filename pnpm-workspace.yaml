@@ -10,7 +10,7 @@ catalog:
   typescript: ^5.7.0
   "@types/node": ^22
   "@types/eslint": ^8
-  "@supabase/supabase-js": ^2.105.4
+  "@supabase/supabase-js": ^2.107.0
   "supabase": ^2.98.2
   sonner: ^2.0.1
   animejs: ^4.4.1
