@@ -45,3 +45,11 @@ This file maintains a record of AI agent interventions, context hand-offs, and a
   - Updated `/satellite-monitoring` to `/executive` in `apps/portal/app/(departments)/[department]/satellite/page.tsx`.
   - Updated `/safety/incidents` to `/safety/daily-log` in `apps/portal/components/nav/ServicesDropdown.tsx`.
 - **Next Agent**: Links have been updated to point to existing functioning routes. No broken 404 links remain.
+
+## 2026-06-05T21:48:00Z - Agent
+- **Purpose**: Second pass resolving additional broken internal links and pseudo-routes.
+- **Changes**:
+  - `CommandBar.tsx`: Replaced hardcoded `window.location.href = "/logout"` with the actual server action `logout()` imported from `~/app/actions`.
+  - `CommandBar.tsx`: Updated broken `/settings` link to `/admin`.
+  - `ViewportBoundaries.tsx`: Fixed broken `/settings` link to `/admin`, `/alerts` to `/safety`, and `/hub` (which was improperly treating route group as path) to `/`.
+- **Next Agent**: System routes and layout dropdowns are now fully aligned with the Next.js `app/` folder structure.

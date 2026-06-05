@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { logout } from "~/app/actions";
 import { cn } from "@repo/ui/lib/utils";
 import {
   Search,
@@ -109,7 +110,7 @@ const NAV_COMMANDS: CommandItem[] = [
   {
     id: "nav-settings",
     label: "Settings",
-    href: "/settings",
+    href: "/admin",
     category: "Navigation",
     icon: <Settings className="w-4 h-4" />,
   },
@@ -117,7 +118,7 @@ const NAV_COMMANDS: CommandItem[] = [
     id: "nav-logout",
     label: "Log Out",
     action: () => {
-      window.location.href = "/logout";
+      logout().catch(console.error);
     },
     category: "Navigation",
     icon: <LogOut className="w-4 h-4" />,

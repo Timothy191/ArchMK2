@@ -23,11 +23,11 @@ interface ViewportBoundariesProps {
 }
 
 const DOCK_APPS = [
-  { name: "Hub", icon: LayoutDashboard, href: "/hub" },
+  { name: "Hub", icon: LayoutDashboard, href: "/" },
   { name: "Drilling", icon: MapIcon, href: "/drilling" },
   { name: "Engineering", icon: Wrench, href: "/engineering" },
-  { name: "Alerts", icon: Bell, href: "/alerts" },
-  { name: "Settings", icon: Settings, href: "/settings" },
+  { name: "Alerts", icon: Bell, href: "/safety" },
+  { name: "Settings", icon: Settings, href: "/admin" },
 ];
 
 /**
