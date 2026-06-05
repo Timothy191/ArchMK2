@@ -1,0 +1,55 @@
+{
+  "version": "1.0.0",
+  "generatedAt": "2026-06-05T13:33:28.243Z",
+  "rules": [
+    {
+      "sourceTag": "scope:app",
+      "targetTag": "scope:package:db-internal",
+      "allowed": false,
+      "reason": "apps/* must not import packages/database directly; use packages/supabase client"
+    },
+    {
+      "sourceTag": "scope:package:ui",
+      "targetTag": "scope:package:db",
+      "allowed": false,
+      "reason": "UI components must be pure; no data layer access"
+    },
+    {
+      "sourceTag": "scope:package:ui",
+      "targetTag": "scope:package:utils",
+      "allowed": true,
+      "reason": "UI may use pure utility helpers"
+    },
+    {
+      "sourceTag": "scope:package:theme",
+      "targetTag": "scope:package:ui",
+      "allowed": false,
+      "reason": "Theme must not depend on UI; theme is consumed by UI"
+    },
+    {
+      "sourceTag": "scope:tool",
+      "targetTag": "scope:app",
+      "allowed": false,
+      "reason": "tools/* are build-time scripts; cannot import apps/* at runtime"
+    },
+    {
+      "sourceTag": "scope:app:portal",
+      "targetTag": "scope:package:supabase",
+      "allowed": true,
+      "reason": "Portal is the consumer; allowed to use Supabase clients"
+    },
+    {
+      "sourceTag": "scope:app:cms",
+      "targetTag": "scope:package:supabase",
+      "allowed": true,
+      "reason": "CMS uses Supabase for auth and content storage"
+    },
+    {
+      "sourceTag": "scope:app:portal",
+      "targetTag": "scope:package:ai-orchestration",
+      "allowed": true,
+      "onlyForProjects": ["apps/portal"],
+      "reason": "Portal uses AI agent; no other app should import AI internals"
+    }
+  ]
+}
