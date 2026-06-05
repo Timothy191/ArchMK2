@@ -1,11 +1,10 @@
-# Portal in portal architecture and middleware
+# Agentic in Portal in portal architecture and middleware
 
-> seed-9 · depth 1
+> seed-14 · depth 2
 
 ## Sources
 
 - [Agentic-Config-Integration-Engine-Main-App](https://github.com/ARox2005/Agentic-Config-Integration-Engine-Main-App)
-- [Client-Server-in-Distributed-System](https://github.com/hroy/Client-Server-in-Distributed-System)
 
 ## Claims
 

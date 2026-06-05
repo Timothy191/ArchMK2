@@ -1,11 +1,11 @@
-# database migration workflow
+# SQLite in database migration workflow
 
-> seed-3 · depth 0
+> seed-12 · depth 1
 
 ## Sources
 
-- [DBIx-Class-Migration](https://github.com/jjn1056/DBIx-Class-Migration)
 - [alembic-migration-checker](https://github.com/DevGlitch/alembic-migration-checker)
+- [torrents](https://github.com/swati1024/torrents)
 
 ## Claims
 

@@ -12,12 +12,14 @@
 - # 🎓 Student Portal API
 
 A full-stack CRUD API for managing a Student Portal using **Node.js**, **Express**, and **MySQL**. [^src-1]
+
 - This application provides routes for managing students, courses, instructors, and enrollments. [^src-2]
 - Data is held in memory for fast local development and clear demonstration of routing, middleware, and modular Express design. [^src-3]
 - Students: Alice, Bob, Charlie
-Student: Alice
-Courses: Frontend, Backend
-Course: Backend, Description: Node.js, Express, MongoDB
+  Student: Alice
+  Courses: Frontend, Backend
+  Course: Backend, Description: Node.js, Express, MongoDB
+
 ```
 
 ---
@@ -41,3 +43,4 @@ Screenshots for the API (stored in [`images/`](images/)). [^src-4]
 ## Open follow-ups
 
 _Auto-extracted; review and prune._
+```

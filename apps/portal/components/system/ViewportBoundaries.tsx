@@ -81,7 +81,9 @@ export function ViewportBoundaries({ className }: ViewportBoundariesProps) {
               className="group relative flex items-center gap-2 p-2 px-3 rounded-xl hover:bg-black/5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-arch-accent-blue/50"
             >
               <Command className="w-4 h-4 text-[var(--text-heading)] group-hover:scale-110 transition-transform duration-300 ease-glass" />
-              <span className="text-xs font-medium text-[var(--text-heading)]">Start</span>
+              <span className="text-xs font-medium text-[var(--text-heading)]">
+                Start
+              </span>
             </button>
           </div>
 
@@ -98,7 +100,7 @@ export function ViewportBoundaries({ className }: ViewportBoundariesProps) {
                   href={app.href}
                   className={cn(
                     "group relative flex items-center gap-2 p-2 px-3 rounded-xl transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-arch-accent-blue/50",
-                    isActive ? "bg-black/5" : "hover:bg-black/5"
+                    isActive ? "bg-black/5" : "hover:bg-black/5",
                   )}
                 >
                   <Icon
@@ -115,7 +117,7 @@ export function ViewportBoundaries({ className }: ViewportBoundariesProps) {
                       "text-xs font-medium transition-colors duration-300",
                       isActive
                         ? "text-[var(--accent-blue)]"
-                        : "text-[var(--text-secondary)] group-hover:text-[var(--text-heading)]"
+                        : "text-[var(--text-secondary)] group-hover:text-[var(--text-heading)]",
                     )}
                   >
                     {app.name}

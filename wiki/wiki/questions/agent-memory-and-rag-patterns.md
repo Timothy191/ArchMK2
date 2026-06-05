@@ -9,7 +9,7 @@
 
 ## Claims
 
-- > 🧭  **New here?** Start with [01 Conversation Buffer Memory](all_techniques/01_conversation_buffer_memory/) or pick a [Learning Path](#-learning-paths). [^src-1]
+- > 🧭 **New here?** Start with [01 Conversation Buffer Memory](all_techniques/01_conversation_buffer_memory/) or pick a [Learning Path](#-learning-paths). [^src-1]
 - See the [Decision Tree](#-which-technique-do-i-need) below. [^src-2]
 - 30 runnable Jupyter notebooks covering conversation buffers, vector stores, knowledge graphs, episodic and semantic memory, working memory, MemGPT, Mem0, Letta, Zep, Graphiti, LoCoMo benchmarks, and production memory patterns. [^src-3]
 - You'll get the **intuition** behind every technique. [^src-4]
