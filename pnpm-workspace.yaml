@@ -22,7 +22,7 @@ catalog:
   xstate: ^5.19.2
   "@tremor/react": ^3.18.7
   "@sentry/nextjs": ^10.53.1
-  react-hook-form: ^7.76.0
+  react-hook-form: ^7.77.0
 
 catalogs:
   react19:
