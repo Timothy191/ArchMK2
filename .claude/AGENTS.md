@@ -77,3 +77,8 @@ PostToolUse: auto-format + lint on .ts/.tsx files.
 Stop: learn-capture prompt.
 SessionStart: load patterns.
 PreCompact/PostCompact: state preservation.
+
+### Agent Tracing & Context Hand-off (MANDATORY RULE)
+- **Workflow Traces**: All agents MUST update the `AGENT_TRACER.md` file in the root of the package/app they are modifying. You must log a timestamp, your purpose, the changes made, and what the next agent should know.
+- **Context Breadcrumbs**: When implementing complex architectural logic, agents MUST leave inline `// AGENT-TRACE: <explanation>` or `/* AGENT-TRACE: ... */` comments. This ensures future AI agents understand the implicit business rules or domain context immediately upon reading the file.
+- **Runtime Telemetry**: Where applicable, ensure functions are instrumented (e.g., `prom-client` or OpenTelemetry spans) so runtime behavior can be analyzed by subsequent debugging agents.

@@ -28,3 +28,8 @@ Single source of truth for visual design, tokens, and Tailwind configuration.
 - **Easing**: `cubic-bezier(0.16, 1, 0.3, 1)` (ease-out-expo).
 - **Durations**: 150ms (micro), 250ms (structural), 400ms (modal).
 - **Restrictions**: Never animate layout properties (`width`, `height`, etc.). Only `opacity`, `transform`, and colors.
+
+### Agent Tracing & Context Hand-off (MANDATORY RULE)
+- **Workflow Traces**: All agents MUST update the `AGENT_TRACER.md` file in the root of the package/app they are modifying. You must log a timestamp, your purpose, the changes made, and what the next agent should know.
+- **Context Breadcrumbs**: When implementing complex architectural logic, agents MUST leave inline `// AGENT-TRACE: <explanation>` or `/* AGENT-TRACE: ... */` comments. This ensures future AI agents understand the implicit business rules or domain context immediately upon reading the file.
+- **Runtime Telemetry**: Where applicable, ensure functions are instrumented (e.g., `prom-client` or OpenTelemetry spans) so runtime behavior can be analyzed by subsequent debugging agents.

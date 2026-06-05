@@ -156,3 +156,4 @@ metadata.json
 
 # Submodules (tools/devdocs not properly configured)
 tools/devdocs
+.codebuddy

@@ -59,6 +59,11 @@ Industrial operations portal built for high-scale vigilance and operational prec
 - **Orphan Cleanup**: Remove imports/vars/functions your changes made unused.
 - **Never Invent Values**: Authoritatively confirm paths, env vars, and IDs before using them.
 
+### Agent Tracing & Context Hand-off (MANDATORY RULE)
+- **Workflow Traces**: All agents MUST update the `AGENT_TRACER.md` file in the root of the package/app they are modifying. You must log a timestamp, your purpose, the changes made, and what the next agent should know.
+- **Context Breadcrumbs**: When implementing complex architectural logic, agents MUST leave inline `// AGENT-TRACE: <explanation>` or `/* AGENT-TRACE: ... */` comments. This ensures future AI agents understand the implicit business rules or domain context immediately upon reading the file.
+- **Runtime Telemetry**: Where applicable, ensure functions are instrumented (e.g., `prom-client` or OpenTelemetry spans) so runtime behavior can be analyzed by subsequent debugging agents.
+
 ## 📖 Subdirectory Instructions
 
 - [apps/portal/GEMINI.md](./apps/portal/GEMINI.md) — Portal specific rules & AI orchestration.
