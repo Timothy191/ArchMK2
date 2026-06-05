@@ -1,3 +1,12 @@
+function deriveInputId(label: string, id?: string, name?: string): string {
+  if (id) return id;
+  if (name) return `field-${name}`;
+  return `field-${label
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")}`;
+}
+
 import { cn } from "../lib/utils";
 
 const inputStyles =
@@ -14,11 +23,18 @@ export function FormInput({
   error,
   optional,
   className,
+  id: idProp,
+  name,
   ...props
 }: FormInputProps) {
+  const inputId = deriveInputId(label, idProp, name);
+  const errorId = error ? `${inputId}-error` : undefined;
   return (
     <div className="space-y-2">
-      <label className="block text-sm text-[var(--text-secondary)]">
+      <label
+        htmlFor={inputId}
+        className="block text-sm text-[var(--text-secondary)]"
+      >
         {label}
         {optional && (
           <span className="text-[var(--text-muted)]"> (Optional)</span>
@@ -27,8 +43,18 @@ export function FormInput({
           <span className="text-red-400"> *</span>
         )}
       </label>
-      <input className={cn(inputStyles, className)} {...props} />
-      {error && <p className="text-red-400 text-xs">{error}</p>}
+      <input
+        id={inputId}
+        aria-describedby={errorId}
+        className={cn(inputStyles, className)}
+        name={name}
+        {...props}
+      />
+      {error && (
+        <p id={errorId} className="text-red-400 text-xs" role="alert">
+          {error}
+        </p>
+      )}
     </div>
   );
 }
@@ -49,17 +75,30 @@ export function FormSelect({
   options,
   placeholder = "Select...",
   className,
+  id: idProp,
+  name,
   ...props
 }: FormSelectProps) {
+  const inputId = deriveInputId(label, idProp, name);
+  const errorId = error ? `${inputId}-error` : undefined;
   return (
     <div className="space-y-2">
-      <label className="block text-sm text-[var(--text-secondary)]">
+      <label
+        htmlFor={inputId}
+        className="block text-sm text-[var(--text-secondary)]"
+      >
         {label}
         {optional && (
           <span className="text-[var(--text-muted)]"> (Optional)</span>
         )}
       </label>
-      <select className={cn(inputStyles, className)} {...props}>
+      <select
+        id={inputId}
+        aria-describedby={errorId}
+        className={cn(inputStyles, className)}
+        name={name}
+        {...props}
+      >
         <option value="">{placeholder}</option>
         {options.map((opt) => (
           <option key={opt.value} value={opt.value}>
@@ -67,7 +106,11 @@ export function FormSelect({
           </option>
         ))}
       </select>
-      {error && <p className="text-red-400 text-xs">{error}</p>}
+      {error && (
+        <p id={errorId} className="text-red-400 text-xs" role="alert">
+          {error}
+        </p>
+      )}
     </div>
   );
 }
@@ -84,21 +127,35 @@ export function FormTextarea({
   error,
   optional,
   className,
+  id: idProp,
+  name,
   ...props
 }: FormTextareaProps) {
+  const inputId = deriveInputId(label, idProp, name);
+  const errorId = error ? `${inputId}-error` : undefined;
   return (
     <div className="space-y-2">
-      <label className="block text-sm text-[var(--text-secondary)]">
+      <label
+        htmlFor={inputId}
+        className="block text-sm text-[var(--text-secondary)]"
+      >
         {label}
         {optional && (
           <span className="text-[var(--text-muted)]"> (Optional)</span>
         )}
       </label>
       <textarea
+        id={inputId}
+        aria-describedby={errorId}
         className={cn(inputStyles, "resize-none", className)}
+        name={name}
         {...props}
       />
-      {error && <p className="text-red-400 text-xs">{error}</p>}
+      {error && (
+        <p id={errorId} className="text-red-400 text-xs" role="alert">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

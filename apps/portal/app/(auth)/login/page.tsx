@@ -30,25 +30,8 @@ export default async function LoginPage() {
 
   return (
     <main className="relative w-full min-h-[calc(100vh-28px)] flex flex-col items-start justify-start py-8 pl-6 pr-8 md:pl-12 md:pr-16 lg:pl-20 lg:pr-32 overflow-y-auto">
-      {/* Background Video (Fixed to cover entire viewport) */}
-      <video
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="fixed inset-0 w-full h-full object-cover -z-20 [image-rendering:high-quality] [image-rendering:-webkit-optimize-contrast] [transform:translate3d(0,0,0)]"
-      >
-        <source src="/background/light_mode.mp4" type="video/mp4" />
-      </video>
-
-      {/* Subtle overlay to ensure the login card pops against the video without blurring it */}
-      <div className="fixed inset-0 bg-black/10 -z-10" />
-
-      {/* Ambient Film Grain overlay to prevent banding and add crisp visual texture */}
-      <div className="route-bg-grain" aria-hidden="true" />
-
       {/* Login Card wrapper */}
-      <div className="relative z-10 w-[380px] max-w-full my-auto animate-fade-up -top-10 flex flex-col justify-center">
+      <div className="relative z-10 w-[380px] max-w-full my-auto animate-fade-up -top-16 flex flex-col justify-center">
         {systemUnavailable ? (
           <div className="bg-white/70 backdrop-blur-lg border border-white/40 rounded-2xl overflow-hidden w-full shadow-window">
             <div className="flex items-center gap-3 px-4 py-2.5 border-b border-arch-border-subtle bg-black/[0.02]">
@@ -92,7 +75,7 @@ export default async function LoginPage() {
               </span>
             </div>
 
-            <div className="px-8 py-10 flex-1 flex flex-col justify-center space-y-10">
+            <div className="px-8 py-10 flex-1 flex flex-col justify-center space-y-8">
               {/* Header Bar */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 select-none">
@@ -100,21 +83,29 @@ export default async function LoginPage() {
                     Welcome Back
                   </span>
                 </div>
-                <div className="flex items-center gap-2.5">
+                <div className="flex flex-col items-start gap-2">
                   <div className="flex items-center gap-1.5 text-[10px] text-arch-accent-green">
                     <Lock className="w-3 h-3" strokeWidth={1.5} />
                     <span>Secure</span>
                   </div>
+                  {/* Company Branding (do not remove) */}
+                  <img
+                    src="/company-branding.jpeg"
+                    alt="Company Logo"
+                    className="h-8 w-auto object-contain opacity-95"
+                  />
                 </div>
               </div>
 
               {/* Title */}
               <div className="flex items-center gap-4">
-                <img
-                  src="/logo-large.png"
-                  alt="Arch Logo"
-                  className="w-16 h-16 object-contain shrink-0"
-                />
+                <div className="flex items-center gap-4">
+                  <img
+                    src="/logo-large.png"
+                    alt="Arch Logo"
+                    className="w-16 h-16 object-contain shrink-0"
+                  />
+                </div>
                 <div className="space-y-1">
                   <h1 className="text-2xl font-bold tracking-tight text-[var(--text-heading)]">
                     Arch

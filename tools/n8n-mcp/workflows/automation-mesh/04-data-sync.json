@@ -33,9 +33,28 @@
     },
     {
       "parameters": {
-        "jsCode": "const { syncType, mapping, startedAt } = $json;\nreturn {\n  status: 'completed',\n  syncType,\n  mapping,\n  durationMs: Date.now() - new Date(startedAt).getTime(),\n  completedAt: new Date().toISOString()\n};"
+        "method": "POST",
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/rpc/trigger_sync",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "body": "={{ JSON.stringify({ sync_type: $json.syncType, direction: $json.direction }) }}",
+        "options": {
+          "timeout": 60000,
+          "maxRetries": 3,
+          "retryOn": ["5XX", "timeout"]
+        }
       },
-      "name": "Sync Complete",
+      "name": "Execute Sync",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
+      "position": [750, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $json;\nreturn {\n  status: 'completed',\n  syncType: $json.syncType,\n  mapping: response?.mapping || $json.mapping,\n  durationMs: Date.now() - new Date($json.startedAt).getTime(),\n  completedAt: new Date().toISOString()\n};"
+      },
+      "name": "Format Result",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [850, 300]
@@ -49,10 +68,13 @@
       "main": [[{ "node": "Resolve Mapping", "type": "main", "index": 0 }]]
     },
     "Resolve Mapping": {
-      "main": [[{ "node": "Sync Complete", "type": "main", "index": 0 }]]
+      "main": [[{ "node": "Execute Sync", "type": "main", "index": 0 }]]
+    },
+    "Execute Sync": {
+      "main": [[{ "node": "Format Result", "type": "main", "index": 0 }]]
     }
   },
-  "active": true,
+  "active": false,
   "settings": {},
   "tags": ["automation-mesh", "data-sync", "etl"],
   "id": "mesh-data-sync"

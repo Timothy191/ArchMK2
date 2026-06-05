@@ -2,6 +2,14 @@
 
 This document serves as the single source of truth for the visual style, design tokens, and components of the Arch-Systems Mining Operations Portal (Plantcor OS).
 
+## Related Documentation
+
+- **[DOCUMENTATION_INDEX.md](DOCUMENTATION_INDEX.md)** — Complete documentation index and quick navigation guide
+- **[PRODUCT.md](PRODUCT.md)** — Product strategy, user personas, and design direction
+- **[CLAUDE.md](CLAUDE.md)** — Technical implementation guide
+- **[LIQUID_GLASS_CHECKLIST.md](LIQUID_GLASS_CHECKLIST.md)** — UI implementation checklist
+- **[AGENTS.md](AGENTS.md)** — Development workflow and quality gates
+
 ---
 
 ## Color System
@@ -11,23 +19,23 @@ This document serves as the single source of truth for the visual style, design 
 
 ### Base Palette (OKLCH)
 
-| Token Naming (`namespace--category--variant`) | OKLCH                  | Hex Reference        | Dark Mode Equivalent (Future-Proof) | Usage                                               |
-| :-------------------------------------------- | :--------------------- | :------------------- | :---------------------------------- | :-------------------------------------------------- |
-| `color-bg-base`                               | `oklch(97% 0.001 250)` | `#f5f5f7`            | `oklch(15% 0.01 250)`               | Main application background. macOS base background. |
-| `color-bg-elevated`                           | `oklch(100% 0 0)`      | `#ffffff`            | `oklch(22% 0.015 250)`              | Cards, panels, sidebar, elevated surfaces.          |
-| `color-bg-sunken`                             | `oklch(93% 0.002 250)` | `#e8e8ed`            | `oklch(10% 0.005 250)`              | Input backgrounds, nested containers, code blocks.  |
-| `color-border-subtle`                         | `oklch(90% 0.003 250)` | `rgba(0,0,0,0.06)`   | `oklch(30% 0.01 250)`               | Dividers, table borders, inactive tab borders.      |
-| `color-border-focus`                          | `oklch(60% 0.15 250)`  | `#007aff`            | `oklch(55% 0.15 250)`               | Focus rings, active tab borders. macOS Blue.        |
-| `color-text-primary`                          | `oklch(25% 0.005 250)` | `#1d1d1f`            | `oklch(95% 0.005 250)`              | Headings, primary labels. macOS Heading.            |
-| `color-text-secondary`                        | `oklch(45% 0.005 250)` | `#3a3a3c`            | `oklch(80% 0.005 250)`              | Body text, primary labels. macOS Body.              |
-| `color-text-tertiary`                         | `oklch(60% 0.005 250)` | `#6e6e73`            | `oklch(65% 0.005 250)`              | Captions, timestamps, placeholders.                 |
-| `color-action-primary`                        | `oklch(45% 0.22 260)`  | `#0066ff`            | `oklch(45% 0.22 260)`               | Primary CTA, electric blue interactive highlights.  |
-| `color-action-primary-hover`                  | `oklch(40% 0.2 260)`   | `#0052d6`            | `oklch(40% 0.2 260)`                | Primary CTA hover state.                            |
-| `color-status-positive`                       | `oklch(70% 0.15 160)`  | `#10b981`            | `oklch(70% 0.15 160)`               | Mint Green — optimal / active / healthy.            |
-| `color-status-warning`                        | `oklch(75% 0.15 65)`   | `#f59e0b`            | `oklch(75% 0.15 65)`                | Amber — caution, warnings, pending.                 |
-| `color-status-danger`                         | `oklch(55% 0.2 25)`    | `#ff3b30`            | `oklch(55% 0.2 25)`                 | Red — critical alerts, errors, offline.             |
-| `color-accent-subtle`                         | `oklch(95% 0.02 260)`  | `rgba(0,102,255,.1)` | `oklch(25% 0.04 250)`               | Accent backgrounds, tags, subtle highlights.        |
-| `color-bg-hud`                                | `oklch(0% 0 0 / 60%)`  | `rgba(0,0,0,0.6)`    | `oklch(0% 0 0 / 70%)`               | Dark glassmorphic background for HUD overlays.      |
+| Token Naming (`namespace--category--variant`) | OKLCH                    | Hex Reference        | Dark Mode Equivalent (Future-Proof) | Usage                                                   |
+| :-------------------------------------------- | :----------------------- | :------------------- | :---------------------------------- | :------------------------------------------------------ |
+| `color-bg-base`                               | `oklch(97% 0.001 250)`   | `#f5f5f7`            | `oklch(15% 0.01 250)`               | Main application background. macOS base background.     |
+| `color-bg-elevated`                           | `oklch(100% 0 0)`        | `#ffffff`            | `oklch(22% 0.015 250)`              | Cards, panels, sidebar, elevated surfaces.              |
+| `color-bg-sunken`                             | `oklch(93% 0.002 250)`   | `#e8e8ed`            | `oklch(10% 0.005 250)`              | Input backgrounds, nested containers, code blocks.      |
+| `color-border-subtle`                         | `oklch(90% 0.003 250)`   | `rgba(0,0,0,0.06)`   | `oklch(30% 0.01 250)`               | Dividers, table borders, inactive tab borders.          |
+| `color-border-focus`                          | `oklch(20.5% 0.007 240)` | `#1c1c1e`            | `oklch(20.5% 0.007 240)`            | Focus rings, active tab borders. Deep Charcoal / Slate. |
+| `color-text-primary`                          | `oklch(25% 0.005 250)`   | `#1d1d1f`            | `oklch(95% 0.005 250)`              | Headings, primary labels. macOS Heading.                |
+| `color-text-secondary`                        | `oklch(45% 0.005 250)`   | `#3a3a3c`            | `oklch(80% 0.005 250)`              | Body text, primary labels. macOS Body.                  |
+| `color-text-tertiary`                         | `oklch(60% 0.005 250)`   | `#6e6e73`            | `oklch(65% 0.005 250)`              | Captions, timestamps, placeholders.                     |
+| `color-action-primary`                        | `oklch(20.5% 0.007 240)` | `#1c1c1e`            | `oklch(20.5% 0.007 240)`            | Primary CTA, charcoal interactive highlights.           |
+| `color-action-primary-hover`                  | `oklch(27.4% 0.007 240)` | `#2c2c2e`            | `oklch(27.4% 0.007 240)`            | Primary CTA hover state (dark slate/charcoal).          |
+| `color-status-positive`                       | `oklch(70% 0.15 160)`    | `#10b981`            | `oklch(70% 0.15 160)`               | Mint Green — optimal / active / healthy.                |
+| `color-status-warning`                        | `oklch(75% 0.15 65)`     | `#f59e0b`            | `oklch(75% 0.15 65)`                | Amber — caution, warnings, pending.                     |
+| `color-status-danger`                         | `oklch(55% 0.2 25)`      | `#ff3b30`            | `oklch(55% 0.2 25)`                 | Red — critical alerts, errors, offline.                 |
+| `color-accent-subtle`                         | `oklch(92% 0.005 240)`   | `rgba(28,28,30,.08)` | `oklch(25% 0.04 250)`               | Accent backgrounds, tags, subtle highlights.            |
+| `color-bg-hud`                                | `oklch(0% 0 0 / 60%)`    | `rgba(0,0,0,0.6)`    | `oklch(0% 0 0 / 70%)`               | Dark glassmorphic background for HUD overlays.          |
 
 ### State Opacity & Overlay Tokens
 
@@ -51,7 +59,7 @@ All core text and background pairings are strictly verified to ensure accessibil
 ### Color Rules
 
 - Never use pure `#000`. Pure `#fff` is strictly for `color-bg-elevated`.
-- Accent color (macOS Blue) is the primary interactive signal.
+- Accent color (Slate & Pitch Black) is the primary interactive signal.
 - Status colors (success/danger/warning/info) are semantic, not decorative. They appear as small indicators (dots, borders, badges, rings) and are never used as large fills.
 - KPI color variants map to the semantic palette: `green` → success, `red` → danger, `orange` → warning, `teal` → info.
 
@@ -149,13 +157,13 @@ Dashboards and detailed metrics views are structured using a responsive 12-colum
 
 All interactive elements must support and visually manifest this complete state list:
 
-| Component            | Default                        | Hover                       | Active/Pressed           | Focus-Visible                                 | Disabled                                  |
-| :------------------- | :----------------------------- | :-------------------------- | :----------------------- | :-------------------------------------------- | :---------------------------------------- |
-| **Primary Button**   | `color-accent` bg, white text  | `color-accent-hover` bg     | `scale-[0.97]` transform | `0 0 0 3px oklch(60% 0.15 250 / 0.5)` outline | `opacity-disabled` (0.38), no events      |
-| **Secondary Button** | `color-bg-elevated` bg, border | `bg-hover` bg               | `scale-[0.97]` transform | `0 0 0 3px oklch(60% 0.15 250 / 0.5)` outline | `opacity-disabled` (0.38), no events      |
-| **Form Input**       | `color-bg-sunken`, border      | Inset border color changes  | No scale change          | `color-border-focus` border outline           | `opacity-disabled`, `pointer-events-none` |
-| **Checkbox/Radio**   | `color-bg-sunken` border       | Accent subtle bg hover      | Standard active click    | `0 0 0 3px oklch(60% 0.15 250 / 0.5)` ring    | `opacity-disabled` (0.38), grey fill      |
-| **Select Menu**      | `color-bg-sunken` border       | Subtle background highlight | Open state active        | Focus border indicator                        | Inactive menu option, greyed text         |
+| Component            | Default                        | Hover                       | Active/Pressed           | Focus-Visible                                  | Disabled                                  |
+| :------------------- | :----------------------------- | :-------------------------- | :----------------------- | :--------------------------------------------- | :---------------------------------------- |
+| **Primary Button**   | `color-accent` bg, white text  | `color-accent-hover` bg     | `scale-[0.97]` transform | `0 0 0 3px oklch(25% 0.005 250 / 0.5)` outline | `opacity-disabled` (0.38), no events      |
+| **Secondary Button** | `color-bg-elevated` bg, border | `bg-hover` bg               | `scale-[0.97]` transform | `0 0 0 3px oklch(25% 0.005 250 / 0.5)` outline | `opacity-disabled` (0.38), no events      |
+| **Form Input**       | `color-bg-sunken`, border      | Inset border color changes  | No scale change          | `color-border-focus` border outline            | `opacity-disabled`, `pointer-events-none` |
+| **Checkbox/Radio**   | `color-bg-sunken` border       | Accent subtle bg hover      | Standard active click    | `0 0 0 3px oklch(60% 0.15 250 / 0.5)` ring     | `opacity-disabled` (0.38), grey fill      |
+| **Select Menu**      | `color-bg-sunken` border       | Subtle background highlight | Open state active        | Focus border indicator                         | Inactive menu option, greyed text         |
 
 ---
 
@@ -289,6 +297,30 @@ Overlays and HUD elements overlay layout pages without completely blocking backg
 - **Status badge**: Pill shape. Background is `color-accent-subtle` (or semantic subtle variant), text is the full semantic color.
 - **Corner radius**: `radius-full` (9999px).
 
+### Login & Authentication Interface
+
+The sign-in interface is a key entry point that demonstrates the peak of the system's "Liquid Glass" visual design language and macOS Sonoma aesthetics.
+
+- **Background Video**: Fixed high-resolution loop representing active operations (`/background/light_mode.mp4`). It is overlayed with a subtle 10% dark overlay (`bg-black/10`) to ensure contrast and readability of form elements.
+- **Ambient Film Grain**: A persistent noise/grain layer overlay (`.route-bg-grain`) is rendered on top of the layout to eliminate color banding in gradients and videos and add a tactile texture.
+- **Window Geometry (macOS Sign-In Card)**:
+  - **Container**: A `w-[380px]` frosty glassmorphic panel (`.liquid-glass-light` class) with a 1px white border (`border-white/40`), custom shadow (`shadow-window`), and rounded corners (`rounded-xl`).
+  - **Title Bar**: An OS-style header bar with macOS window controls: red, yellow, and green dots (`bg-mac-red`, `bg-mac-yellow`, `bg-mac-green` with subtle borders) and centered status text (`Arch — System Sign In` at `text-[13px] font-medium text-[var(--text-secondary)]`).
+  - **Body Padding**: Spacious interior structure (`px-8 py-10`) separating controls with a vertical stack spacing of `space-y-10`.
+  - **Enterprise Footer**: A bottom bar (`px-4 py-3 bg-black/[0.02] border-t border-arch-border-subtle`) housing a language selector dropdown and the system version/build tags.
+- **Form Inputs**:
+  - Custom inputs (`variant="login"`) with a background layer (`.liquid-glass-input`) and a slate/charcoal focus ring (`focus-ring-arch-blue` mapping to `focus:border-zinc-800 focus:ring-4 focus:ring-zinc-800/20`).
+  - **RFID/NFC Icon**: An animated SVG icon inside the Employee ID field that scales and brightens on hover/focus-within (`group-hover:scale-110 group-focus-within:scale-110`).
+  - **Caps Lock Alert**: A warning message ("Caps Lock is on") in yellow (`text-arch-accent-amber`) appears dynamically when typing with Caps Lock enabled.
+- **Action CTA Buttons (Sign In / SSO)**:
+  - Both buttons are rectangular with rounded corners (`rounded-md` matching `var(--radius-md)`) and use the `.liquid-glass-button` class for glassmorphic depth.
+  - **Tactile Click Feedback**: Integrated using Framer Motion (or utility mappings) with `hoverScale={1}` and `tapScale={0.97}`.
+  - **Color Coding**:
+    - **Primary Sign-In**: Filled with deep charcoal/pitch black (`bg-[var(--color-action-primary)] hover:bg-[var(--color-action-primary-hover)] text-white`).
+    - **Single Sign-On (SSO)**: A secondary outline button (`border border-black/[0.06] bg-black/[0.02] hover:bg-black/[0.04] text-[var(--text-secondary)]`).
+- **Contextual VPN Notice**:
+  - A subtle alert box (`px-3.5 py-2.5 rounded-lg border border-black/[0.04] bg-black/[0.02] text-[11px]`) informing operators about VPN connection requirements.
+
 ---
 
 ## Motion
@@ -318,7 +350,7 @@ Animations must feel light, natural, and immediate. Never block user interaction
 ### Focus Indicator Policy
 
 Focus states must be prominent. Focus indicators must use a full focus ring:
-`0 0 0 3px oklch(60% 0.15 250 / 50%)` (macOS Blue glow). It must remain visible on both base and elevated background states.
+`0 0 0 3px oklch(25% 0.005 250 / 50%)` (Charcoal focus ring). It must remain visible on both base and elevated background states.
 
 ### Touch Target Minimum Size
 

@@ -3,6 +3,10 @@ import { inngest, syncPlaybackEvent } from "@repo/utils/inngest";
 import { logError } from "@/lib/errors/error-logger";
 import { createServerSupabaseClient } from "@repo/supabase/server";
 import { withRateLimit } from "@/lib/api/rate-limit-middleware";
+import { validateBody } from "@/lib/api/response";
+import { applyCors } from "@/lib/api/cors";
+import { withBodyLimit } from "@/lib/api/body-limit";
+import { syncPlaybackSchema } from "@/lib/api/schemas";
 
 async function handlePlaybackRequest(req: NextRequest): Promise<NextResponse> {
   const supabase = await createServerSupabaseClient();
@@ -15,9 +19,9 @@ async function handlePlaybackRequest(req: NextRequest): Promise<NextResponse> {
   }
 
   try {
-    const body = await req.json();
+    const reqClone = req.clone();
+    const body = await reqClone.json().catch(() => ({}));
     const { idempotencyKey, actionType, payload, departmentId } = body;
-
     if (!idempotencyKey || !actionType || !payload || !departmentId) {
       return NextResponse.json(
         { error: "Missing required fields" },
@@ -25,9 +29,17 @@ async function handlePlaybackRequest(req: NextRequest): Promise<NextResponse> {
       );
     }
 
+    const parsed = await validateBody(req, syncPlaybackSchema);
+    if (parsed instanceof NextResponse) return parsed;
+
     await inngest.send({
       name: syncPlaybackEvent,
-      data: { idempotencyKey, actionType, payload, departmentId },
+      data: {
+        idempotencyKey: parsed.data.idempotencyKey,
+        actionType: parsed.data.actionType,
+        payload: parsed.data.payload,
+        departmentId: parsed.data.departmentId,
+      },
     });
 
     return NextResponse.json({ success: true, queued: true });
@@ -43,5 +55,14 @@ async function handlePlaybackRequest(req: NextRequest): Promise<NextResponse> {
 }
 
 export async function POST(req: NextRequest) {
-  return withRateLimit(req, () => handlePlaybackRequest(req));
+  return withBodyLimit(
+    req,
+    async () => {
+      return applyCors(
+        req,
+        await withRateLimit(req, () => handlePlaybackRequest(req)),
+      );
+    },
+    { maxSize: 1048576 },
+  );
 }

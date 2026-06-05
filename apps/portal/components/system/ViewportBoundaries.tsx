@@ -78,13 +78,10 @@ export function ViewportBoundaries({ className }: ViewportBoundariesProps) {
             <button
               type="button"
               aria-label="Start Menu"
-              className="group relative p-2 rounded-xl hover:bg-black/5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-arch-accent-blue/50"
+              className="group relative flex items-center gap-2 p-2 px-3 rounded-xl hover:bg-black/5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-arch-accent-blue/50"
             >
-              <Command className="w-5 h-5 text-[var(--text-heading)] group-hover:scale-110 transition-transform duration-300 ease-glass" />
-              {/* Tooltip */}
-              <div className="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 pointer-events-none transition-all duration-200 px-2.5 py-1 rounded-md bg-black/80 text-white text-[10px] font-medium whitespace-nowrap shadow-card">
-                Start
-              </div>
+              <Command className="w-4 h-4 text-[var(--text-heading)] group-hover:scale-110 transition-transform duration-300 ease-glass" />
+              <span className="text-xs font-medium text-[var(--text-heading)]">Start</span>
             </button>
           </div>
 
@@ -99,27 +96,35 @@ export function ViewportBoundaries({ className }: ViewportBoundariesProps) {
                 <Link
                   key={app.name}
                   href={app.href}
-                  className="group relative p-2 rounded-xl hover:bg-black/5 transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-arch-accent-blue/50"
+                  className={cn(
+                    "group relative flex items-center gap-2 p-2 px-3 rounded-xl transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-arch-accent-blue/50",
+                    isActive ? "bg-black/5" : "hover:bg-black/5"
+                  )}
                 >
                   <Icon
                     className={cn(
-                      "w-5 h-5 transition-transform duration-300 ease-glass group-hover:scale-110 group-hover:-translate-y-0.5",
+                      "w-4 h-4 transition-transform duration-300 ease-glass group-hover:scale-110 group-hover:-translate-y-0.5",
                       isActive
                         ? "text-[var(--accent-blue)]"
                         : "text-[var(--text-secondary)] group-hover:text-[var(--text-heading)]",
                     )}
                     strokeWidth={isActive ? 2.5 : 2}
                   />
+                  <span
+                    className={cn(
+                      "text-xs font-medium transition-colors duration-300",
+                      isActive
+                        ? "text-[var(--accent-blue)]"
+                        : "text-[var(--text-secondary)] group-hover:text-[var(--text-heading)]"
+                    )}
+                  >
+                    {app.name}
+                  </span>
 
                   {/* Active Indicator (macOS style dot) */}
                   {isActive && (
                     <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[var(--accent-blue)] shadow-[0_0_8px_var(--accent-blue)]" />
                   )}
-
-                  {/* Tooltip */}
-                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 pointer-events-none transition-all duration-200 px-2.5 py-1 rounded-md bg-black/80 text-white text-[10px] font-medium whitespace-nowrap shadow-card">
-                    {app.name}
-                  </div>
                 </Link>
               );
             })}

@@ -59,9 +59,23 @@ This project is organized as a **Turborepo** monorepo using **pnpm** for workspa
 
 ## 📖 Documentation
 
-- [CLAUDE.md](CLAUDE.md): Authoritative technical guide and conventions.
-- [DESIGN.md](DESIGN.md): Detailed design system, color palette (OKLCH), and component rules.
-- [PRODUCT.md](PRODUCT.md): Product strategy, user personas, and core mission.
+### Quick Navigation
+
+- **[DOCUMENTATION_INDEX.md](DOCUMENTATION_INDEX.md)** - Complete documentation index and quick lookup guide
+
+### Core Documentation
+
+- **[CLAUDE.md](CLAUDE.md)**: Authoritative technical guide and conventions.
+- **[DESIGN.md](DESIGN.md)**: Detailed design system, color palette (OKLCH), and component rules.
+- **[PRODUCT.md](PRODUCT.md)**: Product strategy, user personas, and core mission.
+
+### Additional Documentation
+
+- **[AGENTS.md](AGENTS.md)**: Development workflow, quality gates, and agent contracts
+- **[DEPLOYMENT.md](DEPLOYMENT.md)**: Deployment guide for all environments
+- **[GEMINI.md](GEMINI.md)**: AI-specific development conventions
+- **[LIQUID_GLASS_CHECKLIST.md](LIQUID_GLASS_CHECKLIST.md)**: UI implementation checklist
+- **[SECURITY.md](SECURITY.md)**: Security policy and vulnerability reporting
 
 ---
 

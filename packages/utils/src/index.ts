@@ -12,7 +12,6 @@ export function formatDate(dateStr: string) {
 /**
  * Returns the current shift (day/night) based on the hour
  */
-export * from "./excel";
 export * from "./n8n";
 export function getCurrentShift(): "day" | "night" {
   const hour = new Date().getHours();

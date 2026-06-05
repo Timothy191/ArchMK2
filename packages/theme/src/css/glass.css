@@ -13,14 +13,14 @@
     135deg,
     rgba(255, 255, 255, 0.45) 0%,
     rgba(255, 255, 255, 0.1) 30%,
-    rgba(0, 122, 255, 0.15) 75%,
+    rgba(28, 28, 30, 0.15) 75%,
     rgba(255, 255, 255, 0.35) 100%
   );
   --liquid-border-gradient-hover: linear-gradient(
     135deg,
     rgba(255, 255, 255, 0.6) 0%,
     rgba(255, 255, 255, 0.15) 30%,
-    rgba(0, 122, 255, 0.25) 75%,
+    rgba(28, 28, 30, 0.25) 75%,
     rgba(255, 255, 255, 0.45) 100%
   );
 
@@ -155,7 +155,7 @@
   border-color: var(--accent-blue);
   background: var(--glass-surface);
   box-shadow:
-    0 0 0 2px rgba(0, 122, 255, 0.18),
+    0 0 0 2px rgba(28, 28, 30, 0.18),
     var(--shadow-glow-blue);
   outline: none;
   transition: all var(--transition-fast);
@@ -191,13 +191,13 @@
 }
 
 .glass-button-accent {
-  background: rgba(0, 122, 255, 0.15);
-  border-color: rgba(0, 122, 255, 0.3);
+  background: rgba(28, 28, 30, 0.08);
+  border-color: rgba(28, 28, 30, 0.2);
   color: var(--accent-blue);
 }
 
 .glass-button-accent:hover {
-  background: rgba(0, 122, 255, 0.25);
+  background: rgba(28, 28, 30, 0.15);
   box-shadow: var(--shadow-glow-primary);
 }
 
@@ -326,13 +326,13 @@
 /* ── Glow Effects ── */
 
 .glow-border {
-  border: 1px solid rgba(0, 122, 255, 0.3);
-  box-shadow: 0 0 12px rgba(0, 122, 255, 0.08);
+  border: 1px solid rgba(28, 28, 30, 0.2);
+  box-shadow: 0 0 12px rgba(28, 28, 30, 0.08);
 }
 
 .glow-border-strong {
-  border: 1px solid rgba(0, 122, 255, 0.5);
-  box-shadow: 0 0 20px rgba(0, 122, 255, 0.15);
+  border: 1px solid rgba(28, 28, 30, 0.35);
+  box-shadow: 0 0 20px rgba(28, 28, 30, 0.15);
 }
 
 /* ── Text Effects ── */
@@ -352,7 +352,7 @@
 }
 
 .text-glow {
-  text-shadow: 0 0 20px rgba(0, 122, 255, 0.3);
+  text-shadow: 0 0 20px rgba(28, 28, 30, 0.3);
 }
 
 /* ── Liquid Glass (Premium) ── */
@@ -880,7 +880,6 @@
 
 .liquid-glass-button:hover {
   border-radius: var(--liquid-glass-radius-button-hover) !important;
-  transform: scale(1.02) !important;
   box-shadow:
     inset 0 8px 16px rgba(255, 255, 255, 0.6),
     inset 0 -6px 12px rgba(0, 0, 0, 0.03),
@@ -889,7 +888,7 @@
 }
 
 .liquid-glass-button:active {
-  transform: scale(0.98) !important;
+  transform: scale(0.97) !important;
 }
 
 /* ── Specular SVG Film Grain overlay ── */
@@ -1011,7 +1010,8 @@
 /* Video base layer — sits at z-index -10 behind all overlays.
    will-change: transform promotes the element to its own GPU compositor
    layer immediately so no re-paint occurs on the first frame transition. */
-.route-bg-video {
+.route-bg-video,
+.route-bg-focus-video {
   position: fixed;
   inset: 0;
   width: 100%;
@@ -1033,7 +1033,7 @@
   position: fixed;
   inset: 0;
   z-index: -9;
-  background: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.15); /* Reduced from 0.55 to make videos visible */
   pointer-events: none;
 }
 

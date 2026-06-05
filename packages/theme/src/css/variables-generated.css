@@ -16,9 +16,9 @@
   --arch10: #3a3a3c;
   --arch11: #1d1d1f;
   --arch12: #ff3b30;
-  --arch13: #007aff;
+  --arch13: #1c1c1e;
   --arch14: #34c759;
-  --arch15: #007aff;
+  --arch15: #1c1c1e;
   --mac-red: #ff5f56;
   --mac-yellow: #ffbd2e;
   --mac-green: #27c93f;
@@ -26,28 +26,22 @@
   --border: 240 6% 87%;
   --success: #34c759;
   --success-foreground: 0 0% 100%;
-  --warning: #007aff;
+  --warning: #1c1c1e;
   --warning-foreground: 0 0% 100%;
   --danger: #ff3b30;
   --danger-foreground: 0 0% 100%;
-  --info: #007aff;
+  --info: #1c1c1e;
   --info-foreground: 0 0% 100%;
   --glass-surface: rgba(255, 255, 255, 0.7);
   --glass-surface-hover: rgba(255, 255, 255, 0.85);
   --glass-surface-strong: rgba(255, 255, 255, 0.92);
   --glass-border: rgba(255, 255, 255, 0.15);
   --glass-border-top: rgba(255, 255, 255, 0.25);
-  --glass-border-gradient: linear-gradient(
-    to bottom,
-    rgba(255, 255, 255, 0.25),
-    rgba(255, 255, 255, 0.05)
-  );
+  --glass-border-gradient: linear-gradient(to bottom, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.05));
   --glass-text: rgba(10, 10, 20, 0.92);
   --glass-text-muted: rgba(10, 10, 20, 0.55);
   --glass-vibrancy: rgba(246, 246, 250, 0.82);
-  --glass-shadow:
-    0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 20px 25px -5px rgba(0, 0, 0, 0.03),
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.8);
+  --glass-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 20px 25px -5px rgba(0, 0, 0, 0.03), inset 0 1px 0 0 rgba(255, 255, 255, 0.8);
   --text-on-glass: rgba(10, 10, 20, 0.92);
   --text-on-glass-muted: rgba(10, 10, 20, 0.55);
   --vibrancy-surface: rgba(246, 246, 250, 0.82);
@@ -58,7 +52,7 @@
   --card-foreground: 240 6% 10%;
   --popover: 0 0% 100%;
   --popover-foreground: 240 6% 10%;
-  --primary: 211 100% 50%;
+  --primary: 240 6% 10%;
   --primary-foreground: 0 0% 100%;
   --secondary: 240 5% 91%;
   --secondary-foreground: 240 6% 10%;
@@ -69,60 +63,41 @@
   --destructive: 4 86% 58%;
   --destructive-foreground: 0 0% 100%;
   --input: 240 5% 91%;
-  --ring: 211 100% 50%;
+  --ring: 240 6% 10%;
   --radius: 0.75rem;
-  --chart-1: 211 100% 50%;
+  --chart-1: 240 6% 10%;
   --chart-2: 142 71% 45%;
-  --chart-3: 199 89% 48%;
+  --chart-3: 240 5% 45%;
   --chart-4: 4 86% 58%;
   --chart-5: 270 60% 55%;
-  --tremor-brand-faint: 211 100% 97%;
-  --tremor-brand-muted: 211 100% 90%;
-  --tremor-brand-subtle: 211 100% 75%;
-  --tremor-brand-default: 211 100% 50%;
-  --tremor-brand-emphasis: 211 100% 40%;
+  --tremor-brand-faint: 240 5% 96%;
+  --tremor-brand-muted: 240 5% 90%;
+  --tremor-brand-subtle: 240 5% 65%;
+  --tremor-brand-default: 240 6% 10%;
+  --tremor-brand-emphasis: 0 0% 0%;
   --tremor-brand-inverted: 0 0% 100%;
   --tremor-background-muted: 240 5% 96%;
   --tremor-background-subtle: 240 5% 92%;
   --tremor-background-default: 0 0% 100%;
-  --tremor-background-emphasis: 211 100% 50%;
+  --tremor-background-emphasis: 240 6% 10%;
   --tremor-border-default: 240 6% 87%;
-  --tremor-ring-default: 211 100% 50%;
+  --tremor-ring-default: 240 6% 10%;
   --tremor-content-subtle: 240 3% 63%;
   --tremor-content-default: 240 3% 44%;
   --tremor-content-emphasis: 240 6% 23%;
   --tremor-content-strong: 240 6% 10%;
   --tremor-content-inverted: 0 0% 100%;
-  --shadow-card:
-    0 1px 2px rgba(0, 0, 0, 0.02), 0 4px 12px rgba(0, 0, 0, 0.03),
-    0 12px 32px rgba(0, 0, 0, 0.03), 0 20px 48px rgba(0, 0, 0, 0.04),
-    inset 0 0 0 0.5px rgba(255, 255, 255, 0.7);
-  --shadow-card-hover:
-    0 2px 4px rgba(0, 0, 0, 0.02), 0 6px 16px rgba(0, 0, 0, 0.04),
-    0 16px 40px rgba(0, 0, 0, 0.04), 0 28px 64px rgba(0, 0, 0, 0.05),
-    inset 0 0 0 0.5px rgba(255, 255, 255, 0.8);
-  --shadow-elevated:
-    0 2px 4px rgba(0, 0, 0, 0.02), 0 8px 20px rgba(0, 0, 0, 0.03),
-    0 20px 48px rgba(0, 0, 0, 0.03), 0 32px 72px rgba(0, 0, 0, 0.04),
-    inset 0 0 0 0.5px rgba(255, 255, 255, 0.7);
-  --shadow-glow-blue:
-    0 0 20px rgba(0, 122, 255, 0.18), 0 0 60px rgba(0, 122, 255, 0.06);
-  --shadow-glow-primary:
-    0 0 20px rgba(0, 122, 255, 0.18), 0 0 60px rgba(0, 122, 255, 0.06);
-  --shadow-glow-electric:
-    0 0 24px rgba(0, 122, 255, 0.28), 0 0 80px rgba(0, 122, 255, 0.1);
-  --shadow-window:
-    0 2px 4px rgba(0, 0, 0, 0.02), 0 8px 24px rgba(0, 0, 0, 0.03),
-    0 24px 56px rgba(0, 0, 0, 0.04), 0 40px 96px rgba(0, 0, 0, 0.05),
-    inset 0 0 0 0.5px rgba(255, 255, 255, 0.8);
-  --shadow-diffusion-sm:
-    0 2px 4px -1px rgba(0, 0, 0, 0.04), 0 8px 12px -4px rgba(0, 0, 0, 0.03);
-  --shadow-diffusion-md:
-    0 3px 5px -1px rgba(0, 0, 0, 0.04), 0 14px 18px -5px rgba(0, 0, 0, 0.03);
-  --shadow-diffusion-lg:
-    0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 20px 25px -5px rgba(0, 0, 0, 0.03);
-  --shadow-diffusion-xl:
-    0 4px 8px -2px rgba(0, 0, 0, 0.05), 0 28px 40px -8px rgba(0, 0, 0, 0.04);
+  --shadow-card: 0 1px 2px rgba(0,0,0,0.02), 0 4px 12px rgba(0,0,0,0.03), 0 12px 32px rgba(0,0,0,0.03), 0 20px 48px rgba(0,0,0,0.04), inset 0 0 0 0.5px rgba(255, 255, 255, 0.7);
+  --shadow-card-hover: 0 2px 4px rgba(0,0,0,0.02), 0 6px 16px rgba(0,0,0,0.04), 0 16px 40px rgba(0,0,0,0.04), 0 28px 64px rgba(0,0,0,0.05), inset 0 0 0 0.5px rgba(255, 255, 255, 0.8);
+  --shadow-elevated: 0 2px 4px rgba(0,0,0,0.02), 0 8px 20px rgba(0,0,0,0.03), 0 20px 48px rgba(0,0,0,0.03), 0 32px 72px rgba(0,0,0,0.04), inset 0 0 0 0.5px rgba(255, 255, 255, 0.7);
+  --shadow-glow-blue: 0 0 20px rgba(28, 28, 30, 0.18), 0 0 60px rgba(28, 28, 30, 0.06);
+  --shadow-glow-primary: 0 0 20px rgba(28, 28, 30, 0.18), 0 0 60px rgba(28, 28, 30, 0.06);
+  --shadow-glow-electric: 0 0 24px rgba(28, 28, 30, 0.28), 0 0 80px rgba(28, 28, 30, 0.1);
+  --shadow-window: 0 2px 4px rgba(0,0,0,0.02), 0 8px 24px rgba(0,0,0,0.03), 0 24px 56px rgba(0,0,0,0.04), 0 40px 96px rgba(0,0,0,0.05), inset 0 0 0 0.5px rgba(255, 255, 255, 0.8);
+  --shadow-diffusion-sm: 0 2px 4px -1px rgba(0, 0, 0, 0.04), 0 8px 12px -4px rgba(0, 0, 0, 0.03);
+  --shadow-diffusion-md: 0 3px 5px -1px rgba(0, 0, 0, 0.04), 0 14px 18px -5px rgba(0, 0, 0, 0.03);
+  --shadow-diffusion-lg: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 20px 25px -5px rgba(0, 0, 0, 0.03);
+  --shadow-diffusion-xl: 0 4px 8px -2px rgba(0, 0, 0, 0.05), 0 28px 40px -8px rgba(0, 0, 0, 0.04);
   --refraction-inner-border: inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
   --refraction-inner-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.02);
   --refraction-edge-light: inset 0 0 0 1px rgba(255, 255, 255, 0.6);

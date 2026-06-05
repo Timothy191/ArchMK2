@@ -252,15 +252,15 @@ module.exports = {
   },
   arch13: {
     key: "{arch13}",
-    value: "#007aff",
+    value: "#1c1c1e",
     type: "color",
-    description: "blue — replaced blue",
+    description: "deep charcoal — replaced blue",
     filePath: "tokens.json",
     isSource: true,
     original: {
-      value: "#007aff",
+      value: "#1c1c1e",
       type: "color",
-      description: "blue — replaced blue",
+      description: "deep charcoal — replaced blue",
       key: "{arch13}",
     },
     name: "Arch13",
@@ -290,15 +290,15 @@ module.exports = {
   },
   arch15: {
     key: "{arch15}",
-    value: "#007aff",
+    value: "#1c1c1e",
     type: "color",
-    description: "blue — macOS system blue",
+    description: "deep charcoal — macOS system blue",
     filePath: "tokens.json",
     isSource: true,
     original: {
-      value: "#007aff",
+      value: "#1c1c1e",
       type: "color",
-      description: "blue — macOS system blue",
+      description: "deep charcoal — macOS system blue",
       key: "{arch15}",
     },
     name: "Arch15",
@@ -610,7 +610,7 @@ module.exports = {
   },
   "accent-blue": {
     key: "{accent-blue}",
-    value: "#007aff",
+    value: "#1c1c1e",
     type: "color",
     filePath: "tokens.json",
     isSource: true,
@@ -661,7 +661,7 @@ module.exports = {
   },
   "accent-cyan": {
     key: "{accent-cyan}",
-    value: "#007aff",
+    value: "#1c1c1e",
     type: "color",
     filePath: "tokens.json",
     isSource: true,
@@ -695,7 +695,7 @@ module.exports = {
   },
   "accent-indigo": {
     key: "{accent-indigo}",
-    value: "#007aff",
+    value: "#1c1c1e",
     type: "color",
     filePath: "tokens.json",
     isSource: true,
@@ -712,7 +712,7 @@ module.exports = {
   },
   "accent-violet": {
     key: "{accent-violet}",
-    value: "#007aff",
+    value: "#1c1c1e",
     type: "color",
     filePath: "tokens.json",
     isSource: true,
@@ -763,12 +763,12 @@ module.exports = {
   },
   warning: {
     key: "{warning}",
-    value: "#007aff",
+    value: "#1c1c1e",
     type: "color",
     filePath: "tokens.json",
     isSource: true,
     original: {
-      value: "#007aff",
+      value: "#1c1c1e",
       type: "color",
       key: "{warning}",
     },
@@ -831,12 +831,12 @@ module.exports = {
   },
   info: {
     key: "{info}",
-    value: "#007aff",
+    value: "#1c1c1e",
     type: "color",
     filePath: "tokens.json",
     isSource: true,
     original: {
-      value: "#007aff",
+      value: "#1c1c1e",
       type: "color",
       key: "{info}",
     },
@@ -1225,12 +1225,12 @@ module.exports = {
   },
   primary: {
     key: "{primary}",
-    value: "211 100% 50%",
+    value: "240 6% 10%",
     type: "color",
     filePath: "tokens.json",
     isSource: true,
     original: {
-      value: "211 100% 50%",
+      value: "240 6% 10%",
       type: "color",
       key: "{primary}",
     },
@@ -1412,12 +1412,12 @@ module.exports = {
   },
   ring: {
     key: "{ring}",
-    value: "211 100% 50%",
+    value: "240 6% 10%",
     type: "color",
     filePath: "tokens.json",
     isSource: true,
     original: {
-      value: "211 100% 50%",
+      value: "240 6% 10%",
       type: "color",
       key: "{ring}",
     },
@@ -1446,12 +1446,12 @@ module.exports = {
   },
   "chart-1": {
     key: "{chart-1}",
-    value: "211 100% 50%",
+    value: "240 6% 10%",
     type: "color",
     filePath: "tokens.json",
     isSource: true,
     original: {
-      value: "211 100% 50%",
+      value: "240 6% 10%",
       type: "color",
       key: "{chart-1}",
     },
@@ -1480,12 +1480,12 @@ module.exports = {
   },
   "chart-3": {
     key: "{chart-3}",
-    value: "199 89% 48%",
+    value: "240 5% 45%",
     type: "color",
     filePath: "tokens.json",
     isSource: true,
     original: {
-      value: "199 89% 48%",
+      value: "240 5% 45%",
       type: "color",
       key: "{chart-3}",
     },
@@ -1533,12 +1533,12 @@ module.exports = {
     brand: {
       faint: {
         key: "{tremor.brand.faint}",
-        value: "211 100% 97%",
+        value: "240 5% 96%",
         type: "color",
         filePath: "tokens.json",
         isSource: true,
         original: {
-          value: "211 100% 97%",
+          value: "240 5% 96%",
           type: "color",
           key: "{tremor.brand.faint}",
         },
@@ -1552,12 +1552,12 @@ module.exports = {
       },
       muted: {
         key: "{tremor.brand.muted}",
-        value: "211 100% 90%",
+        value: "240 5% 90%",
         type: "color",
         filePath: "tokens.json",
         isSource: true,
         original: {
-          value: "211 100% 90%",
+          value: "240 5% 90%",
           type: "color",
           key: "{tremor.brand.muted}",
         },
@@ -1571,12 +1571,12 @@ module.exports = {
       },
       subtle: {
         key: "{tremor.brand.subtle}",
-        value: "211 100% 75%",
+        value: "240 5% 65%",
         type: "color",
         filePath: "tokens.json",
         isSource: true,
         original: {
-          value: "211 100% 75%",
+          value: "240 5% 65%",
           type: "color",
           key: "{tremor.brand.subtle}",
         },
@@ -1590,12 +1590,12 @@ module.exports = {
       },
       default: {
         key: "{tremor.brand.default}",
-        value: "211 100% 50%",
+        value: "240 6% 10%",
         type: "color",
         filePath: "tokens.json",
         isSource: true,
         original: {
-          value: "211 100% 50%",
+          value: "240 6% 10%",
           type: "color",
           key: "{tremor.brand.default}",
         },
@@ -1609,12 +1609,12 @@ module.exports = {
       },
       emphasis: {
         key: "{tremor.brand.emphasis}",
-        value: "211 100% 40%",
+        value: "0 0% 0%",
         type: "color",
         filePath: "tokens.json",
         isSource: true,
         original: {
-          value: "211 100% 40%",
+          value: "0 0% 0%",
           type: "color",
           key: "{tremor.brand.emphasis}",
         },
@@ -1706,12 +1706,12 @@ module.exports = {
       },
       emphasis: {
         key: "{tremor.background.emphasis}",
-        value: "211 100% 50%",
+        value: "240 6% 10%",
         type: "color",
         filePath: "tokens.json",
         isSource: true,
         original: {
-          value: "211 100% 50%",
+          value: "240 6% 10%",
           type: "color",
           key: "{tremor.background.emphasis}",
         },
@@ -1748,12 +1748,12 @@ module.exports = {
     ring: {
       default: {
         key: "{tremor.ring.default}",
-        value: "211 100% 50%",
+        value: "240 6% 10%",
         type: "color",
         filePath: "tokens.json",
         isSource: true,
         original: {
-          value: "211 100% 50%",
+          value: "240 6% 10%",
           type: "color",
           key: "{tremor.ring.default}",
         },
@@ -1923,13 +1923,12 @@ module.exports = {
   },
   "shadow-glow-blue": {
     key: "{shadow-glow-blue}",
-    value: "0 0 20px rgba(0, 122, 255, 0.18), 0 0 60px rgba(0, 122, 255, 0.06)",
+    value: "0 0 20px rgba(28, 28, 30, 0.18), 0 0 60px rgba(28, 28, 30, 0.06)",
     type: "shadow",
     filePath: "tokens.json",
     isSource: true,
     original: {
-      value:
-        "0 0 20px rgba(0, 122, 255, 0.18), 0 0 60px rgba(0, 122, 255, 0.06)",
+      value: "0 0 20px rgba(28, 28, 30, 0.18), 0 0 60px rgba(28, 28, 30, 0.06)",
       type: "shadow",
       key: "{shadow-glow-blue}",
     },
@@ -1941,13 +1940,12 @@ module.exports = {
   },
   "shadow-glow-primary": {
     key: "{shadow-glow-primary}",
-    value: "0 0 20px rgba(0, 122, 255, 0.18), 0 0 60px rgba(0, 122, 255, 0.06)",
+    value: "0 0 20px rgba(28, 28, 30, 0.18), 0 0 60px rgba(28, 28, 30, 0.06)",
     type: "shadow",
     filePath: "tokens.json",
     isSource: true,
     original: {
-      value:
-        "0 0 20px rgba(0, 122, 255, 0.18), 0 0 60px rgba(0, 122, 255, 0.06)",
+      value: "0 0 20px rgba(28, 28, 30, 0.18), 0 0 60px rgba(28, 28, 30, 0.06)",
       type: "shadow",
       key: "{shadow-glow-primary}",
     },
@@ -1959,13 +1957,12 @@ module.exports = {
   },
   "shadow-glow-electric": {
     key: "{shadow-glow-electric}",
-    value: "0 0 24px rgba(0, 122, 255, 0.28), 0 0 80px rgba(0, 122, 255, 0.1)",
+    value: "0 0 24px rgba(28, 28, 30, 0.28), 0 0 80px rgba(28, 28, 30, 0.1)",
     type: "shadow",
     filePath: "tokens.json",
     isSource: true,
     original: {
-      value:
-        "0 0 24px rgba(0, 122, 255, 0.28), 0 0 80px rgba(0, 122, 255, 0.1)",
+      value: "0 0 24px rgba(28, 28, 30, 0.28), 0 0 80px rgba(28, 28, 30, 0.1)",
       type: "shadow",
       key: "{shadow-glow-electric}",
     },

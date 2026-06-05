@@ -247,7 +247,7 @@ const archTheme: Config = {
         "diffusion-lg": "var(--shadow-diffusion-lg)",
         "diffusion-xl": "var(--shadow-diffusion-xl)",
         "diffusion-cyan":
-          "0 0 20px rgba(0, 122, 255, 0.18), 0 0 60px rgba(0, 122, 255, 0.06)",
+          "0 0 20px rgba(28, 28, 30, 0.18), 0 0 60px rgba(28, 28, 30, 0.06)",
         card: "var(--shadow-card)",
         "card-hover": "var(--shadow-card-hover)",
         elevated: "var(--shadow-elevated)",
@@ -367,11 +367,11 @@ const archTheme: Config = {
         "status-glow-pulse": {
           "0%, 100%": {
             boxShadow:
-              "0 0 8px rgba(0, 122, 255, 0.2), inset 0 0 4px rgba(0, 122, 255, 0.1)",
+              "0 0 8px rgba(28, 28, 30, 0.2), inset 0 0 4px rgba(28, 28, 30, 0.1)",
           },
           "50%": {
             boxShadow:
-              "0 0 20px rgba(0, 122, 255, 0.6), inset 0 0 10px rgba(0, 122, 255, 0.3)",
+              "0 0 20px rgba(28, 28, 30, 0.6), inset 0 0 10px rgba(28, 28, 30, 0.3)",
           },
         },
       },

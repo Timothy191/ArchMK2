@@ -131,6 +131,15 @@ async function handlePost(req: Request) {
     }
 
     // 2. Otherwise, treat as a direct single tag value update
+    const webhookCheck2 = req.clone();
+    const body2 = await webhookCheck2.json().catch(() => ({}));
+    if (!body2.name || body2.value === undefined || body2.value === null) {
+      return NextResponse.json(
+        { error: "Missing required fields: name, value" },
+        { status: 400 },
+      );
+    }
+
     const parsed = await validateBody(req, telemetryPushSchema);
     if (parsed instanceof NextResponse) return parsed;
 

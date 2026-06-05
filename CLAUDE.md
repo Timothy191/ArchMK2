@@ -6,8 +6,13 @@ This file provides guidance to Claude Code when working with code in this reposi
 
 Authoritative docs at repository root that complement this file:
 
-- `DESIGN.md` — Color system (OKLCH), typography, spacing, elevation, component rules, animation constraints, and responsive breakpoints.
-- `PRODUCT.md` — User personas, product strategy, tone, anti-references, and surface mapping.
+- **[DOCUMENTATION_INDEX.md](DOCUMENTATION_INDEX.md)** — Complete documentation index and quick navigation guide
+- **[DESIGN.md](DESIGN.md)** — Color system (OKLCH), typography, spacing, elevation, component rules, animation constraints, and responsive breakpoints.
+- **[PRODUCT.md](PRODUCT.md)** — User personas, product strategy, tone, anti-references, and surface mapping.
+- **[AGENTS.md](AGENTS.md)** — Development workflow rules, agent contracts, and quality gates
+- **[DEPLOYMENT.md](DEPLOYMENT.md)** — Deployment guide for all environments
+- **[GEMINI.md](GEMINI.md)** — AI-specific development conventions
+- **[SECURITY.md](SECURITY.md)** — Security policy and vulnerability reporting
 
 Domain-specific rules are auto-loaded from `.claude/rules/`:
 
@@ -104,7 +109,7 @@ Packages reference these via `"catalog:"` or `"catalog:react19"` in their `packa
 
 ### Build Orchestration
 
-Both `turbo.json` and `nx.json` coexist. All task commands use `nx run-many` (not `turbo run`). The `codegen` task runs Style Dictionary token generation before builds that depend on it. The `quality` turbo task runs the full gate.
+Nx orchestrates all monorepo tasks via `nx run-many`. The `nx.json` configures caching, task dependencies (e.g. `build` depends on `^codegen`), and shared globals. The `codegen` task runs Style Dictionary token generation before builds that depend on it.
 
 ## Portal Internals
 
@@ -129,7 +134,7 @@ Portal Jest uses explicit `moduleNameMapper` entries. When importing a new works
 
 ### Environment Variables
 
-Required portal env vars (from `turbo.json` globalEnv and `next.config.mjs`):
+Required portal env vars (from `nx.json` sharedGlobals and `next.config.mjs`):
 
 - **Supabase**: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_KEY`, `DATABASE_URL`, `DATABASE_POOLER_URL`
 - **Sentry**: `SENTRY_DSN`, `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, `SENTRY_PROJECT`

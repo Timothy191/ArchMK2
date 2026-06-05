@@ -1,12 +1,27 @@
 import { createServiceRoleClient } from "@repo/supabase/service-role";
 import { NextResponse } from "next/server";
 import { logError } from "@/lib/errors/error-logger";
+import { validateBody } from "@/lib/api/response";
+import { applyCors } from "@/lib/api/cors";
+import { withBodyLimit } from "@/lib/api/body-limit";
+import { scannerBadgeSchema } from "@/lib/api/schemas";
 
 const ALLOWED_SCANNER_SOURCES = process.env.ALLOWED_SCANNER_SOURCES?.split(
   ",",
 ).map((s) => s.trim()) || ["C66-HARDWARE", "C66-SCANNER", "GATE-TERMINAL"];
 
 export async function POST(request: Request) {
+  return withBodyLimit(
+    request,
+    async () => {
+      const response = await handlePost(request);
+      return applyCors(request, response);
+    },
+    { maxSize: 65536 },
+  );
+}
+
+async function handlePost(request: Request) {
   try {
     const source = request.headers.get("x-scanner-source") || "unknown";
     const token = request.headers.get("x-scanner-token");
@@ -27,18 +42,18 @@ export async function POST(request: Request) {
     }
 
     const supabase = createServiceRoleClient();
-    const contentType = request.headers.get("content-type") || "";
 
-    let code = "";
-    if (contentType.includes("application/json")) {
-      const body = await request.json();
-      code =
-        body.barcodeData || body.barcode || body.data || body.qr_code || "";
-    } else {
-      code = await request.text();
-    }
+    const parsed = await validateBody(request, scannerBadgeSchema);
+    if (parsed instanceof NextResponse) return parsed;
 
-    code = code.trim();
+    const code = (
+      parsed.data.code ||
+      parsed.data.barcode ||
+      parsed.data.barcodeData ||
+      parsed.data.data ||
+      parsed.data.qr_code ||
+      ""
+    ).trim();
     if (!code) {
       return NextResponse.json(
         { success: false, error: "Empty code payload" },

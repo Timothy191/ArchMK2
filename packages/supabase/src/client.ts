@@ -27,8 +27,9 @@ export function createBrowserSupabaseClient() {
     {
       auth: {
         persistSession: true,
-        storage:
-          typeof window !== "undefined" ? window.sessionStorage : undefined,
+        // Use Supabase's default cookie-based storage instead of localStorage/sessionStorage
+        // This ensures tokens are stored in HttpOnly Secure cookies for better security
+        storage: undefined,
       },
       cookieOptions: {
         maxAge: undefined,

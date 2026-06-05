@@ -1,6 +1,62 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createMiddlewareClient } from "@repo/supabase/middleware";
 import { cacheGet, cacheSet, cacheEvictL1ByPrefix } from "@repo/redis/cache";
+import { recordJobExecution } from "@/lib/observability/metrics";
+
+/**
+ * Server-side redirect validation with canonicalization and allowlist
+ *
+ * Validates that redirect targets are internal and safe:
+ * 1. Decodes URL-encoded redirects to reveal hidden protocols/paths
+ * 2. Canonicalizes to prevent bypass techniques (//, \\, etc.)
+ * 3. Checks against an allowlist of permitted path patterns
+ * 4. Rejects protocol-relative URLs, data URIs, and javascript: URIs
+ */
+function isValidRedirect(path: string): boolean {
+  if (!path) return false;
+
+  // Decode the path to reveal URL-encoded bypass attempts
+  try {
+    path = decodeURIComponent(path);
+  } catch {
+    return false;
+  }
+
+  // Reject protocol-relative URLs, data URIs, javascript: URIs
+  if (
+    path.startsWith("//") ||
+    path.startsWith("/\\") ||
+    path.startsWith("data:") ||
+    path.startsWith("javascript:") ||
+    path.startsWith("vbscript:")
+  ) {
+    return false;
+  }
+
+  // Must start with a single slash (internal relative path)
+  if (!path.startsWith("/")) return false;
+
+  // Allowlist of permitted path patterns
+  const allowedPatterns = [
+    /^\/$/, // Root
+    /^\/login/, // Login page
+    /^\/reset-password/, // Password reset
+    /^\/update-password/, // Password update
+    /^\/drilling\//, // Drilling department
+    /^\/production\//, // Production department
+    /^\/access-control\//, // Access control department
+    /^\/engineering\//, // Engineering department
+    /^\/control-room\//, // Control room department
+    /^\/safety\//, // Safety department
+    /^\/training\//, // Training department
+    /^\/satellite-monitoring\//, // Satellite monitoring department
+    /^\/hub/, // Hub
+    /^\/admin\//, // Admin
+  ];
+
+  // Check if path matches any allowed pattern
+  return allowedPatterns.some((pattern) => pattern.test(path));
+}
 
 // DEPARTMENT_ROUTES intentionally excludes '/admin' because admin is a top-level
 // restricted route, not a sub-route under (departments). Admin access is handled
@@ -160,13 +216,26 @@ export async function proxy(request: NextRequest) {
     }
 
     if (shouldSignOut) {
+      // Record middleware sign-out triggered due to expired/invalid token
+      try {
+        recordJobExecution("auth.middleware.signout", 0, false);
+        // eslint-disable-next-line no-empty
+      } catch {}
       await client.supabase.auth.signOut();
       return client.response;
     }
 
     if (sessionUser) {
+      try {
+        recordJobExecution("auth.middleware.check", 0, true);
+        // eslint-disable-next-line no-empty
+      } catch {}
       return NextResponse.redirect(new URL("/", request.url));
     }
+    try {
+      recordJobExecution("auth.middleware.check", 0, false);
+      // eslint-disable-next-line no-empty
+    } catch {}
     return client.response;
   }
 
@@ -196,7 +265,10 @@ export async function proxy(request: NextRequest) {
   // Not authenticated -> login
   if (!user) {
     const redirectUrl = new URL("/login", request.url);
-    redirectUrl.searchParams.set("redirect", pathname);
+    // Only set redirect parameter if it passes server-side validation
+    if (isValidRedirect(pathname)) {
+      redirectUrl.searchParams.set("redirect", pathname);
+    }
     const redirectResponse = NextResponse.redirect(redirectUrl);
     // Copy cookies from client.response to the redirectResponse
     if (client.response && client.response.cookies) {

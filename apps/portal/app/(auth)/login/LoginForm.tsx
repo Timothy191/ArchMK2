@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import * as Sentry from "@sentry/nextjs";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { createBrowserSupabaseClient } from "@repo/supabase/client";
 import { Input } from "@repo/ui/Input";
 import { AnimatedButton } from "@repo/ui/AnimatedButton";
 import { Eye, EyeOff, Lock } from "lucide-react";
@@ -38,29 +38,17 @@ function isValidPageRedirect(path: string): boolean {
 }
 
 /**
- * Maps raw Supabase Auth error messages into user-friendly, localized, and security-hardened error strings.
- * Discloses generic credential messages instead of revealing account existence, and warns about Caps Lock.
+ * LoginForm Component
  *
- * @param rawMessage - The raw error message returned from the Supabase auth API.
- * @returns A safe, simplified user-facing error message.
+ * Accessibility features:
+ * - Proper ARIA labels and descriptions on all inputs
+ * - aria-live="polite" for error announcements
+ * - aria-invalid for error states
+ * - focus-visible rings for keyboard navigation
+ * - Caps Lock warning with role="alert"
+ * - Design system colors (OKLCH) should meet WCAG AA contrast ratios
+ * - Respects prefers-reduced-motion via theme CSS
  */
-function mapAuthError(rawMessage: string): string {
-  const lower = rawMessage.toLowerCase();
-  if (lower.includes("invalid login")) {
-    return "Employee ID or password incorrect. Check Caps Lock and try again.";
-  }
-  if (lower.includes("email")) {
-    return "Employee ID or password incorrect. Check Caps Lock and try again.";
-  }
-  if (lower.includes("network")) {
-    return "Network error. Please check your connection and try again.";
-  }
-  if (lower.includes("rate limit")) {
-    return "Too many attempts. Please wait a moment and try again.";
-  }
-  return "Sign in failed. Please try again.";
-}
-
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -72,9 +60,8 @@ export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [failedAttempts, setFailedAttempts] = useState(0);
-  const [rememberMe, setRememberMe] = useState(true);
   const [capsLock, setCapsLock] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
 
   // Pre-fill email from query params (password pre-fill intentionally omitted — credential exposure risk)
   useEffect(() => {
@@ -90,50 +77,74 @@ export function LoginForm() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
-
-    if (failedAttempts >= 5) {
-      setError("Too many failed attempts. Please wait before trying again.");
-      return;
-    }
-
     setLoading(true);
 
-    const supabase = createBrowserSupabaseClient();
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email: employeeId,
-      password,
-    });
-
-    if (signInError) {
-      setFailedAttempts((c) => c + 1);
-      setError(mapAuthError(signInError.message));
-      setPassword("");
-      setLoading(false);
-      return;
-    }
-
-    // If "Remember Me" is unchecked, move Supabase tokens to sessionStorage
-    // so the session clears when the browser is closed.
-    if (!rememberMe) {
+    // Helper: fire telemetry push (fire-and-forget)
+    const pushTelemetry = async (name: string) => {
       try {
-        Object.keys(localStorage).forEach((key) => {
-          if (key.startsWith("sb-")) {
-            const value = localStorage.getItem(key);
-            if (value) {
-              sessionStorage.setItem(key, value);
-              localStorage.removeItem(key);
-            }
-          }
+        await fetch("/api/telemetry/push", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, value: 1 }),
         });
-      } catch {
-        // Storage access may fail in private browsing — ignore
+      } catch (e) {
+        // Ignore telemetry failures in the client
       }
-    }
+    };
 
-    setFailedAttempts(0);
-    setLoading(false);
-    router.push(redirectTo);
-    router.refresh();
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: employeeId,
+          password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || "Sign in failed. Please try again.");
+        setPassword("");
+
+        // Record Sentry breadcrumb (avoid PII)
+        try {
+          Sentry.addBreadcrumb({
+            message: "Auth failed",
+            category: "auth",
+            level: "error",
+            data: { reason: data.error || "Unknown error" },
+          });
+          // eslint-disable-next-line no-empty
+        } catch {}
+
+        // Push lightweight telemetry tag (fire-and-forget)
+        void pushTelemetry("auth.failure");
+
+        setLoading(false);
+        return;
+      }
+
+      // Success - the API route sets HttpOnly cookies via Supabase
+      // Success telemetry + breadcrumb (no PII)
+      try {
+        Sentry.addBreadcrumb({
+          message: "Auth succeeded",
+          category: "auth",
+          level: "info",
+        });
+        // eslint-disable-next-line no-empty
+      } catch {}
+      void pushTelemetry("auth.success");
+
+      setLoading(false);
+      router.push(redirectTo);
+      router.refresh();
+    } catch {
+      setError("Network error. Please try again.");
+      setLoading(false);
+    }
   }
 
   return (
@@ -152,19 +163,22 @@ export function LoginForm() {
         <div className="relative group">
           <Input
             id="email"
-            type="email"
+            type="text"
             required
+            minLength={3}
             maxLength={254}
             disabled={loading}
             value={employeeId}
             onChange={(e) => setEmployeeId(e.target.value)}
             variant="login"
-            className="px-4 py-3.5 pr-10 transition-all duration-200 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 liquid-glass-input focus-ring-arch-blue"
-            placeholder="e.g., admin@arch.os"
+            className="px-4 py-3.5 pr-10 transition-all duration-200 focus:outline-none focus:border-arch-accent-blue focus:ring-4 focus:ring-arch-accent-blue/20 liquid-glass-input focus-ring-arch-blue"
+            placeholder="Employee ID or email"
             aria-label="Employee ID / Email"
             autoComplete="username"
             aria-describedby={error ? "login-error email-hint" : "email-hint"}
             aria-invalid={error ? "true" : "false"}
+            pattern="[a-zA-Z0-9@._-]+"
+            title="Enter your employee ID or email address"
           />
           {/* RFID/NFC Reader badge scanning SVG icon */}
           <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none">
@@ -216,7 +230,7 @@ export function LoginForm() {
             onKeyDown={handleCapsLockKey}
             onKeyUp={handleCapsLockKey}
             variant="login"
-            className="px-4 py-3.5 pr-10 transition-all duration-200 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 liquid-glass-input focus-ring-arch-blue"
+            className="px-4 py-3.5 pr-10 transition-all duration-200 focus:outline-none focus:border-arch-accent-blue focus:ring-4 focus:ring-arch-accent-blue/20 liquid-glass-input focus-ring-arch-blue"
             placeholder="Enter your password"
             aria-label="Password"
             autoComplete="current-password"
@@ -259,17 +273,11 @@ export function LoginForm() {
         </p>
       )}
 
-      {failedAttempts > 0 && failedAttempts < 5 && (
-        <p className="text-[11px] text-[var(--text-muted)]">
-          Failed attempts: {failedAttempts}/5
-        </p>
-      )}
-
       <div className="flex flex-col gap-4">
         <AnimatedButton
           type="submit"
-          disabled={loading || failedAttempts >= 5}
-          className="w-full h-12 rounded-full liquid-glass-button bg-[var(--color-action-primary)] hover:bg-[var(--color-action-primary-hover)] text-white font-medium relative overflow-hidden flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-action-primary)]/50 focus-visible:ring-offset-1 transition-colors"
+          disabled={loading}
+          className="w-full h-12 rounded-md liquid-glass-button bg-[var(--color-action-primary)] hover:bg-[var(--color-action-primary-hover)] text-white font-medium relative overflow-hidden flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-action-primary)]/50 focus-visible:ring-offset-1 transition-colors"
           hoverScale={1}
           tapScale={0.97}
         >
@@ -290,9 +298,18 @@ export function LoginForm() {
           type="button"
           disabled={loading}
           onClick={() => {
-            alert("Redirecting to corporate Single Sign-On portal...");
+            const ssoUrl = process.env.NEXT_PUBLIC_SSO_URL;
+            if (ssoUrl) {
+              // Redirect to corporate SSO/OIDC endpoint
+              window.location.href = ssoUrl;
+            } else {
+              // Fallback: show error if SSO not configured
+              setError(
+                "Single Sign-On is not configured. Please contact your administrator.",
+              );
+            }
           }}
-          className="w-full h-12 border border-black/[0.06] bg-black/[0.02] hover:bg-black/[0.04] text-[var(--text-secondary)] font-medium text-xs rounded-full liquid-glass-button flex items-center justify-center gap-2 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-arch-accent-blue/50 focus-visible:ring-offset-1"
+          className="w-full h-12 border border-black/[0.06] bg-black/[0.02] hover:bg-black/[0.04] text-[var(--text-secondary)] font-medium text-xs rounded-md liquid-glass-button flex items-center justify-center gap-2 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-arch-accent-blue/50 focus-visible:ring-offset-1"
           hoverScale={1}
           tapScale={0.97}
         >

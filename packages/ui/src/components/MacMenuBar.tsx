@@ -216,19 +216,28 @@ export function MacMenuBar({
       >
         {/* ── System Logo Dropdown ── */}
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button
-              aria-label="System Menu"
-              aria-haspopup="true"
-              className="relative w-11 h-11 -ml-1 rounded-full bg-white border border-black/10 shadow-window flex items-center justify-center hover:bg-gray-50 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)] transition-all duration-150 ease-in-out cursor-default"
-            >
-              <img
-                src={isFocusMode ? "/logo-focused.jpeg" : "/logo.png"}
-                alt="Arch Logo"
-                className="w-6 h-6 object-contain"
-              />
-            </button>
-          </DropdownMenuTrigger>
+          <div className="flex items-center gap-2">
+            <DropdownMenuTrigger asChild>
+              <button
+                aria-label="System Menu"
+                aria-haspopup="true"
+                className="relative w-11 h-11 -ml-1 rounded-full bg-white border border-black/10 shadow-window flex items-center justify-center hover:bg-gray-50 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)] transition-all duration-150 ease-in-out cursor-default"
+              >
+                <img
+                  src={isFocusMode ? "/logo-focused.jpeg" : "/logo.png"}
+                  alt="Arch Logo"
+                  className="w-6 h-6 object-contain"
+                />
+              </button>
+            </DropdownMenuTrigger>
+
+            {/* Company branding added globally — keep website logo intact */}
+            <img
+              src="/company-branding.jpeg"
+              alt="Company Logo"
+              className="hidden md:block h-7 w-auto object-contain opacity-90"
+            />
+          </div>
           <DropdownMenuContent
             align="start"
             sideOffset={5}

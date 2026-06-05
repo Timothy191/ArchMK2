@@ -2,6 +2,13 @@
 
 Unified deployment system for local development, staging, and production environments.
 
+## Related Documentation
+
+- **[DOCUMENTATION_INDEX.md](DOCUMENTATION_INDEX.md)** — Complete documentation index and quick navigation guide
+- **[CLAUDE.md](CLAUDE.md)** — Technical guide and development commands
+- **[AGENTS.md](AGENTS.md)** — Quality gates and verification steps
+- **[SECURITY.md](SECURITY.md)** — Security policy and best practices
+
 ---
 
 ## Quick Start
@@ -136,7 +143,38 @@ Staging auto-deploys on every push to `main`:
 
 ## Production Deployment
 
-### Prerequisites
+### Automated Setup Script
+
+For first-time production setup, use the automated script:
+
+```bash
+./scripts/setup-production-environment.sh
+```
+
+**Options**:
+
+- `--no-systemd` — Skip systemd service setup
+- `--no-docker-tools` — Skip Docker tools stack (n8n, Flowise, Langfuse, Qdrant, ClickHouse)
+- `--no-monitoring` — Skip monitoring stack (Prometheus, Grafana, cAdvisor)
+- `--force` — Force overwrite existing configuration
+- `--dry-run` — Preview changes without executing
+
+The script automates:
+
+1. Prerequisites check (Node.js ≥22, pnpm 9.15.9, Docker)
+2. Environment configuration from `.env.production.example`
+3. Systemd service setup (optional)
+4. Essential services (Supabase, Redis)
+5. Docker tools stack (optional)
+6. Monitoring stack (optional)
+7. Portal build and startup
+8. Health check
+
+**Platform Support**: The script includes automatic OS detection and Rocky Linux/RHEL-specific guidance. See [Rocky Linux Compatibility Guide](scripts/ROCKY_LINUX_COMPATIBILITY.md) for platform-specific setup instructions.
+
+### Manual Setup
+
+#### Prerequisites
 
 1. **Production Environment File**:
 

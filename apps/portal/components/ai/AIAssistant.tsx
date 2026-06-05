@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { useChat, type Message } from "@ai-sdk/react";
 import { GlassCard } from "@repo/ui/GlassCard";
 import { cn } from "@repo/ui/lib/utils";
@@ -20,11 +20,28 @@ const TOOL_LABELS: Record<string, string> = {
   delays: "Checking delays...",
 };
 
+const MODEL_OPTIONS = [
+  { value: "gemma4:latest", label: "Gemma 4 (9.6GB — Assistant)" },
+  { value: "qwen2.5-coder:7b", label: "Qwen Coder (4.7GB — Code/SQL)" },
+  {
+    value: "huihui_ai/granite3.2-abliterated:2b",
+    label: "Granite 3.2 (1.5GB — Fast)",
+  },
+] as const;
+
 export function AIAssistant({ context, className }: AIAssistantProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState("");
+  const [selectedModel, setSelectedModel] = useState<string>(
+    MODEL_OPTIONS[0].value,
+  );
   const panelRef = useRef<HTMLDivElement>(null);
   const firstFocusableRef = useRef<HTMLButtonElement>(null);
+
+  // Open panel when the window event is dispatched (e.g. from CommandBar)
+  const openPanel = useCallback(() => {
+    setIsOpen(true);
+  }, []);
 
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
@@ -55,8 +72,12 @@ export function AIAssistant({ context, className }: AIAssistantProps) {
       }
     }
     window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [isOpen]);
+    window.addEventListener("open-ai-assistant", openPanel);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("open-ai-assistant", openPanel);
+    };
+  }, [isOpen, openPanel]);
 
   // Stable session ID persisted across reloads via localStorage
   const sessionId = useMemo(() => {
@@ -92,7 +113,7 @@ export function AIAssistant({ context, className }: AIAssistantProps) {
 
   const { messages, append, status, stop } = useChat({
     api: "/api/ai/chat",
-    body: { context, sessionId },
+    body: { context, sessionId, model: selectedModel },
     initialMessages,
   });
 
@@ -165,9 +186,21 @@ export function AIAssistant({ context, className }: AIAssistantProps) {
                   <p className="font-medium text-arch-text-primary">
                     AI Assistant
                   </p>
-                  <p className="text-xs text-arch-text-tertiary">
-                    Powered by AI
-                  </p>
+                  <div className="flex items-center gap-1">
+                    <select
+                      value={selectedModel}
+                      onChange={(e) => setSelectedModel(e.target.value)}
+                      title="Select AI model"
+                      className="max-w-[140px] truncate bg-transparent border-none p-0 text-[10px] text-arch-text-tertiary focus:outline-none cursor-pointer hover:text-arch-text-secondary transition-colors"
+                      aria-label="Select AI model"
+                    >
+                      {MODEL_OPTIONS.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               </div>
               <div className="flex items-center gap-2">

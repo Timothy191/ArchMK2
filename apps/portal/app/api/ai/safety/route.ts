@@ -7,6 +7,10 @@ import {
 import { chat, DEFAULT_MODEL } from "@/lib/ai/providers";
 import { createServerSupabaseClient } from "@repo/supabase/server";
 import { withRateLimit } from "@/lib/api/rate-limit-middleware";
+import { validateBody } from "@/lib/api/response";
+import { applyCors } from "@/lib/api/cors";
+import { withBodyLimit } from "@/lib/api/body-limit";
+import { aiSafetySchema } from "@/lib/api/schemas";
 
 const SYSTEM_PROMPT = `You are a safety compliance officer AI for an industrial operations portal.
 Review shift logs for safety violations, near-misses, and concerns.
@@ -27,17 +31,19 @@ async function handleSafetyRequest(req: NextRequest): Promise<NextResponse> {
     error: authError,
   } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return applyCors(
+      req,
+      NextResponse.json({ error: "Unauthorized" }, { status: 401 }),
+    );
+  }
+
+  const parsed = await validateBody(req, aiSafetySchema);
+  if (parsed instanceof NextResponse) {
+    return applyCors(req, parsed);
   }
 
   try {
-    const { logData }: { logData: string } = await req.json();
-    if (!logData) {
-      return NextResponse.json(
-        { error: "logData is required" },
-        { status: 400 },
-      );
-    }
+    const { logData } = parsed.data;
 
     const raw = await chat(
       [
@@ -50,31 +56,43 @@ async function handleSafetyRequest(req: NextRequest): Promise<NextResponse> {
       { model: DEFAULT_MODEL, temperature: 0.3, maxTokens: 1024 },
     );
 
-    const parsed = complianceResultSchema.safeParse(JSON.parse(raw ?? "{}"));
-    if (!parsed.success) {
-      return NextResponse.json(
-        {
-          violations: [],
-          concerns: [],
-          score: 0,
-          summary: raw ?? "",
-        } satisfies ComplianceResult,
-        { status: 200 },
+    const parsedResult = complianceResultSchema.safeParse(
+      JSON.parse(raw ?? "{}"),
+    );
+    if (!parsedResult.success) {
+      return applyCors(
+        req,
+        NextResponse.json(
+          {
+            violations: [],
+            concerns: [],
+            score: 0,
+            summary: raw ?? "",
+          } satisfies ComplianceResult,
+          { status: 200 },
+        ),
       );
     }
 
-    return NextResponse.json(parsed.data);
+    return applyCors(req, NextResponse.json(parsedResult.data));
   } catch (error) {
     logError(error instanceof Error ? error : new Error(String(error)), {
       context: "safety_compliance",
     });
-    return NextResponse.json(
-      { error: "Failed to analyze safety compliance" },
-      { status: 500 },
+    return applyCors(
+      req,
+      NextResponse.json(
+        { error: "Failed to analyze safety compliance" },
+        { status: 500 },
+      ),
     );
   }
 }
 
 export async function POST(req: NextRequest) {
-  return withRateLimit(req, () => handleSafetyRequest(req));
+  return withBodyLimit(
+    req,
+    () => withRateLimit(req, () => handleSafetyRequest(req)),
+    { maxSize: 1_048_576 },
+  );
 }

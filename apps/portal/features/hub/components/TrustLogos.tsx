@@ -11,8 +11,9 @@
  *     { src: "/logo/iso-27001.svg",  alt: "ISO 27001 Certified" },
  *   ]} />
  *
- * TODO: Replace placeholder text badges with official SVG assets once
+ * TASK: Replace placeholder text badges with official SVG assets once
  *       brand team provides them in /public/logo/.
+ *       Track: https://github.com/your-org/Arch-Mk2/issues/[issue-number]
  */
 
 interface TrustLogo {

@@ -1,5 +1,17 @@
 # AGENTS.md
 
+## Related Documentation
+
+This file complements the main project documentation:
+
+- **[DOCUMENTATION_INDEX.md](DOCUMENTATION_INDEX.md)** — Complete documentation index and quick navigation guide
+- **[CLAUDE.md](CLAUDE.md)** — Complete technical guide, commands, and architecture details
+- **[DEPLOYMENT.md](DEPLOYMENT.md)** — Deployment guide for all environments
+- **[DESIGN.md](DESIGN.md)** — Design system and component rules
+- **[PRODUCT.md](PRODUCT.md)** — Product strategy and user personas
+
+---
+
 ## Prerequisites
 
 - Node.js `>=22` (via Volta), pnpm `9.15.9`, Docker (for local Supabase)
@@ -15,7 +27,7 @@ pnpm dev                                          # Next.js dev server on :3000
 
 ## Monorepo
 
-Turborepo + pnpm workspaces (`apps/*`, `packages/*`).
+Nx + pnpm workspaces (`apps/*`, `packages/*`).
 
 | Area                | Purpose                                                        |
 | ------------------- | -------------------------------------------------------------- |
@@ -31,6 +43,30 @@ Turborepo + pnpm workspaces (`apps/*`, `packages/*`).
 
 Dependency versions use pnpm [`catalog:`](pnpm-workspace.yaml) indirection (e.g. `catalog:react19`).  
 Before changing a shared dep, look up the named catalog block in `pnpm-workspace.yaml`.
+
+## Code Generation Pipeline
+
+Two codegen pipelines generate derived artifacts from source-of-truth files:
+
+### 1. Design Tokens (`@repo/theme`)
+
+| Step             | Command                                          | Input                                             | Output                                   |
+| ---------------- | ------------------------------------------------ | ------------------------------------------------- | ---------------------------------------- |
+| Style Dictionary | `pnpm --filter @repo/theme codegen` (or `build`) | `packages/theme/tokens.json` + `sd.config.mjs`    | `packages/theme/src/tokens/generated.ts` |
+| Token validation | `pnpm --filter @repo/theme lint:tokens`          | `src/css/variables.css`, `src/tailwind/preset.ts` | Lint pass/fail                           |
+
+**Workflow:** Edit `tokens.json` → run `pnpm --filter @repo/theme build` (runs Style Dictionary) → commit both `tokens.json` and `generated.ts`. The Tailwind preset (`src/tailwind/preset.ts`) and CSS variables (`src/css/variables.css`) consume the generated tokens.
+
+Dev watch mode: `pnpm --filter @repo/theme dev` or `pnpm --filter @repo/theme tokens:watch`.
+
+### 2. Database Types (`@repo/database` → `@repo/types`)
+
+| Step      | Command                                     | Input              | Output                                 |
+| --------- | ------------------------------------------- | ------------------ | -------------------------------------- |
+| Migration | `packages/database/migrations/NNN_name.sql` | SQL DDL            | Applied to Supabase                    |
+| Type gen  | `pnpm --filter @repo/database supabase:gen` | Supabase DB schema | `packages/types/src/database.types.ts` |
+
+**Workflow:** Create migration → `supabase:push` → `supabase:gen` → commit migration + updated `database.types.ts`.
 
 ---
 
@@ -155,7 +191,7 @@ Start local from `apps/portal/.env.example`:
 | File                                     | What it controls                                          |
 | ---------------------------------------- | --------------------------------------------------------- |
 | `packages/database/supabase/config.toml` | Local Supabase port / keys                                |
-| `turbo.json`                             | Pipeline DAG, env passthrough, cache rules                |
+| `nx.json`                                | Pipeline DAG, env passthrough, cache rules                |
 | `apps/portal/next.config.mjs`            | PWA + Sentry + `transpilePackages` for workspace deps     |
 | `knip.json`                              | Entry points for dead-code detector (add new routes here) |
 | `.mcp.json`                              | n8n MCP server (`tools/n8n-mcp/`), codebase-memory MCP    |

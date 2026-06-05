@@ -7,7 +7,7 @@
  *   - gatherContextNode now uses LLM-driven tool dispatch with confidence scoring
  *   - executeToolsNode uses an in-memory LRU cache with 5s TTL
  *   - callLLMNode retries with jittered backoff on transient errors
- *   - outputNode attaches session ID header for serverless memory handshake
+ *   - outputNode attaches session ID header for traceability
  *
  * Each node is a pure function: (state) => partialStateUpdate.
  * The router runs nodes sequentially and handles the flow graph.
@@ -44,6 +44,18 @@ import { reduceState } from "./agent-state";
 const MAX_LLM_RETRIES = 1;
 const RETRY_BACKOFF_MIN_MS = 200;
 const RETRY_BACKOFF_MAX_MS = 500;
+
+/**
+ * Per-tool cache TTLs (milliseconds).
+ * Slow-changing data gets a longer TTL to reduce redundant Supabase queries.
+ * Fast-changing data gets a short TTL to maintain freshness.
+ */
+const TOOL_CACHE_TTL: Record<string, number> = {
+  machineStatus: 15_000, // 15s — statuses can change minute-to-minute
+  fleetStatus: 30_000, // 30s — fleet ops change more slowly
+  shiftLogs: 60_000, // 60s — historical log data is static
+  delays: 15_000, // 15s — delays can be resolved at any time
+};
 
 // ============================================================================
 // Helpers
@@ -311,7 +323,7 @@ async function executeToolsNode(
       const tool = aiTools[call.tool as keyof typeof aiTools];
       if (!tool) continue;
 
-      // Check cache first (5s TTL)
+      // Check cache with per-tool TTL
       const cached = getCachedToolResult(call.tool, call.args);
       if (cached !== undefined) {
         results.push({ tool: call.tool, result: cached });
@@ -319,9 +331,10 @@ async function executeToolsNode(
         continue;
       }
 
-      // Execute and cache
+      // Execute and cache with tool-specific TTL
       const result = await tool.execute(call.args);
-      setCachedToolResult(call.tool, call.args, result);
+      const ttl = TOOL_CACHE_TTL[call.tool] ?? 5_000;
+      setCachedToolResult(call.tool, call.args, result, ttl);
 
       results.push({ tool: call.tool, result });
       toolContext += `\n[Tool: ${call.tool}]\n${JSON.stringify(result, null, 2)}\n`;
@@ -493,13 +506,11 @@ async function outputNode(state: AgentState): Promise<Partial<AgentState>> {
   try {
     const streamResponse = state.llmResponse.toUIMessageStreamResponse();
 
-    // Attach session ID header so the client can echo it back.
-    // The server will finalize memory on the next request from this session.
+    // Attach session ID header for debugging and tracing.
     const response = new Response(streamResponse.body, {
       status: 200,
       headers: {
         "Content-Type": "text/event-stream",
-        "x-arch-memory-session-id": state.sessionId,
         "x-arch-session-id": state.sessionId,
       },
     });
@@ -601,12 +612,9 @@ export async function runAgentGraph(
 /**
  * Post-stream memory save.
  *
- * In serverless environments:
- * - If `waitUntil` is available (Cloudflare Workers, some Vercel plans),
- *   call this from there ASAP.
- * - Otherwise, the client echoes `x-arch-memory-session-id` on the next
- *   request and the chat route calls this when it sees a pending session.
- * - Idempotent: saveMemoryNode checks assistantResponseStored.
+ * Idempotent: saveMemoryNode checks assistantResponseStored.
+ * Called from the chat route via waitUntil (platform-supported) or
+ * fire-and-forget with an Inngest durable fallback.
  */
 export async function finalizeAgentGraph(state: AgentState): Promise<void> {
   if (state.nextNode === "saveMemory" && !state.assistantResponseStored) {

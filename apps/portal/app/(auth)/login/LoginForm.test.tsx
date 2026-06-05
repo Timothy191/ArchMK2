@@ -20,10 +20,6 @@ jest.mock("next/link", () => ({
   ),
 }));
 
-jest.mock("@repo/supabase/client", () => ({
-  createBrowserSupabaseClient: jest.fn(),
-}));
-
 jest.mock("@repo/ui/Input", () => ({
   Input: (props: React.InputHTMLAttributes<HTMLInputElement>) => (
     <input {...props} />
@@ -55,10 +51,7 @@ jest.mock("@repo/ui/AnimatedButton", () => ({
   ),
 }));
 
-const { createBrowserSupabaseClient } = jest.requireMock(
-  "@repo/supabase/client",
-);
-const { useRouter } = jest.requireMock("next/navigation");
+const { useRouter, useSearchParams } = jest.requireMock("next/navigation");
 
 describe("LoginForm", () => {
   const mockPush = jest.fn();
@@ -70,13 +63,21 @@ describe("LoginForm", () => {
       push: mockPush,
       refresh: mockRefresh,
     });
+    useSearchParams.mockReturnValue({
+      get: jest.fn(() => null),
+    });
+    global.fetch = jest.fn();
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   it("renders employee ID and password inputs", () => {
     render(<LoginForm />);
 
     expect(
-      screen.getByPlaceholderText("e.g., admin@arch.os"),
+      screen.getByPlaceholderText("Employee ID or email"),
     ).toBeInTheDocument();
     expect(
       screen.getByPlaceholderText("Enter your password"),
@@ -91,16 +92,15 @@ describe("LoginForm", () => {
   });
 
   it("submits form and redirects on success", async () => {
-    const mockSignIn = jest.fn().mockResolvedValue({ error: null });
-    createBrowserSupabaseClient.mockReturnValue({
-      auth: {
-        signInWithPassword: mockSignIn,
-      },
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: jest.fn().mockResolvedValue({}),
     });
 
     render(<LoginForm />);
 
-    fireEvent.change(screen.getByPlaceholderText("e.g., admin@arch.os"), {
+    fireEvent.change(screen.getByPlaceholderText("Employee ID or email"), {
       target: { value: "PC-12345" },
     });
     fireEvent.change(screen.getByPlaceholderText("Enter your password"), {
@@ -109,28 +109,31 @@ describe("LoginForm", () => {
     fireEvent.submit(screen.getByTestId("login-form"));
 
     await waitFor(() => {
-      expect(mockSignIn).toHaveBeenCalledWith(
-        expect.objectContaining({ email: "PC-12345" }),
+      expect(global.fetch).toHaveBeenCalledWith(
+        "/api/auth/login",
+        expect.objectContaining({
+          method: "POST",
+          body: JSON.stringify({ email: "PC-12345", password: "testpass" }),
+        }),
       );
     });
 
-    expect(mockPush).toHaveBeenCalledWith("/");
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith("/");
+    });
     expect(mockRefresh).toHaveBeenCalled();
   });
 
   it("displays error when sign in fails", async () => {
-    const mockSignIn = jest.fn().mockResolvedValue({
-      error: { message: "Invalid login credentials" },
-    });
-    createBrowserSupabaseClient.mockReturnValue({
-      auth: {
-        signInWithPassword: mockSignIn,
-      },
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
+      ok: false,
+      status: 401,
+      json: jest.fn().mockResolvedValue({ error: "Invalid credentials" }),
     });
 
     render(<LoginForm />);
 
-    fireEvent.change(screen.getByPlaceholderText("e.g., admin@arch.os"), {
+    fireEvent.change(screen.getByPlaceholderText("Employee ID or email"), {
       target: { value: "PC-12345" },
     });
     fireEvent.change(screen.getByPlaceholderText("Enter your password"), {
@@ -139,27 +142,20 @@ describe("LoginForm", () => {
     fireEvent.submit(screen.getByTestId("login-form"));
 
     await waitFor(() => {
-      expect(
-        screen.getByText(/Employee ID or password incorrect/i),
-      ).toBeInTheDocument();
+      expect(screen.getByText(/Invalid credentials/i)).toBeInTheDocument();
     });
 
     expect(mockPush).not.toHaveBeenCalled();
   });
 
-  it("shows generic error message for non-invalid-login errors", async () => {
-    const mockSignIn = jest.fn().mockResolvedValue({
-      error: { message: "Network error" },
-    });
-    createBrowserSupabaseClient.mockReturnValue({
-      auth: {
-        signInWithPassword: mockSignIn,
-      },
-    });
+  it("shows network error when fetch throws", async () => {
+    (global.fetch as jest.Mock).mockRejectedValueOnce(
+      new Error("Network failure"),
+    );
 
     render(<LoginForm />);
 
-    fireEvent.change(screen.getByPlaceholderText("e.g., admin@arch.os"), {
+    fireEvent.change(screen.getByPlaceholderText("Employee ID or email"), {
       target: { value: "PC-12345" },
     });
     fireEvent.change(screen.getByPlaceholderText("Enter your password"), {
@@ -169,27 +165,28 @@ describe("LoginForm", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText(/Network error. Please check your connection/i),
+        screen.getByText(/Network error\. Please try again\./i),
       ).toBeInTheDocument();
     });
   });
 
   it("disables button while submitting", async () => {
-    let resolveSignIn: (_value: { error: null }) => void;
-    const signInPromise = new Promise<{ error: null }>((resolve) => {
-      resolveSignIn = resolve;
+    let resolveFetch: (_value: {
+      ok: boolean;
+      json: () => Promise<unknown>;
+    }) => void;
+    const fetchPromise = new Promise<{
+      ok: boolean;
+      json: () => Promise<unknown>;
+    }>((resolve) => {
+      resolveFetch = resolve;
     });
 
-    const mockSignIn = jest.fn().mockReturnValue(signInPromise);
-    createBrowserSupabaseClient.mockReturnValue({
-      auth: {
-        signInWithPassword: mockSignIn,
-      },
-    });
+    (global.fetch as jest.Mock).mockReturnValueOnce(fetchPromise);
 
     render(<LoginForm />);
 
-    fireEvent.change(screen.getByPlaceholderText("e.g., admin@arch.os"), {
+    fireEvent.change(screen.getByPlaceholderText("Employee ID or email"), {
       target: { value: "PC-12345" },
     });
     fireEvent.change(screen.getByPlaceholderText("Enter your password"), {
@@ -197,16 +194,16 @@ describe("LoginForm", () => {
     });
     fireEvent.submit(screen.getByTestId("login-form"));
 
-    // Button should be disabled while loading
+    // Button should show loading text and be disabled while loading
     await waitFor(() => {
       expect(
         screen.getByRole("button", { name: /^Sign In$|^Signing in\.\.\.$/i }),
       ).toBeDisabled();
     });
 
-    resolveSignIn!({ error: null });
+    resolveFetch!({ ok: true, json: jest.fn().mockResolvedValue({}) });
 
-    // After resolution, button should be enabled
+    // After resolution, button should be enabled again
     await waitFor(() => {
       expect(
         screen.getByRole("button", { name: /^Sign In$|^Signing in\.\.\.$/i }),
@@ -217,19 +214,18 @@ describe("LoginForm", () => {
   it("uses redirect query parameter when present", async () => {
     const { useSearchParams } = jest.requireMock("next/navigation");
     useSearchParams.mockReturnValue({
-      get: jest.fn(() => "/dashboard"),
+      get: jest.fn((key: string) => (key === "redirect" ? "/dashboard" : null)),
     });
 
-    const mockSignIn = jest.fn().mockResolvedValue({ error: null });
-    createBrowserSupabaseClient.mockReturnValue({
-      auth: {
-        signInWithPassword: mockSignIn,
-      },
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: jest.fn().mockResolvedValue({}),
     });
 
     render(<LoginForm />);
 
-    fireEvent.change(screen.getByPlaceholderText("e.g., admin@arch.os"), {
+    fireEvent.change(screen.getByPlaceholderText("Employee ID or email"), {
       target: { value: "PC-12345" },
     });
     fireEvent.change(screen.getByPlaceholderText("Enter your password"), {
@@ -291,139 +287,23 @@ describe("LoginForm", () => {
     expect(screen.queryByText("Caps Lock is on")).not.toBeInTheDocument();
   });
 
-  it("locks out submission after 5 failed attempts", async () => {
-    const mockSignIn = jest.fn().mockResolvedValue({
-      error: { message: "Invalid login credentials" },
-    });
-    createBrowserSupabaseClient.mockReturnValue({
-      auth: {
-        signInWithPassword: mockSignIn,
-      },
-    });
-
-    render(<LoginForm />);
-
-    const emailInput = screen.getByPlaceholderText("e.g., admin@arch.os");
-    const passwordInput = screen.getByPlaceholderText("Enter your password");
-    const form = screen.getByTestId("login-form");
-
-    fireEvent.change(emailInput, { target: { value: "PC-12345" } });
-    fireEvent.change(passwordInput, { target: { value: "wrong" } });
-
-    // Submit 5 times
-    for (let i = 0; i < 5; i++) {
-      fireEvent.submit(form);
-      await waitFor(() => {
-        expect(mockSignIn).toHaveBeenCalledTimes(i + 1);
-      });
-    }
-
-    // Now, failed attempts is 5.
-    // Try to submit again
-    fireEvent.submit(form);
-
-    await waitFor(() => {
-      expect(
-        screen.getByText(
-          "Too many failed attempts. Please wait before trying again.",
-        ),
-      ).toBeInTheDocument();
-    });
-
-    // The submit button is disabled
-    expect(screen.getByRole("button", { name: /^Sign In$/i })).toBeDisabled();
-    // signInWithPassword was NOT called a 6th time
-    expect(mockSignIn).toHaveBeenCalledTimes(5);
-  });
-
-  it("moves Supabase keys to sessionStorage when Remember Me is unchecked", async () => {
-    const mockSignIn = jest.fn().mockResolvedValue({ error: null });
-    createBrowserSupabaseClient.mockReturnValue({
-      auth: {
-        signInWithPassword: mockSignIn,
-      },
-    });
-
-    // Setup mock stores
-    const localStore: Record<string, string> = {
-      "sb-access-token": "token-123",
-      "sb-refresh-token": "refresh-123",
-      "other-key": "other-value",
-    };
-    const sessionStore: Record<string, string> = {};
-
-    const spyLocalGet = jest
-      .spyOn(Storage.prototype, "getItem")
-      .mockImplementation((key) => localStore[key] || null);
-    const spyLocalRemove = jest
-      .spyOn(Storage.prototype, "removeItem")
-      .mockImplementation((key) => {
-        delete localStore[key];
-      });
-    const spySessionSet = jest
-      .spyOn(Storage.prototype, "setItem")
-      .mockImplementation((key, val) => {
-        sessionStore[key] = val;
-      });
-
-    const localStoreKeys = ["sb-access-token", "sb-refresh-token", "other-key"];
-    const originalKeys = Object.keys;
-    const spyKeys = jest.spyOn(Object, "keys").mockImplementation((obj) => {
-      if (obj === localStorage) return localStoreKeys;
-      return originalKeys(obj);
-    });
-
-    render(<LoginForm />);
-
-    // Uncheck "Remember Me"
-    const checkbox = screen.getByLabelText("Remember me");
-    fireEvent.click(checkbox);
-    expect(checkbox).not.toBeChecked();
-
-    fireEvent.change(screen.getByPlaceholderText("e.g., admin@arch.os"), {
-      target: { value: "PC-12345" },
-    });
-    fireEvent.change(screen.getByPlaceholderText("Enter your password"), {
-      target: { value: "testpass" },
-    });
-    fireEvent.submit(screen.getByTestId("login-form"));
-
-    await waitFor(() => {
-      expect(mockSignIn).toHaveBeenCalled();
-    });
-
-    // Verify tokens were moved to sessionStorage and deleted from localStorage
-    expect(sessionStore["sb-access-token"]).toBe("token-123");
-    expect(sessionStore["sb-refresh-token"]).toBe("refresh-123");
-    expect(localStore["sb-access-token"]).toBeUndefined();
-    expect(localStore["sb-refresh-token"]).toBeUndefined();
-    // Non-sb keys are untouched
-    expect(localStore["other-key"]).toBe("other-value");
-
-    spyLocalGet.mockRestore();
-    spyLocalRemove.mockRestore();
-    spySessionSet.mockRestore();
-    spyKeys.mockRestore();
-  });
-
   it("rejects invalid page redirects (external or static files) and defaults to '/'", async () => {
     const { useSearchParams } = jest.requireMock("next/navigation");
 
+    (global.fetch as jest.Mock).mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({}),
+    });
+
     const testRedirect = async (path: string, expectedTarget: string) => {
       useSearchParams.mockReturnValue({
-        get: jest.fn((key) => (key === "redirect" ? path : null)),
-      });
-
-      const mockSignIn = jest.fn().mockResolvedValue({ error: null });
-      createBrowserSupabaseClient.mockReturnValue({
-        auth: {
-          signInWithPassword: mockSignIn,
-        },
+        get: jest.fn((key: string) => (key === "redirect" ? path : null)),
       });
 
       const { unmount } = render(<LoginForm />);
 
-      fireEvent.change(screen.getByPlaceholderText("e.g., admin@arch.os"), {
+      fireEvent.change(screen.getByPlaceholderText("Employee ID or email"), {
         target: { value: "PC-12345" },
       });
       fireEvent.change(screen.getByPlaceholderText("Enter your password"), {
@@ -435,6 +315,7 @@ describe("LoginForm", () => {
         expect(mockPush).toHaveBeenCalledWith(expectedTarget);
       });
 
+      // clean up for next iteration
       unmount();
       jest.clearAllMocks();
     };

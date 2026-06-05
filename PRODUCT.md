@@ -1,5 +1,14 @@
 # PRODUCT.md
 
+## Related Documentation
+
+- **[DOCUMENTATION_INDEX.md](DOCUMENTATION_INDEX.md)** — Complete documentation index and quick navigation guide
+- **[DESIGN.md](DESIGN.md)** — Design system, color palette, and component rules
+- **[CLAUDE.md](CLAUDE.md)** — Technical implementation and architecture
+- **[AGENTS.md](AGENTS.md)** — Development workflow and quality gates
+
+---
+
 ## Product
 
 Arch-Systems (Plantcor) Mining Operations Portal. Multi-departmental dashboard and data-entry system for surface mining operations. Authenticated access to department-specific tools for drilling, production, access control, engineering, control room, safety, training, and satellite monitoring.
@@ -36,12 +45,12 @@ Direct, industrial, functional. No marketing fluff. Labels are terse ("Hourly Lo
 
 ## Surface Mapping
 
-| Surface               | Register | Notes                                                                  |
-| --------------------- | -------- | ---------------------------------------------------------------------- |
-| Login page            | product  | Functional, dark, video background. No brand posturing.                |
-| Hub (department grid) | product  | Navigation surface. Dense grid, clear status indicators.               |
-| Department dashboards | product  | KPIs + live data + tables. Highest information density.                |
-| Data entry forms      | product  | Form state machine (idle/submitting/success/error). Inline validation. |
-| Maps (satellite)      | product  | Full-bleed map surfaces, overlay panels for controls.                  |
-| Admin panel           | product  | Table-heavy management UI.                                             |
-| AI chat               | product  | Embedded assistant, streaming responses, code highlighting.            |
+| Surface               | Register | Notes                                                                                          |
+| --------------------- | -------- | ---------------------------------------------------------------------------------------------- |
+| Login page            | product  | Functional light-mode blueprint video background, glassmorphic login card. No brand posturing. |
+| Hub (department grid) | product  | Navigation surface. Dense grid, clear status indicators.                                       |
+| Department dashboards | product  | KPIs + live data + tables. Highest information density.                                        |
+| Data entry forms      | product  | Form state machine (idle/submitting/success/error). Inline validation.                         |
+| Maps (satellite)      | product  | Full-bleed map surfaces, overlay panels for controls.                                          |
+| Admin panel           | product  | Table-heavy management UI.                                                                     |
+| AI chat               | product  | Embedded assistant, streaming responses, code highlighting.                                    |

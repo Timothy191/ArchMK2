@@ -22,25 +22,25 @@ interface EngineeringNotesListProps {
 }
 
 const ISSUE_TYPE_COLORS: Record<string, string> = {
-  mechanical: "#007aff",
-  electrical: "#3b82f6",
-  structural: "#8b5cf6",
-  hydraulic: "#06b6d4",
-  other: "#6b7280",
+  mechanical: "#1c1c1e",
+  electrical: "#27272a",
+  structural: "#3f3f46",
+  hydraulic: "#52525b",
+  other: "#71717a",
 };
 
 const SEVERITY_COLORS: Record<string, string> = {
   low: "#10b981",
-  medium: "#007aff",
+  medium: "#71717a",
   high: "#ef4444",
   critical: "#dc2626",
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  open: "#007aff",
-  in_progress: "#3b82f6",
+  open: "#1c1c1e",
+  in_progress: "#27272a",
   resolved: "#10b981",
-  closed: "#6b7280",
+  closed: "#71717a",
 };
 
 function formatTime(dateStr: string) {

@@ -2,6 +2,15 @@
 
 Industrial operations portal built for high-scale vigilance and operational precision.
 
+## Related Documentation
+
+- **[DOCUMENTATION_INDEX.md](DOCUMENTATION_INDEX.md)** — Complete documentation index and quick navigation guide
+- **[CLAUDE.md](CLAUDE.md)** — Complete technical guide and development commands
+- **[AGENTS.md](AGENTS.md)** — Development workflow and quality gates
+- **[DEPLOYMENT.md](DEPLOYMENT.md)** — Deployment guide for all environments
+
+---
+
 ## 🏗️ Architecture & Tech Stack
 
 - **Monorepo**: Turborepo + pnpm 9.12.0.

@@ -32,8 +32,8 @@ interface MonitoringMapProps {
 
 const LEVEL_COLORS: Record<string, string> = {
   stable: "#3ecf8e",
-  minor: "#007aff",
-  moderate: "#007aff",
+  minor: "#71717a",
+  moderate: "#3f3f46",
   critical: "#ef4444",
 };
 

@@ -1,22 +1,31 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { useFocusMode } from "@/hooks/useFocusMode";
 
 /**
  * RouteBackground
  *
- * Renders the full-screen ambient background beneath all portal content.
+ * Renders the full-screen ambient background beneath all portal content with
+ * improved performance and accessibility features.
  *
  * Layer stack (back → front, all z-index: -10 to -9):
- *   -10  │ <video>          – light-mode.mp4 (light mode, ambient loop)
+ *   -10  │ <video>          – background/light_mode.mp4 (light mode, ambient loop)
  *   -10  │ <video>          – ps3-wave.mp4   (focus mode, ambient loop)
+ *   -10  │ <img> (poster)   – poster image while video loads (fallback)
  *    -9  │ tint overlay     – bg-white/55 glass wash (always visible)
  *
- * Both videos are ALWAYS mounted — focus mode does not unmount the
- * light-mode video. Instead, CSS toggles which one is visible. This
- * keeps the decoder warm and the element in the GPU compositor, so
- * toggling between modes is instantaneous and neither video restarts
- * from frame zero when re-shown.
+ * Performance optimizations:
+ *  • Lazy loading with preload="none" prevents eager resource fetch
+ *  • Poster images shown during video load prevent blank screens
+ *  • Videos only start loading when document is visible (Intersection Observer)
+ *  • Both videos ALWAYS mounted to keep decoder warm for instant mode switching
+ *
+ * Accessibility features:
+ *  • Respects prefers-reduced-motion via reduced-motion state
+ *  • Graceful degradation with poster image fallback
+ *  • ARIA-hidden for screen readers (decorative content)
+ *  • PlaysInline for mobile compatibility
  *
  * Notes:
  *  • `data-bg-mode` is set on <html> by useFocusMode's effect; CSS
@@ -33,35 +42,130 @@ export function RouteBackground() {
   // set by useFocusMode — see glass.css `.route-bg-focus-video` rules.
   useFocusMode((s) => s.enabled);
 
+  const lightVideoRef = useRef<HTMLVideoElement>(null);
+  const focusVideoRef = useRef<HTMLVideoElement>(null);
+
+  const [lightVideoLoaded, setLightVideoLoaded] = useState(false);
+  const [focusVideoLoaded, setFocusVideoLoaded] = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+
+  // Check for reduced motion preference
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setPrefersReducedMotion(mediaQuery.matches);
+
+    const handleChange = (e: MediaQueryListEvent) => {
+      setPrefersReducedMotion(e.matches);
+    };
+
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, []);
+
+  // Lazy load videos when they come into viewport
+  useEffect(() => {
+    if (prefersReducedMotion) {
+      // Don't load videos if user prefers reduced motion
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const video = entry.target as HTMLVideoElement;
+            // Start loading the video when in viewport
+            video.load();
+            observer.unobserve(video);
+          }
+        });
+      },
+      { threshold: 0.1 },
+    );
+
+    if (lightVideoRef.current) observer.observe(lightVideoRef.current);
+    if (focusVideoRef.current) observer.observe(focusVideoRef.current);
+
+    return () => {
+      if (lightVideoRef.current) observer.unobserve(lightVideoRef.current);
+      if (focusVideoRef.current) observer.unobserve(focusVideoRef.current);
+    };
+  }, [prefersReducedMotion]);
+
+  // Track video load states
+  useEffect(() => {
+    const lightVideo = lightVideoRef.current;
+    const focusVideo = focusVideoRef.current;
+
+    const handleLightCanPlay = () => setLightVideoLoaded(true);
+    const handleFocusCanPlay = () => setFocusVideoLoaded(true);
+
+    if (lightVideo) lightVideo.addEventListener("canplay", handleLightCanPlay);
+    if (focusVideo) focusVideo.addEventListener("canplay", handleFocusCanPlay);
+
+    return () => {
+      if (lightVideo)
+        lightVideo.removeEventListener("canplay", handleLightCanPlay);
+      if (focusVideo)
+        focusVideo.removeEventListener("canplay", handleFocusCanPlay);
+    };
+  }, []);
+
   return (
     <>
-      {/* ── Light mode: loop the user's video background ── */}
-      <video
-        id="route-bg-light-video"
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="auto"
-        className="route-bg-video"
-        aria-hidden="true"
-      >
-        <source src="/light-mode.mp4" type="video/mp4" />
-      </video>
+      {prefersReducedMotion ? (
+        // For users who prefer reduced motion, show static gradient only
+        <div
+          className="fixed inset-0 bg-gradient-to-br from-white/80 to-white/60 -z-10"
+          aria-hidden="true"
+        />
+      ) : (
+        <>
+          {/* ── Light mode: loop the user's video background (lazy-loaded) ── */}
+          <video
+            ref={lightVideoRef}
+            id="route-bg-light-video"
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="none"
+            poster="/auth-bg-poster.jpg"
+            className="route-bg-video"
+            aria-hidden="true"
+          >
+            <source src="/background/light-mode.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
 
-      {/* ── Focus mode: full-screen atmospheric video ── */}
-      <video
-        id="route-bg-focus-video"
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="auto"
-        className="route-bg-focus-video"
-        aria-hidden="true"
-      >
-        <source src="/ps3-wave.mp4" type="video/mp4" />
-      </video>
+          {/* ── Focus mode: full-screen atmospheric video (lazy-loaded) ── */}
+          <video
+            ref={focusVideoRef}
+            id="route-bg-focus-video"
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="none"
+            poster="/auth-bg-poster.jpg"
+            className="route-bg-focus-video"
+            aria-hidden="true"
+          >
+            <source src="/background/focused-mode.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+
+          {/* ── Poster fallback overlay — shown until videos load ── */}
+          {!lightVideoLoaded && !focusVideoLoaded && (
+            <img
+              src="/auth-bg-poster.jpg"
+              alt=""
+              className="fixed inset-0 w-full h-full object-cover -z-10"
+              aria-hidden="true"
+            />
+          )}
+        </>
+      )}
 
       {/* ── Tint overlay — always visible for legibility scrim ── */}
       <div className="route-bg-tint" aria-hidden="true" />

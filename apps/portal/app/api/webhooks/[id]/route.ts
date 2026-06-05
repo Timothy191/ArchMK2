@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@repo/supabase/server";
 import { revalidatePath } from "next/cache";
 import { withRateLimit } from "@/lib/api/rate-limit-middleware";
+import { validateBody } from "@/lib/api/response";
+import { applyCors } from "@/lib/api/cors";
+import { updateWebhookSchema } from "@/lib/api/schemas";
 
 export const dynamic = "force-dynamic";
 
@@ -19,8 +22,9 @@ async function handlePutWebhook(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const body = await request.json();
-  const { url, description, event_types, active } = body;
+  const parsed = await validateBody(request, updateWebhookSchema);
+  if (parsed instanceof NextResponse) return parsed;
+  const { url, description, event_types, active } = parsed.data;
 
   // Get user's department and role
   const { data: employee } = await supabase
@@ -85,7 +89,10 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  return withRateLimit(request, () => handlePutWebhook(request, { params }));
+  const response = await withRateLimit(request, () =>
+    handlePutWebhook(request, { params }),
+  );
+  return applyCors(request, response);
 }
 
 async function handleDeleteWebhook(
@@ -158,5 +165,8 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  return withRateLimit(request, () => handleDeleteWebhook(request, { params }));
+  const response = await withRateLimit(request, () =>
+    handleDeleteWebhook(request, { params }),
+  );
+  return applyCors(request, response);
 }

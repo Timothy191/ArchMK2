@@ -56,7 +56,6 @@ module.exports = {
       "<rootDir>/../../packages/ui/src/components/MacTitleBar.tsx",
     "^@repo/utils$": "<rootDir>/../../packages/utils/src/index.ts",
     "^@repo/utils/(.*)$": "<rootDir>/../../packages/utils/src/$1",
-    "^@repo/types$": "<rootDir>/../../packages/types/src/index.ts",
     "^@repo/ui/DataGrid$":
       "<rootDir>/../../packages/ui/src/components/ui/data-grid.tsx",
     "^@repo/ui/AnimatedList$":

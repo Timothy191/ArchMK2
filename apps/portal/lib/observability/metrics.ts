@@ -9,8 +9,8 @@ globalObj.__jobMetrics =
   globalObj.__jobMetrics || new Map<string, MetricEntry>();
 globalObj.__dbMetrics = globalObj.__dbMetrics || new Map<string, MetricEntry>();
 
-export const jobMetrics = globalObj.__jobMetrics;
-export const dbMetrics = globalObj.__dbMetrics;
+const jobMetrics = globalObj.__jobMetrics;
+const dbMetrics = globalObj.__dbMetrics;
 
 /**
  * Record the execution duration and outcome of a background job.

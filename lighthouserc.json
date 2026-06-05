@@ -5,9 +5,9 @@
         "http://localhost:3000/",
         "http://localhost:3000/login",
         "http://localhost:3000/drilling",
-        "http://localhost:3000/production",
         "http://localhost:3000/engineering",
-        "http://localhost:3000/safety"
+        "http://localhost:3000/access-control",
+        "http://localhost:3000/training"
       ],
       "numberOfRuns": 3,
       "settings": {

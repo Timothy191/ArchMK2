@@ -1,4 +1,3 @@
-import * as XLSX from "xlsx";
 import type { Fill, Font, Borders } from "exceljs";
 import { ValidationError } from "@repo/errors";
 
@@ -17,55 +16,102 @@ export interface ExcelSheetConfig {
   data: Record<string, Primitive>[];
 }
 
+async function triggerDownload(
+  workbook: import("exceljs").Workbook,
+  fileName: string,
+) {
+  const buffer = await workbook.xlsx.writeBuffer();
+  const blob = new Blob([buffer], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${fileName}.xlsx`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
 /**
- * Exports JSON data to a single-sheet Excel file (backward compatible)
+ * Exports JSON data to a single-sheet Excel file
  */
-export function exportToExcel(
+export async function exportToExcel(
   data: any[],
   fileName: string,
   sheetName: string = "Sheet1",
 ) {
-  const worksheet = XLSX.utils.json_to_sheet(data);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
-  XLSX.writeFile(workbook, `${fileName}.xlsx`);
+  const ExcelJS = await import("exceljs");
+  const workbook = new ExcelJS.Workbook();
+  const ws = workbook.addWorksheet(sheetName);
+
+  if (data.length > 0) {
+    const headers = Object.keys(data[0]);
+    ws.addRow(headers);
+    data.forEach((row) => {
+      ws.addRow(headers.map((h) => row[h]));
+    });
+  }
+
+  await triggerDownload(workbook, fileName);
 }
 
 /**
- * Exports multiple sheets to an Excel file using SheetJS (lightweight, no styling)
+ * Exports multiple sheets to an Excel file
  */
-export function exportMultiSheetExcel(
+export async function exportMultiSheetExcel(
   sheets: ExcelSheetConfig[],
   fileName: string,
 ) {
-  const workbook = XLSX.utils.book_new();
+  const ExcelJS = await import("exceljs");
+  const workbook = new ExcelJS.Workbook();
+
   for (const sheet of sheets) {
-    const dataWithHeaders = [
-      sheet.columns.map((c) => c.header),
-      ...sheet.data.map((row) =>
-        sheet.columns.map((col) => {
-          const val = row[col.key];
-          if (val instanceof Date) {
-            return col.type === "date" ? val.toISOString() : val;
-          }
-          return val ?? "";
-        }),
-      ),
-    ];
-    const worksheet = XLSX.utils.aoa_to_sheet(dataWithHeaders);
+    const ws = workbook.addWorksheet(sheet.name);
     if (sheet.columns.some((c) => c.width)) {
-      worksheet["!cols"] = sheet.columns.map((c) => ({
-        wch: c.width ?? 12,
+      ws.columns = sheet.columns.map((c) => ({
+        header: c.header,
+        key: c.key,
+        width: c.width ?? 12,
       }));
+    } else {
+      ws.addRow(sheet.columns.map((c) => c.header));
     }
-    XLSX.utils.book_append_sheet(workbook, worksheet, sheet.name);
+
+    for (const row of sheet.data) {
+      if (ws.columns) {
+        ws.addRow(
+          sheet.columns.reduce(
+            (acc, col) => {
+              let val = row[col.key];
+              if (val instanceof Date) {
+                val = col.type === "date" ? val.toISOString() : val;
+              }
+              acc[col.key] = val ?? "";
+              return acc;
+            },
+            {} as Record<string, Primitive>,
+          ),
+        );
+      } else {
+        ws.addRow(
+          sheet.columns.map((col) => {
+            let val = row[col.key];
+            if (val instanceof Date) {
+              return col.type === "date" ? val.toISOString() : val;
+            }
+            return val ?? "";
+          }),
+        );
+      }
+    }
   }
-  XLSX.writeFile(workbook, `${fileName}.xlsx`);
+  await triggerDownload(workbook, fileName);
 }
 
 /**
  * Styled Excel export with formulas, cell formatting, and multiple sheets.
- * Uses dynamic import of exceljs to avoid bundling the heavy library on initial load.
  */
 export async function exportStyledExcel(
   sheets: ExcelSheetConfig[],
@@ -146,18 +192,7 @@ export async function exportStyledExcel(
     };
   }
 
-  const buffer = await workbook.xlsx.writeBuffer();
-  const blob = new Blob([buffer], {
-    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-  });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `${fileName}.xlsx`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  await triggerDownload(workbook, fileName);
 }
 
 /**
@@ -166,14 +201,32 @@ export async function exportStyledExcel(
 export async function parseExcel(file: File): Promise<any[]> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
       try {
-        const data = new Uint8Array(e.target?.result as ArrayBuffer);
-        const workbook = XLSX.read(data, { type: "array" });
-        const firstSheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[firstSheetName!];
+        const ExcelJS = await import("exceljs");
+        const workbook = new ExcelJS.Workbook();
+        const buffer = e.target?.result as ArrayBuffer;
+        await workbook.xlsx.load(buffer);
+
+        const worksheet = workbook.worksheets[0];
         if (!worksheet) throw new ValidationError("No worksheet found");
-        const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+        const jsonData: any[] = [];
+        let headers: string[] = [];
+
+        worksheet.eachRow((row, rowNumber) => {
+          if (rowNumber === 1) {
+            headers = (row.values as string[]).slice(1); // 1-indexed
+          } else {
+            const rowData: Record<string, any> = {};
+            const values = (row.values as any[]).slice(1);
+            headers.forEach((h, i) => {
+              rowData[h] = values[i];
+            });
+            jsonData.push(rowData);
+          }
+        });
+
         resolve(jsonData);
       } catch (err) {
         reject(err);

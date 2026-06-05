@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import { GlassCard } from "@repo/ui/GlassCard";
 import { createBrowserSupabaseClient } from "@repo/supabase/client";
 import { useRouter } from "next/navigation";
-import { exportToExcel, parseExcel } from "@repo/utils";
+import { exportToExcel, parseExcel } from "@repo/utils/client";
 import { SecondaryButton } from "@repo/ui/SecondaryButton";
 import { Download, Upload } from "lucide-react";
 import { logError } from "@/lib/errors/error-logger";
@@ -663,7 +663,7 @@ export function HourlyLoadsGrid({
     ],
   );
 
-  const handleExport = () => {
+  const handleExport = async () => {
     const exportData = machines.map((machine) => {
       const sites = machine.sites;
       const siteName =
@@ -684,7 +684,7 @@ export function HourlyLoadsGrid({
       return data;
     });
 
-    exportToExcel(
+    await exportToExcel(
       exportData,
       `hourly-loads-${selectedShift}-${today}`,
       "Hourly Loads",

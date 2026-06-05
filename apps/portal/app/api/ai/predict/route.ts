@@ -4,6 +4,10 @@ import { riskAssessmentSchema, type RiskAssessment } from "@/lib/ai/schemas";
 import { chat, DEFAULT_MODEL } from "@/lib/ai/providers";
 import { createServerSupabaseClient } from "@repo/supabase/server";
 import { withRateLimit } from "@/lib/api/rate-limit-middleware";
+import { validateBody } from "@/lib/api/response";
+import { applyCors } from "@/lib/api/cors";
+import { withBodyLimit } from "@/lib/api/body-limit";
+import { aiPredictSchema } from "@/lib/api/schemas";
 
 const SYSTEM_PROMPT = `You are an industrial maintenance AI for an industrial operations portal.
 Analyse the machine data provided and produce a structured risk assessment.
@@ -23,17 +27,19 @@ async function handlePredictRequest(req: NextRequest): Promise<NextResponse> {
     error: authError,
   } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return applyCors(
+      req,
+      NextResponse.json({ error: "Unauthorized" }, { status: 401 }),
+    );
+  }
+
+  const parsed = await validateBody(req, aiPredictSchema);
+  if (parsed instanceof NextResponse) {
+    return applyCors(req, parsed);
   }
 
   try {
-    const { machineData }: { machineData: string } = await req.json();
-    if (!machineData) {
-      return NextResponse.json(
-        { error: "machineData is required" },
-        { status: 400 },
-      );
-    }
+    const { machineData } = parsed.data;
 
     const raw = await chat(
       [
@@ -46,31 +52,43 @@ async function handlePredictRequest(req: NextRequest): Promise<NextResponse> {
       { model: DEFAULT_MODEL, temperature: 0.3, maxTokens: 1024 },
     );
 
-    const parsed = riskAssessmentSchema.safeParse(JSON.parse(raw ?? "{}"));
-    if (!parsed.success) {
-      return NextResponse.json(
-        {
-          risk: "low",
-          actions: [],
-          timeEstimate: "unknown",
-          summary: raw ?? "",
-        } satisfies RiskAssessment,
-        { status: 200 },
+    const parsedResult = riskAssessmentSchema.safeParse(
+      JSON.parse(raw ?? "{}"),
+    );
+    if (!parsedResult.success) {
+      return applyCors(
+        req,
+        NextResponse.json(
+          {
+            risk: "low",
+            actions: [],
+            timeEstimate: "unknown",
+            summary: raw ?? "",
+          } satisfies RiskAssessment,
+          { status: 200 },
+        ),
       );
     }
 
-    return NextResponse.json(parsed.data);
+    return applyCors(req, NextResponse.json(parsedResult.data));
   } catch (error) {
     logError(error instanceof Error ? error : new Error(String(error)), {
       context: "predictive_maintenance",
     });
-    return NextResponse.json(
-      { error: "Failed to analyse machine data" },
-      { status: 500 },
+    return applyCors(
+      req,
+      NextResponse.json(
+        { error: "Failed to analyse machine data" },
+        { status: 500 },
+      ),
     );
   }
 }
 
 export async function POST(req: NextRequest) {
-  return withRateLimit(req, () => handlePredictRequest(req));
+  return withBodyLimit(
+    req,
+    () => withRateLimit(req, () => handlePredictRequest(req)),
+    { maxSize: 1_048_576 },
+  );
 }

@@ -68,3 +68,35 @@ jest.mock("../../packages/redis/src/client", () => {
     closeRedis: jest.fn(async () => {}),
   };
 });
+
+// Mock window.matchMedia and IntersectionObserver only if running in a browser-like environment (jsdom)
+if (typeof window !== "undefined") {
+  Object.defineProperty(window, "matchMedia", {
+    writable: true,
+    value: jest.fn().mockImplementation((query) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: jest.fn(), // Deprecated
+      removeListener: jest.fn(), // Deprecated
+      addEventListener: jest.fn(),
+      removeEventListener: jest.fn(),
+      dispatchEvent: jest.fn(),
+    })),
+  });
+
+  // Mock IntersectionObserver
+  class MockIntersectionObserver {
+    observe = jest.fn();
+    disconnect = jest.fn();
+    unobserve = jest.fn();
+  }
+
+  Object.defineProperty(window, "IntersectionObserver", {
+    writable: true,
+    configurable: true,
+    value: MockIntersectionObserver,
+  });
+
+  global.IntersectionObserver = MockIntersectionObserver as any;
+}

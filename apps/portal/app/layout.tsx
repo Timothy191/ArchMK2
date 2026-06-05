@@ -7,7 +7,8 @@ import { OfflineBanner } from "@/components/OfflineBanner";
 import { FocusModeProvider } from "@/components/FocusModeProvider";
 import { PerformanceListener } from "@/components/PerformanceListener";
 import { CommandBar } from "@/components/CommandBar";
-import { AIAssistantSidebarWrapper } from "@/features/shared/components/ai/AIAssistantSidebarWrapper";
+import { RouteAnnouncer } from "@/components/RouteAnnouncer";
+import { AIAssistantWrapper } from "@/components/ai/AIAssistantWrapper";
 import dynamic from "next/dynamic";
 import { FocusModeToggle } from "@/components/FocusModeToggle";
 import { SystemTrayPill } from "@/components/system/SystemTray";
@@ -20,7 +21,6 @@ const HeaderWidgets = dynamic(
       default: m.HeaderWidgets,
     })),
   {
-    ssr: false,
     loading: () => (
       <div className="flex items-center gap-3" aria-hidden="true">
         <div className="w-7 h-7 rounded-full bg-black/[0.03] border border-black/[0.05] animate-pulse" />
@@ -128,12 +128,15 @@ export default function RootLayout({
       </head>
       <body
         suppressHydrationWarning
-        className="text-[var(--text-heading)] min-h-screen font-sans antialiased selection:bg-[var(--accent-blue)]/30 selection:text-[var(--accent-blue)] relative overflow-x-hidden bg-[var(--bg-primary)]"
+        className="text-[var(--text-heading)] min-h-screen font-sans antialiased selection:bg-[var(--accent-blue)]/30 selection:text-[var(--accent-blue)] relative overflow-x-hidden bg-transparent"
       >
         {/* Skip navigation link for keyboard users */}
         <a href="#main-content" className="skip-link">
           Skip to main content
         </a>
+
+        {/* Announce SPA route changes to screen readers (WCAG 4.1.3) */}
+        <RouteAnnouncer />
 
         <ArchThemeProvider>
           <ClientProviders>
@@ -142,7 +145,7 @@ export default function RootLayout({
               <PerformanceListener />
               <WebVitalsReporter />
               <OfflineBanner />
-              <AIAssistantSidebarWrapper />
+              <AIAssistantWrapper />
 
               {/* Global Navigation Header with proper landmark */}
               <header role="banner" className="flex items-center gap-3">

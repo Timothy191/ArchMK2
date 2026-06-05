@@ -24,18 +24,26 @@
     },
     {
       "parameters": {
-        "jsCode": "const { integration, payload } = $json;\nconst endpoints = {\n  'slack-notification': { url: process.env.SLACK_WEBHOOK_URL, method: 'POST' },\n  'email-alert': { url: process.env.EMAIL_API_URL, method: 'POST' },\n  'sms-gateway': { url: process.env.SMS_API_URL, method: 'POST' },\n  'erp-webhook': { url: process.env.ERP_WEBHOOK_URL, method: 'POST' },\n  'weather-api': { url: process.env.WEATHER_API_URL, method: 'GET' },\n  'satellite-feed': { url: process.env.SATELLITE_API_URL, method: 'GET' }\n};\nreturn { ...$json, endpoint: endpoints[integration], status: 'forwarding' };"
+        "method": "POST",
+        "url": "={{ (() => { const urls = { 'slack-notification': $env.SLACK_WEBHOOK_URL, 'email-alert': $env.EMAIL_API_URL, 'sms-gateway': $env.SMS_API_URL, 'erp-webhook': $env.ERP_WEBHOOK_URL, 'weather-api': $env.WEATHER_API_URL, 'satellite-feed': $env.SATELLITE_API_URL }; return urls[$json.integration]; })() }}",
+        "sendBody": true,
+        "body": "={{ JSON.stringify($json.payload) }}",
+        "options": {
+          "timeout": 30000,
+          "maxRetries": 3,
+          "retryOn": ["5XX", "timeout"]
+        }
       },
-      "name": "Resolve Endpoint",
-      "type": "n8n-nodes-base.code",
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 2,
       "position": [600, 300]
     },
     {
       "parameters": {
-        "jsCode": "const { integration, endpoint, requestedAt } = $json;\nreturn {\n  status: 'delivered',\n  integration,\n  endpoint: endpoint ? endpoint.url : null,\n  requestedAt,\n  deliveredAt: new Date().toISOString()\n};"
+        "jsCode": "const response = $json;\nreturn {\n  status: 'delivered',\n  integration: $json.integration,\n  respondedAt: new Date().toISOString(),\n  httpStatus: response.statusCode || 'unknown'\n};"
       },
-      "name": "Delivered",
+      "name": "Format Response",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [850, 300]
@@ -46,13 +54,13 @@
       "main": [[{ "node": "Route Integration", "type": "main", "index": 0 }]]
     },
     "Route Integration": {
-      "main": [[{ "node": "Resolve Endpoint", "type": "main", "index": 0 }]]
+      "main": [[{ "node": "HTTP Request", "type": "main", "index": 0 }]]
     },
-    "Resolve Endpoint": {
-      "main": [[{ "node": "Delivered", "type": "main", "index": 0 }]]
+    "HTTP Request": {
+      "main": [[{ "node": "Format Response", "type": "main", "index": 0 }]]
     }
   },
-  "active": true,
+  "active": false,
   "settings": {},
   "tags": ["automation-mesh", "external-integrations", "api"],
   "id": "mesh-external-integrations"

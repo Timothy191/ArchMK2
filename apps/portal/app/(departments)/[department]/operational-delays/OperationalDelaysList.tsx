@@ -26,17 +26,17 @@ interface OperationalDelaysListProps {
 }
 
 const DELAY_TYPE_COLORS: Record<string, string> = {
-  equipment: "#007aff",
-  weather: "#3b82f6",
+  equipment: "#1c1c1e",
+  weather: "#27272a",
   safety: "#ef4444",
-  material: "#8b5cf6",
+  material: "#3f3f46",
   shift_change: "#10b981",
-  operator: "#60a5fa",
-  other: "#6b7280",
+  operator: "#52525b",
+  other: "#71717a",
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  active: "#007aff",
+  active: "#1c1c1e",
   recovered: "#10b981",
   extended: "#ef4444",
 };

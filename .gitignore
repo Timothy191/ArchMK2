@@ -139,3 +139,17 @@ populating-data/
 # Fallow dead-code analyzer output
 fallow_json.txt
 fallow_output.txt
+
+# Agent / IDE runtime artifacts
+.codebuddy/
+.poolside/
+.project/
+.memory/
+
+# Turbo cache (per-package)
+**/.turbo/
+
+# One-off generated reports / backups
+audit_report.md
+cleanup-backup/
+metadata.json

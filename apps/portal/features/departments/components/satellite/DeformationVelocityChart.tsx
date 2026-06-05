@@ -12,8 +12,8 @@ interface DeformationVelocityChartProps {
 
 const LEVEL_COLORS = {
   stable: "#3ecf8e",
-  minor: "#007aff",
-  moderate: "#007aff",
+  minor: "#71717a",
+  moderate: "#3f3f46",
   critical: "#ef4444",
 };
 
@@ -85,7 +85,7 @@ export function DeformationVelocityChart({
           y={moderateNegY}
           width={innerW}
           height={Math.max(0, minorNegY - moderateNegY)}
-          fill="#007aff"
+          fill={LEVEL_COLORS.moderate}
           opacity={0.07}
         />
         <rect
@@ -93,15 +93,19 @@ export function DeformationVelocityChart({
           y={minorNegY}
           width={innerW}
           height={Math.max(0, zeroY - minorNegY)}
-          fill="#007aff"
+          fill={LEVEL_COLORS.minor}
           opacity={0.07}
         />
 
         {/* threshold lines */}
         {[
           { y: criticalNegY, color: "#ef4444", label: `${t.critical}` },
-          { y: moderateNegY, color: "#007aff", label: `${t.moderate}` },
-          { y: minorNegY, color: "#007aff", label: `${t.minor}` },
+          {
+            y: moderateNegY,
+            color: LEVEL_COLORS.moderate,
+            label: `${t.moderate}`,
+          },
+          { y: minorNegY, color: LEVEL_COLORS.minor, label: `${t.minor}` },
         ].map(({ y, color, label: lbl }) => (
           <g key={lbl}>
             <line

@@ -2,7 +2,6 @@
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "namedInputs": {
     "sharedGlobals": [
-      "{workspaceRoot}/turbo.json",
       "{workspaceRoot}/tsconfig.json",
       "{workspaceRoot}/pnpm-workspace.yaml",
       "{workspaceRoot}/.npmrc",

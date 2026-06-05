@@ -32,16 +32,16 @@ interface EngineeringNotesFormProps {
 }
 
 const ISSUE_TYPES = [
-  { value: "mechanical", label: "Mechanical", color: "#007aff" },
-  { value: "electrical", label: "Electrical", color: "#3b82f6" },
-  { value: "structural", label: "Structural", color: "#8b5cf6" },
-  { value: "hydraulic", label: "Hydraulic", color: "#06b6d4" },
-  { value: "other", label: "Other", color: "#6b7280" },
+  { value: "mechanical", label: "Mechanical", color: "#1c1c1e" },
+  { value: "electrical", label: "Electrical", color: "#27272a" },
+  { value: "structural", label: "Structural", color: "#3f3f46" },
+  { value: "hydraulic", label: "Hydraulic", color: "#52525b" },
+  { value: "other", label: "Other", color: "#71717a" },
 ];
 
 const SEVERITY_LEVELS = [
   { value: "low", label: "Low", color: "#10b981" },
-  { value: "medium", label: "Medium", color: "#007aff" },
+  { value: "medium", label: "Medium", color: "#71717a" },
   { value: "high", label: "High", color: "#ef4444" },
   { value: "critical", label: "Critical", color: "#dc2626" },
 ];

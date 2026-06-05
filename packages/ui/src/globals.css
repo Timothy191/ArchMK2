@@ -445,7 +445,7 @@
   .focus-ring-arch-blue {
     outline: none;
     border-color: var(--arch-brand-blue) !important;
-    box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.2) !important;
+    box-shadow: 0 0 0 4px rgba(28, 28, 30, 0.2) !important;
   }
 }
 

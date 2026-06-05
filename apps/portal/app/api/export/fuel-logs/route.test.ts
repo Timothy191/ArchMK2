@@ -57,7 +57,8 @@ describe("GET /api/export/fuel-logs", () => {
       select: jest.fn().mockReturnThis(),
       gte: jest.fn().mockReturnThis(),
       lte: jest.fn().mockReturnThis(),
-      order: jest
+      order: jest.fn().mockReturnThis(),
+      range: jest
         .fn()
         .mockImplementation(() =>
           Promise.resolve({ data: mockData, error: null }),
@@ -111,7 +112,8 @@ describe("GET /api/export/fuel-logs", () => {
       select: jest.fn().mockReturnThis(),
       gte: jest.fn().mockReturnThis(),
       lte: jest.fn().mockReturnThis(),
-      order: jest
+      order: jest.fn().mockReturnThis(),
+      range: jest
         .fn()
         .mockImplementation(() =>
           Promise.resolve({ data: mockData, error: null }),

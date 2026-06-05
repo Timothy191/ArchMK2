@@ -30,7 +30,7 @@ function buildMock(
     overrides.employee !== undefined
       ? overrides.employee
       : {
-          department_id: "dept-1",
+          department_id: "11111111-1111-4111-a111-111111111111",
           role: "supervisor",
           accessible_departments: [],
         };
@@ -188,10 +188,19 @@ describe("GET /api/webhooks", () => {
 describe("POST /api/webhooks", () => {
   beforeEach(() => jest.clearAllMocks());
 
+  const DEFAULT_DEPT = "11111111-1111-4111-a111-111111111111";
+
   function makeRequest(body: unknown) {
+    const defaultBody = {
+      department_id: DEFAULT_DEPT,
+    };
+    const finalBody =
+      body && typeof body === "object" && !Array.isArray(body)
+        ? { ...defaultBody, ...body }
+        : body;
     return new NextRequest("http://localhost/api/webhooks", {
       method: "POST",
-      body: JSON.stringify(body),
+      body: JSON.stringify(finalBody),
       headers: { "Content-Type": "application/json" },
     });
   }
@@ -211,7 +220,7 @@ describe("POST /api/webhooks", () => {
     const req = makeRequest({ event_types: ["daily_log.created"] });
     const res = await POST(req);
     expect(res.status).toBe(400);
-    expect((await res.json()).error).toContain("required");
+    expect((await res.json()).error).toContain("invalid input");
   });
 
   it("returns 400 when event_types is empty", async () => {
@@ -234,7 +243,7 @@ describe("POST /api/webhooks", () => {
   it("returns 403 when non-admin tries to create webhook for different department", async () => {
     buildMock({
       employee: {
-        department_id: "dept-1",
+        department_id: "11111111-1111-4111-a111-111111111111",
         role: "supervisor",
         accessible_departments: [],
       },
@@ -242,7 +251,7 @@ describe("POST /api/webhooks", () => {
     const req = makeRequest({
       url: "https://example.com",
       event_types: ["daily_log.created"],
-      department_id: "dept-OTHER",
+      department_id: "22222222-2222-4222-a222-222222222222",
     });
     const res = await POST(req);
     expect(res.status).toBe(403);
@@ -251,7 +260,7 @@ describe("POST /api/webhooks", () => {
   it("returns 201 on successful creation", async () => {
     buildMock({
       employee: {
-        department_id: "dept-1",
+        department_id: "11111111-1111-4111-a111-111111111111",
         role: "supervisor",
         accessible_departments: [],
       },
@@ -273,7 +282,7 @@ describe("POST /api/webhooks", () => {
 
   it("returns 500 when insert fails", async () => {
     const employee = {
-      department_id: "dept-1",
+      department_id: "11111111-1111-4111-a111-111111111111",
       role: "supervisor",
       accessible_departments: [],
     };

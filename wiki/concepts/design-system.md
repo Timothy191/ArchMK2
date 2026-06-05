@@ -14,86 +14,63 @@ confidence: high
 
 # Portal Design System
 
-Arch-Systems uses a dark-themed design system built on Tailwind CSS with custom design tokens. The system is enforced via shared components in `@repo/ui` and linted via a custom DeepEval metric.
+Arch-Systems uses a macOS Sonoma-inspired light-only theme built on Tailwind CSS with custom design tokens. The system is designed for high-contrast visibility and operational clarity, and is enforced via shared components in `@repo/ui` and linted via custom check gates.
 
 ## Design Tokens
 
-- Background: `#0f0f0f`, `#171717`, `#242424`
-- Surfaces/Card backgrounds: `#363636`
-- Accent/Success: `#3ecf8e`
-- Primary text: `#fafafa`
-- Secondary text: `#898989`
+- **Main background (`color-bg-base`)**: Tinted neutral `oklch(97% 0.001 250)` (`#f5f5f7`).
+- **Elevated background (`color-bg-elevated`)**: Pure white `oklch(100% 0 0)` (`#ffffff`) for cards, panels, sidebars.
+- **Sunken background (`color-bg-sunken`)**: Soft neutral `oklch(93% 0.002 250)` (`#e8e8ed`) for inputs and code blocks.
+- **Borders (`color-border-subtle`)**: Delicate overlay `rgba(0,0,0,0.06)` for dividers.
+- **Interactive Accent (`color-action-primary` / `color-border-focus`)**: Deep charcoal / pitch black `oklch(20.5% 0.007 240)` (`#1c1c1e` / `#18181b`).
+- **Status Green (`color-status-positive`)**: Mint green `oklch(70% 0.15 160)` (`#10b981`).
+- **Status Amber (`color-status-warning`)**: Amber warning indicator `oklch(75% 0.15 65)` (`#f59e0b`).
+- **Status Red (`color-status-danger`)**: Danger warning indicator `oklch(55% 0.2 25)` (`#ff3b30`).
 
 ## CSS Variable Reference
 
 All variables are defined in `@repo/theme` and consumed via Tailwind:
 
-| Variable           | Value     | Usage                          |
-| ------------------ | --------- | ------------------------------ |
-| `--bg-void`        | `#0f0f0f` | Page background                |
-| `--bg-primary`     | `#171717` | Card/section backgrounds       |
-| `--bg-secondary`   | `#242424` | Elevated surfaces              |
-| `--border-default` | `#363636` | Borders, dividers              |
-| `--border-strong`  | `#393939` | Stronger borders               |
-| `--text-heading`   | `#fafafa` | Page and section headings      |
-| `--text-body`      | `#b4b4b4` | Body copy                      |
-| `--text-muted`     | `#898989` | Secondary text, placeholders   |
-| `--accent-emerald` | `#3ecf8e` | Primary accent, success states |
-| `--accent-green`   | `#00c573` | Secondary green accent         |
-
-## Color Palette
-
-| Token          | Hex       | Tailwind Class        |
-| -------------- | --------- | --------------------- |
-| Void Black     | `#0f0f0f` | `bg-void`             |
-| Primary Dark   | `#171717` | `bg-primary`          |
-| Secondary Dark | `#242424` | `bg-secondary`        |
-| Border         | `#363636` | `border-default`      |
-| Emerald Accent | `#3ecf8e` | `text-accent-emerald` |
-| Green Accent   | `#00c573` | `text-accent-green`   |
-| Heading Text   | `#fafafa` | `text-heading`        |
-| Body Text      | `#b4b4b4` | `text-body`           |
-| Muted Text     | `#898989` | `text-muted`          |
-
-## Typography
-
-- **Font**: Inter (loaded via `next/font`)
-- **Weights**: 400 (body), 500 (nav/buttons) — never 600/700
-- **Scale**: Tailwind defaults with `text-heading`, `text-body`, `text-muted` aliases
-- **Anti-FOUC**: Inline script in `<head>` sets theme before paint
+| Variable                  | OKLCH                    | Hex/RGB Reference  | Usage                           |
+| :------------------------ | :----------------------- | :----------------- | :------------------------------ |
+| `--color-bg-base`         | `oklch(97% 0.001 250)`   | `#f5f5f7`          | Main page background            |
+| `--color-bg-elevated`     | `oklch(100% 0 0)`        | `#ffffff`          | Elevated cards, panels          |
+| `--color-bg-sunken`       | `oklch(93% 0.002 250)`   | `#e8e8ed`          | Inset elements, input fields    |
+| `--color-border-subtle`   | `oklch(90% 0.003 250)`   | `rgba(0,0,0,0.06)` | Standard dividers               |
+| `--color-border-focus`    | `oklch(20.5% 0.007 240)` | `#1c1c1e`          | Focus states, active indicators |
+| `--color-text-primary`    | `oklch(25% 0.005 250)`   | `#1d1d1f`          | Headers and active text         |
+| `--color-text-secondary`  | `oklch(45% 0.005 250)`   | `#3a3a3c`          | Standard body text              |
+| `--color-text-tertiary`   | `oklch(60% 0.005 250)`   | `#6e6e73`          | Captions, placeholders          |
+| `--color-action-primary`  | `oklch(20.5% 0.007 240)` | `#1c1c1e`          | Primary CTA, action links       |
+| `--color-status-positive` | `oklch(70% 0.15 160)`    | `#10b981`          | Positive/Optimal status dots    |
+| `--color-status-warning`  | `oklch(75% 0.15 65)`     | `#f59e0b`          | Caution / pending alerts        |
+| `--color-status-danger`   | `oklch(55% 0.2 25)`      | `#ff3b30`          | Critical alarms / errors        |
 
 ## Forbidden Patterns
 
-- No `font-bold`, `font-semibold`, `shadow-*`
-- No `bg-white/5`, `border-white/10`, `text-white/50`, `text-white/70`
+- **No Dark Mode**: Portal is strictly light-mode. Dark mode block is scaffolded but not enabled.
+- **No Raw Shadows**: Tailwind's `shadow-sm/md/lg` and raw `box-shadow` styles are forbidden. Use token shadows (`shadow-card`, `shadow-window`, `shadow-diffusion-*`).
+- **No Layout Animations**: Never animate layout-forcing parameters (`width`, `height`, `margin`, `padding`). Animate only `opacity` and `transform`.
+- **No Unscoped Icon Imports**: Always import Lucide icons as named items (`import { Drill } from "lucide-react"`), never `import * as Icons`.
 
 ## Required Patterns
 
-- Use `cn()` from `@repo/ui/lib/utils` for class merging
-- Use `GlassCard` for card containers
-- KPI cards use `KPICard`/`KPIGrid` from `@repo/ui/KPI`
-- Page headers use `PageHeader` from `@repo/ui/PageHeader`
+- **Tactile Click Feedback**: All interactive elements must apply click scale transformation: `active: scale-[0.97] transition-transform duration-150 ease-out-expo`.
+- **Class Merging**: Always use `cn()` from `@repo/ui/lib/utils` for class merging.
+- **Unified Card Component**: Always use `GlassCard` (with `variant` prop for spotlight or glowborder variants instead of legacy separate components).
+- **Tabular Figures**: Force `font-variant-numeric: tabular-nums` on monitoring values, timestamps, and tables.
 
-## Shared Components
+## Login & Authentication Interface
 
-- `GlassCard` — Dark themed card with optional hover animation
-- `DepartmentLayout` — Sidebar + content layout
-- `KPI`/`KPIGrid` — Summary metric cards with 8 color variants (default, green, blue, red, blue, cyan, indigo, alert)
-- `ShiftToggle` — Day/night shift selector with `getCurrentShift()` helper
-- `FormFields` — Consistent dark theme form controls (FormInput, FormSelect, FormTextarea, SubmitButton)
-- `SpotlightCard` — Animated spotlight effect card
-- `PageHeader` — Title + formatted date header
+The login interface implements the absolute peak of the system's "Liquid Glass" language:
 
-## shadcn/ui Primitives
-
-Available in `@repo/ui/components/ui/`: button, card, badge, dialog, dropdown-menu, input, scroll-area, separator, skeleton, tabs, table. Add new ones via `pnpm ui` from repo root.
-
-## Motion Primitives
-
-Available in `@repo/ui/components/motion-primitives/`: spotlight, glow-effect, border-trail.
+- **Background Video**: Fixed high-resolution loop (`light_mode.mp4`) with a 10% dark overlay.
+- **Ambient Film Grain**: A noise/grain overlay prevents banding and adds physical texture.
+- **macOS Window Card**: A `w-[380px]` container (`.liquid-glass-light`) with macOS-style red/yellow/green header dots and an enterprise footer showing the version tag.
+- **Rounded Rectangular Buttons**: Sign-in and SSO actions are styled as rectangular with rounded corners (`rounded-md`) with `tapScale={0.97}`.
 
 ## Related
 
 - [[arch-systems]] — the product using this design system
-- [[deepeval-integration]] — includes DesignSystemComplianceMetric to enforce these rules
-- [[turborepo-monorepo]] — package structure for @repo/ui and @repo/theme
+- [[auth-middleware]] — auth proxy rules for role gates
+- [[nx-monorepo]] — monorepo structure for UI and Theme packages

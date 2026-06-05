@@ -18,11 +18,11 @@ interface SARLayerPanelProps {
 const COLORMAP_STEPS = [
   { label: "-50", color: "#7f1d1d" },
   { label: "-30", color: "#ef4444" },
-  { label: "-15", color: "#007aff" },
-  { label: "-5", color: "#007aff" },
+  { label: "-15", color: "#1c1c1e" },
+  { label: "-5", color: "#27272a" },
   { label: "0", color: "#3ecf8e" },
-  { label: "+5", color: "#06b6d4" },
-  { label: "+15", color: "#6366f1" },
+  { label: "+5", color: "#52525b" },
+  { label: "+15", color: "#71717a" },
 ];
 
 const AREA_LABELS: Record<string, string> = {

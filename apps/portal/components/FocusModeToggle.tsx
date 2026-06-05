@@ -21,7 +21,7 @@ export function FocusModeToggle({
         onClick={toggle}
         className={cn(
           "relative w-10 h-[22px] rounded-full transition-colors duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)]/50",
-          enabled ? "bg-[#007aff]" : "bg-black/[0.15] hover:bg-black/[0.20]",
+          enabled ? "bg-accent-blue" : "bg-black/[0.15] hover:bg-black/[0.20]",
           className,
         )}
         aria-pressed={enabled}
@@ -34,7 +34,7 @@ export function FocusModeToggle({
           )}
         >
           {enabled ? (
-            <EyeOff className="w-2.5 h-2.5 text-[#007aff]" />
+            <EyeOff className="w-2.5 h-2.5 text-accent-blue" />
           ) : (
             <Eye className="w-2.5 h-2.5 text-gray-500" />
           )}

@@ -1,85 +1,56 @@
-/**
- * @repo/errors - Standardized error handling for Arch Systems
- *
- * Domain-specific error classes with HTTP status mapping and error codes.
- * Use these instead of generic Error for better error handling.
- */
-
-/**
- * Base application error class
- * All domain errors extend this class
- */
 export class AppError extends Error {
-  /**
-   * Machine-readable error code
-   * @example 'VALIDATION_ERROR', 'AUTH_ERROR', 'API_ERROR'
-   */
-  readonly code: string;
+  public code?: string;
+  public statusCode?: number;
+  public context?: Record<string, unknown>;
+  public cause?: Error;
 
-  /**
-   * HTTP status code for API responses
-   * @example 400, 401, 403, 404, 500
-   */
-  readonly statusCode?: number;
-
-  /**
-   * Additional context for the error
-   * @example { field: 'email', value: 'invalid' }
-   */
-  readonly context?: Record<string, unknown>;
-
-  /**
-   * Original error that caused this error (for error chaining)
-   */
-  readonly cause?: Error;
-
+  constructor(message: string, code?: string, statusCode?: number);
   constructor(
     message: string,
-    code: string,
     options?: {
+      code?: string;
       statusCode?: number;
       context?: Record<string, unknown>;
       cause?: Error;
+      [key: string]: any;
     },
+  );
+  constructor(
+    message: string,
+    codeOrOptions?:
+      | string
+      | {
+          code?: string;
+          statusCode?: number;
+          context?: Record<string, unknown>;
+          cause?: Error;
+          [key: string]: any;
+        },
+    statusCode?: number,
   ) {
     super(message);
-    this.name = this.constructor.name;
-    this.code = code;
-    this.statusCode = options?.statusCode;
-    this.context = options?.context;
-    this.cause = options?.cause;
+    this.name = "AppError";
 
-    // Maintain proper stack trace in V8 environments
-    if ((Error as any).captureStackTrace) {
-      (Error as any).captureStackTrace(this, this.constructor);
+    if (typeof codeOrOptions === "string") {
+      this.code = codeOrOptions;
+      this.statusCode = statusCode;
+    } else if (codeOrOptions && typeof codeOrOptions === "object") {
+      this.code = codeOrOptions.code;
+      this.statusCode = codeOrOptions.statusCode;
+      this.context = codeOrOptions.context;
+      this.cause = codeOrOptions.cause;
+      // Capture extra parameters in context
+      const { code, statusCode, context, cause, ...extra } = codeOrOptions;
+      if (Object.keys(extra).length > 0) {
+        this.context = {
+          ...this.context,
+          ...extra,
+        };
+      }
     }
-  }
-
-  /**
-   * Convert error to a JSON-serializable object
-   * Safe to send to clients (no stack traces)
-   */
-  toJSON(): {
-    name: string;
-    code: string;
-    message: string;
-    statusCode?: number;
-    context?: Record<string, unknown>;
-  } {
-    return {
-      name: this.name,
-      code: this.code,
-      message: this.message,
-      statusCode: this.statusCode,
-      context: this.context,
-    };
   }
 }
 
-/**
- * Validation error - invalid input data
- * HTTP 400 Bad Request
- */
 export class ValidationError extends AppError {
   constructor(
     message: string,
@@ -87,194 +58,269 @@ export class ValidationError extends AppError {
       field?: string;
       value?: unknown;
       context?: Record<string, unknown>;
+      cause?: Error;
+      [key: string]: any;
     },
   ) {
-    super(message, "VALIDATION_ERROR", {
+    super(message, {
+      code: "VALIDATION_ERROR",
       statusCode: 400,
+      cause: options?.cause,
       context: {
         ...options?.context,
         ...(options?.field && { field: options.field }),
         ...(options?.value !== undefined && { value: options.value }),
       },
     });
+    this.name = "ValidationError";
+    if (options) {
+      const { field, value, context, cause, ...extra } = options;
+      if (Object.keys(extra).length > 0) {
+        this.context = {
+          ...this.context,
+          ...extra,
+        };
+      }
+    }
   }
 }
 
-/**
- * Authentication error - user not authenticated
- * HTTP 401 Unauthorized
- */
 export class AuthError extends AppError {
   constructor(
-    message: string = "Unauthorized",
+    message: string,
     options?: {
+      cause?: Error;
       context?: Record<string, unknown>;
+      [key: string]: any;
     },
   ) {
-    super(message, "AUTH_ERROR", {
+    super(message, {
+      code: "AUTH_ERROR",
       statusCode: 401,
+      cause: options?.cause,
       context: options?.context,
     });
+    this.name = "AuthError";
+    if (options) {
+      const { cause, context, ...extra } = options;
+      if (Object.keys(extra).length > 0) {
+        this.context = {
+          ...this.context,
+          ...extra,
+        };
+      }
+    }
   }
 }
 
-/**
- * Authorization error - user lacks permissions
- * HTTP 403 Forbidden
- */
 export class ForbiddenError extends AppError {
   constructor(
-    message: string = "Forbidden",
+    message: string,
     options?: {
-      resource?: string;
-      action?: string;
+      cause?: Error;
       context?: Record<string, unknown>;
+      [key: string]: any;
     },
   ) {
-    super(message, "FORBIDDEN_ERROR", {
+    super(message, {
+      code: "FORBIDDEN_ERROR",
       statusCode: 403,
-      context: {
-        ...options?.context,
-        ...(options?.resource && { resource: options.resource }),
-        ...(options?.action && { action: options.action }),
-      },
+      cause: options?.cause,
+      context: options?.context,
     });
+    this.name = "ForbiddenError";
+    if (options) {
+      const { cause, context, ...extra } = options;
+      if (Object.keys(extra).length > 0) {
+        this.context = {
+          ...this.context,
+          ...extra,
+        };
+      }
+    }
   }
 }
 
-/**
- * Not found error - resource doesn't exist
- * HTTP 404 Not Found
- */
 export class NotFoundError extends AppError {
   constructor(
-    message: string = "Not found",
+    message: string,
     options?: {
-      resource?: string;
-      id?: string;
+      cause?: Error;
       context?: Record<string, unknown>;
+      [key: string]: any;
     },
   ) {
-    super(message, "NOT_FOUND_ERROR", {
+    super(message, {
+      code: "NOT_FOUND",
       statusCode: 404,
-      context: {
-        ...options?.context,
-        ...(options?.resource && { resource: options.resource }),
-        ...(options?.id && { id: options.id }),
-      },
+      cause: options?.cause,
+      context: options?.context,
     });
+    this.name = "NotFoundError";
+    if (options) {
+      const { cause, context, ...extra } = options;
+      if (Object.keys(extra).length > 0) {
+        this.context = {
+          ...this.context,
+          ...extra,
+        };
+      }
+    }
   }
 }
 
-/**
- * Conflict error - resource already exists or state conflict
- * HTTP 409 Conflict
- */
 export class ConflictError extends AppError {
   constructor(
-    message: string = "Conflict",
+    message: string,
     options?: {
-      resource?: string;
-      field?: string;
+      cause?: Error;
       context?: Record<string, unknown>;
+      [key: string]: any;
     },
   ) {
-    super(message, "CONFLICT_ERROR", {
+    super(message, {
+      code: "CONFLICT_ERROR",
       statusCode: 409,
-      context: {
-        ...options?.context,
-        ...(options?.resource && { resource: options.resource }),
-        ...(options?.field && { field: options.field }),
-      },
+      cause: options?.cause,
+      context: options?.context,
     });
+    this.name = "ConflictError";
+    if (options) {
+      const { cause, context, ...extra } = options;
+      if (Object.keys(extra).length > 0) {
+        this.context = {
+          ...this.context,
+          ...extra,
+        };
+      }
+    }
   }
 }
 
-/**
- * API error - external API failures
- * HTTP 500+ or custom status codes
- */
 export class APIError extends AppError {
+  public response?: Response;
+
+  constructor(message: string, response?: Response);
   constructor(
     message: string,
     options?: {
       statusCode?: number;
-      endpoint?: string;
       context?: Record<string, unknown>;
       cause?: Error;
+      [key: string]: any;
     },
+  );
+  constructor(
+    message: string,
+    responseOrOptions?:
+      | Response
+      | {
+          statusCode?: number;
+          context?: Record<string, unknown>;
+          cause?: Error;
+          [key: string]: any;
+        },
   ) {
-    super(message, "API_ERROR", {
-      statusCode: options?.statusCode ?? 500,
-      context: {
-        ...options?.context,
-        ...(options?.endpoint && { endpoint: options.endpoint }),
-      },
-      cause: options?.cause,
-    });
+    let statusCode: number | undefined;
+    let response: Response | undefined;
+    let context: Record<string, unknown> | undefined;
+    let cause: Error | undefined;
+    let extra: Record<string, unknown> = {};
+
+    if (responseOrOptions) {
+      if (
+        "status" in responseOrOptions &&
+        typeof (responseOrOptions as any).status === "number"
+      ) {
+        response = responseOrOptions as Response;
+        statusCode = (responseOrOptions as any).status;
+      } else {
+        statusCode = (responseOrOptions as any).statusCode;
+        context = (responseOrOptions as any).context;
+        cause = (responseOrOptions as any).cause;
+        const {
+          statusCode: _,
+          context: __,
+          cause: ___,
+          ...rest
+        } = responseOrOptions as any;
+        extra = rest;
+      }
+    }
+    super(message, "API_ERROR", statusCode);
+    this.response = response;
+    this.name = "APIError";
+    if (context) this.context = context;
+    if (cause) this.cause = cause;
+    if (Object.keys(extra).length > 0) {
+      this.context = {
+        ...this.context,
+        ...extra,
+      };
+    }
   }
 }
 
-/**
- * Database error - database operations failures
- * HTTP 500 Internal Server Error
- */
 export class DatabaseError extends AppError {
   constructor(
-    message: string = "Database error",
+    message: string,
     options?: {
-      operation?: string;
-      table?: string;
-      context?: Record<string, unknown>;
       cause?: Error;
+      context?: Record<string, unknown>;
+      [key: string]: any;
     },
   ) {
-    super(message, "DATABASE_ERROR", {
+    super(message, {
+      code: "DATABASE_ERROR",
       statusCode: 500,
-      context: {
-        ...options?.context,
-        ...(options?.operation && { operation: options.operation }),
-        ...(options?.table && { table: options.table }),
-      },
       cause: options?.cause,
+      context: options?.context,
     });
+    this.name = "DatabaseError";
+    if (options) {
+      const { cause, context, ...extra } = options;
+      if (Object.keys(extra).length > 0) {
+        this.context = {
+          ...this.context,
+          ...extra,
+        };
+      }
+    }
   }
 }
 
-/**
- * Rate limit error - too many requests
- * HTTP 429 Too Many Requests
- */
 export class RateLimitError extends AppError {
   constructor(
-    message: string = "Rate limit exceeded",
+    message: string,
     options?: {
-      retryAfter?: number; // seconds
-      limit?: number;
+      cause?: Error;
       context?: Record<string, unknown>;
+      [key: string]: any;
     },
   ) {
-    super(message, "RATE_LIMIT_ERROR", {
+    super(message, {
+      code: "RATE_LIMIT_ERROR",
       statusCode: 429,
-      context: {
-        ...options?.context,
-        ...(options?.retryAfter && { retryAfter: options.retryAfter }),
-        ...(options?.limit && { limit: options.limit }),
-      },
+      cause: options?.cause,
+      context: options?.context,
     });
+    this.name = "RateLimitError";
+    if (options) {
+      const { cause, context, ...extra } = options;
+      if (Object.keys(extra).length > 0) {
+        this.context = {
+          ...this.context,
+          ...extra,
+        };
+      }
+    }
   }
 }
 
-/**
- * Type guard to check if an error is an AppError
- */
 export function isAppError(error: unknown): error is AppError {
   return error instanceof AppError;
 }
 
-/**
- * Type guard to check if an error is a specific error type
- */
 export function isValidationError(error: unknown): error is ValidationError {
   return error instanceof ValidationError;
 }
@@ -285,8 +331,4 @@ export function isAuthError(error: unknown): error is AuthError {
 
 export function isNotFoundError(error: unknown): error is NotFoundError {
   return error instanceof NotFoundError;
-}
-
-export function isAPIError(error: unknown): error is APIError {
-  return error instanceof APIError;
 }

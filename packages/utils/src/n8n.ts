@@ -1,19 +1,38 @@
 const N8N_URL =
   (typeof process !== "undefined" &&
     (process as any).env?.NEXT_PUBLIC_N8N_URL) ||
+  (typeof process !== "undefined" && (process as any).env?.N8N_URL) ||
   "http://localhost:5678";
-const N8N_USER = "plantcor";
-const N8N_PASSWORD = "plantcor";
+
+/** Reads n8n credentials from environment — never hardcoded in source. */
+function getN8nAuth(): { user: string; password: string } | null {
+  if (typeof process === "undefined") return null;
+  const env = process as any;
+  const user = env.N8N_USER;
+  const password = env.N8N_PASSWORD;
+  if (user && password) return { user, password };
+  // Fall back to defaults only in dev with a warning
+  if (env.NODE_ENV !== "production") {
+    console.warn(
+      "[n8n] N8N_USER/N8N_PASSWORD not set — using insecure defaults. Set these in production.",
+    );
+    return { user: "plantcor", password: "plantcor" };
+  }
+  return null;
+}
 
 async function authFetch(
   url: string,
   options: RequestInit = {},
 ): Promise<Response> {
-  const headers = {
-    Authorization: `Basic ${Buffer.from(`${N8N_USER}:${N8N_PASSWORD}`).toString("base64")}`,
+  const credentials = getN8nAuth();
+  const headers: Record<string, string> = {
     "Content-Type": "application/json",
     ...(options.headers as Record<string, string>),
   };
+  if (credentials) {
+    headers.Authorization = `Basic ${Buffer.from(`${credentials.user}:${credentials.password}`).toString("base64")}`;
+  }
   return fetch(url, { ...options, headers });
 }
 

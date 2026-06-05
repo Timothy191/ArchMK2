@@ -24,7 +24,7 @@ confidence: high
 
 We needed a styling approach for:
 
-- Dark-themed mining operations portal
+- Light-themed mining operations portal
 - Shared design system across monorepo packages
 - Minimal CSS bundle sizes
 - Type-safe styling
@@ -40,7 +40,7 @@ We will use **Tailwind CSS 3.4 with CSS variable-based design tokens**, centrali
 1. **Tailwind CSS** — Utility-first CSS framework
 2. **@repo/theme package** — Single source of truth for all styling
 3. **CSS variables** — Runtime theme switching capability
-4. **Dark mode default** — Portal is always dark-themed
+4. **Light mode default** — Portal is always light-themed (macOS Sonoma visual language)
 5. **Design system enforcement** — Automated checks for forbidden patterns
 
 ### Forbidden Patterns
@@ -71,7 +71,7 @@ These classes are prohibited and caught by DeepEval + pre-commit hooks:
 
 ### Neutral
 
-- **Dark mode default** — Simplifies styling but no light mode support
+- **Light mode default** — Simplifies styling but no dark mode support
 
 ## Alternatives Considered
 
@@ -98,16 +98,16 @@ These classes are prohibited and caught by DeepEval + pre-commit hooks:
 ## Implementation Notes
 
 ```typescript
-// @repo/theme/tailwind/preset.ts
-export const themePreset = {
+// @repo/theme/src/tailwind/preset.ts
+export const preset = {
   theme: {
     extend: {
       colors: {
-        void: "hsl(var(--bg-void))", // #0f0f0f
-        primary: "hsl(var(--bg-primary))", // #171717
-        card: "hsl(var(--bg-card))", // #242424
-        border: "hsl(var(--border))", // #363636
-        accent: "#3ecf8e", // brand green
+        "bg-primary": "var(--bg-primary)",
+        "bg-secondary": "var(--bg-secondary)",
+        "border-subtle": "var(--border-subtle)",
+        "text-primary": "var(--text-primary)",
+        "accent-blue": "var(--accent-blue)",
       },
     },
   },

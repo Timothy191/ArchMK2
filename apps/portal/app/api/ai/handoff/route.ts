@@ -3,6 +3,10 @@ import { logError } from "@/lib/errors/error-logger";
 import { chat, DEFAULT_MODEL } from "@/lib/ai/providers";
 import { createServerSupabaseClient } from "@repo/supabase/server";
 import { withRateLimit } from "@/lib/api/rate-limit-middleware";
+import { validateBody } from "@/lib/api/response";
+import { applyCors } from "@/lib/api/cors";
+import { withBodyLimit } from "@/lib/api/body-limit";
+import { aiHandoffSchema } from "@/lib/api/schemas";
 
 async function handleHandoffRequest(req: NextRequest): Promise<NextResponse> {
   const supabase = await createServerSupabaseClient();
@@ -11,17 +15,19 @@ async function handleHandoffRequest(req: NextRequest): Promise<NextResponse> {
     error: authError,
   } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return applyCors(
+      req,
+      NextResponse.json({ error: "Unauthorized" }, { status: 401 }),
+    );
+  }
+
+  const parsed = await validateBody(req, aiHandoffSchema);
+  if (parsed instanceof NextResponse) {
+    return applyCors(req, parsed);
   }
 
   try {
-    const { shiftData }: { shiftData: string } = await req.json();
-    if (!shiftData) {
-      return NextResponse.json(
-        { error: "shiftData is required" },
-        { status: 400 },
-      );
-    }
+    const { shiftData } = parsed.data;
 
     const text = await chat(
       [
@@ -38,18 +44,25 @@ async function handleHandoffRequest(req: NextRequest): Promise<NextResponse> {
       { model: DEFAULT_MODEL, temperature: 0.5, maxTokens: 1024 },
     );
 
-    return NextResponse.json({ content: text });
+    return applyCors(req, NextResponse.json({ content: text }));
   } catch (error) {
     logError(error instanceof Error ? error : new Error(String(error)), {
       context: "shift_handoff",
     });
-    return NextResponse.json(
-      { error: "Failed to generate shift handoff report" },
-      { status: 500 },
+    return applyCors(
+      req,
+      NextResponse.json(
+        { error: "Failed to generate shift handoff report" },
+        { status: 500 },
+      ),
     );
   }
 }
 
 export async function POST(req: NextRequest) {
-  return withRateLimit(req, () => handleHandoffRequest(req));
+  return withBodyLimit(
+    req,
+    () => withRateLimit(req, () => handleHandoffRequest(req)),
+    { maxSize: 1_048_576 },
+  );
 }

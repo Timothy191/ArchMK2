@@ -46,19 +46,38 @@
     },
     {
       "parameters": {
-        "jsCode": "const { query, namespace, limit = 5 } = $json;\nconst ltmPath = '/home/timothy/Project/Arch-Mk2/ltm/store';\nconst fs = require('fs');\nconst path = require('path');\nconst results = [];\nif (fs.existsSync(ltmPath)) {\n  const files = fs.readdirSync(ltmPath).filter(f => f.endsWith('.jsonl'));\n  for (const file of files) {\n    const lines = fs.readFileSync(path.join(ltmPath, file), 'utf8').split('\\n').filter(Boolean);\n    for (const line of lines.slice(-100)) {\n      try {\n        const record = JSON.parse(line);\n        const searchText = JSON.stringify(record).toLowerCase();\n        if (query && searchText.includes(query.toLowerCase())) {\n          results.push({ file, record });\n          if (results.length >= limit) break;\n        }\n      } catch (e) {}\n    }\n    if (results.length >= limit) break;\n  }\n}\nreturn { results, total: results.length, mode: 'search', query, searched_files: fs.existsSync(ltmPath) ? fs.readdirSync(ltmPath).filter(f => f.endsWith('.jsonl')) : [] };"
+        "method": "POST",
+        "url": "={{ $env.LTM_SEARCH_API || 'http://localhost:3000/api/ltm/search' }}",
+        "sendQuery": true,
+        "queryParameters": {
+          "query": "={{ $json.query }}",
+          "namespace": "={{ $json.namespace }}",
+          "limit": "={{ $json.limit }}"
+        },
+        "options": {
+          "timeout": 30000,
+          "batch": { "size": 100 }
+        }
       },
       "name": "Search LTM Store",
-      "type": "n8n-nodes-base.code",
+      "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 2,
       "position": [750, 200]
     },
     {
       "parameters": {
-        "jsCode": "const { content, namespace } = $json;\nconst ltmPath = '/home/timothy/Project/Arch-Mk2/ltm/store';\nconst fs = require('fs');\nconst path = require('path');\nif (!fs.existsSync(ltmPath)) {\n  fs.mkdirSync(ltmPath, { recursive: true });\n}\nconst eventFile = path.join(ltmPath, 'events.jsonl');\nconst event = {\n  id: `evt_${Date.now()}`,\n  ts: new Date().toISOString(),\n  type: 'n8n_vector_store',\n  summary: typeof content === 'string' ? content : JSON.stringify(content).slice(0, 200),\n  source: 'n8n-vector-memory',\n  namespace\n};\nfs.appendFileSync(eventFile, JSON.stringify(event) + '\\n');\nreturn { stored: true, event_id: event.id, file: eventFile, mode: 'store' };"
+        "method": "POST",
+        "url": "={{ $env.LTM_STORE_API || 'http://localhost:3000/api/ltm/store' }}",
+        "sendBody": true,
+        "body": "={{ JSON.stringify({ content: $json.content, namespace: $json.namespace }) }}",
+        "options": {
+          "timeout": 30000,
+          "maxRetries": 3,
+          "retryOn": ["5XX", "timeout"]
+        }
       },
       "name": "Store in LTM",
-      "type": "n8n-nodes-base.code",
+      "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 2,
       "position": [750, 400]
     },

@@ -22,6 +22,11 @@ export async function createMiddlewareClient(request: NextRequest) {
               ...options,
               maxAge: undefined,
               expires: undefined,
+              // Enforce security: HttpOnly prevents XSS access, Secure ensures HTTPS-only,
+              // SameSite=Lax prevents CSRF while allowing navigation-based auth
+              httpOnly: true,
+              secure: process.env.NODE_ENV === "production",
+              sameSite: "lax",
             }),
           );
         },
