@@ -103,7 +103,7 @@ const NAV_COMMANDS: CommandItem[] = [
   {
     id: "nav-profile",
     label: "Profile",
-    href: "/profile",
+    href: "/admin",
     category: "Navigation",
     icon: <User className="w-4 h-4" />,
   },
