@@ -1,3 +1,4 @@
+import { APIError } from "@/lib/errors/error-classes";
 /**
  * Ollama provider — simple fetch-based HTTP calls to local Ollama server.
  * No SDK wrapper; uses native fetch against /api/chat and /api/embed.
@@ -6,8 +7,6 @@
  * serverless environments (see agents.md: "Every external request must have
  * a strict timeout").
  */
-
-import { APIError } from "@repo/errors";
 
 export const OLLAMA_URL = process.env.OLLAMA_URL ?? "http://localhost:11434";
 export const OLLAMA_TIMEOUT_MS = Number(
@@ -52,10 +51,9 @@ async function withTimeout<T>(
     return await factory(controller.signal);
   } catch (err) {
     if (timedOut) {
-      throw new APIError(`Ollama request timed out after ${timeoutMs}ms`, {
-        statusCode: 504,
-        endpoint: "ollama",
-      });
+      const error = new Error(`Ollama request timed out after ${timeoutMs}ms`) as Error & { statusCode?: number };
+      error.statusCode = 504;
+      throw error;
     }
     throw err;
   } finally {
@@ -103,10 +101,9 @@ export async function ollamaChat(
 
   if (!res.ok) {
     const errText = await res.text().catch(() => "");
-    throw new APIError(`Ollama chat error ${res.status}: ${errText}`, {
-      statusCode: res.status,
-      endpoint: "/api/chat",
-    });
+    const error = new Error(`Ollama chat error ${res.status}: ${errText}`) as Error & { statusCode?: number };
+    error.statusCode = res.status;
+    throw error;
   }
 
   const data = await res.json();

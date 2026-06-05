@@ -8,7 +8,7 @@ import {
   isValidationError,
   isAuthError,
   isNotFoundError,
-} from "@repo/errors";
+} from "@/lib/errors/error-classes";
 import { logError } from "@/lib/errors/error-logger";
 
 interface RootErrorProps {

@@ -9,7 +9,6 @@
     "./novu": "./src/novu.ts"
   },
   "dependencies": {
-    "@repo/errors": "workspace:*",
     "@novu/node": "^2.6.6",
     "exceljs": "^4.4.0",
     "inngest": "^4.4.0"

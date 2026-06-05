@@ -41,7 +41,7 @@ describe("logError", () => {
 
   it("logs AppError with statusCode determining severity", async () => {
     const warnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
-    const { ValidationError } = await import("@repo/errors");
+    const { ValidationError } = await import("@/lib/errors/error-classes");
     const err = new ValidationError("bad input", { field: "email" });
     await logError(err, { url: "/api/users" });
     warnSpy.mockRestore();
@@ -49,7 +49,7 @@ describe("logError", () => {
 
   it("uses warn for 4xx status codes", async () => {
     const warnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
-    const { AuthError } = await import("@repo/errors");
+    const { AuthError } = await import("@/lib/errors/error-classes");
     const err = new AuthError("Unauthorized");
     await logError(err);
     warnSpy.mockRestore();
@@ -57,7 +57,7 @@ describe("logError", () => {
 
   it("does NOT forward 4xx AppErrors to Sentry", async () => {
     const warnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
-    const { AuthError, ValidationError } = await import("@repo/errors");
+    const { AuthError, ValidationError } = await import("@/lib/errors/error-classes");
     await logError(new AuthError("Unauthorized"));
     await logError(new ValidationError("bad input"));
     expect(mockCaptureException).not.toHaveBeenCalled();
@@ -65,7 +65,7 @@ describe("logError", () => {
   });
 
   it("forwards 5xx AppErrors to Sentry with extra context", async () => {
-    const { DatabaseError } = await import("@repo/errors");
+    const { DatabaseError } = await import("@/lib/errors/error-classes");
     const err = new DatabaseError("DB write failed", {
       operation: "insert",
       table: "machines",

@@ -1,5 +1,15 @@
 import { createClient } from "@supabase/supabase-js";
-import { APIError } from "@repo/errors";
+
+// Simple APIError class for package-level use
+class APIError extends Error {
+  constructor(
+    message: string,
+    public statusCode: number = 500,
+  ) {
+    super(message);
+    this.name = "APIError";
+  }
+}
 
 export function createServiceRoleClient() {
   const url = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;

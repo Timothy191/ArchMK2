@@ -9,7 +9,7 @@ import {
   NotFoundError,
   ForbiddenError,
   DatabaseError,
-} from "@repo/errors";
+} from "@/lib/errors/error-classes";
 import { logError } from "@/lib/errors/error-logger";
 import { getShiftCompleteness } from "./shift-completeness";
 

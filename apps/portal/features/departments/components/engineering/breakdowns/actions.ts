@@ -4,7 +4,7 @@ import { cacheInvalidateTags } from "@repo/redis";
 import { createServerSupabaseClient } from "@repo/supabase/server";
 import { revalidatePath } from "next/cache";
 import { logAuditEvent } from "@/lib/audit";
-import { AuthError, DatabaseError } from "@repo/errors";
+import { AuthError, DatabaseError } from "@/lib/errors/error-classes";
 import { logError } from "@/lib/errors/error-logger";
 import type {
   CreateBreakdownInput,

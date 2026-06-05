@@ -27,8 +27,6 @@
     "@react-pdf/renderer": "^4.5.1",
     "zod": "catalog:",
     "zustand": "catalog:",
-    "@repo/errors": "workspace:*",
-    "@repo/rate-limiter": "workspace:*",
     "@repo/redis": "workspace:*",
     "@repo/supabase": "workspace:*",
     "@repo/theme": "workspace:*",

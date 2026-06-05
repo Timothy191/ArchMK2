@@ -3,7 +3,7 @@
 import { cacheInvalidateTags } from "@repo/redis";
 import { createServerSupabaseClient } from "@repo/supabase/server";
 import { revalidateTag } from "next/cache";
-import { AuthError } from "@repo/errors";
+import { AuthError } from "@/lib/errors/error-classes";
 
 type AuditAction = "insert" | "update" | "delete";
 

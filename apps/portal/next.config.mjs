@@ -26,7 +26,6 @@ const nextConfig = {
     "@repo/utils",
     "@repo/redis",
     "@repo/theme",
-    "@repo/errors",
   ],
   images: {
     formats: ["image/avif", "image/webp"],

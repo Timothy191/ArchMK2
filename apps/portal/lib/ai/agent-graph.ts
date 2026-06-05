@@ -27,7 +27,6 @@ import { ollamaChatStream, DEFAULT_MODEL, type OllamaMessage } from "./ollama";
 import { aiTools } from "./tools";
 import { dispatchTool } from "./tool-dispatch";
 import { getCachedToolResult, setCachedToolResult } from "./tool-cache";
-import { APIError } from "@repo/errors";
 import type {
   AgentState,
   AgentNodeName,
@@ -74,12 +73,13 @@ function getMessageText(msg: AgentState["messages"][number]): string {
  * and worth retrying vs. a permanent error (400, 401, malformed request).
  */
 function isTransientError(error: unknown): boolean {
-  if (error instanceof APIError) {
+  if (error && typeof error === "object" && "statusCode" in error) {
+    const statusCode = (error as { statusCode: number }).statusCode;
     return (
-      error.statusCode === 502 ||
-      error.statusCode === 504 ||
-      error.statusCode === 503 ||
-      error.statusCode === 429
+      statusCode === 502 ||
+      statusCode === 504 ||
+      statusCode === 503 ||
+      statusCode === 429
     );
   }
   if (error instanceof TypeError) {

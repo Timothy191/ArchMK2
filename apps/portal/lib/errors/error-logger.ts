@@ -6,7 +6,6 @@
  */
 
 import * as Sentry from "@sentry/nextjs";
-import { isAppError } from "@repo/errors";
 
 /**
  * Error severity levels
@@ -56,15 +55,28 @@ function createErrorLog(
 ): ErrorLogEntry {
   const timestamp = new Date().toISOString();
 
-  if (isAppError(error)) {
+  // Check if error has AppError-like properties
+  const hasAppErrorProps =
+    "code" in error &&
+    "statusCode" in error &&
+    "context" in error &&
+    "cause" in error;
+
+  if (hasAppErrorProps) {
+    const appError = error as Error & {
+      code?: string;
+      statusCode?: number;
+      context?: Record<string, unknown>;
+      cause?: unknown;
+    };
     return {
       timestamp,
-      severity: getSeverity(error, error.statusCode),
-      code: error.code,
-      statusCode: error.statusCode,
+      severity: getSeverity(error, appError.statusCode),
+      code: appError.code,
+      statusCode: appError.statusCode,
       message: error.message,
-      context: { ...error.context, ...context },
-      cause: error.cause,
+      context: { ...appError.context, ...context },
+      cause: appError.cause,
       stack: error.stack,
       url: context?.url,
       method: context?.method,

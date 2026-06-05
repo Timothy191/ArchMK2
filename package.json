@@ -47,12 +47,15 @@
   "devDependencies": {
     "@commitlint/cli": "^21.0.1",
     "@commitlint/config-conventional": "^21.0.1",
+    "@eslint/js": "^10.0.1",
     "@modelcontextprotocol/sdk": "1.29.0",
+    "@nx/eslint-plugin": "^22.7.5",
     "@playwright/test": "^1.60.0",
     "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
     "@secretlint/secretlint-rule-preset-recommend": "13.0.2",
     "eslint": "catalog:",
+    "globals": "^17.6.0",
     "husky": "^9.1.7",
     "knip": "^5.45.0",
     "lint-staged": "^17.0.7",
@@ -62,7 +65,8 @@
     "prettier": "catalog:",
     "secretlint": "^13.0.2",
     "supabase": "catalog:",
-    "syncpack": "^13.0.4"
+    "syncpack": "^13.0.4",
+    "typescript-eslint": "^8.60.1"
   },
   "packageManager": "pnpm@9.15.9",
   "engines": {

@@ -5,7 +5,17 @@ import {
   type ColumnType,
 } from "kysely";
 import { Pool } from "pg";
-import { APIError } from "@repo/errors";
+
+// Simple APIError class for package-level use
+class APIError extends Error {
+  constructor(
+    message: string,
+    public statusCode: number = 500,
+  ) {
+    super(message);
+    this.name = "APIError";
+  }
+}
 
 // Mirror key tables from Database for type-safe complex queries.
 // Add more tables as needed — Kysely validates at compile time only.

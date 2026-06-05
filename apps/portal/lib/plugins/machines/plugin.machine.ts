@@ -2,7 +2,7 @@ import { setup, assign, fromPromise } from "xstate";
 import { ArchPlugin } from "../types";
 import { PluginContext, PluginEvent, isRetryableError } from "./types";
 import { logError } from "@/lib/errors/error-logger";
-import { ValidationError } from "@repo/errors";
+import { ValidationError } from "@/lib/errors/error-classes";
 
 // =============================================================================
 // Async Load Function

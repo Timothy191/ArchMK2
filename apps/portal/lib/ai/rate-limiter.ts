@@ -10,14 +10,80 @@
  */
 
 import { getRedisClient } from "@repo/redis";
-import {
-  RedisStore,
-  MemoryStore,
-  TokenBucketStrategy,
-} from "@repo/rate-limiter";
 
 const WINDOW_MS = 60_000;
 const MAX_REQUESTS = 30;
+
+// Simple in-memory store for rate limiting
+class MemoryStore {
+  private counters = new Map<string, { count: number; resetTime: number }>();
+
+  async increment(key: string, windowMs: number): Promise<{ count: number; resetTime: number }> {
+    const now = Date.now();
+    const entry = this.counters.get(key);
+
+    if (!entry || now > entry.resetTime) {
+      const newEntry = { count: 1, resetTime: now + windowMs };
+      this.counters.set(key, newEntry);
+      return newEntry;
+    }
+
+    entry.count++;
+    return entry;
+  }
+
+  async get(key: string): Promise<{ count: number; resetTime: number } | undefined> {
+    return this.counters.get(key);
+  }
+
+  clear(): void {
+    this.counters.clear();
+  }
+}
+
+// Simple Redis store for rate limiting
+class RedisStore {
+  constructor(private redis: Awaited<ReturnType<typeof getRedisClient>>) {}
+
+  async increment(key: string, windowMs: number): Promise<{ count: number; resetTime: number }> {
+    const now = Date.now();
+    const resetTime = now + windowMs;
+
+    const result = await this.redis.incr(key);
+    if (result === 1) {
+      await this.redis.expire(key, Math.ceil(windowMs / 1000));
+    }
+
+    return { count: result, resetTime };
+  }
+
+  async get(key: string): Promise<{ count: number; resetTime: number } | undefined> {
+    const count = await this.redis.get(key);
+    if (!count) return undefined;
+    return { count: parseInt(count, 10), resetTime: Date.now() + 60000 };
+  }
+}
+
+// Token bucket strategy
+class TokenBucketStrategy {
+  async check(
+    key: string,
+    limit: number,
+    windowMs: number,
+    store: MemoryStore | RedisStore,
+  ): Promise<{ allowed: boolean; limit: number; remaining: number; resetTime: number }> {
+    const result = await store.increment(key, windowMs);
+    const allowed = result.count <= limit;
+    const remaining = Math.max(0, limit - result.count);
+
+    return {
+      allowed,
+      limit,
+      remaining,
+      resetTime: result.resetTime,
+    };
+  }
+}
 
 const globalMemoryStore = new MemoryStore();
 let globalRedisStore: RedisStore | null = null;

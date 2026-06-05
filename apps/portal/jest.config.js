@@ -24,15 +24,10 @@ module.exports = {
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/$1",
     "^~/(.*)$": "<rootDir>/$1",
-    "^@repo/errors$": "<rootDir>/../../packages/errors/src/index.ts",
-    "^@repo/errors/(.*)$": "<rootDir>/../../packages/errors/src/$1",
     "^@repo/supabase/(.*)$": "<rootDir>/../../packages/supabase/src/$1",
     "^@repo/supabase$": "<rootDir>/../../packages/supabase/src/index.ts",
     "^@repo/redis$": "<rootDir>/../../packages/redis/src/index.ts",
     "^@repo/redis/(.*)$": "<rootDir>/../../packages/redis/src/$1",
-    "^@repo/rate-limiter$":
-      "<rootDir>/../../packages/rate-limiter/src/index.ts",
-    "^@repo/rate-limiter/(.*)$": "<rootDir>/../../packages/rate-limiter/src/$1",
     "^@repo/theme$": "<rootDir>/../../packages/theme/src/index.ts",
     "^@repo/theme/(.*)$": "<rootDir>/../../packages/theme/src/$1",
     "^@repo/ui/lib/(.*)$": "<rootDir>/../../packages/ui/src/lib/$1",

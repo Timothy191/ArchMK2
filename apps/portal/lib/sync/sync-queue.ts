@@ -3,7 +3,7 @@
  * Powered by persistent IndexedDB with zero third-party dependencies.
  */
 
-import { DatabaseError } from "@repo/errors";
+import { DatabaseError } from "@/lib/errors/error-classes";
 import { logError } from "@/lib/errors/error-logger";
 
 export interface QueuedAction<T = unknown> {

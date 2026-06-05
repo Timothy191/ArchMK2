@@ -81,7 +81,7 @@ describe("PluginOrchestrator.executeEngine", () => {
   it("throws NotFoundError for unknown plugin", async () => {
     jest.resetModules();
     const { pluginOrchestrator } = await import("./orchestrator");
-    const { NotFoundError } = await import("@repo/errors");
+    const { NotFoundError } = await import("@/lib/errors/error-classes");
 
     await expect(
       pluginOrchestrator.executeEngine("nonexistent-plugin"),
@@ -161,7 +161,7 @@ describe("PluginOrchestrator.executeEngine – success", () => {
   it("wraps engine runtime error in APIError", async () => {
     jest.resetModules();
     const { pluginOrchestrator } = await import("./orchestrator");
-    const { APIError } = await import("@repo/errors");
+    const { APIError } = await import("@/lib/errors/error-classes");
     await pluginOrchestrator.loadAllPlugins();
 
     const mockEngine = {

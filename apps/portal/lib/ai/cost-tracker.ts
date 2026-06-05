@@ -8,7 +8,7 @@
  */
 
 import { createServerSupabaseClient } from "@repo/supabase/server";
-import { DatabaseError } from "@repo/errors";
+import { DatabaseError } from "@/lib/errors/error-classes";
 import { logError } from "@/lib/errors/error-logger";
 
 export interface TokenUsage {

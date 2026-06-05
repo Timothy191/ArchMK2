@@ -7,7 +7,7 @@ import {
   directCheckout,
   softDeleteBreakdown,
 } from "./actions";
-import { AuthError, DatabaseError } from "@repo/errors";
+import { AuthError, DatabaseError } from "@/lib/errors/error-classes";
 
 // ---------------------------------------------------------------------------
 // Mocks

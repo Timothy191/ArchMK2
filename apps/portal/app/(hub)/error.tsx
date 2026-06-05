@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { SecondaryButton } from "@repo/ui/SecondaryButton";
-import { isAppError, isNotFoundError } from "@repo/errors";
+import { isAppError, isNotFoundError } from "@/lib/errors/error-classes";
 import { logError } from "@/lib/errors/error-logger";
 
 interface HubErrorProps {

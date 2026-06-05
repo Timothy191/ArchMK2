@@ -1,5 +1,5 @@
 import { ollamaEmbed } from "./ollama";
-import { APIError } from "@repo/errors";
+import { APIError } from "@/lib/errors/error-classes";
 import { logError } from "@/lib/errors/error-logger";
 import { createServerSupabaseClient } from "@repo/supabase/server";
 import crypto from "crypto";

@@ -1,5 +1,4 @@
 import type { Fill, Font, Borders } from "exceljs";
-import { ValidationError } from "@repo/errors";
 
 type Primitive = string | number | boolean | Date | null | undefined;
 
@@ -209,7 +208,7 @@ export async function parseExcel(file: File): Promise<any[]> {
         await workbook.xlsx.load(buffer);
 
         const worksheet = workbook.worksheets[0];
-        if (!worksheet) throw new ValidationError("No worksheet found");
+        if (!worksheet) throw new Error("No worksheet found");
 
         const jsonData: any[] = [];
         let headers: string[] = [];

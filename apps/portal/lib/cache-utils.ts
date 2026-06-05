@@ -5,7 +5,7 @@ import {
   CACHE_TTL_REGISTRY,
   buildCacheKey,
 } from "@repo/redis";
-import { DatabaseError } from "@repo/errors";
+import { DatabaseError } from "@/lib/errors/error-classes";
 
 interface WithCacheOptions {
   category: CacheCategory;

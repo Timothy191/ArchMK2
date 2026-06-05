@@ -4,7 +4,7 @@
  * https://open-meteo.com/
  */
 
-import { APIError } from "@repo/errors";
+import { APIError } from "@/lib/errors/error-classes";
 
 export interface WeatherData {
   temperature: number;

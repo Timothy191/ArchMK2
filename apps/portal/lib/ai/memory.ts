@@ -1,6 +1,6 @@
 import { createServerSupabaseClient } from "@repo/supabase/server";
 import { generateEmbedding, batchGenerateEmbeddings } from "./embeddings";
-import { DatabaseError } from "@repo/errors";
+import { DatabaseError } from "@/lib/errors/error-classes";
 import { logError } from "@/lib/errors/error-logger";
 import { withCache } from "@/lib/cache-utils";
 import { CacheCategory } from "@repo/redis";

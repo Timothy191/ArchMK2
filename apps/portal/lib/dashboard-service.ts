@@ -2,7 +2,7 @@
 
 import { createServerSupabaseClient } from "@repo/supabase/server";
 import { cacheWrap } from "@repo/redis";
-import { AuthError, DatabaseError } from "@repo/errors";
+import { AuthError, DatabaseError } from "@/lib/errors/error-classes";
 import { withSpan } from "@repo/supabase";
 import { logError } from "@/lib/errors/error-logger";
 
