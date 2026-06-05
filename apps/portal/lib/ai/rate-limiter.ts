@@ -43,7 +43,7 @@ class MemoryStore {
 
 // Simple Redis store for rate limiting
 class RedisStore {
-  constructor(private redis: Awaited<ReturnType<typeof getRedisClient>>) {}
+  constructor(private _redis: Awaited<ReturnType<typeof getRedisClient>>) {}
 
   async increment(key: string, windowMs: number): Promise<{ count: number; resetTime: number }> {
     const now = Date.now();

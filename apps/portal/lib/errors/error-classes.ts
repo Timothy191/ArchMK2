@@ -1,6 +1,7 @@
 /**
  * Simple error classes to replace @repo/errors package
  */
+/* eslint-disable no-unused-vars */
 
 export class AppError extends Error {
   constructor(

@@ -42,6 +42,14 @@ jest.mock("@repo/redis", () => {
     del: jest.fn(async (key: string) => {
       mockCache.delete(key);
     }),
+    incr: jest.fn(async (key: string) => {
+      const val = parseInt(mockCache.get(key) || "0", 10) + 1;
+      mockCache.set(key, val.toString());
+      return val;
+    }),
+    expire: jest.fn(async (_key: string, _seconds: number) => {
+      return true;
+    }),
     isOpen: true,
   };
   return {
@@ -60,6 +68,14 @@ jest.mock("../../packages/redis/src/client", () => {
     }),
     del: jest.fn(async (key: string) => {
       mockCache.delete(key);
+    }),
+    incr: jest.fn(async (key: string) => {
+      const val = parseInt(mockCache.get(key) || "0", 10) + 1;
+      mockCache.set(key, val.toString());
+      return val;
+    }),
+    expire: jest.fn(async (_key: string, _seconds: number) => {
+      return true;
     }),
     isOpen: true,
   };
