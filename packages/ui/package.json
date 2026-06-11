@@ -22,7 +22,7 @@
     "@types/react-dom": "catalog:react19",
     "autoprefixer": "^10.4.20",
     "next": "^16.2.6",
-    "postcss": "^8.4.47",
+    "postcss": "^8.5.15",
     "postcss-load-config": "^6",
     "react": "catalog:react19",
     "react-dom": "catalog:react19",
